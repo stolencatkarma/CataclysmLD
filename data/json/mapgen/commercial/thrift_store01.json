@@ -1,0 +1,64 @@
+{
+  "group": "small commercial",
+  "overmap_terrain": "commercial",
+  "fill_terrain": "t_floor",
+  "comment": "basic commercial building",
+  "floors": {
+    "0": [
+      "PPPPPPPPPPPPP",
+      "PWIWWWWWIWWWP",
+      "PW   W     WP",
+      "PI   M     IP",
+      "PWWWMW     WP",
+      "PW         WP",
+      "PW         WP",
+      "PI         IP",
+      "PW         WP",
+      "PW         WP",
+      "PWWWILIWWWWWP",
+      "PPPPPPPPPPPPP"
+    ]
+  },
+  "terrain": {
+    "T": "t_tree_apple",
+    "S": "t_shrub",
+    "L": "t_door_locked",
+    "M": "t_door_o",
+    "W": "t_wall",
+    "P": "t_sidewalk",
+    "I": "t_window_boarded",
+    "<": "t_stairs_up",
+    ">": "t_stairs_down",
+    "R": "t_flat_roof",
+    ".": "t_open_air"
+  },
+  "furniture": {
+    "a": "f_trashcan",
+    "b": "f_bed",
+    "c": "f_counter",
+    "d": "f_dresser",
+    "e": "f_bathtub",
+    "f": "f_fridge",
+    "g": "f_oven",
+    "h": "f_chair",
+    "i": "f_fireplace",
+    "j": "f_sink",
+    "k": "f_desk",
+    "n": "f_table",
+    "o": "f_bookcase",
+    "r": "f_rack",
+    "s": "f_sofa",
+    "t": "f_toilet",
+    "u": "f_cupboard"
+  },
+  "traps":{
+    "1" : "tr_beartrap"
+  },
+  "place_loot": [
+    { "comment": "attempts to place loot randomly from groups of items." },
+    { "group": "cleaning", "x": 2, "y": 13, "chance": 95 }
+  ],
+  "place_monsters": [
+    { "comment": "attempts to place monsters randomly from monster groups." }
+  ]
+}

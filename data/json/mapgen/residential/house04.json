@@ -1,0 +1,113 @@
+{
+  "group": "small residential",
+  "overmap_terrain": "residential",
+  "fill_terrain": "t_floor",
+  "comment": "multi-story house - fill_terrain is the base terrain for ' ' (empty space) groups are 'small residential', 'medium residential', 'large residential', 'small, medium, large commercial', 'small, medium, large industrial'",
+  "comment2": "overmap_terrian can be residential, commerical, industrial or a point of interest like police and fire or govt buildings which override general RCI.",
+  "comment3": "items will be generated from loot tables depending on the furniture.",
+  "floors": {
+    "1": [
+      ".............",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      ".RRRRRRRRRR..",
+      "............."
+    ],
+    "0": [
+      "GGGGGGGGGGGGG",
+      "GWIWWWWWIWWGG",
+      "GWt eWfbbdWGG",
+      "GIj  M bb IGG",
+      "GWWWMWMWWWWGG",
+      "GW>      uWGG",
+      "GWss  hh cWGG",
+      "GIs   nn jIGG",
+      "GW    hh fWGG",
+      "GWok     gWGG",
+      "GWWWILIWWWWGG",
+      "GGGGGPGGGGGGG"
+    ],
+    "-1": [
+      "             ",
+      " WWWWWWWWWWW ",
+      " W         W ",
+      " W         W ",
+      " W         W ",
+      " W<       uW ",
+      " W        cW ",
+      " W        jW ",
+      " W        fW ",
+      " W        gW ",
+      " WWWWWWWWWWW ",
+      "             "
+      ]
+  },
+  "terrain": {
+    "T": "t_tree_apple",
+    "S": "t_shrub",
+    "L": "t_door_locked",
+    "W": "t_wall",
+    "G": "t_grass",
+    "I": "t_window_domestic",
+    "<": "t_stairs_up",
+    ">": "t_stairs_down",
+    "R": "t_flat_roof",
+    "P": "t_pavement",
+    ".": "t_open_air"
+  },
+  "furniture": {
+    "a": "f_trashcan",
+    "b": "f_bed",
+    "c": "f_counter",
+    "d": "f_dresser",
+    "e": "f_bathtub",
+    "f": "f_fridge",
+    "g": "f_oven",
+    "h": "f_chair",
+    "i": "f_fireplace",
+    "j": "f_sink",
+    "k": "f_desk",
+    "n": "f_table",
+    "o": "f_bookcase",
+    "r": "f_rack",
+    "s": "f_sofa",
+    "t": "f_toilet",
+    "u": "f_cupboard"
+  },
+  "traps":{
+    "1" : "tr_beartrap"
+  },
+  "place_loot": [
+    { "comment": "attempts to place loot randomly from groups of items." },
+    { "group": "bed", "x": 13, "y": 20, "z": 0, "chance": 95 },
+    { "group": "bedroom", "x": 6, "y": 13, "z": 0, "chance": 85 },
+    { "group": "livingroom", "x": 1, "y": 2, "z": 0, "chance": 75 },
+    { "group": "guns_survival", "x": 12, "y": 21, "z": 0, "chance": 10 },
+    { "group": "dresser", "x": 21, "y": 21, "z": 0, "chance": 90 },
+    { "group": "kitchen", "x": 6, "y": 5, "z": 0, "chance": 90 },
+    { "group": "cannedfood", "x": 11, "y": 13, "z": 0, "chance": 50 },
+    { "group": "tools_common", "x": 14, "y": 11, "z": 0, "chance": 45 },
+    { "group": "supplies_fuel", "x": 14, "y": 3, "z": 0, "chance": 90 },
+    { "group": "mischw", "x": 14, "y": 11, "z": 0, "chance": 65 },
+    { "group": "tools_gunsmith", "x": 17, "y": 11, "z": 0, "chance": 5 },
+    { "group": "ammo_parts", "x": 21, "y": 6, "z": 0, "chance": 5 },
+    { "group": "ammo_casings", "x": 21, "y": 6, "z": 0, "chance": 5 },
+    { "group": "gunmod_common", "x": 21, "y": 6, "z": 0, "chance": 10 },
+    { "group": "guns_survival", "x": 15, "y": 8, "z": 0, "chance": 20 },
+    { "group": "fridge", "x": 4, "y": 11, "z": 0, "chance": 55 },
+    { "group": "oven", "x": 3, "y": 11, "z": 0, "chance": 15 },
+    { "group": "softdrugs", "x": 2, "y": 13, "z": 0, "chance": 55 },
+    { "group": "cleaning", "x": 2, "y": 13, "z": 0, "chance": 95 }
+  ],
+  "place_monsters": [
+    { "comment": "attempts to place monsters randomly from monster groups." },
+    { "group": "GROUP_PREPPER_HOUSE", "x": 2, "y": 2, "z": 0, "chance": 15 }
+  ]
+}
