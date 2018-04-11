@@ -40,7 +40,7 @@ class Editor:
         self.comment = 'put a comment here'
         self.comment2 = 'put another comment here'
         self.comment3 = 'put one more comment here'
-        self.fill_terrain = 't_dirt'
+        self.fill_terrain = 't_floor'
         self.building_layout = defaultdict(dict)
         self.chunk_width = 1
         self.chunk_size = 13
@@ -61,18 +61,21 @@ class Editor:
                 continue
             #print(k, item)
             self.listboxes[0].item_list.insert(len(self.listboxes[0].item_list), Listbox_item(k, self.FontManager.convert_string_to_surface(k), item))
+        self.listboxes[0].item_list.sort(key=lambda x: x.text)
 
         self.listboxes.insert(1, ListBox(self.screen, (120,120,120), (pygame.display.Info().current_w-240,0,120,240)))
         for k, item in self.FurnitureManager.FURNITURE_TYPES.items():
             if(k.split('_')[0] != 'f'): #only load terrain here
                 continue
             self.listboxes[1].item_list.insert(len(self.listboxes[1].item_list), Listbox_item(k, self.FontManager.convert_string_to_surface(k), item))
+        self.listboxes[1].item_list.sort(key=lambda x: x.text)
 
         self.listboxes.insert(2, ListBox(self.screen, (120,120,120), (pygame.display.Info().current_w-120,0,120,240)))
         for k, item in self.ItemManager.ITEM_TYPES.items():
             print(k.split('_'))
             #print(k, item)
             self.listboxes[2].item_list.insert(len(self.listboxes[2].item_list), Listbox_item(k, self.FontManager.convert_string_to_surface(k), item))
+        self.listboxes[2].item_list.sort(key=lambda x: x.text)
 
 
         ## selected stuff. left click listboxes to set
@@ -321,13 +324,14 @@ if __name__ == "__main__": # if we start directly
                     if pos[1] >= 0 and pos[1] <= editor.chunk_size*editor.chunk_width*24:
                         print('clicked tile: ' + str(int(pos[0]/24)) + ', ' + str(int(pos[1]/24)))
                         if(event.button == 1):
-                            if(editor.selected_furniture is not None):
+                            if(editor.selected_item is not None):
+                                editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['items'].append(Item(editor.selected_item))
+                            elif(editor.selected_furniture is not None):
                                 editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['terrain'] = Terrain(editor.fill_terrain) # can only place furniture on fill_terrain otherwise the chars would overwrite each other.
                                 editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['furniture'] = Furniture(editor.selected_furniture)
                             elif(editor.selected_terrain is not None):
                                 editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['terrain'] = Terrain(editor.selected_terrain)
-                            if(editor.selected_item is not None):
-                                editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['items'].append(Item(editor.selected_item))
+                                editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['furniture'] = None
                         elif(event.button == 3):
                             editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['items'] = []
                             editor.building_layout[int(pos[0]/24)][int(pos[1]/24)][editor.curFloor]['furniture'] = None

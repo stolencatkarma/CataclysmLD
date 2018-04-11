@@ -1,6 +1,6 @@
+import json
 from collections import defaultdict
 import pygame
-import json
 
 # tile.py
 class Terrain:
@@ -39,7 +39,7 @@ class TileManager: # holds all the tile types from tile_config.json as well as t
             data = json.load(data_file)
         for tiles in data['tiles-new']:
             for tile in tiles['tiles']:
-                if(not 'bg' in tile.keys()): # some entries dont' contain a bg, use 0 for default. (which is blank)
+                if(not 'bg' in tile.keys()): # some entries don't contain a bg, fixing this.
                     tile['bg'] = None
                 if(not 'fg' in tile.keys()):
                     tile['fg'] = None
@@ -93,6 +93,7 @@ class TileManager: # holds all the tile types from tile_config.json as well as t
             if(not 'deconstruct' in terrain.keys()):
                 terrain['deconstruct'] = None
             self.TILE_TYPES[terrain['ident']]['deconstruct'] = terrain['deconstruct']
+        
 
         # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
         # keys_we_care_about = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
