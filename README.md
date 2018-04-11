@@ -1,24 +1,31 @@
 Cataclysm: Looming Darkness
+===
 
-A multiplayer reimagining of Cataclysm Dark Days Ahead
+A multiplayer reimagining of Cataclysm Dark Days Ahead.
 
-currently only the WYSIWYG building editor has been released.
+Currently only the WYSIWYG building editor has been released.
 
-made with python 3.6 and pygame using Mastermind for the TCP backend.
+----
 
-the current release date for Chapter 1 is May 13th and will include the base game and level 1 difficulty areas and monsters.
+Made with python 3.6 and pygame using Mastermind for the TCP backend.
 
-you can follow along on discord at https://discord.gg/EqNQ784
+The current release date for Chapter 1 is May 13th and will include the base game and level 1 difficulty areas and monsters.
 
-generic installation instructions
+You can follow along on discord at https://discord.gg/EqNQ784.
 
-install python 3.6
-install pip
-pip install pygame
-python ./WYSIWYG.py
+Generic installation instructions
+---
 
-left clicking a tile will apply the terrain or furniture at the location.
-right clicking a tile will clear the tile and set it to fill terrain.
-scroll wheel (mouse buttons 4 & 5) scrolls the terrain, furniture, and item list.
+* install python 3.6
+* install pip
+* `pip install pygame`
+* `python ./WYSIWYG.py`
 
-exports and imports work but only for a single file called buildingeditortest.json in the root directory.
+Usage
+---
+
+* Left clicking a tile will apply the terrain or furniture at the location.
+* Right clicking a tile will clear the tile and set it to fill terrain.
+* Scroll wheel (mouse buttons 4 & 5) scrolls the terrain, furniture, and item list.
+
+Exports and imports work but only for a single file called `buildingeditortest.json` in the root directory.
