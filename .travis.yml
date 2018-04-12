@@ -4,3 +4,5 @@ python:
 # command to install dependencies
 install:
   - pip install pygame
+script:
+  - python ./unittests.py
