@@ -14,7 +14,7 @@ from user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, FontM
 
 class Unittest:
     def __init__(self):
-        self.TileManager = TileManager()
+        #self.TileManager = TileManager()
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
         self.FurnitureManager = FurnitureManager()
