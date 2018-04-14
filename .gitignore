@@ -1,0 +1,4 @@
+# ignore all chunks
+*.chunk
+# ignore all pyc files
+*.pyc
