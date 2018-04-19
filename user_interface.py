@@ -9,9 +9,41 @@ class Menu_item:
 
 class Popup_menu:
     # needs popup menus in popup menus
-    def __init__(self):
+    def __init__(self, screen):
+        self.screen = screen
         menu_items = []
         return
+
+class Super_menu(Popup_menu):
+    # needs popup menus in popup menus
+    def __init__(self, screen, tile):
+        Popup_menu.__init__(self, screen) # inherits from Popup_menu
+
+        # needs a worldmap tile reference to parse.
+        print('------------ SUPER MENU ------------')
+        for key, value in tile.items():
+            print(key, value)
+        # terrain
+        # creature
+        # items []
+        # furniture
+        # vehicle
+        # trap
+        # bullet
+        # lumens
+
+        print('---------- END SUPER MENU ----------')
+
+class DirectionalChoice:
+    # the image that pops up when a direction is required.
+    # we should loop until we get a direction.
+    def __init__(self, screen, x=0, y=0):
+        # popup the png and wait for a click.
+        self.screen = screen
+        self.x = x
+        self.y = y
+        self.surface = pygame.image.load('direction.png') #.convert_alpha()
+        #self.screen.blit(self.surface, (self.x, self.y))
 
 class Hotbar: # contains a list of Item() that the player has and shows up on the screen
     def __init__(self, screen, x=0, y=0):
@@ -25,7 +57,7 @@ class Hotbar: # contains a list of Item() that the player has and shows up on th
         self.hotbar_item_background = pygame.image.load('hotbar_item_background.png').convert_alpha()
 
     def add(self, item, surface):
-        # we'll need a refernce to the .png (surface) when we add an item otherwise we'd have to pass the whole list for each hotbar.
+        # we'll need a reference to the .png (surface) when we add an item otherwise we'd have to pass the whole list for each hotbar.
         item.surface = surface
         self.item_list.append(item)
 
@@ -133,8 +165,8 @@ class ListBox:
                 return
         elif(str(button) == str(1)):
             items_per_page = int(self.height/12)
+            #TODO: do nothing instead of error when you click a spot with no item.
             return self.item_list[self.page*items_per_page+item_clicked]
-
 
 class Listbox_item:
     def __init__(self, text, surface_text, reference_object):
@@ -156,7 +188,8 @@ class TextBox:
 
     def draw(self):
         pygame.draw.rect(self.screen, self.color, self.rect)
-        self.screen.blit(self.surface_text, (self.x + 4, 2 + self.y))
+        #print(self.x, self.y)
+        self.screen.blit(self.surface_text, (self.x, self.y))
 
 class FontManager:
     def __init__(self):
@@ -166,12 +199,8 @@ class FontManager:
 
     def load_font_table(self, filename, width, height):
         print('loading font table: ' + str(filename))
-        #print(width)
-        #print(height)
         image = pygame.image.load(filename).convert_alpha()
         image_width, image_height = image.get_size()
-        #print(str(image_width))
-        #print(str(image_height))
 
         tile_table = []
         for tile_y in range(0, int(image_height/height)):
@@ -202,7 +231,7 @@ class FontManager:
                 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6',
                 '7', '8', '9', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '=', '_', '+', '[', ']', '{',
-                '}', ':', ';', ' ']
+                '}', ':', ';', ',', ' ']
         count = 0
         surface = pygame.Surface((self.tilemapPx*len(string), self.tilemapPy))
         surface.fill((255,255,255,255))
@@ -226,18 +255,41 @@ class Crafting_Menu:
     # required tool tags
     # required tools
     # time to complete
+    # if player chooses one to craft make a blueprint with the recipe. the blueprint is a container that needs to be filled with the required items.
+    # any player may dump items into the blueprint and any player can work on the blueprint as a team or solo provided there is enough room around it to work.
 
-    def __init__(self, screen, list_of_known_recipes, rect):
+    def __init__(self, screen, list_of_known_recipes, rect, ref_FontManager):
         self.rect = rect
         self.x = rect[0]
         self.y = rect[1]
         self.width = rect[2]
         self.height = rect[3]
         self.screen = screen
+        # Sidebar stuff
+        self.sidebar = {}
+        self.sidebar['result'] = ''
+        self.sidebar['skill_used'] = ''
+        self.sidebar['difficulty'] = 0
+        self.sidebar['time'] = 0
+        self.sidebar['learned_from'] = ''
+        self.sidebar['required_tool_tag'] = []
+        self.sidebar['tools'] = []
+        self.sidebar['components'] = []
+        '''
+        result: halberd
+        skill_used: fabrication
+        difficulty: 7
+        time: 360000
+        learned_from: [['textbook_weapwest', 6]]
+        required_tool_tag: ['HAMMER', 'CHISEL']
+        tools: [[['TONGS', -1]], [['ANVIL', -1]], [['swage', -1]], [['FORGE', 350], ['OXY_TORCH', 70]]]
+        components: [[['steel_lump', 3], ['steel_chunk', 12], ['scrap', 36]], [['2x4', 4], ['stick', 8]], [['fur', 2], ['leather', 2]]]
+        '''
         # build the menu
 
         self.UI_components = []
-        self.UI_components.append(TextBox(self.screen, (0, 0, 200), (0, 0, self.width, 24), 'Crafting Menu'))
+        _surface = ref_FontManager.convert_string_to_surface('Crafting Menu')
+        self.UI_components.append(TextBox(self.screen, (0, 0, 200), (0, 0, self.width, 24), _surface))
         # get the list of skills used in the list of known recipes.
         unique_skill_used = []
         # parse the list and fill our internal lists with the items contained
@@ -252,34 +304,33 @@ class Crafting_Menu:
         #print('button_width: ' +str(button_width))
         count = 0
         for unique_skill in unique_skill_used:
-            self.UI_components.append(Button(self.screen, unique_skill, (0,150,150), ((self.x + button_width)*count, 24, button_width, 48)))
-            count = count+1
+            # screen, surface_text, color, rect, command
+            _surface = ref_FontManager.convert_string_to_surface(unique_skill)
+            self.UI_components.append(Button(self.screen, _surface, (0,150,150), ((self.x + button_width)*count, 24, button_width, 48), 'skill_' + str(unique_skill)))
+            count = count + 1
+
         # now add the listboxes
-        lb1 = ListBox(self.screen, (0,0,0), (0,72,150,self.height-72))
-
-
-        self.UI_components.append(ListBox(self.screen, (0,0,0), (125,72,150,self.height-72)))
-        self.UI_components.append(ListBox(self.screen, (0,0,0), (250,72,150,self.height-72)))
+        listbox_width = int((self.width-288)/3)
+        lb1 = ListBox(self.screen, (0,0,0), (0,72,listbox_width,self.height-72))
+        lb2 = ListBox(self.screen, (0,0,0), (listbox_width,72,listbox_width,self.height-72))
+        lb3 = ListBox(self.screen, (0,0,0), (listbox_width*2,72,listbox_width,self.height-72))
         # and populate them
         for recipe in list_of_known_recipes:
-            item_to_add = Listbox_item(recipe['result'], recipe)
-            if(len(lb1.item_list) < int(lb1.height/14)):
+            _surface = ref_FontManager.convert_string_to_surface(recipe['result'])
+            item_to_add = Listbox_item(recipe['result'], _surface, recipe)
+            if(len(lb1.item_list) < int(lb1.height/12)):
                 lb1.add(item_to_add)
-            #TODO: fill the other two listboxes if this one is full.
-
+            elif(len(lb2.item_list) < int(lb2.height/12)):
+                lb2.add(item_to_add)
+            elif(len(lb3.item_list) < int(lb3.height/12)):
+                lb3.add(item_to_add)
         self.UI_components.append(lb1)
+        self.UI_components.append(lb2)
+        self.UI_components.append(lb3)
+
         # now add the Sidebar
-        self.UI_components.append(TextBox(self.screen, (0,0,200), (375, 72, self.width-375, self.height-72), 'Sidebar'))
-
-
-    def on_clicked(self, button, click_pos_x, click_pos_y):
-        pass
-
-    def close(self):
-        pass
-
-    def open(self):
-        # needs a list of recipes the player knows. should store that in player.known_recipes
-        # parse the list keeping favorites at the top and un-craftable at the bottom.
-        # build this menu from UI components
-        pass
+        _surface = ref_FontManager.convert_string_to_surface('Sidebar')
+        self.UI_components.append(TextBox(self.screen, (0,0,200), (self.width-288, 72, self.width, self.height-72), _surface))
+        # now add the crafting button
+        _surface = ref_FontManager.convert_string_to_surface('craft')
+        self.UI_components.append(Button(self.screen, _surface, (0,150,150), ((self.width-100), self.height-48, 100, 48), 'craft'))
