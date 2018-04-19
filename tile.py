@@ -53,7 +53,7 @@ class TileManager: # holds all the tile types from tile_config.json as well as t
                     # tile['additional_tiles']))
                 except:
                     pass
-        with open('./data/json/terrain.json') as data_file: # load tile config so we know what tile foes with what ident
+        with open('./data/json/terrain.json') as data_file: # load tile config so we know what tile goes with what ident
             data = json.load(data_file)
         for terrain in data:
             #pprint(terrain)
@@ -93,10 +93,9 @@ class TileManager: # holds all the tile types from tile_config.json as well as t
             if(not 'deconstruct' in terrain.keys()):
                 terrain['deconstruct'] = None
             self.TILE_TYPES[terrain['ident']]['deconstruct'] = terrain['deconstruct']
-        
+
 
         # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
-        # keys_we_care_about = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
-        print('Terrain types: ' + str(len(data)))
+        # keys_we_care_about = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
 
         print('total TILE_TYPES loaded: ' + str(len(self.TILE_TYPES)))
