@@ -359,7 +359,22 @@
             {"item": "splinter", "count": [7, 9]},
             {"item": "nail", "charges": [5, 10]}
         ]
-    },{
+    },
+    {
+        "type":"vehicle_part",
+        "ident" : "sheet_metal",
+        "name" : "sheet metal",
+        "description" : "A thin sheet of metal.",
+        "weight" : 1000,
+        "color" : "light_cyan",
+        "symbol" : "]",
+        "material" : "steel",
+        "volume" : 4,
+        "bashing" : 5,
+        "category" : "veh_parts",
+        "price" : 6000
+    },
+    {
         "type" : "vehicle_part",
         "ident" : "trunk_floor",
         "name" : "floor trunk",
@@ -1117,9 +1132,8 @@
         "breaks_into": []
     },{
         "type" : "vehicle_part",
-        "id"   : "aisle_curtain",
+        "ident"   : "aisle_curtain",
         "name" : "aisle curtain",
-        "symbol": "\"",
         "color": "dark_gray",
         "broken_symbol": "0",
         "broken_color": "light_gray",
