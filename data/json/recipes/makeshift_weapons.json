@@ -1,0 +1,112 @@
+[
+{
+  "result" : "makeshift_machete",
+  "type_of" : "Item",
+  "skill_used": "fabrication",
+  "time": 60,
+  "reversible": true,
+  "autolearn": true,
+  "components": [
+    {
+      "ident": "duct_tape",
+      "amount": 50
+    },
+    {
+      "ident": "blade",
+      "amount": 1
+    }
+  ]
+},
+{
+  "result" : "makeshift_halberd",
+  "type_of" : "Item",
+  "skill_used": "fabrication",
+  "time": 60,
+  "reversible": true,
+  "autolearn": true,
+  "components": [
+    {
+      "ident": "duct_tape",
+      "amount": 50
+    },
+    {
+      "ident": "blade",
+      "amount": 1
+    },
+    [
+      {
+        "ident": "stick",
+        "amount": 1
+      },
+      {
+        "ident": "2x4",
+        "amount": 1
+      },
+      {
+        "ident": "broom",
+        "amount": 1
+      }
+    ]
+  ]
+},
+{
+  "result" : "makeshift_knife",
+  "type_of" : "Item",
+  "skill_used": "fabrication",
+  "time": 60,
+  "reversible": true,
+  "autolearn": true,
+  "components": [
+    [
+      {
+        "ident": "rag",
+        "amount": 1
+      },
+      {
+        "ident": "duct_tape",
+        "amount": 50
+      },
+      {
+        "ident": "cordage_short",
+        "amount": 2
+      },
+      {
+        "ident": "filament",
+        "amount": 100
+      }
+    ],
+    {
+      "ident": "spike",
+      "amount": 1
+    }
+  ]
+},
+{
+  "result" : "pointy_stick",
+  "type_of" : "Item",
+  "skill_used": "fabrication",
+  "time": 120,
+  "autolearn": true,
+  "required_tool_tag" : "CUT",
+  "components": [
+    [
+      {
+        "ident": "stick",
+        "amount": 1
+      },
+      {
+        "ident": "broom",
+        "amount": 1
+      },
+      {
+        "ident": "2x4",
+        "amount": 1
+      },
+      {
+        "ident": "pool_cue",
+        "amount": 1
+      }
+    ]
+  ]
+}
+]
