@@ -54026,7 +54026,14 @@
           "fg": 6390,
           "bg": 0,
           "rotates": false
+        },
+        {
+          "ident": "Blueprint",
+          "fg": 4192,
+          "bg": 0,
+          "rotates": false
         }
+
       ]
     }
   ]
