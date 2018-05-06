@@ -1,0 +1,40 @@
+creature
+- attack
+- attack (repeat)
+- talk
+- use skill
+
+items on ground
+- open item management menu
+
+furniture
+- smash
+- drag
+- use
+
+blueprint
+- fill/take items menu
+- examine
+- work on
+
+terrain
+- examine
+- smash
+- construct
+
+self
+- open item management
+- open status screen
+- open crafting menu
+
+movement
+- move to
+
+vehicle
+- if not in
+ - get in
+ - get on
+ - open vehicle management screen
+- if in
+ - drive
+ - switch seats

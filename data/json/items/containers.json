@@ -10,7 +10,7 @@
     "material": "plastic",
     "has_cap": true,
     "watertight": true,
-    "wearable_locations": [ "TORSO" ]
+    "wearable_location": "TORSO"
   },
   {
     "ident": "backpack",
@@ -23,6 +23,6 @@
     "material": "leather",
     "has_cap": true,
     "watertight": false,
-    "wearable_locations": [ "TORSO" ]
+    "wearable_location": "TORSO"
   }
 ]

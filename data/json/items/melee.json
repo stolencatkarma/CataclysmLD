@@ -1,6 +1,6 @@
 [
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "mjolnir",
         "name" : "Mjölnir",
         "description" : "A large hammer, forged from the heart of a dying star.  It bears the inscription:\n \nWhosoever holds this hammer,\nIf he be worthy,\nShall possess the power to...\nCRUSH!!'",
@@ -16,7 +16,7 @@
         "required_tool_tag" : [["HAMMER", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "stick",
         "symbol": "/",
         "color": "brown",
@@ -30,7 +30,7 @@
         "to_hit": -2
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "spear_rebar",
         "symbol": "/",
         "color": "dark_gray",
@@ -66,7 +66,7 @@
         "category" : "weapons"
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "cudgel",
         "name" : "cudgel",
         "description" : "A slender long rod of wood, while traditionally intended as a training tool for many dueling moves, it still makes a good melee weapon in a pinch.",
@@ -82,7 +82,7 @@
         "price" : 1000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "q_staff",
         "symbol": "/",
         "color": "brown",
@@ -96,11 +96,10 @@
         "weight": 1400,
         "volume": 12,
         "bashing": 19,
-        "category" : "weapons",
         "to_hit": 3
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "i_staff",
         "symbol": "/",
         "color": "brown",
@@ -114,11 +113,10 @@
         "weight": 2200,
         "volume": 12,
         "bashing": 25,
-        "category" : "weapons",
         "to_hit": 3
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "lajatang",
         "symbol": "/",
         "color": "brown",
@@ -135,7 +133,7 @@
         "to_hit": 2
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "hatchet",
         "symbol": ";",
         "color": "light_gray",
@@ -150,11 +148,10 @@
         "cutting": 6,
         "flags" : ["DURABLE_MELEE", "BELT_CLIP", "NONCONDUCTIVE"],
         "to_hit": 1,
-        "category" : "weapons",
         "required_tool_tag" : [["AXE", 2], ["CUT", 1], ["HAMMER", 2], ["HAMMER_FINE", 1], ["BUTCHER", 16]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "knife_butter",
         "symbol": ";",
         "color": "light_gray",
@@ -171,7 +168,7 @@
         "to_hit": -2
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident":"rock",
         "symbol": "*",
         "color": "light_gray",
@@ -186,7 +183,7 @@
         "required_tool_tag" : [["HAMMER", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident":"sharp_rock",
         "symbol": "*",
         "color": "light_gray",
@@ -201,7 +198,7 @@
         "required_tool_tag" : [["BUTCHER", -50]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident":"ceramic_shard",
         "symbol": "*",
         "color": "white",
@@ -216,7 +213,7 @@
         "to_hit": -1
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "baseball",
         "symbol": "*",
         "color": "white",
@@ -230,7 +227,7 @@
         "to_hit": 3
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "puck",
         "symbol": "*",
         "color": "dark_gray",
@@ -244,7 +241,7 @@
         "to_hit": 2
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "football",
         "symbol": "*",
         "color": "brown",
@@ -258,7 +255,7 @@
         "to_hit": -1
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "basketball",
         "symbol": "*",
         "color": "brown",
@@ -272,7 +269,7 @@
         "to_hit": -1
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "pointy_stick",
         "symbol" : "/",
         "color": "brown",
@@ -289,7 +286,7 @@
         "required_tool_tag" : [["COOK", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "sword_wood",
         "symbol" : "!",
         "color": "brown",
@@ -305,7 +302,7 @@
         "techniques": ["WBLOCK_1"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "sword_nail",
         "symbol" : "!",
         "color": "light_gray",
@@ -319,7 +316,7 @@
         "techniques": ["WBLOCK_1"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "sword_crude",
         "symbol" : "!",
         "color": "light_gray",
@@ -335,7 +332,7 @@
         "techniques": ["WBLOCK_1"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "broom",
         "name" : "broom",
         "description" : "A long-handled broom.  Makes a terrible weapon unless you're chasing cats.",
@@ -351,7 +348,7 @@
         "price_postapoc": 0
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "hammer_sledge",
         "name" : "sledge hammer",
         "description" : "A large, heavy hammer.  Makes an acceptable melee weapon for the very strong, but is nearly useless in the hands of the weak.",
@@ -367,7 +364,7 @@
         "required_tool_tag" : [["HAMMER", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "warhammer",
         "name" : "war hammer",
         "description" : "A medieval hammer made for battle.  Its odd shape and balance make it an excellent weapon, but an ineffective tool.",
@@ -386,7 +383,7 @@
         "required_tool_tag" : [["HAMMER", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "nailboard",
         "name" : "nail board",
         "description" : "A long piece of wood with several nails through one end; essentially a simple mace.  Makes an acceptable melee weapon.",
@@ -404,7 +401,7 @@
         "price_postapoc": 1000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "nailbat",
         "name" : "nail bat",
         "description" : "A baseball bat with several nails driven through it, an excellent melee weapon.",
@@ -421,7 +418,7 @@
         "price" : 16000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bwirebat",
         "name" : "barbed wire bat",
         "description" : "A baseball bat wrapped with barbed wire.  A brutal melee weapon.",
@@ -438,7 +435,7 @@
         "price" : 20000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bowling_axe",
         "name" : "The 7-10 Split",
         "name_plural" : "7-10 Splits",
@@ -457,7 +454,7 @@
         "price_postapoc": 0
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "knuckle_nail",
         "symbol" : "]",
         "color": "brown",
@@ -472,7 +469,7 @@
         "flags" : ["UNARMED_WEAPON"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "homewrecker",
         "name" : "homewrecker",
         "description" : "A long piece of wood with several chunks of steel firmly tied to it.  The resulting weapon is unwieldy and slow but very heavy hitting.",
@@ -489,7 +486,7 @@
         "price" : 8000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "2x4",
         "name" : "two by four",
         "description" : "A plank of wood.  Makes a decent melee weapon, and can be used to board up doors and windows if you have a hammer and nails.",
@@ -506,7 +503,7 @@
         "price_postapoc": 0
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "pipe",
         "name" : "pipe",
         "description" : "A steel pipe, makes a good melee weapon.  Useful in a few crafting recipes.",
@@ -523,7 +520,7 @@
         "price_postapoc": 300
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bat",
         "name" : "baseball bat",
         "description" : "A sturdy wood bat.  Makes a great melee weapon.",
@@ -539,7 +536,7 @@
         "price" : 16000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bowling_pin",
         "name" : "bowling pin",
         "description" : "A blunt bowling pin.  Makes a decent melee weapon, if somewhat short.",
@@ -555,7 +552,7 @@
         "price" : 1000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "battletorch_done",
         "name" : "burnt out Louisville Slaughterer",
         "description" : "A sturdy wood bat, wrapped in flame-resistant Nomex fabric.  Makes a good melee weapon but better be disassembled to recycle the baseball bat and some Nomex patches.",
@@ -571,7 +568,7 @@
         "price" : 18000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bat_metal",
         "name" : "aluminum bat",
         "description" : "An aluminum baseball bat, lighter than a wooden bat and a little easier to swing as a result.",
@@ -587,7 +584,7 @@
         "price" : 16000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spear_wood",
         "name" : "wooden spear",
         "description" : "A stout pole with an improvised grip and a fire-hardened point.",
@@ -605,7 +602,7 @@
         "required_tool_tag" : [["COOK", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spear_forked",
         "name" : "forked spear",
         "description" : "A wooden spear with a decent grip and a three-pronged trident-like tip.  Heavy, but good for catching weapons.",
@@ -624,7 +621,7 @@
         "price" : 4900,
         "required_tool_tag" : [["COOK", 1]]
     },{
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spear_copper",
         "name" : "copper spear",
         "description" : "A stout wooden pole with a spearhead worked from copper.",
@@ -641,7 +638,7 @@
         "price" : 1400,
         "required_tool_tag" : [["COOK", 1]]
     },{
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spear_steel",
         "name" : "steel spear",
         "description" : "A stout wooden pole with a hand-forged steel spearhead.",
@@ -658,7 +655,7 @@
         "price" : 16000,
         "required_tool_tag" : [["COOK", 1]]
     },{
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spear_pipe",
         "comment" : "stats of original steel spear, after it was made into a less makeshift version",
         "name" : "pipe spear",
@@ -676,7 +673,7 @@
         "price" : 8000,
         "required_tool_tag" : [["COOK", 1]]
     },{
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "qiang",
         "name" : "qiang",
         "description" : "An ancient Chinese spear, typically with a tassel just below the spearhead.  One of the four major weapons in folklore, alongside the dao sabre, jian sword, and gun staff.",
@@ -743,7 +740,7 @@
         "cutting": 30,
         "to_hit": 2
   },{
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "naginata",
         "name" : "naginata",
         "name_plural": "naginata",
@@ -760,7 +757,7 @@
         "flags" : ["DURABLE_MELEE", "REACH_ATTACK", "NONCONDUCTIVE"],
         "price" : 80000
     },{
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spear_survivor",
         "name" : "survivor naginata",
         "name_plural": "survivor naginata",
@@ -779,9 +776,8 @@
         "required_tool_tag" : [["COOK", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "baton",
-        "category" : "weapons",
         "name" : "expandable baton",
         "description" : "A telescoping baton that collapses for easy storage.  Makes an excellent melee weapon.  Activate to expand.",
         "weight" : 725,
@@ -802,9 +798,8 @@
         "price" : 17500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "baton-extended",
-        "category" : "weapons",
         "name" : "expandable baton (extended)",
         "name_plural" : "expandable batons (extended)",
         "description" : "A telescoping baton that collapses for easy storage.  Makes an excellent melee weapon.  Activate to collapse.",
@@ -826,7 +821,7 @@
         "price" : 17500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bee_sting",
         "name" : "bee sting",
         "description" : "A six-inch stinger from a giant bee.  Makes a mediocre melee weapon.",
@@ -842,7 +837,7 @@
         "price" : 3000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "fighter_sting",
         "name" : "fungal fighter sting",
         "description" : "A short dart from a fungal fighter.  Makes an poor melee weapon.",
@@ -858,7 +853,7 @@
         "price" : 500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "wasp_sting",
         "name" : "wasp sting",
         "description" : "A six-inch stinger from a giant wasp.  Makes a poor melee weapon.",
@@ -874,7 +869,7 @@
         "price" : 1000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "cane",
         "name" : "walking cane",
         "description" : "Handicapped or not, you always walk in style.  Consisting of a metal headpiece and a wooden body, this makes a great bashing weapon in a pinch.",
@@ -891,7 +886,7 @@
         "price_postapoc": 100
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "mace",
         "name" : "mace",
         "description" : "A medieval weapon consisting of a wood handle with a heavy iron end.  It is heavy and slow, but its crushing damage is devastating.",
@@ -909,7 +904,7 @@
         "required_tool_tag" : [["HAMMER", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "morningstar",
         "name" : "morningstar",
         "description" : "A medieval weapon consisting of a wood handle with a heavy, spiked iron ball on the end.  It deals devastating crushing damage, with a small amount of piercing to boot.",
@@ -927,7 +922,7 @@
         "required_tool_tag" : [["HAMMER", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "pool_cue",
         "name" : "pool cue",
         "description" : "A hard-wood stick designed for hitting colorful balls around a felt table.  Truly, the coolest of sports.",
@@ -943,7 +938,7 @@
         "price_postapoc": 500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "spike",
         "name" : "spike",
         "description" : "A large and slightly misshapen spike, could do some damage mounted on a vehicle.",
@@ -960,7 +955,7 @@
         "price_postapoc": 500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "javelin",
         "name" : "wooden javelin",
         "description" : "A fire-hardened wooden spear honed to a sharper point.  The grip area has been carved and covered for better grip.",
@@ -982,7 +977,7 @@
         "required_tool_tag" : [["COOK", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "javelin_iron",
         "name" : "iron javelin",
         "description" : "An iron-tipped wooden throwing spear.  The grip area has been carved and covered for better grip.",
@@ -1004,7 +999,7 @@
         "required_tool_tag" : [["COOK", 1]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bio_claws_weapon",
         "name" : "bionic claws",
         "name_plural" : "bionic claws",
@@ -1020,7 +1015,7 @@
         "required_tool_tag" : [["BUTCHER", 12]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bio_blade_weapon",
         "name" : "monomolecular blade",
         "description" : "A foot-long blade made from high-tech alloy and edged with bonded nanocrystals.",
@@ -1036,7 +1031,7 @@
         "required_tool_tag" : [["CUT", 1], ["BUTCHER", 22]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "punch_dagger",
         "name" : "punch dagger",
         "description" : "A short and sharp double edged dagger made to be gripped in the palm, with the blade protruding between the fingers.",
@@ -1053,7 +1048,7 @@
         "required_tool_tag" : [["CUT", 1], ["BUTCHER", 14]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "bagh_nakha",
         "name" : "tiger claws",
         "name_plural" : "tiger claws",
@@ -1070,7 +1065,7 @@
         "required_tool_tag" : [["BUTCHER", 14]]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "knuckle_steel",
         "symbol" : "3",
         "color": "dark_gray",
@@ -1084,7 +1079,7 @@
         "flags" : ["UNARMED_WEAPON"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "knuckle_katar",
         "symbol" : "!",
         "color": "dark_gray",
@@ -1099,7 +1094,7 @@
         "techniques": ["WBLOCK_1"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "cestus",
         "symbol" : "3",
         "color": "light_gray",
@@ -1113,7 +1108,7 @@
         "flags" : ["UNARMED_WEAPON", "DURABLE_MELEE"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "knuckle_brass",
         "symbol" : "3",
         "color": "yellow",
@@ -1127,7 +1122,7 @@
         "flags" : ["UNARMED_WEAPON", "DURABLE_MELEE"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "hockey_stick",
         "symbol": ";",
         "color": "white",
@@ -1143,7 +1138,7 @@
         "to_hit": 1
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "golf_club",
         "symbol": ";",
         "color": "light_gray",
@@ -1158,7 +1153,7 @@
         "to_hit": 1
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "rock_sock",
         "symbol": ";",
         "color": "white",
@@ -1174,7 +1169,7 @@
         "to_hit": 1
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "tonfa",
         "name" : "tonfa",
         "description" : "A hard plastic truncheon commonly employed by police.  Originally an Okinawan weapon, it consists of a stick with a perpendicular handle attached a third of the way down its length.",
@@ -1190,7 +1185,7 @@
         "price" : 19500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "tonfa_wood",
         "name" : "wooden tonfa",
         "description" : "A stout wooden truncheon of the sort commonly employed by police.  Originally an Okinawan weapon, it consists of a stick with a perpendicular handle attached a third of the way down its length.",
@@ -1206,9 +1201,8 @@
         "price" : 19500
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "PR24-retracted",
-        "category" : "weapons",
         "name" : "PR-24 baton (retracted)",
         "name_plural" : "PR-24 batons (retracted)",
         "description" : "The Monadnock PR-24 baton is a collapsible, lightweight, side-handle baton used by law enforcement all over the world.  The PR designation is rumored to mean Public Relations.  Activate to extend.",
@@ -1230,9 +1224,8 @@
         "price" : 30000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "PR24-extended",
-        "category" : "weapons",
         "name" : "PR-24 baton (extended)",
         "name_plural" : "PR-24 batons (extended)",
         "description" : "The Monadnock PR-24 baton is a collapsible, lightweight, side-handle baton used by law enforcement all over the world.  The PR designation is rumored to mean Public Relations.  Activate to retract.",
@@ -1254,7 +1247,7 @@
         "price" : 30000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "cu_pipe",
         "name" : "copper tubing",
         "description" : "A copper tube, too thin to be much use as a melee weapon, but will do if nothing else is available.  Useful in a few crafting recipes.",
@@ -1271,7 +1264,7 @@
         "price_postapoc": 300
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "glass_shiv",
         "symbol": ",",
         "color": "light_cyan",
@@ -1285,7 +1278,7 @@
         "required_tool_tag" : [["BUTCHER", -18]]
     },{
         "comment": "Id retained to avoid breaking anything, same reason as with the makeshift glaive.",
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "glass_macuahuitl",
         "name" : "makeshift macuahuitl",
         "description" : "A flat wooden club with sharpened pieces of stone sticking to both of its sides.",
@@ -1301,7 +1294,7 @@
         "price_postapoc": 2000
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "sharp_toothbrush",
         "symbol": ",",
         "color": "light_blue",
@@ -1318,7 +1311,7 @@
         "flags" : ["STAB", "SHEATH_KNIFE", "CONDUCTIVE"]
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident": "razor_blade",
         "symbol": ",",
         "color": "light_cyan",
@@ -1703,7 +1696,7 @@
     "category" : "weapons"
     },
     {
-        "group":"GENERIC",
+        "group": "weapon",
         "ident" : "pitchfork",
         "name" : "pitchfork",
         "description" : "An agricultural tool with long wooden shaft and four spikes.  Is used to lift hay.",

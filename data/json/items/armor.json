@@ -1,0 +1,15 @@
+[
+  {
+    "ident": "armguard_paper",
+    "group": "ARMOR",
+    "name": "pair of paper arm guards",
+    "description": "Arm guards made of stacked paper sheets held together with duct tape.",
+    "weight": 3,
+    "volume": 2,
+    "price": 20,
+    "material": "paper",
+    "wearable_location": "ARM",
+    "warmth": 1,
+    "armor_value": 1, "comment": "how much protection it provides"
+  }
+]
