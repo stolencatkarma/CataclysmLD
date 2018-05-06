@@ -11,7 +11,7 @@ class Item:
         # you can create objects like this.
         # self.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), position)
 
-class Container(Item): # containers are types of Items and can do everything an item can do.
+class Container(Item): # containers are types of Items and can do everything an item can do. # if a container shouldn't be an item make a new class for it.
     def __init__(self, ident):
         Item.__init__(self, ident)
         self.contained_items = []
@@ -19,7 +19,6 @@ class Container(Item): # containers are types of Items and can do everything an 
         self.max_volume = self.reference['volume']
         self.contained_weight = 0
         self.contained_volume = 0
-
 
     def recalc_weight(self):
         # total weight is the weight of all contained items.

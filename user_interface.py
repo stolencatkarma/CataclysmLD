@@ -7,6 +7,7 @@ class Menu_item:
     def __init__(self):
         return
 
+# Popup_menu consists of 1 textbox and 1 listbox.
 class Popup_menu:
     # needs popup menus in popup menus
     def __init__(self, screen):
@@ -14,27 +15,8 @@ class Popup_menu:
         menu_items = []
         return
 
-class Super_menu(Popup_menu):
-    # needs popup menus in popup menus
-    def __init__(self, screen, tile):
-        Popup_menu.__init__(self, screen) # inherits from Popup_menu
 
-        # needs a worldmap tile reference to parse.
-        print('------------ SUPER MENU ------------')
-        for key, value in tile.items():
-            print(key, value)
-        # terrain
-        # creature
-        # items []
-        # furniture
-        # vehicle
-        # trap
-        # bullet
-        # lumens
-
-        print('---------- END SUPER MENU ----------')
-
-class DirectionalChoice:
+class Directional_choice:
     # the image that pops up when a direction is required.
     # we should loop until we get a direction.
     def __init__(self, screen, x=0, y=0):
@@ -334,3 +316,122 @@ class Crafting_Menu:
         # now add the crafting button
         _surface = ref_FontManager.convert_string_to_surface('craft')
         self.UI_components.append(Button(self.screen, _surface, (0,150,150), ((self.width-100), self.height-48, 100, 48), 'craft'))
+
+
+# we need a way to convert tile properties to actions. might as well make a class for each.
+class Movement_menu:
+    def __init__(self, screen, rect, ref_FontManager):
+        possible_actions = ['move', 'attack_move']
+        self.rect = rect
+        self.x = rect[0]
+        self.y = rect[1]
+        self.width = rect[2]
+        self.height = rect[3]
+        self.screen = screen
+        self.UI_components = []
+
+        _surface = ref_FontManager.convert_string_to_surface('Movement')
+        self.UI_components.append(TextBox(self.screen, (0, 0, 200), (self.x, self.y, self.width, 12), _surface))
+        # create a listbox and fill it with menu_items
+
+        lb1 = ListBox(self.screen, (0,0,0), (self.x, self.y+12,self.width, self.height-12))
+        # and populate them
+        for possible_action in possible_actions:
+            print(possible_action)
+            _surface = ref_FontManager.convert_string_to_surface(possible_action)
+            item_to_add = Listbox_item(possible_action, _surface, possible_action)
+            if(len(lb1.item_list) < int(lb1.height/12)):
+                lb1.add(item_to_add)
+            else:
+                break
+        self.UI_components.append(lb1)
+        print('movement menu created.')
+
+
+
+# class for when you create a super menu item for creature
+class Super_menu_creature:
+    def __init__(self):
+        possible_actions = ['attack', 'attack_repeat', 'talk']
+        # also the actions the player can use on the target.
+        # TODO: attack submenu will let you target limbs and know the chance to hit.
+        pass
+
+class Super_menu_furniture:
+    def __init__(self):
+        possible_actions = ['smash', 'drag', 'use']
+        pass
+
+class Super_menu_blueprint:
+    def __init__(self):
+        possible_actions = ['fill_or_take_items', 'examine', 'work_on']
+        pass
+
+class Super_menu_items:
+    def __init__(self):
+        # TODO: open item management screen
+        pass
+
+class Super_menu_vehicle:
+    def __init__(self):
+        possible_actions = []
+        '''- if not in
+         - get in
+         - get on
+         - open vehicle management screen
+        - if in
+         - drive/stop driving
+         - switch seats -> open submenu
+         '''
+        pass
+
+class Super_menu:
+    # the base level, the first thing the player always sees when clicking a tile.
+    def __init__(self, screen, tile, rect, ref_FontManager):
+        self.rect = rect
+        self.x = rect[0]
+        self.y = rect[1]
+        self.width = rect[2]
+        self.height = rect[3]
+        self.screen = screen
+        self.menu_items = []
+        self.UI_components = []
+
+        print('------------ SUPER MENU ------------')
+        self.menu_items.append('Movement')
+
+        if tile['creature'] is not None: # is there a creature here to interact with?
+            self.menu_items.append('Creature')
+        if tile['terrain'] is not None: # there should always be terrain there but check anyways.
+            self.menu_items.append('Terrain')
+        if len(tile['items']) > 0: # if there's at least 1 item here that's enough.
+            self.menu_items.append('Items')
+        if tile['furniture'] is not None: # add the furniture submenu
+            self.menu_items.append('Furniture')
+        if tile['vehicle'] is not None: # add the vehicle submenu
+            self.menu_items.append('Vehicle')
+        if tile['trap'] is not None:
+            pass # TODO: add trap disarming actions.
+        # if tile['bullet'] is not None: # in the future it may be possible to react to bullets in flight but not right now.
+        print('Menu Items Parsed: ')
+        for obj in self.menu_items:
+            print(obj)
+        print('---------- END SUPER MENU ----------')
+        # create the textbox for the top.
+
+        _surface = ref_FontManager.convert_string_to_surface('Super Menu')
+        self.UI_components.append(TextBox(self.screen, (0, 0, 200), (self.x, self.y, self.width, 12), _surface))
+        # create a listbox and fill it with menu_items
+
+        lb1 = ListBox(self.screen, (0,0,0), (self.x, self.y+12,self.width, self.height-12))
+        # and populate them
+        for menu_item in self.menu_items:
+            _surface = ref_FontManager.convert_string_to_surface(menu_item)
+            item_to_add = Listbox_item(menu_item, _surface, menu_item)
+            if(len(lb1.item_list) < int(lb1.height/12)):
+                lb1.add(item_to_add)
+            else:
+                break
+        self.UI_components.append(lb1)
+
+        # this should now be setup.
