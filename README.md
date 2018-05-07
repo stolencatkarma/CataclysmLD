@@ -20,12 +20,11 @@ Generic installation instructions
 * install pip - if on windows - https://github.com/BurntSushi/nfldb/wiki/Python-&-pip-Windows-installation
 * open a command shell and goto the Cataclysm:LD folder you downloaded and unzipped it to.
 * `pip install pygame`
-* `python ./WYSIWYG.py`
-
-Usage
 
 ---
+Usage for the Building Editor.
 
+* `python ./WYSIWYG.py`
 * Left clicking a tile will apply the terrain or furniture at the location.
 * Right clicking a tile will clear the tile and set it to fill terrain.
 * Scroll wheel (mouse buttons 4 & 5) scrolls the terrain, furniture, and item list.
