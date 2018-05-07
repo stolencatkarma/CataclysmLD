@@ -25,17 +25,20 @@ Generic installation instructions
 Usage
 
 ---
+
 * Left clicking a tile will apply the terrain or furniture at the location.
 * Right clicking a tile will clear the tile and set it to fill terrain.
 * Scroll wheel (mouse buttons 4 & 5) scrolls the terrain, furniture, and item list.
 
 Exports and imports work but only for a single file called `buildingeditortest.json` in the root directory.
 
-* Running a server
+---
+
+* Running a server.
 * edit server.py for your specific setup for IP and port.
 * note: disable city gen after the first time you start it. This is a known issue.
 * `python ./server.py`
 
-* for clients.
+* Running a client.
 * edit client.py to point to the server ip and address.
 * `python ./client.py`
