@@ -17,7 +17,7 @@ Generic installation instructions
 ---
 
 * install python 3.6
-* install pip - if on windows - https://github.com/BurntSushi/nfldb/wiki/Python-&-pip-Windows-installation
+* install pip - if on windows: https://pip.pypa.io/en/stable/installing/
 * open a command shell and goto the Cataclysm:LD folder you downloaded and unzipped it to.
 * `pip install pygame`
 
