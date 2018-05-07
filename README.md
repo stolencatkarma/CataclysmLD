@@ -1,9 +1,9 @@
 Cataclysm: Looming Darkness
 ===
 
-A multiplayer reimagining of Cataclysm Dark Days Ahead.
+A multiplayer re-imagining of Cataclysm: Dark Days Ahead.
 
-Currently only the WYSIWYG building editor has been released.
+Currently the WYSIWYG building editor and pre-release of the client and server have been released.
 
 ----
 
