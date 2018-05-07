@@ -239,8 +239,8 @@ class Server(ClassServer):
                         print('moved correctly.')
                         return
                 elif(_from_type == 'blueprint'): # a blueprint is a type of container but can't be moved from it's world position.
-                    for(item in self.worldmap.get_tile_by_position(_position)['items']):
-                        if(isinstance(item) == Blueprint) # only one blueprint allowed per space.
+                    for item in self.worldmap.get_tile_by_position(_position)['items']:
+                        if(isinstance(item) == Blueprint): # only one blueprint allowed per space.
                             _from_list = item.contained_items
                             _from_list.remove(_item)
                             _to_list.append(_item)
@@ -374,7 +374,7 @@ if __name__ == "__main__":
     time_offset = 1.0 # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
     city_size = 1
-    #city_layout = server.worldmap.generate_city(city_size)
+    city_layout = server.worldmap.generate_city(city_size)
     for j in range(city_size*12):
         for i in range(city_size*12):
             if(city_layout[i][j] == 'r'):

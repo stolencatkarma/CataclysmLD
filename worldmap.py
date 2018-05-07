@@ -357,7 +357,7 @@ class Worldmap:
                 from_tile['items'].remove(obj)
                 to_tile['items'].append(obj)
             else:
-
+                pass
             return True
         if obj is Furniture:
             if to_tile['furniture'] is not None:
