@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-
+import pygame
 # tile.py
 class Terrain:
     def __init__(self, ident, impassable=False):

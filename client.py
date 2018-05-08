@@ -187,7 +187,11 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
         self.FontManager = FontManager()
-        self.player = Player('John Doe') # recieves updates from server. the player and all it's stats. #TODO: name and password.
+        if(sys.argv[1] is None):
+            print('please start the client with a first and last name for your character.')
+            print('python3 ./client John Doe')
+            exit()
+        self.player = Player(str(sys.argv[1]) + str(sys.argv[2])) # recieves updates from server. the player and all it's stats. #TODO: name and password.
         self.localmap = None
         self.hotbars = []
         self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
@@ -429,7 +433,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
 
 if __name__ == "__main__": # if we start a client directly
-    ip = 'localhost'
+    ip = '162.211.66.247'
     port = 6317
     client = Client()
     client.connect(ip, port)

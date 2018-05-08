@@ -40,4 +40,4 @@ Exports and imports work but only for a single file called `buildingeditortest.j
 
 * Running a client.
 * edit client.py to point to the server ip and address.
-* `python ./client.py`
+* `python ./client.py firstname lastname`
