@@ -57,7 +57,7 @@ class ItemManager:
                     # print(dirs)
                     # print(file_data)
                     with open(root+'/'+file_data) as data_file: # load tile config so we know what tile foes with what ident
-                        data = json.load(data_file)
+                        data = json.load(data_file, encoding='utf-8')
                     #unique_keys = []
                     for item in data:
                         try:
