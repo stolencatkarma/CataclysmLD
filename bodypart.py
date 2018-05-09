@@ -2,7 +2,7 @@
 class Bodypart:
     def __init__(self, ident, vital_organ=False):
         self.ident = ident
-        self.vital_organ = vital_organ # can the creature live without this body part?
+        self.vital_organ = vital_organ # will the creature die without this body part?
         self.slot1 = None # Item(container or armor)
         self.slot2 = None
         self.armor = 0 # recaculate this when we wear or remove armor. the total armor value of worn items.
