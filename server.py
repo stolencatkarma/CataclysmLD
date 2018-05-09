@@ -3,6 +3,8 @@ import random
 import json
 import time
 from collections import defaultdict
+import argparse
+
 from Mastermind import MastermindServerTCP
 
 from options import Options
@@ -29,8 +31,13 @@ class OverMap: # when the player pulls up the OverMap. a OverMap for each player
         return
 
 
-ip = "localhost"
-port = 6317
+parser = argparse.ArgumentParser(description='Cataclysm LD Server')
+parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
+parser.add_argument('-p', '--port', metavar='Port', type=int, help='Server port', default=6317)
+
+args = parser.parse_args()
+ip = args.host
+port = args.port
 
 ClassServer = MastermindServerTCP
 
