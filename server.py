@@ -433,8 +433,7 @@ if __name__ == "__main__":
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
 
             last_turn_time = time.time() # based off of system clock.
-        except KeyboardInterrupt: #TODO: figure out why ctrl+c hangs the program. ( i was testing for Exception needed KeyboardInterrupt specifically.)
-            print('cleaning up before exit.')
+        except KeyboardInterrupt: 
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
