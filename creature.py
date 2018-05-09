@@ -33,5 +33,5 @@ class Creature:
 
         # list of body parts this creature has. normal human has 2 arms, 2 hands, 2 legs, torso, head, and 2 feet. head and torso are both vital organs.
         # body_parts are where items get equipped.
-        self.body_parts = [Bodypart('HEAD', False), Bodypart('TORSO', False), Bodypart('ARM'), Bodypart('ARM'), Bodypart('LEG'), Bodypart('LEG'), Bodypart('FOOT'), Bodypart('FOOT'), Bodypart('HAND'), Bodypart('HAND')]
+        self.body_parts = [Bodypart('HEAD', True), Bodypart('TORSO', True), Bodypart('ARM'), Bodypart('ARM'), Bodypart('LEG'), Bodypart('LEG'), Bodypart('FOOT'), Bodypart('FOOT'), Bodypart('HAND'), Bodypart('HAND')]
         self.items_held = [] # a special location that acts as a container for moving items between positions, equipped, and not in containers.
