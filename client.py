@@ -5,6 +5,7 @@ import time
 import json
 from collections import defaultdict
 import pygame
+import argparse
 import pygame.locals
 from player import Player
 from position import Position
@@ -178,7 +179,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         for textbox in self.textboxes: #draw the textboxes
             textbox.draw()
 
-    def __init__(self):
+    def __init__(self, first_name, last_name):
         MastermindClientTCP.__init__(self)
         pygame.init()
         pygame.display.set_caption('Cataclysm: Looming Darkness')
@@ -187,11 +188,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
         self.FontManager = FontManager()
-        if(sys.argv[1] is None):
-            print('please start the client with a first and last name for your character.')
-            print('python3 ./client John Doe')
-            exit()
-        self.player = Player(str(sys.argv[1]) + str(sys.argv[2])) # recieves updates from server. the player and all it's stats. #TODO: name and password.
+        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats. #TODO: name and password.
         self.localmap = None
         self.hotbars = []
         self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
@@ -428,14 +425,22 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             pass
 
 
+#
+#   if we start a client directly
+#
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Cataclysm LD',
+                                     epilog="Please start the client with a first and last name for your character.")
+    parser.add_argument('--host', metavar='Host', help='Server host', default='localhost')
+    parser.add_argument('-p', '--port', metavar='Port', type=int, help='Server port', default=6317)
+    parser.add_argument('first_name', help='Player\'s first name')
+    parser.add_argument('last_name', help='Player\'s last name')
 
+    args = parser.parse_args()
+    ip = args.host
+    port = args.port
 
-
-
-if __name__ == "__main__": # if we start a client directly
-    ip = '162.211.66.247'
-    port = 6317
-    client = Client()
+    client = Client(args.first_name, args.last_name)
     client.connect(ip, port)
     command = Command(client.player.name, 'login', ['password'])
     client.send(command)

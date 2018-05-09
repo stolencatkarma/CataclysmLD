@@ -33,11 +33,18 @@ Exports and imports work but only for a single file called `buildingeditortest.j
 
 ---
 
-* Running a server.
-* edit server.py for your specific setup for IP and port.
-* note: disable city gen after the first time you start it. This is a known issue.
-* `python ./server.py`
+**Running a server**
 
-* Running a client.
-* edit client.py to point to the server ip and address.
-* `python ./client.py firstname lastname`
+* note: disable city gen after the first time you start it. This is a known issue.
+* `python server.py [--host Host] [-p Port]`,
+        Host and Port are optional (defaults are `0.0.0.0:6317`)
+* `python server.py --help` for detailed usage
+
+
+**Running a client**
+
+* `python client.py [--host Host] [-p Port] first_name last_name`,
+        where `Host` and `Port` are those of the server.
+        By default `Host` is `localhost`, `Port` is 6317,
+        so it's safe to ommit them if you're running server locally.
+* type `python client.py --help` for detailed usage information.
