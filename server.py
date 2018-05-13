@@ -7,6 +7,8 @@ import argparse
 
 from Mastermind import MastermindServerTCP
 
+sys.path.insert(0, './src/') # i prefer this way as opposed to using __init__.py files in subfolders.
+
 from options import Options
 import global_vars
 #import game
@@ -440,7 +442,7 @@ if __name__ == "__main__":
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
 
             last_turn_time = time.time() # based off of system clock.
-        except KeyboardInterrupt: 
+        except KeyboardInterrupt:
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()

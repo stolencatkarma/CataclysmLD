@@ -7,6 +7,9 @@ from collections import defaultdict
 import pygame
 import argparse
 import pygame.locals
+
+sys.path.insert(0, './src/') # i prefer this way as opposed to using __init__.py files in subfolders.
+
 from player import Player
 from position import Position
 from command import Command

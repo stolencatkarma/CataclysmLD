@@ -1,4 +1,4 @@
-#tile config checker
+#tile config checker - attempts to convert an old style tile_config into C:LD format.
 import json
 from collections import defaultdict
 
