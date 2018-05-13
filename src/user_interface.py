@@ -347,7 +347,9 @@ class Movement_menu:
         self.UI_components.append(lb1)
         print('movement menu created.')
 
-
+class Equipment_Menu:
+    def __init__(self):
+        pass
 
 # class for when you create a super menu item for creature
 class Super_menu_creature:

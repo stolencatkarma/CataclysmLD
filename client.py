@@ -227,7 +227,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         crafting_menu = Crafting_Menu(self.screen, list_of_known_recipes, (0, 0, 854, 480), self.FontManager)
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
 
-        #work out the internal list of UI_components so we can iterate them if needed.
+        # work out the internal list of UI_components so we can iterate them if needed.
         _listboxes = []
         _textboxes = []
         _buttons = []
@@ -382,8 +382,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             _command = Command(client.player.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
             return _command
 
-
-
     def open_super_menu(self, pos, tile):
         print(pos)
         super_menu = Super_menu(client.screen, tile, (pos[0], pos[1], 72, 144), client.FontManager) # initialize it.
@@ -427,7 +425,51 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         elif clicked == 'Creature':
             pass
 
+    def open_equipment_menu(self):
+        equipment_menu = Equipment_Menu(self.screen, (0, 0, 480, 480), self.FontManager)
+        self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
 
+        # work out the internal list of UI_components so we can iterate them if needed.
+        _listboxes = []
+        _textboxes = []
+        _buttons = []
+        for UI_component in equipment_menu.UI_components:
+            UI_component.draw() # blit them to the screen.
+
+            if(isinstance(UI_component, ListBox)):
+                _listboxes.append(UI_component)
+            elif(isinstance(UI_component, TextBox)):
+                _textboxes.append(UI_component)
+            elif(isinstance(UI_component, Button)):
+                _buttons.append(UI_component)
+
+        # now that we've drawn the crafting menu we need to wait until the player clicks a UI_component or clicks to craft.
+        pygame.event.clear() # clear the event queue so we can wait for player feedback.
+        sidebar_components = []
+        while True:
+            for UI_component in equipment_menu.UI_components:
+                UI_component.draw() # blit them to the screen.
+            #for component in sidebar_components:
+                #component.draw()
+            pygame.display.flip() # flip the screen after we've .draw() the UI_components
+            event = pygame.event.wait() # wait for player input.
+            if event.type == pygame.QUIT:
+                client.disconnect()
+                pygame.quit()
+                exit()
+            elif(event.type == pygame.MOUSEBUTTONDOWN):
+                # dragging from somwhere. we need to keep drawing so handle that
+                # wait until we let go of the mouse and handle it.
+                pass
+            elif(event.type == pygame.MOUSEBUTTONUP):
+                # we clicked somewhere while the equipment screen is up.
+                # if we clicked an equipment tile we need to open a sub-menu for options for that the item can do. (activate, equip, etc..)
+                pass
+            elif(event.type == pygame.KEYUP):
+                # when we want to do something with the keyboard.
+                if event.key == pygame.K_m:
+                    #(m)ove an item
+                    pass
 #
 #   if we start a client directly
 #
