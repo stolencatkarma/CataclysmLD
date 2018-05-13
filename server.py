@@ -32,15 +32,6 @@ class OverMap: # when the player pulls up the OverMap. a OverMap for each player
         # if a player sees a chunk loaded it's safe to say they 'saw' that overmap tile.
         return
 
-
-parser = argparse.ArgumentParser(description='Cataclysm LD Server')
-parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
-parser.add_argument('-p', '--port', metavar='Port', type=int, help='Server port', default=6317)
-
-args = parser.parse_args()
-ip = args.host
-port = args.port
-
 ClassServer = MastermindServerTCP
 
 class Server(ClassServer):
@@ -375,6 +366,15 @@ class Server(ClassServer):
 
 # do this if the server was started up directly.
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Cataclysm LD Server')
+    parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
+    parser.add_argument('-p', '--port', metavar='Port', type=int, help='Server port', default=6317)
+
+    args = parser.parse_args()
+    ip = args.host
+    port = args.port
+    
     server = Server()
     server.connect(ip, port)
     server.accepting_allow()
