@@ -374,7 +374,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     ip = args.host
     port = args.port
-    
+
     server = Server()
     server.connect(ip, port)
     server.accepting_allow()
@@ -443,9 +443,11 @@ if __name__ == "__main__":
 
             last_turn_time = time.time() # based off of system clock.
         except KeyboardInterrupt:
+            print('cleaning up before exiting.')
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             dont_break = False
+            print('done cleaning up.')
             #break # need this to exit cleanly.

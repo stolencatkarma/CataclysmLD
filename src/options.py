@@ -526,12 +526,12 @@ class Options:
         self.OPTIONS['NPCS_NEED_FOOD']['HINTLONG'] = self.translate_marker( 'If True, won\'t need to eat or drink and will only get tired enough to sleep, to get penalties.' )
 
     def save(self):
-        with open('global_options.json', 'w') as json_file:
+        with open('./data/global_options.json', 'w') as json_file:
             json_data = self.OPTIONS
             json.dump(json_data, json_file, sort_keys = True, indent = 4, ensure_ascii = False)
 
     def load(self):
-        with open('global_options.json', 'r') as json_file:
+        with open('./data/global_options.json', 'r') as json_file:
             json_data = json.load(json_file)
             self.OPTIONS = json_data
 
