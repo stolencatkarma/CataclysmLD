@@ -348,7 +348,32 @@ class Movement_menu:
         print('movement menu created.')
 
 class Equipment_Menu:
+    # equipment menu needs
+    #  an overlay of the character.
+    #  2 slots per body part arranged over the overlay.
+    #  8x16 empty grid which points to an equipped container.contained_items. it leaves an empty space at the end for adding more items through drag and drop.
+    #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
+
     def __init__(self):
+        # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
+        # overlay
+        self.open_containers = [] # these show up on the grid at the bottom. a list
+        self.open_container_grid = {} # 16 across 8 down grid to hold the items in open containers.
+        for i in range(16):
+            self.open_container_grid[i] = {}
+            for j in range(8):
+                self.open_container_grid[i][j] = None # initialize it with no Item in this position.
+        for container in self.open_containers:
+            for item in container.contained_items:
+                #TODO: add the items to the grid
+                pass
+
+
+
+
+
+    def move_item_from_slot_to_slot(self, item, slot0, slot1):
+        # after an item is dragged and dropped this is called and sends a request to the server to do the actual moving.
         pass
 
 # class for when you create a super menu item for creature
