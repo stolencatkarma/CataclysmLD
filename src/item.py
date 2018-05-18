@@ -2,6 +2,7 @@ from collections import defaultdict
 import json
 import pprint
 import os
+import sys
 
 class Item:
     def __init__(self, ident, reference):
@@ -74,7 +75,7 @@ class ItemManager:
                             print()
                             print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')
                             print()
-                            exit()
+                            sys.exit()
                             #print('x', end='')
 
         #print(unique_keys)

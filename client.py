@@ -255,7 +255,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             if event.type == pygame.QUIT:
                 client.disconnect()
                 pygame.quit()
-                exit()
+                sys.exit()
             elif(event.type == pygame.MOUSEBUTTONUP):
                 pos = pygame.mouse.get_pos()
                 for button in _buttons:
@@ -368,7 +368,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             if event.type == pygame.QUIT:
                 client.disconnect()
                 pygame.quit()
-                exit()
+                sys.exit()
             elif(event.type == pygame.MOUSEBUTTONUP):
                 pos = pygame.mouse.get_pos()
                 for listbox in _listboxes:
@@ -408,7 +408,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             if event.type == pygame.QUIT:
                 client.disconnect()
                 pygame.quit()
-                exit()
+                sys.exit()
             elif(event.type == pygame.MOUSEBUTTONUP):
                 pos = pygame.mouse.get_pos()
                 for listbox in _listboxes:
@@ -457,7 +457,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             if event.type == pygame.QUIT:
                 client.disconnect()
                 pygame.quit()
-                exit()
+                sys.exit()
             elif(event.type == pygame.MOUSEBUTTONDOWN):
                 # dragging from somwhere. we need to keep drawing so handle that
                 # wait until we let go of the mouse and handle it.
@@ -524,7 +524,7 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 client.disconnect()
                 pygame.quit()
-                exit()
+                sys.exit()
             if(event.type == pygame.MOUSEBUTTONUP):
                 pos = pygame.mouse.get_pos()
                 for hotbar in client.hotbars:

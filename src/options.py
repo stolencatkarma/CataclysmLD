@@ -541,11 +541,11 @@ class Options:
             return option['VALUE']
         else:
             print('option not found: ' + str(option))
-            exit()
+
 
     def get_option(self, option):
         if(option in self.OPTIONS):
             return option
         else:
             print('option not found: ' + str(option))
-            exit()
+            

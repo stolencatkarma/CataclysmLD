@@ -1,3 +1,4 @@
+import sys
 from .tile import Terrain
 from .furniture import Furniture
 from .item import Item, Container
@@ -15,7 +16,7 @@ class Blueprint(Container): # is a physical representation of a recipe while it'
             print('!!! COULDN\'T set type. Invalid')
             print(str(type_of))
             print()
-            exit()
+            sys.exit()
         else:
             print('set type')
             self.type_of = type_of

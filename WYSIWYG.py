@@ -316,7 +316,7 @@ if __name__ == "__main__": # if we start directly
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                exit()
+                sys.exit()
             elif(event.type == pygame.MOUSEBUTTONUP):
                 pos = pygame.mouse.get_pos()
                 print(str(pos[0]) + ', ' + str(pos[1]))
