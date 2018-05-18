@@ -8,17 +8,18 @@ import pygame
 import argparse
 import pygame.locals
 
-sys.path.insert(0, './src/') # i prefer this way as opposed to using __init__.py files in subfolders.
 
-from player import Player
-from position import Position
-from command import Command
-from Mastermind import MastermindClientTCP
-from tile import TileManager
-from item import Item, ItemManager
-from recipe import RecipeManager, Recipe
-from blueprint import Blueprint
-from user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, Crafting_Menu, Directional_choice, FontManager, Popup_menu, Super_menu, Movement_menu
+from src.player import Player
+from src.action import Action
+from src.worldmap import Worldmap
+from src.position import Position
+from src.command import Command
+from Mastermind._mm_client import *
+from src.tile import TileManager
+from src.item import Item, ItemManager
+from src.recipe import RecipeManager, Recipe
+from src.blueprint import Blueprint
+from src.user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, Crafting_Menu, Directional_choice, FontManager, Popup_menu, Super_menu, Movement_menu
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def find_player_in_localmap(self):

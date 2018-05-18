@@ -1,6 +1,6 @@
-from profession import *
-from creature import *
-from position import *
+from .profession import *
+from .creature import *
+from .position import *
 
 class Player(Creature):
     def __init__(self, name='John Doe'):

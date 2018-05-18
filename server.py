@@ -5,23 +5,23 @@ import time
 from collections import defaultdict
 import argparse
 
-from Mastermind import MastermindServerTCP
+from Mastermind._mm_server import MastermindServerTCP
 
-sys.path.insert(0, './src/') # i prefer this way as opposed to using __init__.py files in subfolders.
+#sys.path.insert(0, './src/') # i prefer this way as opposed to using __init__.py files in subfolders.
 
-from options import Options
-import global_vars
+from src.options import Options
+import src.global_vars
 #import game
-from worldmap import Worldmap
-from player import Player
-from position import Position
-from command import Command
-from tile import Terrain, TileManager
-from furniture import Furniture, FurnitureManager
-from calendar import Calendar
-from action import Action
-from recipe import Recipe, RecipeManager
-from blueprint import Blueprint
+from src.worldmap import Worldmap
+from src.player import Player
+from src.position import Position
+from src.command import Command
+from src.tile import Terrain, TileManager
+from src.furniture import Furniture, FurnitureManager
+from src.calendar import Calendar
+from src.action import Action
+from src.recipe import Recipe, RecipeManager
+from src.blueprint import Blueprint
 
 import pygame, pygame.locals
 
@@ -32,11 +32,11 @@ class OverMap: # when the player pulls up the OverMap. a OverMap for each player
         # if a player sees a chunk loaded it's safe to say they 'saw' that overmap tile.
         return
 
-ClassServer = MastermindServerTCP
+#ClassServer = MastermindServerTCP
 
-class Server(ClassServer):
+class Server(MastermindServerTCP):
     def __init__(self):
-        ClassServer.__init__(self, 0.5, 0.5, 300.0)
+        MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
         self.players = {} # all the Players() that exist in the world whether connected or not.
         self.localmaps = {} # the localmaps for each player.
         self.overmaps = {} # the dict of all overmaps by player.name

@@ -3,9 +3,9 @@ import socket
 import time
 import threading
 
-import _mm_netutil as netutil
-from _mm_constants import *
-from _mm_errors import *
+from . import _mm_netutil as netutil
+from ._mm_constants import *
+from ._mm_errors import *
 
 class MastermindServerCallbacksDebug(object):
     def callback_connect          (self                                          ):

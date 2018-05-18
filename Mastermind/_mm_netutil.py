@@ -2,7 +2,7 @@ try:    import cPickle as pickle #Only present in Python 2.*; Python 3 automatic
 except: import  pickle as pickle #new equivalent of cPickle, if it's available.
 import zlib
 
-from _mm_constants import *
+from ._mm_constants import *
 
 def packet_send(socket,protocol_and_udpaddress, data,compression): #E.g.: =(MM_TCP,None)
     if   compression ==  False: compression = 0
@@ -59,7 +59,7 @@ def packet_recv_tcp(socket):
         data_str = zlib.decompress(data_str)
 
     data = pickle.loads(data_str)
-    
+
     return data,True
 def packet_recv_udp(socket,max_packet_size):
     data_str,address = socket.recvfrom(max_packet_size)
@@ -71,7 +71,7 @@ def packet_recv_udp(socket,max_packet_size):
 
     if compression != 0:
         data_str = zlib.decompress(data_str)
-    
+
     data = pickle.loads(data_str)
-    
+
     return data,address

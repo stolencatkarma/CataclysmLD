@@ -1,6 +1,6 @@
 # defines base creature in the base. all monsters, players, npcs, and critters derive from this.
 from collections import defaultdict
-from bodypart import Bodypart
+from .bodypart import Bodypart
 class Creature:
     def __init__(self):
         self.stats = defaultdict(dict)

@@ -6,15 +6,15 @@ import pickle
 import os
 import random
 
-from tile import Terrain
-from creature import Creature
-from monster import Monster
-from player import Player
-from lighting import Lighting
-from position import Position
-from item import Item, ItemManager
-from furniture import Furniture, FurnitureManager
-from blueprint import Blueprint
+from .tile import Terrain
+from .creature import Creature
+from .monster import Monster
+from .player import Player
+from .lighting import Lighting
+from .position import Position
+from .item import Item, ItemManager
+from .furniture import Furniture, FurnitureManager
+from .blueprint import Blueprint
 
 # weather = [WEATHER_CLEAR, WEATHER_RAIN, WEATHER_FOG, WEATHER_STORM, WEATHER_TORNADO]
 

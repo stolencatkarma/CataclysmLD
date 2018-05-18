@@ -1,4 +1,4 @@
-from creature import Creature
+from .creature import Creature
 
 class Monster(Creature):
     def __init__(self):
