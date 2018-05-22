@@ -147,8 +147,10 @@ class ListBox:
                 return
         elif(str(button) == str(1)):
             items_per_page = int(self.height/12)
-            #TODO: do nothing instead of error when you click a spot with no item.
-            return self.item_list[self.page*items_per_page+item_clicked]
+            if(self.page*items_per_page+item_clicked <= len(self.item_list)):
+                return self.item_list[self.page*items_per_page+item_clicked]
+            else:
+                return None
 
 class Listbox_item:
     def __init__(self, text, surface_text, reference_object):
@@ -351,14 +353,34 @@ class Equipment_Menu:
     # equipment menu needs
     #  an overlay of the character.
     #  2 slots per body part arranged over the overlay.
+    #  Head  - 152,4  - 224,4
+    #  Torso - 188,62 - 188,100
+    #  rgtArm- 110,48 - 110,76
+    #  lftArm- 264,48 - 264,76
+    #  rgtHnd- 114,110- 142,128 - equip  62,110
+    #  lftHnd- 262,110- 234,128 - equip 312, 110
+    #  rgtLeg- 116,170- 144,170
+    #  lftLeg- 234,170- 262,170
+    #  rgtft-  112,214- 140,214
+    #  lftft-  236,214- 264,214
+
+
     #  8x16 empty grid which points to an equipped container.contained_items. it leaves an empty space at the end for adding more items through drag and drop.
+    #   8,296 start, 384, 192 size
     #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
 
-    def __init__(self):
+    def __init__(self, screen, rect, ref_FontManager):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
+        self.rect = rect
+        self.x = rect[0]
+        self.y = rect[1]
+        self.width = rect[2]
+        self.height = rect[3]
+        self.screen = screen
+        self.UI_components = []
         # overlay
         self.open_containers = [] # these show up on the grid at the bottom. a list
-        self.open_container_grid = {} # 16 across 8 down grid to hold the items in open containers.
+        self.open_container_grid = {} # 16 across and 8 down grid to hold the items in open containers.
         for i in range(16):
             self.open_container_grid[i] = {}
             for j in range(8):
@@ -367,10 +389,6 @@ class Equipment_Menu:
             for item in container.contained_items:
                 #TODO: add the items to the grid
                 pass
-
-
-
-
 
     def move_item_from_slot_to_slot(self, item, slot0, slot1):
         # after an item is dragged and dropped this is called and sends a request to the server to do the actual moving.

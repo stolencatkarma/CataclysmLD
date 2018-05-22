@@ -71,7 +71,7 @@ class Worldmap:
                     if(os.path.isfile(path)): # if the chunk already exists on disk just load it.
                         with open(path, 'rb') as fp:
                             self.WORLDMAP[i][j][k] = pickle.load(fp)
-                        if(count < 80):
+                        if(count < 60):
                             print('L', end='')
                             count = count + 1
                         else:

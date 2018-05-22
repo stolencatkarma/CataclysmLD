@@ -375,8 +375,11 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                     if pos[0] >= listbox.x and pos[0] <= listbox.x + listbox.width:
                         if pos[1] >= listbox.y and pos[1] <= listbox.y + listbox.height:
                             item_clicked = listbox.on_clicked(event.button, pos[0] - listbox.x, pos[1] - listbox.y)
-                            print('movement_menu selected: ' + str(item_clicked.text))
-                            clicked = item_clicked.text
+                            if(item_clicked == None):
+                                pass
+                            else:
+                                print('movement_menu selected: ' + str(item_clicked.text))
+                                clicked = item_clicked.text
 
         if(clicked == 'move'):
             print('clicked move. sending command')
@@ -415,8 +418,12 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                     if pos[0] >= listbox.x and pos[0] <= listbox.x + listbox.width:
                         if pos[1] >= listbox.y and pos[1] <= listbox.y + listbox.height:
                             item_clicked = listbox.on_clicked(event.button, pos[0] - listbox.x, pos[1] - listbox.y)
-                            print(str(item_clicked.text))
-                            clicked = item_clicked.text
+                            if(item_clicked == None):
+                                #user clicked an empty spot.
+                                pass
+                            else:
+                                print(str(item_clicked.text))
+                                clicked = item_clicked.text
 
         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         if clicked == 'Movement':
