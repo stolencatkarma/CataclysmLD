@@ -369,6 +369,21 @@ class Equipment_Menu:
     #   8,296 start, 384, 192 size
     #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
 
+
+    # clicking on a area where an item is equipped.
+    #  with no item 'grabbed' and no item in slot.
+    #   open menu > equip/wear item -> parse_items_for_equippable_locations()[] -> click_item() -> wear_item()
+    # with item 'grabbed' and no item in slot
+    #  check_equippable() -> wear/weild item
+    # with no item 'grabbed' and item in slot
+    #  'grab' item
+    # with item grabbed and item in slot
+    #  swap()?
+    # with item 'grabbed' and cursor outside equipment screen.
+    #  drop() item on ground relative the the position of the equipment screen (drop right on screen drops right of player)
+    # click a container with an item 'grabbed'
+    #  put() item in container. (containers can only hold empty containers. or closed containers.)
+
     def __init__(self, screen, rect, ref_FontManager):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
         self.rect = rect
@@ -391,7 +406,7 @@ class Equipment_Menu:
                 pass
 
     def move_item_from_slot_to_slot(self, item, slot0, slot1):
-        # after an item is dragged and dropped this is called and sends a request to the server to do the actual moving.
+        # after an item is grabbed this is called and sends a request to the server to do the actual moving.
         pass
 
 # class for when you create a super menu item for creature
