@@ -35,3 +35,37 @@ class Creature:
         # body_parts are where items get equipped.
         self.body_parts = [Bodypart('HEAD', True), Bodypart('TORSO', True), Bodypart('ARM'), Bodypart('ARM'), Bodypart('LEG'), Bodypart('LEG'), Bodypart('FOOT'), Bodypart('FOOT'), Bodypart('HAND'), Bodypart('HAND')]
         self.items_held = [] # a special location that acts as a container for moving items between positions, equipped, and not in containers.
+
+class MonsterManager:
+    def __init__(self):
+        self.MONSTER_TYPES = defaultdict(dict)
+        for root, dirs, files in os.walk('./data/json/monsters/'):
+            for file_data in files:
+                if file_data.endswith('.json'):
+                    # print(root)
+                    # print(dirs)
+                    # print(file_data)
+                    with open(root+'/'+file_data, encoding='utf-8') as data_file: # load tile config so we know what tile foes with what ident
+                        data = json.load(data_file)
+                    #unique_keys = []
+                    for item in data:
+                        try:
+                            for key, value in item.items():
+                                #print(type(value))
+                                if(isinstance(value, list)):
+                                    self.MONSTER_TYPES[item['ident']][key] = []
+                                    for add_value in value:
+                                        self.MONSTER_TYPES[item['ident']][key].append(str(add_value))
+                                else:
+                                    self.MONSTER_TYPES[item['ident']][key] = str(value)
+                                #print('.', end='')
+                        except Exception:
+                            print()
+                            print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')
+                            print()
+                            sys.exit()
+                            #print('x', end='')
+
+        #print(unique_keys)
+        #print()
+        print('total MONSTER_TYPES loaded: ' + str(len(self.MONSTER_TYPES)))
