@@ -13,7 +13,7 @@ class Calendar(): # controls the time in game. to advance time in game we do it 
         self.HOURS_PER_DAY = 24
         self.DAYS_PER_MONTH = 28
         self.MONTHS_PER_YEAR = 12
-        self.TURN = self.SECONDS + int(self.MINUTES * self.SECONDS_PER_MINUTE) + int(self.HOURS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR) + int(self.DAYS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY) + int(self.MONTHS  * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH) + int(self.YEARS   * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH * self.MONTHS_PER_YEAR)
+        self.TURN = self.SECONDS + int(self.MINUTES * self.SECONDS_PER_MINUTE) + int(self.HOURS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR) + int(self.DAYS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY) + int(self.MONTHS  * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH) + int(self.YEARS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH * self.MONTHS_PER_YEAR)
 
     def do_events(self): # if we need to do something every so often we should set it up here.
         return
@@ -97,8 +97,8 @@ class Calendar(): # controls the time in game. to advance time in game we do it 
         self.weekday_names.insert(len(self.weekday_names), 'Thursday')
         self.weekday_names.insert(len(self.weekday_names), 'Friday')
         self.weekday_names.insert(len(self.weekday_names), 'Saturday')
-        days = self.DAYS # 0 to DAYS_PER_MONTH
-        while(days >= 7): # loop until we get a number 0-6
-            days = days - 7
+        days = self.DAYS # How many days have passed this month.
+        while(days >= len(self.weekday_names): # loop until we get a number 0-6
+            days = days - len(self.weekday_names)
 
         return self.weekday_names[days] # what's left over is the day of the week.
