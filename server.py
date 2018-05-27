@@ -439,13 +439,13 @@ if __name__ == "__main__":
     dont_break = True
     time_offset = 1.0 # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
-    #server.generate_and_apply_city_layout(1)
+    server.generate_and_apply_city_layout(1)
 
     print('Started up Cataclysm: Looming Darkness Server.')
     while dont_break:
         try:
-            #while(time.time() - last_turn_time < time_offset): # try to keep up with the time offset but never go faster than it.
-                #time.sleep(.001)
+            while(time.time() - last_turn_time < time_offset): # try to keep up with the time offset but never go faster than it.
+                time.sleep(.001)
             server.calendar.advance_time_by_x_seconds(1) # a turn is one second.
             server.compute_turn() # where all queued creature actions get taken care of, as well as physics engine stuff.
             print('turn: ' + str(server.calendar.get_turn()))
