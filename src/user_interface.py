@@ -364,7 +364,6 @@ class Equipment_Menu:
     #  rgtft-  112,214- 140,214
     #  lftft-  236,214- 264,214
 
-
     #  8x16 empty grid which points to an equipped container.contained_items. it leaves an empty space at the end for adding more items through drag and drop.
     #   8,296 start, 384, 192 size
     #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
@@ -384,7 +383,7 @@ class Equipment_Menu:
     # click a container with an item 'grabbed'
     #  put() item in container. (containers can only hold empty containers. or closed containers.)
 
-    def __init__(self, screen, rect, ref_FontManager):
+    def __init__(self, screen, rect, ref_FontManager, bodyParts):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
         self.rect = rect
         self.x = rect[0]
@@ -392,7 +391,9 @@ class Equipment_Menu:
         self.width = rect[2]
         self.height = rect[3]
         self.screen = screen
-        self.UI_components = []
+        self.bodyParts = bodyParts
+        self.equipment_item_background = pygame.image.load('./img/equipment_item_background.png').convert_alpha()
+
         # overlay
         self.open_containers = [] # these show up on the grid at the bottom. a list
         self.open_container_grid = {} # 16 across and 8 down grid to hold the items in open containers.
@@ -402,8 +403,59 @@ class Equipment_Menu:
                 self.open_container_grid[i][j] = None # initialize it with no Item in this position.
         for container in self.open_containers:
             for item in container.contained_items:
-                #TODO: add the items to the grid
                 pass
+
+        # screen locations for the equipment. needs reference item and screen location.
+        self.equipment_slots = {}
+        # parse body parts and fill equipment slots with items and locations.
+        for bodyPart in self.bodyParts:
+            ident, location = bodyPart.ident.split('_') # HEAD_0 becomes 'HEAD', '0' ARM_LEFT becomes 'ARM', 'LEFT'
+            if(ident not in self.equipment_slots):
+                self.equipment_slots[ident] = {}  # initialize if it doesn't exist.
+            if(ident == 'HEAD'):
+                self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (152, 4))
+                self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (224, 4))
+            if(ident == 'TORSO'):
+                self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (188, 62))
+                self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (188, 100))
+            if(ident == 'ARM'): # need to be able to handle a arbitrary number of arms in the future.
+                if(location == 'RIGHT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (110, 48))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (110, 76))
+                elif(location == 'LEFT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (264, 48))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (264, 76))
+            if(ident == 'HAND'): # need to be able to handle a arbitrary number of arms in the future.
+                if(location == 'RIGHT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (114, 110))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (142, 128))
+                    self.equipment_slots[ident][location].slot_equipped = (bodyPart.slot_equipped, (62, 110))
+                elif(location == 'LEFT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (262, 110))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (234, 128))
+                    self.equipment_slots[ident][location].slot_equipped = (bodyPart.slot_equipped, (312, 110))
+            if(ident == 'LEG'): # need to be able to handle a arbitrary number of arms in the future.
+                if(location == 'RIGHT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (116, 170))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (144, 170))
+                elif(location == 'LEFT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (234, 170))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (262, 170))
+            if(ident == 'FOOT'): # need to be able to handle a arbitrary number of arms in the future.
+                if(location == 'RIGHT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (112, 214))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (140, 214))
+                elif(location == 'LEFT'):
+                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (236, 214))
+                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (264, 214))
+
+
+    def draw(self):
+        # first draw the backgrounds for body part slots then blit items equipped to the body part
+        for slot in self.equipment_slots:
+            self.screen.blit(self.equipment_item_background, (slot[0], slot[1]))
+
+            #self.screen.blit(item.surface, (self.x + count, self.y + 4))
 
     def move_item_from_slot_to_slot(self, item, slot0, slot1):
         # after an item is grabbed this is called and sends a request to the server to do the actual moving.
@@ -463,7 +515,9 @@ class Super_menu:
         if tile['creature'] is not None: # is there a creature here to interact with?
             self.menu_items.append('Creature')
         if tile['terrain'] is not None: # there should always be terrain there but check anyways.
-            self.menu_items.append('Terrain')
+            #self.menu_items.append('Terrain')
+            #TODO: Support terrain super menu item.
+            pass
         if len(tile['items']) > 0: # if there's at least 1 item here that's enough.
             self.menu_items.append('Items')
         if tile['furniture'] is not None: # add the furniture submenu
@@ -477,12 +531,12 @@ class Super_menu:
         for obj in self.menu_items:
             print(obj)
         print('---------- END SUPER MENU ----------')
-        # create the textbox for the top.
 
+        # create the textbox for the top.
         _surface = ref_FontManager.convert_string_to_surface('Super Menu')
         self.UI_components.append(TextBox(self.screen, (0, 0, 200), (self.x, self.y, self.width, 12), _surface))
-        # create a listbox and fill it with menu_items
 
+        # create a listbox and fill it with menu_items
         lb1 = ListBox(self.screen, (0,0,0), (self.x, self.y+12,self.width, self.height-12))
         # and populate them
         for menu_item in self.menu_items:
