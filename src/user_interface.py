@@ -349,6 +349,16 @@ class Movement_menu:
         self.UI_components.append(lb1)
         print('movement menu created.')
 
+# differs from a regular button because it always displays the background even without an item.
+class Equipment_Button:
+    def __init__(self, position, item=None):
+        self.equipment_item_background = pygame.image.load('./img/equipment_item_background.png').convert_alpha()
+        self.position = position
+        self.item = item
+
+    def draw():
+        self.screen.blit(self.equipment_item_background, position)
+
 class Equipment_Menu:
     # equipment menu needs
     #  an overlay of the character.
@@ -383,6 +393,7 @@ class Equipment_Menu:
     # click a container with an item 'grabbed'
     #  put() item in container. (containers can only hold empty containers. or closed containers.)
 
+
     def __init__(self, screen, rect, ref_FontManager, bodyParts):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
         self.rect = rect
@@ -392,7 +403,7 @@ class Equipment_Menu:
         self.height = rect[3]
         self.screen = screen
         self.bodyParts = bodyParts
-        self.equipment_item_background = pygame.image.load('./img/equipment_item_background.png').convert_alpha()
+
 
         # overlay
         self.open_containers = [] # these show up on the grid at the bottom. a list
@@ -407,14 +418,39 @@ class Equipment_Menu:
 
         # screen locations for the equipment. needs reference item and screen location.
         self.equipment_slots = {}
-        # parse body parts and fill equipment slots with items and locations.
+        self.UI_components = []
+        self.update()
+
+    # this refreshes self.UI_components
+    def update(self):
+        self.equipment_slots = {} # reset everything
         for bodyPart in self.bodyParts:
             ident, location = bodyPart.ident.split('_') # HEAD_0 becomes 'HEAD', '0' ARM_LEFT becomes 'ARM', 'LEFT'
+
             if(ident not in self.equipment_slots):
                 self.equipment_slots[ident] = {}  # initialize if it doesn't exist.
+                if(location not in ident):
+                    self.equipment_slots[ident][location] = {}  # initialize if it doesn't exist.
+
             if(ident == 'HEAD'):
-                self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (152, 4))
-                self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (224, 4))
+                # first setup slot0
+                if('item' not in self.equipment_slots[ident][location]['slot0'])
+                    self.equipment_slots[ident][location]['slot0']['item'] = {}
+                self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+
+                if('position' not in self.equipment_slots[ident][location]['slot0'])
+                    self.equipment_slots[ident][location]['slot0'] = {}
+                self.equipment_slots[ident][location]['slot0']['position'] = (152, 4)
+
+                # then slot1
+                if('item' not in self.equipment_slots[ident][location]['slot1'])
+                    self.equipment_slots[ident][location]['slot1']['item'] = {}
+                self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot0
+
+                if('position' not in self.equipment_slots[ident][location]['slot1'])
+                    self.equipment_slots[ident][location]['slot1'] = {}
+                self.equipment_slots[ident][location]['slot1']['position'] = (224, 4)
+
             if(ident == 'TORSO'):
                 self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (188, 62))
                 self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (188, 100))
@@ -425,7 +461,7 @@ class Equipment_Menu:
                 elif(location == 'LEFT'):
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (264, 48))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (264, 76))
-            if(ident == 'HAND'): # need to be able to handle a arbitrary number of arms in the future.
+            if(ident == 'HAND'): # need to be able to handle a arbitrary number of hands in the future.
                 if(location == 'RIGHT'):
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (114, 110))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (142, 128))
@@ -434,28 +470,43 @@ class Equipment_Menu:
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (262, 110))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (234, 128))
                     self.equipment_slots[ident][location].slot_equipped = (bodyPart.slot_equipped, (312, 110))
-            if(ident == 'LEG'): # need to be able to handle a arbitrary number of arms in the future.
+            if(ident == 'LEG'): # need to be able to handle a arbitrary number of legs in the future.
                 if(location == 'RIGHT'):
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (116, 170))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (144, 170))
                 elif(location == 'LEFT'):
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (234, 170))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (262, 170))
-            if(ident == 'FOOT'): # need to be able to handle a arbitrary number of arms in the future.
+            if(ident == 'FOOT'): # need to be able to handle a arbitrary number of feet in the future.
                 if(location == 'RIGHT'):
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (112, 214))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (140, 214))
                 elif(location == 'LEFT'):
                     self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (236, 214))
                     self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (264, 214))
+        self.UI_components = []
+        for ident in self.equipment_slots:
+            for location in ident:
+                # always blit the background if the limb exists.
+                self.UI_components.append(Equipment_Button((location['slot0']['position'][0], location['slot0']['position'][1])))
+                self.UI_components.append(Equipment_Button((location['slot1']['position'][0], location['slot1']['position'][1])))
+                # usually only hands have a 'slot_equipped' slot
+                if('slot_equipped' in location):
+                    self.UI_components.append(Equipment_Button((location['slot_equipped']['position'][0], location['slot_equipped']['position'][1])))
 
 
-    def draw(self):
-        # first draw the backgrounds for body part slots then blit items equipped to the body part
-        for slot in self.equipment_slots:
-            self.screen.blit(self.equipment_item_background, (slot[0], slot[1]))
+                # append the items if it exists in the slot.
+                if(location['slot0']['item'] is not None):
+                    self.UI_components.append(location['slot0']['item'], (location['slot0']['position'][0], location['slot0']['position'][1]))
+                if(location['slot1']['item'] is not None):
+                    self.UI_components.append(location['slot1']['item'], (location['slot1']['position'][0], location['slot1']['position'][1]))
+                if('slot_equipped' in location):
+                    if(location['slot_equipped']['item'] is not None):
+                        self.UI_components.append(location['slot_equipped']['item'], (location['slot_equipped']['position'][0], location['slot_equipped']['position'][1]))
+
 
             #self.screen.blit(item.surface, (self.x + count, self.y + 4))
+
 
     def move_item_from_slot_to_slot(self, item, slot0, slot1):
         # after an item is grabbed this is called and sends a request to the server to do the actual moving.

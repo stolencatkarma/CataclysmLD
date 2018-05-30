@@ -19,7 +19,7 @@ from src.tile import TileManager
 from src.item import Item, ItemManager
 from src.recipe import RecipeManager, Recipe
 from src.blueprint import Blueprint
-from src.user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, Crafting_Menu, Directional_choice, FontManager, Popup_menu, Super_menu, Movement_menu
+from src.user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, Crafting_Menu, Directional_choice, FontManager, Popup_menu, Super_menu, Movement_menu, Equipment_Menu, Equipment_Button
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def find_player_in_localmap(self):
@@ -434,13 +434,14 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             pass
 
     def open_equipment_menu(self):
-        equipment_menu = Equipment_Menu(self.screen, (0, 0, 480, 480), self.FontManager)
+        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager)
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
 
         # work out the internal list of UI_components so we can iterate them if needed.
         _listboxes = []
         _textboxes = []
         _buttons = []
+        _equipment_buttons = []
         for UI_component in equipment_menu.UI_components:
             UI_component.draw() # blit them to the screen.
 
@@ -450,6 +451,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                 _textboxes.append(UI_component)
             elif(isinstance(UI_component, Button)):
                 _buttons.append(UI_component)
+            elif(isinstance(UI_component, Equipment_Button)):
+                _equipment_buttons.append(UI_component)
 
         # now that we've drawn the crafting menu we need to wait until the player clicks a UI_component or clicks to craft.
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
