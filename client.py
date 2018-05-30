@@ -434,7 +434,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             pass
 
     def open_equipment_menu(self):
-        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager)
+        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.player.body_parts)
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
 
         # work out the internal list of UI_components so we can iterate them if needed.
@@ -458,10 +458,9 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
         sidebar_components = []
         while True:
+            self.screen.blit(equipment_menu.surface, (equipment_menu.x, equipment_menu.y))
             for UI_component in equipment_menu.UI_components:
                 UI_component.draw() # blit them to the screen.
-            #for component in sidebar_components:
-                #component.draw()
             pygame.display.flip() # flip the screen after we've .draw() the UI_components
             event = pygame.event.wait() # wait for player input.
             if event.type == pygame.QUIT:
@@ -630,6 +629,8 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_c: # crafting menu
                     ident, direction = client.open_crafting_menu() # once the menu closes we should have a direction and an ident for a recipe
                     command = Command(client.player.name, 'create_blueprint', [ident, direction])
+                elif event.key == pygame.K_e: # crafting menu
+                    client.open_equipment_menu()
                 elif event.key == pygame.K_ESCAPE: # close all menus
                     print('closing all Buttons, listboxes, and textboxes')
                     client.buttons = []

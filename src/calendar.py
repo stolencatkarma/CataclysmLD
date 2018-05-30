@@ -98,7 +98,7 @@ class Calendar(): # controls the time in game. to advance time in game we do it 
         self.weekday_names.insert(len(self.weekday_names), 'Friday')
         self.weekday_names.insert(len(self.weekday_names), 'Saturday')
         days = self.DAYS # How many days have passed this month.
-        while(days >= len(self.weekday_names): # loop until we get a number 0-6
+        while(days >= len(self.weekday_names)): # loop until we get a number 0-6
             days = days - len(self.weekday_names)
 
         return self.weekday_names[days] # what's left over is the day of the week.

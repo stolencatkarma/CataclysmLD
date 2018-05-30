@@ -7,3 +7,5 @@ class Player(Creature):
         Creature.__init__(self)
         self.name = name
         self.style_selected = None
+        for bodyPart in self.body_parts:
+            print(bodyPart)

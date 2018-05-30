@@ -439,7 +439,7 @@ if __name__ == "__main__":
     dont_break = True
     time_offset = 1.0 # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
-    server.generate_and_apply_city_layout(1)
+    #server.generate_and_apply_city_layout(1)
 
     print('Started up Cataclysm: Looming Darkness Server.')
     while dont_break:

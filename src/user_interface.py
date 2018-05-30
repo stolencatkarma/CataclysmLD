@@ -351,13 +351,17 @@ class Movement_menu:
 
 # differs from a regular button because it always displays the background even without an item.
 class Equipment_Button:
-    def __init__(self, position, item=None):
+    def __init__(self, screen, position, item=None):
         self.equipment_item_background = pygame.image.load('./img/equipment_item_background.png').convert_alpha()
         self.position = position
         self.item = item
+        self.screen = screen
 
-    def draw():
-        self.screen.blit(self.equipment_item_background, position)
+    def draw(self):
+        self.screen.blit(self.equipment_item_background, self.position)
+        if(self.item is not None):
+            # blit item as well.
+            pass
 
 class Equipment_Menu:
     # equipment menu needs
@@ -396,6 +400,12 @@ class Equipment_Menu:
 
     def __init__(self, screen, rect, ref_FontManager, bodyParts):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
+
+        # screen locations for the equipment. needs reference item and screen location.
+        self.equipment_slots = {}
+        self.UI_components = []
+        self.surface = pygame.image.load('./img/equipment_overlay.png').convert_alpha()
+
         self.rect = rect
         self.x = rect[0]
         self.y = rect[1]
@@ -416,88 +426,118 @@ class Equipment_Menu:
             for item in container.contained_items:
                 pass
 
-        # screen locations for the equipment. needs reference item and screen location.
-        self.equipment_slots = {}
-        self.UI_components = []
+
         self.update()
 
     # this refreshes self.UI_components
     def update(self):
         self.equipment_slots = {} # reset everything
         for bodyPart in self.bodyParts:
+            print('===============================================')
+            #print('bodyPart', bodyPart)
+            #print('bodyPart.ident', bodyPart.ident)
+            print('bodyPart.ident.split(\'_\')', bodyPart.ident.split('_'))
             ident, location = bodyPart.ident.split('_') # HEAD_0 becomes 'HEAD', '0' ARM_LEFT becomes 'ARM', 'LEFT'
 
             if(ident not in self.equipment_slots):
                 self.equipment_slots[ident] = {}  # initialize if it doesn't exist.
-                if(location not in ident):
-                    self.equipment_slots[ident][location] = {}  # initialize if it doesn't exist.
+            if(location not in ident):
+                self.equipment_slots[ident][location] = {}  # initialize if it doesn't exist.
+                if('slot0' not in self.equipment_slots[ident][location]):
+                    self.equipment_slots[ident][location]['slot0'] = {}
+                if('item' not in self.equipment_slots[ident][location]['slot0']):
+                    self.equipment_slots[ident][location]['slot0']['item'] = None
+                if('position' not in self.equipment_slots[ident][location]['slot0']):
+                    self.equipment_slots[ident][location]['slot0']['position'] = (-999,-999)
+
+                if('slot1' not in self.equipment_slots[ident][location]):
+                    self.equipment_slots[ident][location]['slot1'] = {}
+                if('item' not in self.equipment_slots[ident][location]['slot1']):
+                    self.equipment_slots[ident][location]['slot1']['item'] = None
+                if('position' not in self.equipment_slots[ident][location]['slot1']):
+                    self.equipment_slots[ident][location]['slot1']['position'] = (-999,-999)
+
+                if(ident == 'HAND' and 'slot_equipped' not in self.equipment_slots[ident][location]):
+                    self.equipment_slots[ident][location]['slot_equipped'] = {}
 
             if(ident == 'HEAD'):
                 # first setup slot0
-                if('item' not in self.equipment_slots[ident][location]['slot0'])
-                    self.equipment_slots[ident][location]['slot0']['item'] = {}
                 self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
-
-                if('position' not in self.equipment_slots[ident][location]['slot0'])
-                    self.equipment_slots[ident][location]['slot0'] = {}
                 self.equipment_slots[ident][location]['slot0']['position'] = (152, 4)
-
                 # then slot1
-                if('item' not in self.equipment_slots[ident][location]['slot1'])
-                    self.equipment_slots[ident][location]['slot1']['item'] = {}
-                self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot0
-
-                if('position' not in self.equipment_slots[ident][location]['slot1'])
-                    self.equipment_slots[ident][location]['slot1'] = {}
+                self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
                 self.equipment_slots[ident][location]['slot1']['position'] = (224, 4)
 
             if(ident == 'TORSO'):
-                self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (188, 62))
-                self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (188, 100))
+                self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                self.equipment_slots[ident][location]['slot0']['position'] = (188, 62)
+                self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                self.equipment_slots[ident][location]['slot1']['position'] = (188, 100)
             if(ident == 'ARM'): # need to be able to handle a arbitrary number of arms in the future.
                 if(location == 'RIGHT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (110, 48))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (110, 76))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (110, 48)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] =  (110, 76)
                 elif(location == 'LEFT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (264, 48))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (264, 76))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (264, 48)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (264, 76)
             if(ident == 'HAND'): # need to be able to handle a arbitrary number of hands in the future.
                 if(location == 'RIGHT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (114, 110))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (142, 128))
-                    self.equipment_slots[ident][location].slot_equipped = (bodyPart.slot_equipped, (62, 110))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (114, 110)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (142, 128)
+                    self.equipment_slots[ident][location]['slot_equipped']['item'] = bodyPart.slot_equipped
+                    self.equipment_slots[ident][location]['slot_equipped']['position'] = (62, 110)
                 elif(location == 'LEFT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (262, 110))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (234, 128))
-                    self.equipment_slots[ident][location].slot_equipped = (bodyPart.slot_equipped, (312, 110))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (262, 110)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (234, 128)
+                    self.equipment_slots[ident][location]['slot_equipped']['item'] = bodyPart.slot_equipped
+                    self.equipment_slots[ident][location]['slot_equipped']['position'] = (312, 110)
             if(ident == 'LEG'): # need to be able to handle a arbitrary number of legs in the future.
                 if(location == 'RIGHT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (116, 170))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (144, 170))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (116, 170)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (144, 170)
                 elif(location == 'LEFT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (234, 170))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (262, 170))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (234, 170)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (262, 170)
             if(ident == 'FOOT'): # need to be able to handle a arbitrary number of feet in the future.
                 if(location == 'RIGHT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (112, 214))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (140, 214))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (112, 214)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (140, 214)
                 elif(location == 'LEFT'):
-                    self.equipment_slots[ident][location].slot0 = (bodyPart.slot0, (236, 214))
-                    self.equipment_slots[ident][location].slot1 = (bodyPart.slot1, (264, 214))
+                    self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
+                    self.equipment_slots[ident][location]['slot0']['position'] = (236, 214)
+                    self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
+                    self.equipment_slots[ident][location]['slot1']['position'] = (264, 214)
         self.UI_components = []
-        for ident in self.equipment_slots:
-            for location in ident:
+        for key, ident in self.equipment_slots.items():
+            print(key, ident)
+            for key, location in ident.items():
+                print(location)
                 # always blit the background if the limb exists.
-                self.UI_components.append(Equipment_Button((location['slot0']['position'][0], location['slot0']['position'][1])))
-                self.UI_components.append(Equipment_Button((location['slot1']['position'][0], location['slot1']['position'][1])))
+                #screen, position, item=None
+                self.UI_components.append(Equipment_Button(self.screen, location['slot0']['position']))
+                self.UI_components.append(Equipment_Button(self.screen, (location['slot1']['position'][0], location['slot1']['position'][1])))
                 # usually only hands have a 'slot_equipped' slot
                 if('slot_equipped' in location):
-                    self.UI_components.append(Equipment_Button((location['slot_equipped']['position'][0], location['slot_equipped']['position'][1])))
+                    self.UI_components.append(Equipment_Button(self.screen, (location['slot_equipped']['position'][0], location['slot_equipped']['position'][1])))
 
 
                 # append the items if it exists in the slot.
                 if(location['slot0']['item'] is not None):
-                    self.UI_components.append(location['slot0']['item'], (location['slot0']['position'][0], location['slot0']['position'][1]))
+                    self.UI_components.append(location['slot0']['item'], location['slot0']['position'])
                 if(location['slot1']['item'] is not None):
                     self.UI_components.append(location['slot1']['item'], (location['slot1']['position'][0], location['slot1']['position'][1]))
                 if('slot_equipped' in location):

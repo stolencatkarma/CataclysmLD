@@ -22,16 +22,16 @@
     "burn_into": "mon_zombie_scorched",
     "body_parts": [
       {
-        "HEAD":true,
-        "TORSO":true,
-        "ARM":false,
-        "ARM":false,
-        "HAND":false,
-        "HAND":false,
-        "FOOT":false,
-        "FOOT":false,
-        "LEG":false,
-        "LEG":false
+        "HEAD_0":true,
+        "TORSO_0":true,
+        "ARM_LEFT":false,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":false,
+        "FOOT_RIGHT":false,
+        "LEG_LEFT":false,
+        "LEG_RIGHT":false
       }
     ]
   }
