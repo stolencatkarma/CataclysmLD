@@ -529,20 +529,20 @@ class Equipment_Menu:
                 # always blit the background if the limb exists.
                 #screen, position, item=None
                 self.UI_components.append(Equipment_Button(self.screen, location['slot0']['position']))
-                self.UI_components.append(Equipment_Button(self.screen, (location['slot1']['position'][0], location['slot1']['position'][1])))
+                self.UI_components.append(Equipment_Button(self.screen, location['slot1']['position'])))
                 # usually only hands have a 'slot_equipped' slot
                 if('slot_equipped' in location):
-                    self.UI_components.append(Equipment_Button(self.screen, (location['slot_equipped']['position'][0], location['slot_equipped']['position'][1])))
+                    self.UI_components.append(Equipment_Button(self.screen, location['slot_equipped']['position'])))
 
 
                 # append the items if it exists in the slot.
                 if(location['slot0']['item'] is not None):
                     self.UI_components.append(location['slot0']['item'], location['slot0']['position'])
                 if(location['slot1']['item'] is not None):
-                    self.UI_components.append(location['slot1']['item'], (location['slot1']['position'][0], location['slot1']['position'][1]))
+                    self.UI_components.append(location['slot1']['item'], location['slot1']['position'])
                 if('slot_equipped' in location):
                     if(location['slot_equipped']['item'] is not None):
-                        self.UI_components.append(location['slot_equipped']['item'], (location['slot_equipped']['position'][0], location['slot_equipped']['position'][1]))
+                        self.UI_components.append(location['slot_equipped']['item'], location['slot_equipped']['position'])
 
 
             #self.screen.blit(item.surface, (self.x + count, self.y + 4))

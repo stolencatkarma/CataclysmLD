@@ -1,0 +1,175 @@
+These are my personal notes when working on the game. they may or may not be true for current version of the game. 
+Take everything with a grain of salt
+
+Containers.
+- any item with a 'volume' can hold other items
+- can hold either 'liquid' or 'solid'
+- container total weight is base_weight + sum_items_contained_within_weight
+
+
+--hotbar
+- from left to right
+- drag bar 2px from left, 24px wide, 2 more px padding (28)
+- items - every 28 px
+- add and remove items by dragging into and out of.
+
+--multiplayer flow
+first login and get player update
+check if we have any messages from the server. if so process them.
+if we have a player and localmap we need to update the localview when we get a new localmap
+
+
+--updating multiplayer players gui
+localmap = is terrain and furniture.
+monsterlist = the monsters around the player.
+vehicles = the base vehicle objects.
+
+how do we send only what changed.. hmm.
+we keep the last copy we sent the player and check it against the current chunks then send the difference.
+so we'd have the initial update be a big one then as the player moves and does stuff they get incremental updates.
+
+
+
+
+players needs 2400 calories a day to maintain weight.
+
+separate character and world generation applications
+
+vehicle generation
+- 4 layers
+- the top layer which is doors, quarter panels and has a color associated with it.
+- one for wheels,
+- one for engine, frame, seats, trunks, etc..
+- last one for lights
+
+item generation.
+- we don't need to load the items until a player looks inside of the holding object. this will save a lot of time on worldgen.
+
+ city generation - separated into residential, commercial, and industrial zones.
+ - a city of 2,000 is roughly 1sq mile in size. or 5,280 ft across, which is 1,056 tiles across or roughly 16 chunks across
+ - we have 256 chunks to work with. 96 for residential,  53 commercial, 53 industrial, and 54 for parks and rec
+ - 1 police dept, 1 fire dept,
+ - each chunk can hold 4 regular sized houses so we'd have 386 households.
+ - each residential zone can 'support' 1 commercial, and one industrial zone
+ - 1 public transport per zone up to 10 then you get a subway.
+ - add a city park per 3 residential zones.
+ - add sewers down in z
+ - raise buildings up in z.
+
+63, 63 chunk gives us a center line.
+a 63x63 chunk can hold 4 small buildings and some roads.
+28x28 buildings gives us room for roads TODO: worldgen objects needs to be resized and reworked.
+
+
+roads
+- urban roads 10ft wide
+- traditionally 12 feet wide lanes in cites
+- highways 2-4 lanes across
+- so... 2 tiles for one way roads w 3 ft of dirt on the sides
+- sidewalks add another 5 ft on either side. for
+S = sidewalk
+R = Road
+C = Lane divider
+D = Dirt
+
+2-lane city road
+ SSSSSSSSSSSS
+ RRRRRRRRRRRR
+ RRRRRRRRRRRR
+ CCCCCCCCCCCC
+ RRRRRRRRRRRR
+ RRRRRRRRRRRR
+ SSSSSSSSSSSS
+
+2-lane rural road
+ DDDDDDDDDDDDD
+ RRRRRRRRRRRRR
+ RRRRRRRRRRRRR
+ CCCCCCCCCCCCC
+ RRRRRRRRRRRRR
+ RRRRRRRRRRRRR
+ DDDDDDDDDDDDD
+
+city to rural connection
+ SSSSSSSSSSSSS DDDDDDDDDDDDD
+ RRRRRRRRRRRRR RRRRRRRRRRRRR
+ RRRRRRRRRRRRR RRRRRRRRRRRRR
+ CCCCCCCCCCCCC CCCCCCCCCCCCC
+ RRRRRRRRRRRRR RRRRRRRRRRRRR
+ RRRRRRRRRRRRR RRRRRRRRRRRRR
+ SSSSSSSSSSSSS DDDDDDDDDDDDD
+
+ cars
+ 2x3 tiles.
+
+
+
+
+
+world is made up of chunks stored on the disk in json.
+the client only needs to load what their character can see * 2 with regard to their position in the chunk
+so current chunk plus all surrounding chucks in memory, if players moves between chunks reload the surrounding ones
+Once we've blitted them all together we can display them. that's 1 frame.
+
+-- graphics layers - from top to bottom
+---main window
+--localview
+-weather
+-creatures including players
+-items and bullets
+-vehicles
+-furniture
+-floor tiles
+---------
+--!minimap
+--!health
+--!power
+--!messages
+--!compass and seen monsters
+--!weather
+--!time and sun/moon
+--!sound
+--!safemode
+--!bodyparts
+--!hunger/thirst/pain
+--!speed
+--!focus
+--!held/grabbed item
+--!walk/run
+
+-----------------------------
+
+---overworld view
+--map
+--cursor info
+--notes
+
+------------------------------------
+------------------------------------
+
+24px tileset
+(( 854 x 480 (16:9) is 35 x 20 tiles ))
+
+
+800 x 600 is 33.33 x 25
+
+16px tileset
+854 x 480 is 53.375 x 30
+800 x 600 is 50 x 37.5
+
+
+
+#######################################
+MAP generation
+#######################################
+
+since most json configs are for buildings that are 24 x 24 x 1 and chunks are 64 x 64 x 1 we can probably fit 4 buildings per chunk with some room on the sides.
+
+24+24 = 48-64 = 16 extra spaces to work with if split evenly 16 / 3 is not even so...
+i guess we can use the 63 x 63 and cut off the last row and column
+24+24 = 48-63 = 15 extra spaces to work and 15 / 3 is even so they would be evenly spaced within the chunk and 1 extra on the right and top side.
+#####
+#H H#
+#H H#
+#####
+if chunk size is 24

@@ -195,26 +195,7 @@ class Server(MastermindServerTCP):
                 _position = Position(data.args[3], data.args[4], data.args[5]) # pass the position even if we may not need it.
 
                 # need to parse where it's coming from and where it's going.
-                if(_from_type == 'creature.held_item'):
-                    # item is coming from the _player_requesting.items_held list
-                    _from_list = _player_requesting.items_held
-                    if(_item in _from_list)[:]: # iterate a copy to remove correctly
-                        _from_list.remove(_item)
-                        _to_list.append(_item)
-                        print('moved correctly.')
-                        return
-                elif(_from_type == 'creature.held_item.container'):
-                    for bodypart in _player_requesting.body_parts[:]: # iterate a copy to remove properly.
-                        for item in bodypart.equipped: #could be a container or not.
-                            if(isinstance(item, Container)): # if it's a container.
-                                for item2 in item.contained_items[:]: # check every item in the container.
-                                    if(item2 is _item):
-                                        from_list = item.contained_items
-                                        _from_list.remove(_item)
-                                        _to_list.append(_item)
-                                        print('moved correctly.')
-                                        return
-                elif(_from_type == 'bodypart.equipped'):
+                if(_from_type == 'bodypart.equipped'):
                     for bodypart in _player_requesting.body_parts[:]: # iterate a copy to remove properly.
                         if(_item in bodypart.equipped):
                             _from_list = bodypart.equipped

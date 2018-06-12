@@ -434,8 +434,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             pass
 
     def open_equipment_menu(self):
-        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.player.body_parts)
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
+        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.player.body_parts)
 
         # work out the internal list of UI_components so we can iterate them if needed.
         _listboxes = []
@@ -454,7 +454,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             elif(isinstance(UI_component, Equipment_Button)):
                 _equipment_buttons.append(UI_component)
 
-        # now that we've drawn the crafting menu we need to wait until the player clicks a UI_component or clicks to craft.
+        # now that we've drawn the equipment menu we need to wait until the player clicks a UI_component.
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
         sidebar_components = []
         while True:
@@ -480,6 +480,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                 if event.key == pygame.K_m:
                     #(m)ove an item
                     pass
+            elif event.key == pygame.K_ESCAPE: # close the menu
+                return
 #
 #   if we start a client directly
 #
