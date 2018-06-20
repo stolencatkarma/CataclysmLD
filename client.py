@@ -471,8 +471,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         # now that we've drawn the equipment menu we need to wait until the player clicks a UI_component.
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
         sidebar_components = []
+        _grabbed = None
         while True:
-            _grabbed = None
             self.screen.blit(equipment_menu.surface, (equipment_menu.x, equipment_menu.y))
             for UI_component in equipment_menu.UI_components:
                 UI_component.draw() # blit them to the screen.
