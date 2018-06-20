@@ -226,7 +226,7 @@ class Worldmap:
         return chunks
 
     def get_player(self, ident):
-        print('ident:' + str(ident))
+        #print('ident:' + str(ident))
         for tile in self.get_all_tiles():
             if(tile['creature'] is not None and tile['creature'].name == ident):
                 print('found player:' + tile['creature'].name)

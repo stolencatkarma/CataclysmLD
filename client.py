@@ -454,10 +454,25 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             elif(isinstance(UI_component, Equipment_Button)):
                 _equipment_buttons.append(UI_component)
 
+        # clicking on a area where an item is equipped.
+        #  with no item 'grabbed' and no item in slot.
+        #   open menu > equip/wear item -> parse_items_for_equippable_locations()[] -> click_item() -> wear_item()
+        # with item 'grabbed' and no item in slot
+        #  check_equippable() -> wear/weild item
+        # with no item 'grabbed' and item in slot
+        #  'grab' item
+        # with item grabbed and item in slot
+        #  swap()?
+        # with item 'grabbed' and cursor outside equipment screen.
+        #  drop() item on ground relative the the position of the equipment screen (drop right on screen drops right of player)
+        # click a container with an item 'grabbed'
+        #  put() item in container. (containers can only hold empty containers. or closed containers.)
+
         # now that we've drawn the equipment menu we need to wait until the player clicks a UI_component.
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
         sidebar_components = []
         while True:
+            _grabbed = None
             self.screen.blit(equipment_menu.surface, (equipment_menu.x, equipment_menu.y))
             for UI_component in equipment_menu.UI_components:
                 UI_component.draw() # blit them to the screen.
@@ -474,14 +489,32 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             elif(event.type == pygame.MOUSEBUTTONUP):
                 # we clicked somewhere while the equipment screen is up.
                 # if we clicked an equipment tile we need to open a sub-menu for options for that the item can do. (activate, equip, etc..)
+                pos = pygame.mouse.get_pos()
+                for UI_component in equipment_menu.UI_components:
+                    if pos[0] >= UI_component.position[0] and pos[0] <= UI_component.position[0] + 24:
+                        if pos[1] >= UI_component.position[1] and pos[1] <= UI_component.position[1] + 24:
+                            print('clicked', UI_component )
+                            if(_grabbed is None): # the temporary spot where the cursor is holding the item.
+                                _grabbed = UI_component.item
+                                UI_component.item = None # this only happens locally for now. the server doesn't care about the item on the cursor.
+                            else: # we are holding an item
+                                if(UI_component.item is None):
+                                    UI_component.item = _grabbed
+                                    _grabbed = None # place the item into the blank spot.
+                                    #TODO: tell the server to move the item server-side
+                                else:
+                                    _grabbed = UI_component.item # swap the items.
+                                    UI_component.item = _grabbed
+                                    #TODO: tell the server to swap the items server-side
+
                 pass
             elif(event.type == pygame.KEYUP):
                 # when we want to do something with the keyboard.
                 if event.key == pygame.K_m:
                     #(m)ove an item
                     pass
-            elif event.key == pygame.K_ESCAPE: # close the menu
-                return
+                elif(event.key == pygame.K_ESCAPE): # close the menu
+                    return
 #
 #   if we start a client directly
 #
@@ -634,7 +667,7 @@ if __name__ == "__main__":
                 elif event.key == pygame.K_e: # crafting menu
                     client.open_equipment_menu()
                 elif event.key == pygame.K_ESCAPE: # close all menus
-                    print('closing all Buttons, listboxes, and textboxes')
+                    #TODO: print('closing all Buttons, listboxes, and textboxes')
                     client.buttons = []
                     client.listboxes = []
                     client.textboxes = []

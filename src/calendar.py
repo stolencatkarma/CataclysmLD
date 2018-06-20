@@ -61,18 +61,18 @@ class Calendar(): # controls the time in game. to advance time in game we do it 
 
     def get_season(self):
         self.season_names = []
-        self.season_names.insert(len(self.weekday_names), 'Spring') # 0
-        self.season_names.insert(len(self.weekday_names), 'Summer') # 1
-        self.season_names.insert(len(self.weekday_names), 'Winter') # 2, etc..
-        self.season_names.insert(len(self.weekday_names), 'Fall')
+        self.season_names.insert(len(self.season_names), 'Spring') # 0
+        self.season_names.insert(len(self.season_names), 'Summer') # 1
+        self.season_names.insert(len(self.season_names), 'Winter') # 2, etc..
+        self.season_names.insert(len(self.season_names), 'Fall')
         if self.MONTHS < self.MONTHS_PER_YEAR * 0.25:
-            self.SEASON = 'Spring'
+            self.SEASON = self.season_names[0]
         elif self.MONTHS < self.MONTHS_PER_YEAR * 0.5:
-            self.SEASON = 'Summer'
+            self.SEASON = self.season_names[1]
         elif self.MONTHS < self.MONTHS_PER_YEAR * 0.75:
-            self.SEASON = 'Winter'
+            self.SEASON = self.season_names[2]
         else:
-            self.SEASON = 'Fall'
+            self.SEASON = self.season_names[3]
 
         return self.SEASON
 

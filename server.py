@@ -7,8 +7,6 @@ import argparse
 
 from Mastermind._mm_server import MastermindServerTCP
 
-#sys.path.insert(0, './src/') # i prefer this way as opposed to using __init__.py files in subfolders.
-
 from src.options import Options
 import src.global_vars
 #import game

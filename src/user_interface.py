@@ -382,22 +382,6 @@ class Equipment_Menu:
     #   8,296 start, 384, 192 size
     #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
 
-
-    # clicking on a area where an item is equipped.
-    #  with no item 'grabbed' and no item in slot.
-    #   open menu > equip/wear item -> parse_items_for_equippable_locations()[] -> click_item() -> wear_item()
-    # with item 'grabbed' and no item in slot
-    #  check_equippable() -> wear/weild item
-    # with no item 'grabbed' and item in slot
-    #  'grab' item
-    # with item grabbed and item in slot
-    #  swap()?
-    # with item 'grabbed' and cursor outside equipment screen.
-    #  drop() item on ground relative the the position of the equipment screen (drop right on screen drops right of player)
-    # click a container with an item 'grabbed'
-    #  put() item in container. (containers can only hold empty containers. or closed containers.)
-
-
     def __init__(self, screen, rect, ref_FontManager, bodyParts):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
 
@@ -529,11 +513,10 @@ class Equipment_Menu:
                 # always blit the background if the limb exists.
                 #screen, position, item=None
                 self.UI_components.append(Equipment_Button(self.screen, location['slot0']['position']))
-                self.UI_components.append(Equipment_Button(self.screen, location['slot1']['position'])))
+                self.UI_components.append(Equipment_Button(self.screen, location['slot1']['position']))
                 # usually only hands have a 'slot_equipped' slot
                 if('slot_equipped' in location):
-                    self.UI_components.append(Equipment_Button(self.screen, location['slot_equipped']['position'])))
-
+                    self.UI_components.append(Equipment_Button(self.screen, location['slot_equipped']['position']))
 
                 # append the items if it exists in the slot.
                 if(location['slot0']['item'] is not None):
@@ -544,8 +527,7 @@ class Equipment_Menu:
                     if(location['slot_equipped']['item'] is not None):
                         self.UI_components.append(location['slot_equipped']['item'], location['slot_equipped']['position'])
 
-
-            #self.screen.blit(item.surface, (self.x + count, self.y + 4))
+        #TODO: open_container_grid at the bottom.
 
 
     def move_item_from_slot_to_slot(self, item, slot0, slot1):
