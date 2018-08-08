@@ -432,6 +432,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             return client.open_terrain_menu(pos)
         elif clicked == 'Creature':
             pass
+        elif clicked == 'Items':
+            # TODO: I assume the player wants to look at the items to decide what to take.
 
     def open_equipment_menu(self):
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
@@ -471,7 +473,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         # now that we've drawn the equipment menu we need to wait until the player clicks a UI_component.
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
         sidebar_components = []
-        _grabbed = None
+        _grabbed = self.player.grabbed
         while True:
             self.screen.blit(equipment_menu.surface, (equipment_menu.x, equipment_menu.y))
             for UI_component in equipment_menu.UI_components:
@@ -503,11 +505,28 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                                     _grabbed = None # place the item into the blank spot.
                                     #TODO: tell the server to move the item server-side
                                 else:
-                                    _grabbed = UI_component.item # swap the items.
-                                    UI_component.item = _grabbed
-                                    #TODO: tell the server to swap the items server-side
 
-                pass
+                                    _tmp1 = UI_component.item # swap the items.
+                                    _tmp2 = _grabbed
+                                    UI_component.item = _tmp2
+                                    _grabbed = _tmp1
+                                    _tmp1 = None
+                                    _tmp2 = None
+
+                                    #_grabbed = _tmp1
+                                    #TODO: tell the server to swap the items server-side
+                                    '''
+                                    _player_requesting = self.players[data.ident]
+                                    _item = data.args[0] # the item we are moving.
+                                    _from_type = data.args[1] # creature.held_item, creature.held_item.container, bodypart.equipped, bodypart.equipped.container, position, blueprint
+                                    _from_list = [] # the object list that contains the item. parse the type and fill this properly.
+                                    _to_list = data.args[2] # the list the item will end up. passed from command.
+                                    _position = Position(data.args[3], data.args[4], data.args[5]) # pass the position even if we may not need it.
+                                    '''
+
+                                    _command = Command(self.player.name, 'move_item', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
+                                    return _command
+
             elif(event.type == pygame.KEYUP):
                 # when we want to do something with the keyboard.
                 if event.key == pygame.K_m:

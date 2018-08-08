@@ -41,10 +41,10 @@ class Server(MastermindServerTCP):
         self.options = Options()
         self.calendar = Calendar(0, 0, 0, 0, 0, 0) # all zeros is the epoch
         self.options.save()
-        self.worldmap = Worldmap(13) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
+        self.worldmap = Worldmap(26) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
         self.starting_locations = [Position(24, 24, 0)] #TODO: starting locations should be loaded dynamically from secenarios
         for i in range(1, 13):
-            self.starting_locations.append(Position(24+i, 24, 0))
+            self.starting_locations.append(Position(24*i, 24, 0))
         self.RecipeManager = RecipeManager()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. creatures that don't can walk or break through walls.
@@ -184,6 +184,7 @@ class Server(MastermindServerTCP):
                     _z = _next_z
 
             if(data.command == 'move_item'):
+                # how do we handle swaps?
                 # client sends 'hey server. can you move this item from this to that?'
                 _player_requesting = self.players[data.ident]
                 _item = data.args[0] # the item we are moving.
@@ -418,7 +419,7 @@ if __name__ == "__main__":
     dont_break = True
     time_offset = 1.0 # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
-    #server.generate_and_apply_city_layout(1)
+    server.generate_and_apply_city_layout(2)
 
     print('Started up Cataclysm: Looming Darkness Server.')
     while dont_break:
@@ -429,7 +430,7 @@ if __name__ == "__main__":
             server.compute_turn() # where all queued creature actions get taken care of, as well as physics engine stuff.
             print('turn: ' + str(server.calendar.get_turn()))
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
-
+            #TODO: unload from memory chunks that have no updates required. (such as no monsters, players, or fires)
             last_turn_time = time.time() # based off of system clock.
         except KeyboardInterrupt:
             print('cleaning up before exiting.')

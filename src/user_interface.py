@@ -530,10 +530,6 @@ class Equipment_Menu:
         #TODO: open_container_grid at the bottom.
 
 
-    def move_item_from_slot_to_slot(self, item, slot0, slot1):
-        # after an item is grabbed this is called and sends a request to the server to do the actual moving.
-        pass
-
 # class for when you create a super menu item for creature
 class Super_menu_creature:
     def __init__(self):

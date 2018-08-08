@@ -34,6 +34,7 @@ class Creature:
         # list of body parts this creature has. normal human has 2 arms, 2 hands, 2 legs, torso, head, and 2 feet. head and torso are both vital organs.
         # body_parts are where items get equipped.
         self.body_parts = [Bodypart('HEAD_0', True), Bodypart('TORSO_0', True), Bodypart('ARM_LEFT'), Bodypart('ARM_RIGHT'), Bodypart('LEG_LEFT'), Bodypart('LEG_RIGHT'), Bodypart('FOOT_LEFT'), Bodypart('FOOT_RIGHT'), Bodypart('HAND_LEFT'), Bodypart('HAND_RIGHT')]
+        self.grabbed = None # the 'special' area where items held on the mouse cursor are stored.
 
 
 class MonsterManager:

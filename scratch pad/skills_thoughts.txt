@@ -39,8 +39,9 @@ differences
 # damage is calculated from the player's STR if melee or the bullet's strength if ranged.
 # total armor value of the Bodypart hit minus strength of the hit.
 # Tier of weapon + STR - armor_value
-# 1-8 damage, light wound
-# 9+ damage, heavy wound
+# 1-7 damage, light wound
+# 8+ damage, heavy wound
+# crits on 20, double damage
 
 # STR 20 bullet w/ tier 8 weapon vs no armor = max damage possible
 
