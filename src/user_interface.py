@@ -592,7 +592,8 @@ class Super_menu:
         if tile['furniture'] is not None: # add the furniture submenu
             self.menu_items.append('Furniture')
         if tile['vehicle'] is not None: # add the vehicle submenu
-            self.menu_items.append('Vehicle')
+            #self.menu_items.append('Vehicle')
+            pass # TODO: add trap disarming actions.
         if tile['trap'] is not None:
             pass # TODO: add trap disarming actions.
         # if tile['bullet'] is not None: # in the future it may be possible to react to bullets in flight but not right now.
@@ -602,8 +603,8 @@ class Super_menu:
         print('---------- END SUPER MENU ----------')
 
         # create the textbox for the top.
-        _surface = ref_FontManager.convert_string_to_surface('Super Menu')
-        self.UI_components.append(TextBox(self.screen, (0, 0, 200), (self.x, self.y, self.width, 12), _surface))
+        _surface = ref_FontManager.convert_string_to_surface('Super Menu') # create a surface from string.
+        self.UI_components.append(TextBox(self.screen, (0, 0, 200), (self.x, self.y, self.width, 12), _surface)) # draw the converted string from surface.
 
         # create a listbox and fill it with menu_items
         lb1 = ListBox(self.screen, (0,0,0), (self.x, self.y+12,self.width, self.height-12))

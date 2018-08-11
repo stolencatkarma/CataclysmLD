@@ -42,7 +42,7 @@ class Server(MastermindServerTCP):
         self.calendar = Calendar(0, 0, 0, 0, 0, 0) # all zeros is the epoch
         self.options.save()
         self.worldmap = Worldmap(26) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        self.starting_locations = [Position(24, 24, 0)] #TODO: starting locations should be loaded dynamically from secenarios
+        self.starting_locations = [Position(25, 25, 0)] #TODO: starting locations should be loaded dynamically from secenarios
         for i in range(1, 13):
             self.starting_locations.append(Position(24*i, 24, 0))
         self.RecipeManager = RecipeManager()
