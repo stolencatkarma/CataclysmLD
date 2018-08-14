@@ -610,13 +610,15 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                         print(_item_y_min, _item_y_max)
 
                         if(pos[0] > _item_x_min and pos[0] < _item_x_max):
-                            print('in x')
+                            # print('in x')
                             if(pos[1] > _item_y_min and pos[1] < _item_y_max):
                                 print('clicked', str(item.ident))
 
+                                # now we know the ident of the item we can pass that info to the server and let it parse and handle it.
 
-                    #_command = Command(self.player.name, 'take_item', (tile['position'].x, tile['position'].y, tile['position'].z), item.ident) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
-                    #return _command
+
+                                _command = Command(self.player.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
+                                return _command
 
                 elif(event.type == pygame.KEYUP):
                     # when we want to do something with the keyboard.

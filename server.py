@@ -42,9 +42,9 @@ class Server(MastermindServerTCP):
         self.calendar = Calendar(0, 0, 0, 0, 0, 0) # all zeros is the epoch
         self.options.save()
         self.worldmap = Worldmap(26) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        self.starting_locations = [Position(25, 25, 0)] #TODO: starting locations should be loaded dynamically from secenarios
+        self.starting_locations = [Position(23, 23, 0)] #TODO: starting locations should be loaded dynamically from secenarios
         for i in range(1, 13):
-            self.starting_locations.append(Position(24*i, 24, 0))
+            self.starting_locations.append(Position(23*i, 23, 0))
         self.RecipeManager = RecipeManager()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. creatures that don't can walk or break through walls.
@@ -161,6 +161,9 @@ class Server(MastermindServerTCP):
                 _y = self.players[data.ident].position.y
                 _z = self.players[data.ident].position.z
                 action = None
+                if(_route is None):
+                    print('No _route possible.')
+                    return
                 for step in _route:
                     _next_x = step.x
                     _next_y = step.y
@@ -183,8 +186,18 @@ class Server(MastermindServerTCP):
                     _y = _next_y
                     _z = _next_z
 
+            if(data.command == 'move_item_to_player_storage'): # when the player clicked on a ground item.
+                print('RECIEVED: move_item_to_player_storage', str(data))
+                _player = self.players[data.ident]
+                _from_pos = Position(data.args[0], data.args[1], data.args[2])
+                _item_ident = data.args[3]
+                print(_player, _from_pos, _item_ident)
+                # first check if the player can carry that item.
+                    # then find a spot for it to go (open_containers)
+                    # then send the player the updated version of themselves so they can refresh.
+
+
             if(data.command == 'move_item'):
-                # how do we handle swaps?
                 # client sends 'hey server. can you move this item from this to that?'
                 _player_requesting = self.players[data.ident]
                 _item = data.args[0] # the item we are moving.
@@ -214,7 +227,6 @@ class Server(MastermindServerTCP):
                                         print('moved correctly.')
                                         return
                 elif(_from_type == 'position'):
-                    #how do we get the position?
                     _from_list = self.worldmap.get_tile_by_position(_position)['items']
                     if(_item in _from_list):
                         _from_list.remove(_item)
