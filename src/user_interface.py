@@ -363,6 +363,19 @@ class Equipment_Button:
             # blit item as well.
             pass
 
+class Equipment_Open_Container_Button:
+    def __init__(self, screen, position, item=None):
+        self.equipment_item_background = pygame.image.load('./img/equipment_container_background.png').convert_alpha()
+        self.position = position
+        self.item = item
+        self.screen = screen
+
+    def draw(self):
+        self.screen.blit(self.equipment_item_background, self.position)
+        if(self.item is not None):
+            # blit item as well.
+            pass
+
 class Equipment_Menu:
     # equipment menu needs
     #  an overlay of the character.
@@ -506,6 +519,11 @@ class Equipment_Menu:
                     self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
                     self.equipment_slots[ident][location]['slot1']['position'] = (264, 214)
         self.UI_components = []
+        self._open_containers = [] # list
+        self._x_count = 0
+        self._y_count = 0
+        self._start_x = 8
+        self._start_y = 296
         for key, ident in self.equipment_slots.items():
             print(key, ident)
             for key, location in ident.items():
@@ -521,13 +539,40 @@ class Equipment_Menu:
                 # append the items if it exists in the slot.
                 if(location['slot0']['item'] is not None):
                     self.UI_components.append(location['slot0']['item'], location['slot0']['position'])
+                    if(isinstance(location['slot0']['item'], Container) and location['slot0']['item'].opened == 'yes'): # if it's a container and open
+                        for item in location['slot0']['item'].contained_items:
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (_self._x_count * 24), self._start_y + (_self._y_count * 24))))
+                            self._x_count = self._x_count + 1
+                            if(self._x_count > 27):
+                                self._x_count = 0
+                                self._y_count = self._y_count + 1
                 if(location['slot1']['item'] is not None):
                     self.UI_components.append(location['slot1']['item'], location['slot1']['position'])
+                    if(isinstance(location['slot1']['item'], Container) and location['slot1']['item'].opened == 'yes'):
+                        for item in location['slot0']['item'].contained_items:
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (_self._x_count * 24), self._start_y + (_self._y_count * 24))))
+                            self._x_count = self._x_count + 1
+                            if(self._x_count > 27):
+                                self._x_count = 0
+                                self._y_count = self._y_count + 1
+
                 if('slot_equipped' in location):
                     if(location['slot_equipped']['item'] is not None):
                         self.UI_components.append(location['slot_equipped']['item'], location['slot_equipped']['position'])
+                        if(isinstance(location['slot_equipped']['item'], Container) and location['slot_equipped']['item'].opened == 'yes'):  # usually you can't equip a container to a equipment slot but let's do it anyways.
+                            for item in location['slot0']['item'].contained_items:
+                                self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (_self._x_count * 24), self._start_y + (_self._y_count * 24))))
+                                self._x_count = self._x_count + 1
+                                if(self._x_count > 27):
+                                    self._x_count = 0
+                                    self._y_count = self._y_count + 1
 
-        #TODO: open_container_grid at the bottom.
+        # Create an extra empty box along with the items in the bag for items to be placed.
+        # We should color code the boxes for what container is open.
+
+
+
+
 
 
 # class for when you create a super menu item for creature

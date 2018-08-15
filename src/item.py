@@ -16,6 +16,7 @@ class Container(Item): # containers are types of Items and can do everything an 
     def __init__(self, ident):
         Item.__init__(self, ident)
         self.contained_items = []
+        self.opened = 'yes' # I don't like using True/False in python.
         self.base_weight = self.reference['weight'] # this plus all the contained items is how much the item weighs.
         self.max_volume = self.reference['volume']
         self.contained_weight = 0
