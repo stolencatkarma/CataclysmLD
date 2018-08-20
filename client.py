@@ -20,6 +20,7 @@ from src.item import Item, ItemManager
 from src.recipe import RecipeManager, Recipe
 from src.blueprint import Blueprint
 from src.user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, Crafting_Menu, Directional_choice, FontManager, Popup_menu, Super_menu, Movement_menu, Equipment_Menu, Equipment_Button
+from src.messagebox import MessageBox
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def find_player_in_localmap(self):
@@ -216,7 +217,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         #self.listboxes[0].add(Listbox_item('item 6', Item('brewing_cookbook')))
         #self.listboxes[0].add(Listbox_item('item 7', Item('brewing_cookbook')))
 
-        #self.messageBox = MessageBox()
+        self.messageBox = MessageBox(self.screen)
         # print('TILE_MAP size: ' + str(len(TILE_MAP)))
 
     def open_crafting_menu(self):
@@ -665,7 +666,7 @@ if __name__ == "__main__":
                 client.localmap = client.convert_chunks_to_localmap(next_update)
                 client.player = client.find_player_in_localmap()
                 client.draw_view_at_position(client.player.position) # update after everything is complete.
-                #self.messageBox.draw(self.screen) # update the screen after we've recieved an updated local view.
+                client.messageBox.draw(client.screen) # update the screen after we've recieved an updated local view.
                 pygame.display.flip() # now we have a fully built frame, display it
                 last_time = time.time() # save the last time we got a localmap update
 

@@ -6,13 +6,12 @@ import sys
 
 class Item:
     def __init__(self, ident, reference):
-        # i think this needs to load it's own stats on creation so we can move it around and possibly make it into a container.
         self.ident = ident
         self.reference = reference
         # you can create objects like this.
-        # self.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), position)
+        # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
 
-class Container(Item): # containers are types of Items and can do everything an item can do. # if a container shouldn't be an item make a new class for it.
+class Container(Item): # containers are types of Items and can do everything an item can do. NOTE: if a container shouldn't be an item make a new class for it.
     def __init__(self, ident):
         Item.__init__(self, ident)
         self.contained_items = []

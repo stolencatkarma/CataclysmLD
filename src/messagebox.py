@@ -1,7 +1,9 @@
+import pygame.locals
+
 class MessageBox: # the lower right area that contains all the messages the player gets.
     def __init__(self, screen):
         self.message_list = [] # holds all the messages currently on screen
-        self.image = pygame.image.load('MessageBox.png').convert_alpha()
+        self.image = pygame.image.load('./img/message_box.png').convert_alpha()
         self.screen = screen
 
     def add(self, message):

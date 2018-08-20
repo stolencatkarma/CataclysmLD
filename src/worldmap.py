@@ -21,11 +21,12 @@ from .blueprint import Blueprint
 
 
 class Chunk:
-    def __init__(self, x, y, z, chunk_size): # x, y relate to it's position on the world map. All base chunks have 1 zlevel that starts at 0 which can expand up or down with map gen.
+    def __init__(self, x, y, z, chunk_size): # x, y, z relate to it's position on the world map.
         self.tiles = []
         self.weather = 'WEATHER_NONE' # weather is per chunk.
         self.overmap_tile = 'open_air' # the tile represented on the over map
         self.is_dirty = True # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
+        self.was_loaded = 'no'
         start = time.time()
         for i in range(chunk_size): # 0-13
             for j in range(chunk_size): # 0-13
@@ -71,6 +72,7 @@ class Worldmap:
                     if(os.path.isfile(path)): # if the chunk already exists on disk just load it.
                         with open(path, 'rb') as fp:
                             self.WORLDMAP[i][j][k] = pickle.load(fp)
+                            self.WORLDMAP[i][j][k].was_loaded = 'yes'
                         if(count < 60):
                             print('L', end='')
                             count = count + 1
@@ -78,7 +80,6 @@ class Worldmap:
                             print('L')
                             count = 0
                     else:
-                        # fill each chunk with something interesting
                         print('C', end='')
                         self.WORLDMAP[i][j][k] = Chunk(i, j, k, self.chunk_size)
                         with open(path, 'wb') as fp:
@@ -458,13 +459,13 @@ class Worldmap:
         num_firedept = int(size / 12)
         num_jail = int(size / 12)
 
-        print('num_residential: ' + str(num_residential))
-        print('num_commercial: ' + str(num_commercial))
-        print('num_industrial: ' + str(num_industrial))
-        print('num_hospitals: ' + str(num_hospitals))
-        print('num_police: ' + str(num_police))
-        print('num_firedept: ' + str(num_firedept))
-        print('num_jail: ' + str(num_jail))
+        #print('num_residential: ' + str(num_residential))
+        #print('num_commercial: ' + str(num_commercial))
+        #print('num_industrial: ' + str(num_industrial))
+        #print('num_hospitals: ' + str(num_hospitals))
+        #print('num_police: ' + str(num_police))
+        #print('num_firedept: ' + str(num_firedept))
+        #print('num_jail: ' + str(num_jail))
 
 
         # put road every 4th tile with houses on either side.
@@ -528,7 +529,8 @@ class Worldmap:
 
         for j in range(size):
             for i in range(size):
-                print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
+                #print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
+                pass
             print()
 
         return city_layout

@@ -191,11 +191,47 @@ class Server(MastermindServerTCP):
                 _player = self.players[data.ident]
                 _from_pos = Position(data.args[0], data.args[1], data.args[2])
                 _item_ident = data.args[3]
+                _from_item = None
+                _open_containers = []
                 print(_player, _from_pos, _item_ident)
-                # first check if the player can carry that item.
-                    # then find a spot for it to go (open_containers)
-                    # then send the player the updated version of themselves so they can refresh.
+                # find the item that the player is requesting.
+                for item in self.worldmap.get_tile_by_position(_from_pos)['items']:
+                    if(item.ident == _item_ident):
+                        # this is the item or at least the first one that matches the same ident.
+                        _from_item = item  # save a reference to it to use.
+                        break
 
+                if(_from_item == None): # we didn't find one, player sent bad information (possible hack?)
+                    print('_from_item not found. this is unusual.')
+                    return
+
+                # make a list of open_containers the player has to see if they can pick it up.
+                for bodyPart in _player.body_parts:
+                    if(bodyPart.slot0 is not None and isinstance(bodyPart.slot0, Container) and bodyPart.slot0.opened == 'yes'):
+                        _open_containers.append(bodyPart.slot0)
+                    if(bodyPart.slot1 is not None and isinstance(bodyPart.slot1, Container) and bodyPart.slot1.opened == 'yes'):
+                        _open_containers.append(bodyPart.slot1)
+
+                if(len(_open_containers) <= 0):
+                    print('no open containers found.')
+                    return # no open containers.
+
+                # check if the player can carry that item.
+                for container in _open_containers:
+                    # then find a spot for it to go (open_containers)
+                    if(container.add_item(item)): # if it added it sucessfully.
+                        print('added item correctly. trying to remove it from the world.')
+                        # remove it from the world.
+                        for item in self.worldmap.get_tile_by_position(_from_pos)['items'][:]: # iterate a copy to remove properly.
+                            if(item.ident == _item_ident):
+                                self.worldmap.get_tile_by_position(_from_pos)['items'].remove(item)
+                                print('removed item from the world successfully.')
+                                break
+                        return
+                    else:
+                        print('could not add item to player inventory.')
+                    ### then send the player the updated version of themselves so they can refresh.
+            #end move_item_to_player_storage
 
             if(data.command == 'move_item'):
                 # client sends 'hey server. can you move this item from this to that?'
@@ -368,50 +404,52 @@ class Server(MastermindServerTCP):
         # for every 1 city size it's 12 tiles across and high
         for j in range(city_size*12):
             for i in range(city_size*12):
-                if(city_layout[i][j] == 'r'):
-                    json_file = random.choice(os.listdir('./data/json/mapgen/residential/'))
-                    server.worldmap.build_json_building_at_position('./data/json/mapgen/residential/' + json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
-                elif(city_layout[i][j] == 'c'):
-                    json_file = random.choice(os.listdir('./data/json/mapgen/commercial/'))
-                    server.worldmap.build_json_building_at_position('./data/json/mapgen/commercial/' + json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
-                elif(city_layout[i][j] == 'i'):
-                    json_file = random.choice(os.listdir('./data/json/mapgen/industrial/'))
-                    server.worldmap.build_json_building_at_position('./data/json/mapgen/industrial/' + json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
-                elif(city_layout[i][j] == 'R'): # complex enough to choose the right rotation.
-                    attached_roads = 0
-                    try:
-                        if(city_layout[int(i-1)][int(j)] == 'R'):
-                            attached_roads = attached_roads + 1
-                        if(city_layout[int(i+1)][int(j)] == 'R'):
-                            attached_roads = attached_roads + 1
-                        if(city_layout[int(i)][int(j-1)] == 'R'):
-                            attached_roads = attached_roads + 1
-                        if(city_layout[int(i)][int(j+1)] == 'R'):
-                            attached_roads = attached_roads + 1
-                        if(attached_roads == 4):
-                            json_file = './data/json/mapgen/road/city_road_4_way.json'
-                        elif(attached_roads == 3): #TODO: make sure the roads line up right.
-                            if(city_layout[int(i+1)][int(j)] != 'R'):
-                                json_file = './data/json/mapgen/road/city_road_3_way_s0.json'
-                            elif(city_layout[int(i-1)][int(j)] != 'R'):
-                                json_file = './data/json/mapgen/road/city_road_3_way_p0.json'
-                            elif(city_layout[int(i)][int(j+1)] != 'R'):
-                                json_file = './data/json/mapgen/road/city_road_3_way_u0.json'
-                            elif(city_layout[int(i)][int(j-1)] != 'R'):
-                                json_file = './data/json/mapgen/road/city_road_3_way_d0.json'
-                        elif(attached_roads <= 2):
+                if(server.worldmap.get_chunk_by_position(Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0)).was_loaded == 'no'):
+                    if(city_layout[i][j] == 'r'):
+                        json_file = random.choice(os.listdir('./data/json/mapgen/residential/'))
+
+                        server.worldmap.build_json_building_at_position('./data/json/mapgen/residential/' + json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
+                    elif(city_layout[i][j] == 'c'):
+                        json_file = random.choice(os.listdir('./data/json/mapgen/commercial/'))
+                        server.worldmap.build_json_building_at_position('./data/json/mapgen/commercial/' + json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
+                    elif(city_layout[i][j] == 'i'):
+                        json_file = random.choice(os.listdir('./data/json/mapgen/industrial/'))
+                        server.worldmap.build_json_building_at_position('./data/json/mapgen/industrial/' + json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
+                    elif(city_layout[i][j] == 'R'): # complex enough to choose the right rotation.
+                        attached_roads = 0
+                        try:
+                            if(city_layout[int(i-1)][int(j)] == 'R'):
+                                attached_roads = attached_roads + 1
                             if(city_layout[int(i+1)][int(j)] == 'R'):
-                                json_file = './data/json/mapgen/road/city_road_h.json'
-                            elif(city_layout[int(i-1)][int(j)] == 'R'):
-                                json_file = './data/json/mapgen/road/city_road_h.json'
-                            elif(city_layout[int(i)][int(j+1)] == 'R'):
-                                json_file = './data/json/mapgen/road/city_road_v.json'
-                            elif(city_layout[int(i)][int(j-1)] == 'R'):
-                                json_file = './data/json/mapgen/road/city_road_v.json'
-                        server.worldmap.build_json_building_at_position(json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
-                    except:
-                        #TODO: fix this blatant hack to account for coordinates outside the city layout.
-                        pass
+                                attached_roads = attached_roads + 1
+                            if(city_layout[int(i)][int(j-1)] == 'R'):
+                                attached_roads = attached_roads + 1
+                            if(city_layout[int(i)][int(j+1)] == 'R'):
+                                attached_roads = attached_roads + 1
+                            if(attached_roads == 4):
+                                json_file = './data/json/mapgen/road/city_road_4_way.json'
+                            elif(attached_roads == 3): #TODO: make sure the roads line up right.
+                                if(city_layout[int(i+1)][int(j)] != 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_3_way_s0.json'
+                                elif(city_layout[int(i-1)][int(j)] != 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_3_way_p0.json'
+                                elif(city_layout[int(i)][int(j+1)] != 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_3_way_u0.json'
+                                elif(city_layout[int(i)][int(j-1)] != 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_3_way_d0.json'
+                            elif(attached_roads <= 2):
+                                if(city_layout[int(i+1)][int(j)] == 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_h.json'
+                                elif(city_layout[int(i-1)][int(j)] == 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_h.json'
+                                elif(city_layout[int(i)][int(j+1)] == 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_v.json'
+                                elif(city_layout[int(i)][int(j-1)] == 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_v.json'
+                            server.worldmap.build_json_building_at_position(json_file, Position(i * server.worldmap.chunk_size + 1 , j * server.worldmap.chunk_size + 1, 0))
+                        except:
+                            #TODO: fix this blatant hack to account for coordinates outside the city layout.
+                            pass
 
 # do this if the server was started up directly.
 if __name__ == "__main__":

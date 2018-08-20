@@ -638,7 +638,7 @@ class Super_menu:
             self.menu_items.append('Furniture')
         if tile['vehicle'] is not None: # add the vehicle submenu
             #self.menu_items.append('Vehicle')
-            pass # TODO: add trap disarming actions.
+            pass
         if tile['trap'] is not None:
             pass # TODO: add trap disarming actions.
         # if tile['bullet'] is not None: # in the future it may be possible to react to bullets in flight but not right now.
