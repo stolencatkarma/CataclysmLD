@@ -1,27 +1,32 @@
-import os,sys
-import random
+import argparse
 import json
+import os
+import random
+import sys
 import time
 from collections import defaultdict
-import argparse
 
-from Mastermind._mm_server import MastermindServerTCP
-
-from src.options import Options
 import src.global_vars
-#import game
-from src.worldmap import Worldmap
+from Mastermind._mm_server import MastermindServerTCP
+from src.action import Action
+from src.blueprint import Blueprint
+from src.calendar import Calendar
+from src.command import Command
+from src.furniture import Furniture, FurnitureManager
+from src.item import Container, Item
+from src.options import Options
 from src.player import Player
 from src.position import Position
-from src.command import Command
-from src.tile import Terrain, TileManager
-from src.furniture import Furniture, FurnitureManager
-from src.calendar import Calendar
-from src.action import Action
 from src.recipe import Recipe, RecipeManager
-from src.blueprint import Blueprint
+from src.tile import Terrain, TileManager
+#import game
+from src.worldmap import Worldmap
 
-import pygame, pygame.locals
+#import pygame
+#import pygame.locals
+
+
+
 
 class OverMap: # when the player pulls up the OverMap. a OverMap for each player will have to be stored for undiscovered areas and when they use maps.
     def __init__(self): # the ident of the player who owns this overmap.
@@ -140,7 +145,7 @@ class Server(MastermindServerTCP):
                 elif(data.args[1] == 'north'):
                     position_to_create_at = Position(self.players[data.ident].position.x, self.players[data.ident].position.y-1, self.players[data.ident].position.z)
                 elif(data.args[1] == 'east'):
-                    sposition_to_create_at = Position(self.players[data.ident].position.x+1, self.players[data.ident].position.y, self.players[data.ident].position.z)
+                    position_to_create_at = Position(self.players[data.ident].position.x+1, self.players[data.ident].position.y, self.players[data.ident].position.z)
                 elif(data.args[1] == 'west'):
                     position_to_create_at = Position(self.players[data.ident].position.x-1, self.players[data.ident].position.y, self.players[data.ident].position.z)
 
@@ -257,7 +262,7 @@ class Server(MastermindServerTCP):
                             if(isinstance(item, Container)): # if it's a container.
                                 for item2 in item.contained_items[:]: # check every item in the container.
                                     if(item2 is _item):
-                                        from_list = item.contained_items
+                                        _from_list = item.contained_items
                                         _from_list.remove(_item)
                                         _to_list.append(_item)
                                         print('moved correctly.')
@@ -378,9 +383,8 @@ class Server(MastermindServerTCP):
         for player, chunks in self.localmaps.items():
             for chunk in chunks: # players typically get 9 chunks
                 for tile in chunk.tiles:
-                    if(tile['creature'] is not None):
-                        if(tile['creature'] not in creatures_to_process): # avoid duplicates
-                            creatures_to_process.append(tile['creature'])
+                    if(tile['creature'] is not None and tile['creature'] not in creatures_to_process): # avoid duplicates
+                        creatures_to_process.append(tile['creature'])
 
 
 

@@ -1,26 +1,30 @@
+import argparse
+import json
+import math
 import os
 import sys
-import math
 import time
-import json
 from collections import defaultdict
+
 import pygame
-import argparse
 import pygame.locals
 
-
-from src.player import Player
+from Mastermind._mm_client import MastermindClientTCP
 from src.action import Action
-from src.worldmap import Worldmap
-from src.position import Position
-from src.command import Command
-from Mastermind._mm_client import *
-from src.tile import TileManager
-from src.item import Item, ItemManager
-from src.recipe import RecipeManager, Recipe
 from src.blueprint import Blueprint
-from src.user_interface import Hotbar, Button, TextBox, ListBox, Listbox_item, Crafting_Menu, Directional_choice, FontManager, Popup_menu, Super_menu, Movement_menu, Equipment_Menu, Equipment_Button
+from src.command import Command
+from src.item import Item, ItemManager
 from src.messagebox import MessageBox
+from src.player import Player
+from src.position import Position
+from src.recipe import Recipe, RecipeManager
+from src.tile import TileManager
+from src.user_interface import (Button, Crafting_Menu, Directional_choice,
+                                Equipment_Button, Equipment_Menu, FontManager,
+                                Hotbar, ListBox, Listbox_item, Movement_menu,
+                                Popup_menu, Super_menu, TextBox)
+from src.worldmap import Worldmap
+
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def find_player_in_localmap(self):
