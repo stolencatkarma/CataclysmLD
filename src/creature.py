@@ -41,35 +41,3 @@ class Creature:
         # body_parts are where items get equipped.
         self.body_parts = [Bodypart('HEAD_0', True), Bodypart('TORSO_0', True), Bodypart('ARM_LEFT'), Bodypart('ARM_RIGHT'), Bodypart('LEG_LEFT'), Bodypart('LEG_RIGHT'), Bodypart('FOOT_LEFT'), Bodypart('FOOT_RIGHT'), Bodypart('HAND_LEFT'), Bodypart('HAND_RIGHT')]
         self.grabbed = None # the 'special' area where items held on the mouse cursor are stored.
-
-
-class MonsterManager:
-    def __init__(self):
-        self.MONSTER_TYPES = defaultdict(dict)
-        for root, dirs, files in os.walk('./data/json/monsters/'):
-            for file_data in files:
-                if file_data.endswith('.json'):
-                    # print(root)
-                    # print(dirs)
-                    # print(file_data)
-                    with open(root+'/'+file_data, encoding='utf-8') as data_file: # load tile config so we know what tile foes with what ident
-                        data = json.load(data_file)
-                    for item in data:
-                        try:
-                            for key, value in item.items():
-                                if(isinstance(value, list)):
-                                    self.MONSTER_TYPES[item['ident']][key] = []
-                                    for add_value in value:
-                                        self.MONSTER_TYPES[item['ident']][key].append(str(add_value))
-                                else:
-                                    self.MONSTER_TYPES[item['ident']][key] = str(value)
-                        except Exception:
-                            print()
-                            print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')
-                            print()
-                            sys.exit()
-                            #print('x', end='')
-
-        #print(unique_keys)
-        #print()
-        print('total MONSTER_TYPES loaded: ' + str(len(self.MONSTER_TYPES)))
