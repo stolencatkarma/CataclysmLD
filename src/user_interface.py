@@ -352,30 +352,37 @@ class Movement_menu:
 
 # differs from a regular button because it always displays the background even without an item.
 class Equipment_Button:
-    def __init__(self, screen, position, item=None):
+    def __init__(self, screen, ref_TileManager, position, item=None):
         self.equipment_item_background = pygame.image.load('./img/equipment_item_background.png').convert_alpha()
         self.position = position
         self.item = item
         self.screen = screen
+        self.ref_TileManager = ref_TileManager
+        print(item)
+        if(self.item is not None):
+            self.fg = self.ref_TileManager.TILE_TYPES[item.ident]['fg']
 
     def draw(self):
         self.screen.blit(self.equipment_item_background, self.position)
         if(self.item is not None):
-            # blit item as well.
-            pass
+            self.screen.blit(self.ref_TileManager.TILE_MAP[self.fg], self.position)
+
 
 class Equipment_Open_Container_Button:
-    def __init__(self, screen, position, item=None):
+    def __init__(self, screen, ref_TileManager, position, item=None):
         self.equipment_item_background = pygame.image.load('./img/equipment_container_background.png').convert_alpha()
         self.position = position
         self.item = item
         self.screen = screen
+        self.ref_TileManager = ref_TileManager
+        print(item)
+        if(self.item is not None):
+            self.fg = self.ref_TileManager.TILE_TYPES[item.ident]['fg']
 
     def draw(self):
         self.screen.blit(self.equipment_item_background, self.position)
         if(self.item is not None):
-            # blit item as well.
-            pass
+            self.screen.blit(self.ref_TileManager.TILE_MAP[self.fg], self.position)
 
 class Equipment_Menu:
     # equipment menu needs
@@ -396,7 +403,7 @@ class Equipment_Menu:
     #   8,296 start, 384, 192 size
     #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
 
-    def __init__(self, screen, rect, ref_FontManager, bodyParts):
+    def __init__(self, screen, rect, ref_FontManager, ref_TileManager, bodyParts):
         # this is called when the menu is opened. we should destroy it and create it as it's opened or closed to properly keep things initalized
 
         # screen locations for the equipment. needs reference item and screen location.
@@ -411,6 +418,7 @@ class Equipment_Menu:
         self.height = rect[3]
         self.screen = screen
         self.bodyParts = bodyParts
+        self.TileManager = ref_TileManager
 
 
         # overlay
@@ -527,47 +535,49 @@ class Equipment_Menu:
         self._start_x = 8
         self._start_y = 296
         for key, ident in self.equipment_slots.items():
-            print(key, ident)
+            # print(key, ident)
             for key, location in ident.items():
-                print(location)
+                print(key, ' : ', location)
                 # always blit the background if the limb exists.
-                #screen, position, item=None
-                self.UI_components.append(Equipment_Button(self.screen, location['slot0']['position']))
-                self.UI_components.append(Equipment_Button(self.screen, location['slot1']['position']))
-                # usually only hands have a 'slot_equipped' slot
-                if('slot_equipped' in location):
-                    self.UI_components.append(Equipment_Button(self.screen, location['slot_equipped']['position']))
-
+                # screen, position, item=None
+                
                 # append the items if it exists in the slot.
                 if(location['slot0']['item'] is not None):
-                    self.UI_components.append(location['slot0']['item'], location['slot0']['position'])
+                    self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot0']['position'], location['slot0']['item']))
                     if(isinstance(location['slot0']['item'], Container) and location['slot0']['item'].opened == 'yes'): # if it's a container and open
                         for item in location['slot0']['item'].contained_items:
-                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))))
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, self.TileManager, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))), item)
                             self._x_count = self._x_count + 1
                             if(self._x_count > 27):
                                 self._x_count = 0
                                 self._y_count = self._y_count + 1
+                else:
+                    self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot0']['position']))
+                                
                 if(location['slot1']['item'] is not None):
-                    self.UI_components.append(location['slot1']['item'], location['slot1']['position'])
+                    self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot1']['position'], location['slot1']['item']))
                     if(isinstance(location['slot1']['item'], Container) and location['slot1']['item'].opened == 'yes'):
                         for item in location['slot0']['item'].contained_items:
-                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))))
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, self.TileManager, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))), item)
                             self._x_count = self._x_count + 1
                             if(self._x_count > 27):
                                 self._x_count = 0
                                 self._y_count = self._y_count + 1
+                else:
+                    self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot1']['position']))
 
                 if('slot_equipped' in location):
                     if(location['slot_equipped']['item'] is not None):
-                        self.UI_components.append(location['slot_equipped']['item'], location['slot_equipped']['position'])
+                        self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot_equipped']['position'], location['slot_equipped']['item']))
                         if(isinstance(location['slot_equipped']['item'], Container) and location['slot_equipped']['item'].opened == 'yes'):  # usually you can't equip a container to a equipment slot but let's do it anyways.
                             for item in location['slot0']['item'].contained_items:
-                                self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))))
+                                self.UI_components.append(Equipment_Open_Container_Button(self.screen, self.TileManager, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))), item)
                                 self._x_count = self._x_count + 1
                                 if(self._x_count > 27):
                                     self._x_count = 0
                                     self._y_count = self._y_count + 1
+                    else:
+                        self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot_equipped']['position']))
 
         # Create an extra empty box along with the items in the bag for items to be placed.
         # We should color code the boxes for what container is open.

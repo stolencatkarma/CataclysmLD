@@ -446,7 +446,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
     def open_equipment_menu(self):
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
-        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.player.body_parts)
+        equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.player.body_parts)
 
         # work out the internal list of UI_components so we can iterate them if needed.
         _listboxes = []

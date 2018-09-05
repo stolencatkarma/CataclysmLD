@@ -57,6 +57,8 @@ class Server(MastermindServerTCP):
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
+        self.ItemManager = self.worldmap.ItemManager
+        self.FurnitureManager = self.worldmap.FurnitureManager
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. creatures that don't can walk or break through walls.
         #print('----------------Calculating Route---------------------')
@@ -102,25 +104,37 @@ class Server(MastermindServerTCP):
         # give the player their starting items by referencing the ProfessionManager.
         # print('profession items ')
         '''
-        ident survivor
-        _comment A basic as it comes. I'll use this for the default profession.
-        name Survivor
-        description Some would say that there's nothing particularly notable about you. But you survived. That's more than most can say right now.
-        skills ["{'survival': 1}"]
-        points 0
-        items {'equipped': [{'TORSO': 'backpack'}], 'in_containers': [{'backpack': 'cell_phone'}]}
-        flags []
-        CBMs []
+        ident : survivor
+        _comment : A basic as it comes. I'll use this for the default profession.
+        name : Survivor
+        description : Some would say that there's nothing particularly notable about you. But you survived. That's more than most can say right now.
+        skills : ["{'survival': 1}"]
+        points : 0
+        items : {'equipped': [{'TORSO': 'backpack'}], 'in_containers': [{'backpack': 'cell_phone'}]}
+        flags : []
+        CBMs : []
         '''
         #print(self.players[ident].profession)
         for key, value in self.ProfessionManager.PROFESSIONS[str(self.players[ident].profession)].items():
-            # print(key, ':', value)
-            if(key == 'items'):
-                print(value)
-                # TODO: load the items into the player equipment slots
-                for equip_location, item_ident in value['equipped'].items():
+            print(key, ':', value)
+        
+            # print(value.items())
+            # TODO: load the items into the player equipment slots as well as future things like CBMs and flags
+            if(key == 'equipped_items'):
+                for equip_location, item_ident in value.items():
                     print(equip_location, item_ident)
-                for location_ident, item_ident in value['in_containers'].items():
+                    for bodypart in self.players[ident].body_parts:
+                        if(bodypart.ident.split('_')[0] == equip_location):
+                            if(bodypart.slot0 is None):
+                                bodypart.slot0 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
+                                break
+                            elif(bodypart.slot1 is None):
+                                bodypart.slot1 =  Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
+                                break
+                    else:
+                        print('player needed an item but no free slots found')
+            elif(key == 'items_in_containers'):
+                for location_ident, item_ident in value.items():
                     print(location_ident, item_ident)
 
         print('New player joined.', self.players[ident])

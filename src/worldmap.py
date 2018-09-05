@@ -381,7 +381,7 @@ class Worldmap:
             for item in furniture_type['bash']['items']:
                 print(item)
                 print(str(self.ItemManager.ITEM_TYPES[str(item['item'])]))
-                self.put_object_at_position(Item(self.ItemManager.ITEM_TYPES[str(item['item'])]['ident'], self.ItemManager.ITEM_TYPES[str(item['item'])]), position) # need to pass the reference to load the item with data.                #print(item)
+                self.put_object_at_position(Item(self.ItemManager.ITEM_TYPES[str(item['item'])]['ident'], self.ItemManager.ITEM_TYPES[str(item['item'])]), position) # need to pass the reference to load the item with data.
             tile['furniture'] = None
             # get the 'bash' dict for this object from furniture.json
             # get 'str_min'
@@ -398,7 +398,7 @@ class Worldmap:
 
     def furniture_open(self, object, position): # the object doing the opening.
         tile = self.get_tile_by_position(position)
-        furiture = tile['furniture']
+        furniture = tile['furniture']
         if(furniture is not None):
             if 'open' in furniture: #
                 # replace this furniture with the open version.
