@@ -11,7 +11,7 @@ class Item:
         # you can create objects like this.
         # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
 
-class Container(Item): # containers are types of Items and can do everything an item can do. NOTE: if a container shouldn't be an item make a new class for it.
+class Container(Item): # containers are types of Items and can do everything an item can do.
     def __init__(self, ident):
         Item.__init__(self, ident)
         self.contained_items = []
@@ -54,30 +54,20 @@ class ItemManager:
         for root, dirs, files in os.walk('./data/json/items/'):
             for file_data in files:
                 if file_data.endswith('.json'):
-                    # print(root)
-                    # print(dirs)
-                    # print(file_data)
-                    with open(root+'/'+file_data, encoding='utf-8') as data_file: # load tile config so we know what tile foes with what ident
+                    with open(root+'/'+file_data, encoding='utf-8') as data_file:
                         data = json.load(data_file)
-                    #unique_keys = []
                     for item in data:
                         try:
                             for key, value in item.items():
-                                #print(type(value))
                                 if(isinstance(value, list)):
                                     self.ITEM_TYPES[item['ident']][key] = []
                                     for add_value in value:
                                         self.ITEM_TYPES[item['ident']][key].append(str(add_value))
                                 else:
                                     self.ITEM_TYPES[item['ident']][key] = str(value)
-                                #print('.', end='')
                         except Exception:
                             print()
                             print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')
                             print()
                             sys.exit()
-                            #print('x', end='')
-
-        #print(unique_keys)
-        #print()
         print('total ITEM_TYPES loaded: ' + str(len(self.ITEM_TYPES)))

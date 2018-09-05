@@ -13,7 +13,7 @@ class MessageBox: # the lower right area that contains all the messages the play
 
     def draw(self, screen):
         start_x, start_y = 480, 240
-        width, height = 360-5, 240-5
+        # width, height = 360-5, 240-5
         font = pygame.font.SysFont('DejaVu Sans Mono', 14)
         message_height = 14
         next_y = 28

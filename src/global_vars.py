@@ -66,11 +66,11 @@ MAX_STAT = 20
 # Maximum range at which ranged attacks can be executed */
 RANGE_HARD_CAP = 60
 # Accuracy levels which a shots tangent must be below */
-accuracy_headshot = 0.1;
-accuracy_critical = 0.2;
-accuracy_goodhit  = 0.5;
-accuracy_standard = 0.8;
-accuracy_grazing  = 1.0;
+accuracy_headshot = 0.1
+accuracy_critical = 0.2
+accuracy_goodhit  = 0.5
+accuracy_standard = 0.8
+accuracy_grazing  = 1.0
 # Minimum item damage output of relevant type to allow using with relevant weapon skill */
 MELEE_STAT = 5
 # Effective lower bound to combat skill levels when CQB bionic is active */

@@ -5,9 +5,9 @@ class Faction():
     likes_u = 0
     respects_u = 0
     known_by_u = True
-    goal = FACGOAL_NULL
-    job1 = FACJOB_NULL
-    job2 = FACJOB_NULL
+    goal = None
+    job1 = None
+    job2 = None
     strength = 0
     combat_ability = 0
     food_supply = 0

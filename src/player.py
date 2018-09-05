@@ -1,5 +1,5 @@
-from .profession import *
-from .creature import *
+from profession import Profession
+from creature import Creature
 #from .position import *
 
 class Player(Creature):
@@ -7,6 +7,7 @@ class Player(Creature):
         Creature.__init__(self)
         self.name = name
         self.style_selected = None
+        self.profession = Profession('Survivor')
         for bodyPart in self.body_parts:
             print(bodyPart)
 

@@ -1,18 +1,24 @@
 # defines base creature in the base. all monsters, players, npcs, and critters derive from this.
 from collections import defaultdict
-from .bodypart import Bodypart
+import sys
+import os
+import json
+
+from bodypart import Bodypart
+
+
 class Creature:
     def __init__(self):
         self.stats = defaultdict(dict)
-        self.stats['strength']['base'] = 10
+        self.stats['strength']['base'] = 8
         self.stats['strength']['max'] = 20
-        self.stats['dexterity']['base'] = 10
+        self.stats['dexterity']['base'] = 8
         self.stats['dexterity']['max'] = 20
-        self.stats['intelligence']['base'] = 10
+        self.stats['intelligence']['base'] = 8
         self.stats['intelligence']['max'] = 20
-        self.stats['perception']['base'] = 10
+        self.stats['perception']['base'] = 8
         self.stats['perception']['max'] = 20
-        self.stats['constitution']['base'] = 10
+        self.stats['constitution']['base'] = 8
         self.stats['constitution']['max'] = 20
         self.known_recipes = [] # known_recipes[0] = Recipe(ident, favorite) -  pull full recipe info from RecipeManager['ident'] - NPCs may know recipes that's why its in Creature
         self.command_queue = [] # what each creature wants to do this turn and the upcoming turns. contains a list of Action(s) that are processed by the server.
@@ -48,18 +54,15 @@ class MonsterManager:
                     # print(file_data)
                     with open(root+'/'+file_data, encoding='utf-8') as data_file: # load tile config so we know what tile foes with what ident
                         data = json.load(data_file)
-                    #unique_keys = []
                     for item in data:
                         try:
                             for key, value in item.items():
-                                #print(type(value))
                                 if(isinstance(value, list)):
                                     self.MONSTER_TYPES[item['ident']][key] = []
                                     for add_value in value:
                                         self.MONSTER_TYPES[item['ident']][key].append(str(add_value))
                                 else:
                                     self.MONSTER_TYPES[item['ident']][key] = str(value)
-                                #print('.', end='')
                         except Exception:
                             print()
                             print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')

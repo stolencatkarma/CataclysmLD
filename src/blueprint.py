@@ -1,7 +1,9 @@
 import sys
-from .terrain import Terrain
-from .furniture import Furniture
-from .item import Item, Container
+
+from furniture import Furniture
+from item import Container, Item
+from terrain import Terrain
+
 
 class Blueprint(Container): # is a physical representation of a recipe while it's being built in the world. # once built it 'turns' into the type and fills the worldmap with it.
     def __init__(self, type_of, recipe):
