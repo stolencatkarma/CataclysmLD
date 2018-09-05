@@ -21,6 +21,7 @@ from src.recipe import Recipe, RecipeManager
 from src.terrain import Terrain
 from src.tileManager import TileManager
 from src.profession import ProfessionManager
+from src.monster import MonsterManager
 #import game
 from src.worldmap import Worldmap
 
@@ -54,6 +55,7 @@ class Server(MastermindServerTCP):
             self.starting_locations.append(Position(23*i, 23, 0))
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
+        self.MonsterManager = MonsterManager()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. creatures that don't can walk or break through walls.
         #print('----------------Calculating Route---------------------')
