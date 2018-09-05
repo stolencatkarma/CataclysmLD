@@ -4,7 +4,7 @@ import sys
 import os
 import json
 
-from bodypart import Bodypart
+from .bodypart import Bodypart
 
 
 class Creature:

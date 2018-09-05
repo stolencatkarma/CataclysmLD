@@ -18,7 +18,7 @@ from src.messagebox import MessageBox
 from src.player import Player
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
-from src.tile import TileManager
+from src.tileManager import TileManager
 from src.user_interface import (Button, Crafting_Menu, Directional_choice,
                                 Equipment_Button, Equipment_Menu, FontManager,
                                 Hotbar, ListBox, Listbox_item, Movement_menu,

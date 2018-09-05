@@ -18,6 +18,10 @@ class Profession:
         # give a tuple of idents and whether they are equipped or not.
         # self. starting_items.append('2x4', )
 
+    def __str__(self):
+        return self.ident
+
+
 class ProfessionManager:
     def __init__(self):
         # load professions from file and save references to them.

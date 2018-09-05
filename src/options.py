@@ -1,6 +1,9 @@
 import json # for reading and writing options for both global and world options
 from collections import defaultdict
 class Options:
+    def translate_marker(self, text):
+        return text
+
     def __init__(self):
         self.MAX_VIEW_DISTANCE = 10
         self.CORE_VERSION = '0.1'

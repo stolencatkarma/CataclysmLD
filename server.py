@@ -18,7 +18,9 @@ from src.options import Options
 from src.player import Player
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
-from src.tile import Terrain, TileManager
+from src.terrain import Terrain
+from src.tileManager import TileManager
+from src.profession import ProfessionManager
 #import game
 from src.worldmap import Worldmap
 
@@ -43,14 +45,15 @@ class Server(MastermindServerTCP):
         self.players = {} # all the Players() that exist in the world whether connected or not.
         self.localmaps = {} # the localmaps for each player.
         self.overmaps = {} # the dict of all overmaps by player.name
-        self.options = Options()
+        #self.options = Options()
         self.calendar = Calendar(0, 0, 0, 0, 0, 0) # all zeros is the epoch
-        self.options.save()
+        # self.options.save()
         self.worldmap = Worldmap(26) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
         self.starting_locations = [Position(23, 23, 0)] #TODO: starting locations should be loaded dynamically from secenarios
         for i in range(1, 13):
             self.starting_locations.append(Position(23*i, 23, 0))
         self.RecipeManager = RecipeManager()
+        self.ProfessionManager = ProfessionManager()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. creatures that don't can walk or break through walls.
         #print('----------------Calculating Route---------------------')
@@ -60,7 +63,6 @@ class Server(MastermindServerTCP):
         explored = []
 
         while len(reachable) > 0:
-
             position = random.choice(reachable) # get a random reachable position #TODO: be a little more intelligent about picking the best reachable position.
 
             # If we just got to the goal node. return the path.
@@ -87,7 +89,6 @@ class Server(MastermindServerTCP):
                     reachable.append(adjacent)
 
         return None
-
 
     def callback_client_handle(self, connection_object, data):
         #print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
@@ -314,7 +315,6 @@ class Server(MastermindServerTCP):
     def callback_disconnect_client(self, connection_object):
         print("Server: Client from \""+str(connection_object.address)+"\" disconnected.")
         return super(Server, self).callback_disconnect_client(connection_object)
-
 
     def process_creature_command_queue(self, creature):
         actions_to_take = creature.actions_per_turn

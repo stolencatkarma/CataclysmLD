@@ -65,7 +65,7 @@ class Worldmap:
         count = 0
         for i in range(self.WORLD_SIZE):
             for j in range(self.WORLD_SIZE):
-                for k in range(0, 1): #just load z0 for now. load the rest as needed.
+                for k in range(0, 1): # just load z0 for now. load the rest as needed.
                     self.WORLDMAP[i][j] = dict()
                     path = str('./worlds/default/' + str(i) + '_' + str(j) + '_' + str(k) + '.chunk')
 
@@ -73,7 +73,7 @@ class Worldmap:
                         with open(path, 'rb') as fp:
                             self.WORLDMAP[i][j][k] = pickle.load(fp)
                             self.WORLDMAP[i][j][k].was_loaded = 'yes'
-                        if(count < 60):
+                        if(count < self.WORLD_SIZE-1):
                             print('L', end='')
                             count = count + 1
                         else:
