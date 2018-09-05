@@ -67,7 +67,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         # origin_position = origin_position # store the player position for fov origin
         # convert chunks to grid
         level = defaultdict(dict)
-        light_map = defaultdict(dict)
+        #light_map = defaultdict(dict)
         for tile in self.localmap[:]: # we only need the tiles around radius.
             if int(tile['position'].x) < origin_position.x-radius or int(tile['position'].x) > origin_position.x+radius+1:
                 self.localmap.remove(tile)

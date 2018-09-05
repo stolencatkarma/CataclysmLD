@@ -1,5 +1,5 @@
 import sys
-from .tile import Terrain
+from .terrain import Terrain
 from .furniture import Furniture
 from .item import Item, Container
 

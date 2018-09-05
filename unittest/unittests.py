@@ -5,7 +5,6 @@ from collections import defaultdict
 import pygame
 import pygame.locals
 
-from tile import TileManager, Terrain
 from item import Item, ItemManager
 from recipe import RecipeManager, Recipe
 from furniture import FurnitureManager, Furniture

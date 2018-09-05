@@ -6,7 +6,7 @@ import pickle
 import os
 import random
 
-from .tile import Terrain
+from .terrain import Terrain
 from .creature import Creature
 from .monster import Monster
 from .player import Player

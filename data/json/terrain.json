@@ -1,16 +1,5 @@
 [
-    {
-        "group": "item_group",
-        "ident": "wall_bash_results",
-        "subtype": "collection",
-        "entries": [
-            { "item": "rock", "count": [0, 2] },
-            { "item": "nail", "charges": [2, 8] },
-            { "item": "splinter", "count": [1, 5] }
-        ]
-    },
-    {
-        "type" : "terrain",
+     {
         "ident" : "t_hole",
         "name": "empty space",
         "symbol": " ",
@@ -19,7 +8,6 @@
         "trap": "tr_ledge",
         "flags": ["TRANSPARENT", "NOITEM"]
     },{
-        "type" : "terrain",
         "ident" : "t_open_air_rooved",
         "name": "open air",
         "symbol": " ",
@@ -30,7 +18,6 @@
         "flags": ["TRANSPARENT", "NO_FLOOR"],
         "examine_action": "climb_down"
     },{
-        "type" : "terrain",
         "ident" : "t_brick_wall_halfway",
         "name": "half-built brick wall",
         "symbol": "#",
@@ -45,7 +32,7 @@
             "items": [ { "item": "rock", "count": [6, 10] } ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_brick_wall",
         "name": "brick wall",
         "symbol": "LINE_OXOX",
@@ -63,7 +50,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_scrap_wall",
         "name": "simple metal wall",
         "symbol": "LINE_OXOX",
@@ -81,7 +68,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_scrap_wall_halfway",
         "name": "half-built simple metal wall",
         "symbol": "#",
@@ -98,7 +85,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sconc_wall",
         "name": "simple concrete wall",
         "symbol": "LINE_OXOX",
@@ -116,7 +103,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sconc_wall_halfway",
         "name": "half-built simple concrete wall",
         "symbol": "*",
@@ -134,7 +121,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_strconc_wall",
         "name": "reinforced concrete wall",
         "symbol": "LINE_OXOX",
@@ -152,7 +139,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_strconc_wall_halfway",
         "name": "half-built reinforced concrete wall",
         "symbol": "*",
@@ -170,7 +157,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_reb_cage",
         "name": "rebar cage",
         "symbol": "#",
@@ -189,7 +176,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_thconc_floor",
         "name": "concrete floor",
         "symbol": ".",
@@ -211,7 +198,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_ov_smreb_cage",
         "name": "small rebar roof cage",
         "symbol": ".",
@@ -232,7 +219,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_strconc_floor",
         "name": "reinforced concrete floor",
         "symbol": ".",
@@ -254,7 +241,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_ov_reb_cage",
         "name": "rebar roof cage",
         "symbol": ".",
@@ -275,7 +262,7 @@
                 ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_strconc_floor_halfway",
         "name": "half-built reinforced concrete floor",
         "symbol": ".",
@@ -297,7 +284,7 @@
                 ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_dirt",
         "name": "dirt",
         "symbol": ".",
@@ -313,7 +300,7 @@
                 "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sand",
         "name": "sand",
         "symbol": ".",
@@ -329,7 +316,7 @@
                 "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_clay",
         "name": "clay",
         "symbol": ".",
@@ -345,7 +332,7 @@
                 "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_dirtmound",
         "name": "mound of dirt",
         "symbol": "#",
@@ -362,7 +349,7 @@
         },
         "examine_action": "dirtmound"
     },{
-        "type" : "terrain",
+
         "ident" : "t_dirtmoundfloor",
         "name": "mound of dirt",
         "symbol": "#",
@@ -383,7 +370,7 @@
         },
         "examine_action": "dirtmound"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_shallow",
         "name": "shallow pit",
         "symbol": "0",
@@ -399,7 +386,7 @@
                 "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit",
         "name": "pit",
         "symbol": "0",
@@ -417,7 +404,7 @@
         },
         "examine_action": "pit"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_corpsed",
         "name": "corpse filled pit",
         "symbol": "#",
@@ -434,7 +421,7 @@
         },
         "comment": "left diggable to clean out corpses-KA101"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_covered",
         "name": "covered pit",
         "symbol": "#",
@@ -451,7 +438,7 @@
         },
         "examine_action": "pit_covered"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_spiked",
         "name": "spiked pit",
         "symbol": "0",
@@ -469,7 +456,7 @@
         },
         "examine_action": "pit"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_spiked_covered",
         "name": "covered spiked pit",
         "symbol": "#",
@@ -486,7 +473,7 @@
         },
         "examine_action": "pit_covered"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_glass",
         "name": "glass pit",
         "symbol": "0",
@@ -504,7 +491,7 @@
         },
         "examine_action": "pit"
     },{
-        "type" : "terrain",
+
         "ident" : "t_pit_glass_covered",
         "name": "covered glass pit",
         "symbol": "#",
@@ -521,7 +508,7 @@
         },
         "examine_action": "pit_covered"
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock_floor",
         "name": "rock floor",
         "symbol": ".",
@@ -537,7 +524,7 @@
             "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_grass",
         "name": "grass",
         "symbol": ".",
@@ -553,7 +540,7 @@
                 "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_grass_white",
         "name": "white grass",
         "symbol": ".",
@@ -569,7 +556,7 @@
                 "bash_below": true
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_metal_floor",
         "name": "metal floor",
         "symbol": ".",
@@ -584,7 +571,7 @@
                 "str_min_supported": 200
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pavement",
         "name": "pavement",
         "symbol": ".",
@@ -603,7 +590,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pavement_y",
         "name": "yellow pavement",
         "symbol": ".",
@@ -622,7 +609,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sidewalk",
         "name": "sidewalk",
         "symbol": ".",
@@ -640,7 +627,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_concrete",
         "name": "concrete",
         "symbol": ".",
@@ -659,7 +646,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_floor",
         "name": "floor",
         "symbol": ".",
@@ -682,7 +669,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_scrap_floor",
         "name": "simple metal floor",
         "symbol": ".",
@@ -703,7 +690,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_floor_waxed",
         "name": "waxed floor",
         "symbol": ".",
@@ -724,7 +711,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_dirtfloor",
         "name": "dirt floor",
         "symbol": ".",
@@ -746,7 +733,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_grate",
         "name": "metal grate",
         "symbol": "#",
@@ -754,7 +741,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_slime",
         "name": "slime",
         "symbol": "~",
@@ -762,7 +749,7 @@
         "move_cost": 6,
         "flags": ["TRANSPARENT", "CONTAINER", "FLAMMABLE_ASH", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_bridge",
         "name": "walkway",
         "symbol": "#",
@@ -770,7 +757,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_utility_light",
         "name": "Utility Light",
         "symbol": ".",
@@ -792,7 +779,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_log_half",
         "name": "half-built log wall",
         "symbol": "#",
@@ -810,7 +797,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_log",
         "name": "log wall",
         "symbol": "LINE_OXOX",
@@ -828,7 +815,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_log_chipped",
         "name": "chipped log wall",
         "symbol": "LINE_OXOX",
@@ -846,7 +833,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_log_broken",
         "name": "broken log wall",
         "symbol": "",
@@ -865,7 +852,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_palisade",
         "name": "palisade wall",
         "symbol": "#",
@@ -884,7 +871,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_palisade_gate",
         "name": "palisade gate",
         "symbol": "+",
@@ -903,7 +890,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_palisade_gate_o",
         "name": "dirt",
         "comment": "Open palisade gate",
@@ -921,7 +908,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_half",
         "name": "half-built wall",
         "symbol": "#",
@@ -941,7 +928,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_wood",
         "name": "wooden wall",
         "symbol": "LINE_OXOX",
@@ -961,7 +948,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_wood_chipped",
         "name": "chipped wood wall",
         "symbol": "LINE_OXOX",
@@ -981,7 +968,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_wood_broken",
         "name": "broken wood wall",
         "symbol": "",
@@ -1002,7 +989,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall",
         "aliases" : [
             "t_wall_h",
@@ -1022,7 +1009,7 @@
             "items": "wall_bash_results"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_concrete_wall",
         "aliases" : [
             "t_concrete_h",
@@ -1045,7 +1032,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_metal",
         "aliases" : [
             "t_wall_metal_h",
@@ -1069,7 +1056,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_glass",
         "aliases" : [
             "t_wall_glass_h",
@@ -1092,7 +1079,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_glass_alarm",
         "aliases" : [
             "t_wall_glass_h_alarm",
@@ -1116,7 +1103,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_reinforced_glass",
         "aliases" : [
             "t_reinforced_glass_h",
@@ -1140,7 +1127,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_reinforced_glass_shutter",
         "name": "reinforced glass with closed shutters",
         "symbol": "LINE_OXOX",
@@ -1162,7 +1149,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_reinforced_glass_shutter_open",
         "name": "reinforced glass with open shutters",
         "symbol": "LINE_OXOX",
@@ -1184,7 +1171,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_reinforced_door_glass_c",
         "name": "closed reinforced glass door",
         "symbol": "+",
@@ -1209,7 +1196,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_reinforced_door_glass_o",
         "name": "open reinforced  glass door",
         "symbol": "'",
@@ -1232,7 +1219,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_bars",
         "name": "metal bars",
         "examine_action": "bars",
@@ -1252,7 +1239,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_c",
         "name": "closed wood door",
         "symbol": "+",
@@ -1282,7 +1269,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_c_peep",
         "name": "closed wood door with peephole",
         "symbol": "+",
@@ -1315,7 +1302,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_b",
         "name": "damaged wood door",
         "symbol": "",
@@ -1338,7 +1325,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_b_peep",
         "name": "damaged wood door with peephole",
         "comment": "There's no need for a use-peephole, because the door is transparent",
@@ -1363,7 +1350,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_o",
         "name": "open wood door",
         "symbol": "'",
@@ -1395,7 +1382,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_o_peep",
         "name": "open wood door with peephole",
         "symbol": "'",
@@ -1428,7 +1415,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rdoor_c",
         "name": "closed reinforced wood door",
         "symbol": "+",
@@ -1458,7 +1445,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rdoor_b",
         "name": "damaged reinforced wood door",
         "symbol": "",
@@ -1482,7 +1469,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rdoor_o",
         "name": "open reinforced wood door",
         "symbol": "'",
@@ -1512,7 +1499,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_locked_interior",
         "name": "closed wood door",
         "symbol": "+",
@@ -1533,7 +1520,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_locked",
         "name": "closed wood door",
         "symbol": "+",
@@ -1556,7 +1543,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_locked_peep",
         "name": "closed wood door",
         "symbol": "+",
@@ -1580,7 +1567,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_locked_alarm",
         "name": "closed wood door",
         "symbol": "+",
@@ -1602,7 +1589,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_curtain_c",
         "name": "closed door curtain",
         "symbol": "+",
@@ -1636,7 +1623,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_makeshift_c",
         "name": "closed makeshift door",
         "symbol": "+",
@@ -1667,7 +1654,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_curtain_o",
         "name": "open door curtain",
         "symbol": "'",
@@ -1703,7 +1690,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_makeshift_o",
         "name": "open makeshift door",
         "symbol": "'",
@@ -1736,7 +1723,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_frame",
         "name": "empty door frame",
         "symbol": ".",
@@ -1763,7 +1750,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_mdoor_frame",
         "name": "empty metal door frame",
         "symbol": ".",
@@ -1782,7 +1769,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_m_frame",
         "name": "empty metal window frame",
         "symbol": ".",
@@ -1801,7 +1788,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_chaingate_l",
         "name": "locked wire gate",
         "symbol": "+",
@@ -1820,7 +1807,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fencegate_c",
         "name": "closed wooden gate",
         "symbol": "+",
@@ -1841,7 +1828,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fencegate_o",
         "name": "open wooden gate",
         "symbol": ".",
@@ -1864,7 +1851,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_chaingate_c",
         "name": "closed wire gate",
         "symbol": "+",
@@ -1885,7 +1872,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_chaingate_o",
         "name": "open wire gate",
         "symbol": ".",
@@ -1906,7 +1893,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_boarded",
         "name": "boarded up door",
         "symbol": "#",
@@ -1926,7 +1913,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_boarded_damaged",
         "name": "boarded up damaged door",
         "symbol": "#",
@@ -1946,7 +1933,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_boarded_peep",
         "name": "boarded up door with peephole",
         "symbol": "#",
@@ -1967,7 +1954,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rdoor_boarded",
         "name": "boarded up reinforced door",
         "symbol": "#",
@@ -1987,7 +1974,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rdoor_boarded_damaged",
         "name": "boarded up damaged reinforced door",
         "symbol": "#",
@@ -2007,7 +1994,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_boarded_damaged_peep",
         "name": "boarded up damaged door with peephole",
         "symbol": "#",
@@ -2029,7 +2016,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_metal_c",
         "name": "closed metal door",
         "symbol": "+",
@@ -2049,7 +2036,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_metal_o",
         "name": "open metal door",
         "symbol": "'",
@@ -2069,7 +2056,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_metal_c_peep",
         "name": "closed metal door with peephole",
         "symbol": "+",
@@ -2091,7 +2078,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_metal_o_peep",
         "name": "open metal door with peephole",
         "symbol": "'",
@@ -2112,7 +2099,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_metal_locked",
         "name": "closed metal door",
         "comment": "Actually locked",
@@ -2132,7 +2119,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_metal_pickable",
         "name": "closed metal door",
         "comment": "Actually pickable, but locked",
@@ -2154,7 +2141,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_bar_c",
         "name": "closed bar door",
         "comment": "Unlocked, only created at map gen",
@@ -2176,7 +2163,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_bar_o",
         "name": "open bar door",
         "symbol": "'",
@@ -2196,7 +2183,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_bar_locked",
         "name": "closed bar door",
         "comment": "Locked",
@@ -2216,7 +2203,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_glass_c",
         "name": "closed glass door",
         "symbol": "+",
@@ -2245,7 +2232,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_door_glass_o",
         "name": "open glass door",
         "symbol": "'",
@@ -2272,7 +2259,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_portcullis",
         "name": "makeshift portcullis",
         "symbol": "",
@@ -2290,7 +2277,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_recycler",
         "name": "steel compactor",
         "symbol": "",
@@ -2311,7 +2298,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window",
         "name": "window",
         "symbol": "\"",
@@ -2339,7 +2326,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_taped",
         "name": "taped window",
         "symbol": "\"",
@@ -2360,7 +2347,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_domestic",
         "name": "window with curtains",
         "symbol": "\"",
@@ -2398,7 +2385,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_no_curtains",
         "name": "window without curtains",
         "symbol": "\"",
@@ -2428,7 +2415,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_no_curtains_open",
         "name": "open window without curtains",
         "symbol": "'",
@@ -2448,7 +2435,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_no_curtains_taped",
         "name": "taped window",
         "comment": "Taped window without curtains",
@@ -2470,7 +2457,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_domestic_taped",
         "name": "taped window",
         "comment": "Taped window with curtains",
@@ -2495,7 +2482,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_open",
         "name": "open window with curtains",
         "symbol": "'",
@@ -2518,7 +2505,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_curtains",
         "name": "window with closed curtains",
         "symbol": "\"",
@@ -2554,7 +2541,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_alarm",
         "name": "window",
         "symbol": "\"",
@@ -2573,7 +2560,7 @@
             "ter_set": "t_window_frame"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_alarm_taped",
         "name": "taped window",
         "symbol": "\"",
@@ -2594,7 +2581,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_empty",
         "name": "empty window",
         "symbol": "0",
@@ -2616,7 +2603,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_frame",
         "name": "window frame",
         "symbol": "0",
@@ -2637,7 +2624,7 @@
             "TRANSPARENT", "SHARP", "FLAMMABLE", "NOITEM", "MOUNTABLE", "CONNECT_TO_WALL"
         ]
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_boarded",
         "name": "boarded up window",
         "symbol": "#",
@@ -2657,7 +2644,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_boarded_noglass",
         "name": "boarded up window",
         "symbol": "#",
@@ -2676,7 +2663,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_reinforced",
         "name": "reinforced boarded up window",
         "symbol": "#",
@@ -2693,7 +2680,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_reinforced_noglass",
         "name": "reinforced boarded up window",
         "symbol": "#",
@@ -2710,7 +2697,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_enhanced",
         "name": "armored boarded up window",
         "symbol": "#",
@@ -2728,7 +2715,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_enhanced_noglass",
         "name": "armored boarded up window",
         "symbol": "#",
@@ -2746,7 +2733,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_bars",
         "name": "window frame with metal bars",
         "symbol": "#",
@@ -2766,7 +2753,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_bars_alarm",
         "name": "window with metal bars",
         "symbol": "#",
@@ -2785,7 +2772,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_stained_green",
         "name": "high stained glass window",
         "symbol": "\"",
@@ -2803,7 +2790,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_stained_red",
         "name": "high stained glass window",
         "symbol": "\"",
@@ -2821,7 +2808,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_window_stained_blue",
         "name": "high stained glass window",
         "symbol": "\"",
@@ -2839,7 +2826,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock",
         "name": "solid rock",
         "symbol": "#",
@@ -2860,7 +2847,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock_smooth",
         "name": "smoothed rock",
         "symbol": "LINE_OXOX",   "comment": "use pillars, 't_column', as a compliment.",
@@ -2880,7 +2867,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fault",
         "name": "odd fault",
         "symbol": "#",
@@ -2890,7 +2877,7 @@
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL"],
         "examine_action": "fault"
     },{
-        "type" : "terrain",
+
         "ident" : "t_paper",
         "name": "paper wall",
         "symbol": "#",
@@ -2906,7 +2893,7 @@
             "ter_set": "t_null"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree",
         "name": "oak tree",
         "symbol": "7",
@@ -2924,7 +2911,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_dead",
         "name": "dead tree",
         "symbol": "7",
@@ -2942,7 +2929,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_young",
         "name": "young tree",
         "symbol": "1",
@@ -2959,7 +2946,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_apple",
         "name": "apple tree",
         "symbol": "7",
@@ -2982,7 +2969,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_apple_harvested",
         "name": "apple tree",
         "symbol": "7",
@@ -3002,7 +2989,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_pear",
         "name": "pear tree",
         "symbol": "7",
@@ -3025,7 +3012,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_pear_harvested",
         "name": "pear tree",
         "symbol": "7",
@@ -3045,7 +3032,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_cherry",
         "name": "cherry tree",
         "symbol": "7",
@@ -3068,7 +3055,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_cherry_harvested",
         "name": "cherry tree",
         "symbol": "7",
@@ -3088,7 +3075,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_peach",
         "name": "peach tree",
         "symbol": "7",
@@ -3111,7 +3098,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_peach_harvested",
         "name": "peach tree",
         "symbol": "7",
@@ -3131,7 +3118,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_apricot",
         "name": "apricot tree",
         "symbol": "7",
@@ -3154,7 +3141,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_apricot_harvested",
         "name": "apricot tree",
         "symbol": "7",
@@ -3174,7 +3161,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_plum",
         "name": "plum tree",
         "symbol": "7",
@@ -3197,7 +3184,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_plum_harvested",
         "name": "plum tree",
         "symbol": "7",
@@ -3217,7 +3204,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_pine",
         "name": "pine tree",
         "symbol": "4",
@@ -3240,7 +3227,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_deadpine",
         "name": "dead pine tree",
         "symbol": "4",
@@ -3258,7 +3245,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_birch",
         "name": "birch tree",
         "symbol": "7",
@@ -3281,7 +3268,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_birch_harvested",
         "name": "birch tree",
         "symbol": "7",
@@ -3299,7 +3286,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_willow",
         "name": "willow tree",
         "symbol": "4",
@@ -3322,7 +3309,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_willow_harvested",
         "name": "willow tree",
         "symbol": "4",
@@ -3340,7 +3327,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_maple",
         "name": "maple tree",
         "symbol": "7",
@@ -3359,7 +3346,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_maple_tapped",
         "name": "maple tree",
         "symbol": "7",
@@ -3378,7 +3365,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_hickory",
         "name": "hickory tree",
         "symbol": "7",
@@ -3401,7 +3388,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_hickory_harvested",
         "name": "hickory tree",
         "symbol": "7",
@@ -3421,7 +3408,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_hickory_dead",
         "name": "dead hickory tree",
         "symbol": "7",
@@ -3439,7 +3426,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_underbrush",
         "name": "underbrush",
         "description": "Small plants and shrubs that decorate the forest.  An observant forager could obtain edible plants, acorns, eggs, and mushrooms from it.",
@@ -3461,7 +3448,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_underbrush_harvested_spring",
         "name": "underbrush",
         "symbol": "#",
@@ -3480,7 +3467,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_underbrush_harvested_summer",
         "name": "underbrush",
         "symbol": "#",
@@ -3499,7 +3486,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_underbrush_harvested_autumn",
         "name": "underbrush",
         "symbol": "#",
@@ -3518,7 +3505,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_underbrush_harvested_winter",
         "name": "underbrush",
         "symbol": "#",
@@ -3537,7 +3524,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_shrub",
         "name": "shrub",
         "symbol": "#",
@@ -3557,7 +3544,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_shrub_blueberry",
         "name": "blueberry bush",
         "symbol": "#",
@@ -3579,7 +3566,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_shrub_blueberry_harvested",
         "name": "blueberry bush",
         "symbol": "#",
@@ -3598,7 +3585,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_shrub_strawberry",
         "name": "strawberry bush",
         "symbol": "#",
@@ -3620,7 +3607,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_shrub_strawberry_harvested",
         "name": "strawberry bush",
         "symbol": "#",
@@ -3639,7 +3626,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_trunk",
         "name": "tree trunk",
         "symbol": "1",
@@ -3656,7 +3643,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_root_wall",
         "name": "root wall",
         "symbol": "#",
@@ -3674,7 +3661,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wax",
         "name": "wax wall",
         "symbol": "#",
@@ -3692,7 +3679,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_floor_wax",
         "name": "wax floor",
         "symbol": ".",
@@ -3700,7 +3687,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAMMABLE_HARD", "INDOORS", "FLAT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_fence_v",
         "name": "picket fence",
         "symbol": "LINE_OXOX",
@@ -3722,7 +3709,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fence_h",
         "name": "picket fence",
         "symbol": "LINE_OXOX",
@@ -3744,7 +3731,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_chainfence_v",
         "name": "chain link fence",
         "symbol": "LINE_OXOX",
@@ -3764,7 +3751,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_chainfence_h",
         "name": "chain link fence",
         "symbol": "LINE_OXOX",
@@ -3784,7 +3771,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_chainfence_posts",
         "name": "metal post",
         "symbol": "#",
@@ -3802,7 +3789,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fence_post",
         "name": "fence post",
         "symbol": "#",
@@ -3819,7 +3806,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fence_wire",
         "name": "wire fence",
         "symbol": "$",
@@ -3843,7 +3830,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fence_barbed",
         "name": "barbed wire fence",
         "symbol": "$",
@@ -3867,7 +3854,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fence_rope",
         "name": "rope fence",
         "symbol": "$",
@@ -3892,7 +3879,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_railing_v",
         "name": "railing",
         "symbol": "LINE_OXOX",
@@ -3913,7 +3900,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_railing_h",
         "name": "railing",
         "symbol": "LINE_OXOX",
@@ -3934,7 +3921,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_marloss",
         "name": "marloss bush",
         "symbol": "#",
@@ -3949,7 +3936,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus",
         "name": "fungal bed",
         "symbol": ".",
@@ -3964,7 +3951,7 @@
             "str_min_supported": 50
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus_floor_in",
         "name": "fungal floor",
         "comment": "roofed",
@@ -3982,7 +3969,7 @@
             "str_min_supported": 50
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus_floor_sup",
         "name": "fungal floor",
         "comment": "supports",
@@ -3998,7 +3985,7 @@
             "str_min_supported": 50
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus_floor_out",
         "name": "fungal floor",
         "comment": "outside",
@@ -4014,7 +4001,7 @@
             "str_min_supported": 50
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus_wall",
         "aliases" : [
             "t_fungus_wall_h",
@@ -4032,7 +4019,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus_wall_transformed",
         "name": "fungal wall",
         "symbol": "LINE_OXOX",
@@ -4046,7 +4033,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_fungus_mound",
         "name": "fungal mound",
         "symbol": "#",
@@ -4060,7 +4047,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_shrub_fungal",
         "name": "fungal shrub",
         "symbol": "#",
@@ -4077,7 +4064,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_fungal",
         "name": "fungal tree",
         "symbol": "7",
@@ -4091,7 +4078,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_fungal_young",
         "name": "young fungal tree",
         "symbol": "1",
@@ -4105,7 +4092,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_marloss_tree",
         "name": "marloss tree",
         "symbol": "7",
@@ -4120,7 +4107,7 @@
             "ter_set": "t_fungus"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_water_sh",
         "name": "shallow water",
         "symbol": "~",
@@ -4130,7 +4117,7 @@
         "connects_to": "WATER",
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_water_dp",
         "name": "deep water",
         "symbol": "~",
@@ -4140,7 +4127,7 @@
         "connects_to": "WATER",
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_swater_sh",
         "name": "shallow water",
         "symbol": "~",
@@ -4150,7 +4137,7 @@
         "connects_to": "WATER",
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_swater_dp",
         "name": "deep water",
         "symbol": "~",
@@ -4160,7 +4147,7 @@
         "connects_to": "WATER",
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_water_pool",
         "name": "pool water",
         "symbol": "~",
@@ -4169,7 +4156,7 @@
         "flags": ["TRANSPARENT", "LIQUID", "SWIMMABLE", "INDOORS", "DEEP_WATER"],
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_sewage",
         "name": "sewage",
         "symbol": "~",
@@ -4178,7 +4165,7 @@
         "flags": ["TRANSPARENT", "SWIMMABLE"],
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_lava",
         "name": "lava",
         "symbol": "~",
@@ -4187,7 +4174,7 @@
         "trap": "tr_lava",
         "flags": ["TRANSPARENT", "LIQUID", "DESTROY_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_sandbox",
         "name": "sandbox",
         "symbol": "#",
@@ -4215,7 +4202,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_slide",
         "name": "slide",
         "symbol": "#",
@@ -4240,7 +4227,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_monkey_bars",
         "name": "monkey bars",
         "symbol": "#",
@@ -4264,7 +4251,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_backboard",
         "name": "backboard",
         "symbol": "7",
@@ -4290,7 +4277,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_gas_pump",
         "name": "gasoline pump",
         "symbol": "",
@@ -4308,7 +4295,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_gas_tank",
         "name": "tank with gasoline",
         "symbol": "Q",
@@ -4316,7 +4303,7 @@
         "move_cost": 0,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "SEALED", "CONTAINER", "REDUCE_SCENT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_little_column",
         "name": "little column",
         "symbol": "1",
@@ -4324,7 +4311,7 @@
         "move_cost": 0,
         "flags": ["WALL", "TRANSPARENT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_gas_pump_a",
         "name": "gasoline pump",
         "comment": "clone of t_gas_pump, but other color, must be clone every time",
@@ -4334,7 +4321,7 @@
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "SEALED", "CONTAINER", "REDUCE_SCENT"],
         "examine_action": "gaspump"
     },{
-        "type" : "terrain",
+
         "ident" : "t_gas_pump_smashed",
         "name": "smashed gas pump",
         "symbol": "",
@@ -4354,7 +4341,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_diesel_pump",
         "name": "diesel pump",
         "symbol": "",
@@ -4372,7 +4359,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_diesel_pump_smashed",
         "name": "smashed diesel pump",
         "symbol": "",
@@ -4392,7 +4379,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_atm",
         "name": "ATM",
         "symbol": "",
@@ -4412,7 +4399,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_generator_broken",
         "name": "broken generator",
         "symbol": "",
@@ -4431,7 +4418,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_missile",
         "name": "missile",
         "symbol": "#",
@@ -4450,7 +4437,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_missile_exploded",
         "name": "blown-out missile",
         "symbol": "#",
@@ -4469,7 +4456,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_radio_tower",
         "name": "radio tower",
         "symbol": "",
@@ -4488,7 +4475,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_radio_controls",
         "name": "radio controls",
         "symbol": "6",
@@ -4529,7 +4516,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_console_broken",
         "name": "broken console",
         "symbol": "6",
@@ -4570,7 +4557,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_console",
         "name": "computer console",
         "symbol": "6",
@@ -4611,7 +4598,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_gates_mech_control",
         "name": "mechanical winch",
         "symbol": "6",
@@ -4630,7 +4617,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_gates_control_concrete",
         "name": "mechanical winch",
         "symbol": "6",
@@ -4649,7 +4636,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_gates_control_brick",
         "name": "mechanical winch",
         "symbol": "6",
@@ -4668,7 +4655,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_gates_control_metal",
         "name": "control lever",
         "symbol": "6",
@@ -4687,7 +4674,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_barndoor",
         "name": "rope and pulley",
         "symbol": "|",
@@ -4714,7 +4701,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_palisade_pulley",
         "name": "rope and pulley",
         "symbol": "|",
@@ -4741,7 +4728,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sewage_pipe",
         "name": "sewage pipe",
         "symbol": "1",
@@ -4759,7 +4746,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sewage_pump",
         "name": "sewage pump",
         "symbol": "",
@@ -4778,7 +4765,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_centrifuge",
         "name": "centrifuge",
         "symbol": "{",
@@ -4800,7 +4787,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_cvdbody",
         "name": "CVD machine",
         "symbol": "%",
@@ -4819,7 +4806,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_cvdmachine",
         "name": "CVD control panel",
         "symbol": "",
@@ -4846,7 +4833,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_column",
         "name": "column",
         "symbol": "1",
@@ -4864,7 +4851,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_vat",
         "name": "cloning vat",
         "symbol": "0",
@@ -4884,7 +4871,7 @@
             ]
         }
     },{
-        "group": "terrain",
+    
         "ident": "t_stairs_down",
         "name": "stairs",
         "symbol": ">",
@@ -4893,7 +4880,7 @@
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "GOES_DOWN", "INDOORS", "PLACE_ITEM"]
     },{
-        "group": "terrain",
+    
         "ident": "t_stairs_up",
         "name": "stairs",
         "symbol": "<",
@@ -4901,7 +4888,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP", "INDOORS", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_manhole",
         "name": "manhole",
         "symbol": ">",
@@ -4909,7 +4896,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_DOWN", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_ladder_up",
         "name": "ladder",
         "symbol": "<",
@@ -4917,7 +4904,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_ladder_down",
         "name": "ladder",
         "symbol": ">",
@@ -4925,7 +4912,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_DOWN", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_slope_down",
         "name": "downward slope",
         "symbol": ">",
@@ -4933,7 +4920,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_DOWN", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_slope_up",
         "name": "upward slope",
         "symbol": "<",
@@ -4941,7 +4928,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP", "PLACE_ITEM"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_rope_up",
         "name": "rope leading up",
         "symbol": "<",
@@ -4949,7 +4936,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_manhole_cover",
         "name": "manhole cover",
         "symbol": "0",
@@ -4957,7 +4944,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_card_science",
         "name": "card reader",
         "comment": "Science",
@@ -4977,7 +4964,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_card_military",
         "name": "card reader",
         "comment": "Military",
@@ -4997,7 +4984,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_card_reader_broken",
         "name": "broken card reader",
         "symbol": "6",
@@ -5021,7 +5008,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_slot_machine",
         "name": "slot machine",
         "symbol": "6",
@@ -5048,7 +5035,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_elevator_control",
         "name": "elevator controls",
         "symbol": "6",
@@ -5075,7 +5062,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_elevator_control_off",
         "name": "powerless controls",
         "symbol": "6",
@@ -5101,7 +5088,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_elevator",
         "name": "elevator",
         "symbol": ".",
@@ -5109,7 +5096,7 @@
         "move_cost": 2,
         "flags": ["INDOORS", "TRANSPARENT", "FLAT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_pedestal_wyrm",
         "name": "dark pedestal",
         "symbol": "",
@@ -5127,7 +5114,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pedestal_temple",
         "name": "light pedestal",
         "symbol": "",
@@ -5145,7 +5132,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock_red",
         "name": "red stone",
         "symbol": "#",
@@ -5161,7 +5148,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock_green",
         "name": "green stone",
         "symbol": "#",
@@ -5177,7 +5164,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock_blue",
         "name": "blue stone",
         "symbol": "#",
@@ -5193,7 +5180,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_floor_red",
         "name": "red floor",
         "symbol": ".",
@@ -5201,7 +5188,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_floor_green",
         "name": "green floor",
         "symbol": ".",
@@ -5209,7 +5196,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_floor_blue",
         "name": "blue floor",
         "symbol": ".",
@@ -5217,7 +5204,7 @@
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
-        "type" : "terrain",
+
         "ident" : "t_switch_rg",
         "name": "yellow switch",
         "symbol": "6",
@@ -5226,7 +5213,7 @@
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
     },{
-        "type" : "terrain",
+
         "ident" : "t_switch_gb",
         "name": "cyan switch",
         "symbol": "6",
@@ -5235,7 +5222,7 @@
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
     },{
-        "type" : "terrain",
+
         "ident" : "t_switch_rb",
         "name": "purple switch",
         "symbol": "6",
@@ -5244,7 +5231,7 @@
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
     },{
-        "type" : "terrain",
+
         "ident" : "t_switch_even",
         "name": "checkered switch",
         "symbol": "6",
@@ -5253,7 +5240,7 @@
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
     },{
-        "type" : "terrain",
+
         "ident" : "t_carpet_red",
         "name": "red carpet",
         "symbol": ".",
@@ -5273,7 +5260,7 @@
             ]
         }
    },{
-        "type" : "terrain",
+
         "ident" : "t_carpet_yellow",
         "name": "yellow carpet",
         "symbol": ".",
@@ -5293,7 +5280,7 @@
             ]
         }
    },{
-        "type" : "terrain",
+
         "ident" : "t_carpet_green",
         "name": "green carpet",
         "symbol": ".",
@@ -5313,7 +5300,7 @@
             ]
         }
    },{
-        "type" : "terrain",
+
         "ident" : "t_carpet_purple",
         "name": "purple carpet",
         "symbol": ".",
@@ -5333,7 +5320,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_linoleum_white",
         "name": "linoleum tile",
         "symbol": ".",
@@ -5354,7 +5341,7 @@
             ]
         }
    },{
-        "type" : "terrain",
+
         "ident" : "t_linoleum_gray",
         "name": "linoleum tile",
         "symbol": ".",
@@ -5375,7 +5362,7 @@
             ]
         }
    },{
-        "type" : "terrain",
+
         "ident" : "t_wall_r",
         "aliases" : [
             "t_wall_h_r",
@@ -5394,7 +5381,7 @@
             "items": "wall_bash_results"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_w",
         "aliases" : [
             "t_wall_h_w",
@@ -5413,7 +5400,7 @@
             "items": "wall_bash_results"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_b",
         "aliases" : [
             "t_wall_h_b",
@@ -5432,7 +5419,7 @@
             "items": "wall_bash_results"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_g",
         "aliases" : [
             "t_wall_h_g",
@@ -5451,7 +5438,7 @@
             "items": "wall_bash_results"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_y",
         "aliases" : [
             "t_wall_h_y",
@@ -5470,7 +5457,7 @@
             "items": "wall_bash_results"
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_wall_p",
         "aliases" : [
             "t_wall_h_p",
@@ -5489,7 +5476,7 @@
             "items": "wall_bash_results"
         }
    },{
-        "type" : "terrain",
+
         "ident" : "t_rock_wall",
         "name": "stone wall",
         "symbol": "LINE_OXOX",
@@ -5507,7 +5494,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_rock_wall_half",
         "name": "half-built stone wall",
         "symbol": "#",
@@ -5525,7 +5512,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_covered_well",
         "name": "covered well",
         "symbol": "#",
@@ -5545,7 +5532,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_water_pump",
         "name": "water pump",
         "symbol": "",
@@ -5572,7 +5559,7 @@
         },
         "examine_action": "water_source"
     },{
-        "type" : "terrain",
+
         "ident" : "t_improvised_shelter",
         "name": "improvised shelter",
         "symbol": "#",
@@ -5592,7 +5579,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_open_air",
         "name": "open air",
         "symbol": " ",
@@ -5602,7 +5589,7 @@
         "flags": ["TRANSPARENT", "NO_FLOOR"],
         "examine_action": "climb_down"
     },{
-        "type" : "terrain",
+
         "ident" : "t_flat_roof",
         "name": "flat roof",
         "symbol": ".",
@@ -5617,7 +5604,7 @@
             "bash_below": true
         }
     }, {
-        "type" : "terrain",
+
         "ident" : "t_plut_generator",
         "name": "plutonium generator",
         "symbol": "0",
@@ -5653,7 +5640,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sai_box",
         "name": "telecom cabinet",
         "symbol": "#",
@@ -5681,7 +5668,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sai_box_damaged",
         "name": "damaged telecom cabinet",
         "symbol": "#",
@@ -5715,7 +5702,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_support_l",
         "name": "large metal support",
         "symbol": "T",
@@ -5743,7 +5730,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_support_s",
         "name": "small metal support",
         "symbol": "l",
@@ -5771,7 +5758,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_oil_circ_brkr_l",
         "name": "HV oil circuit breaker",
         "symbol": "B",
@@ -5803,7 +5790,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_oil_circ_brkr_s",
         "name": "small HV oil circuit breaker",
         "symbol": "b",
@@ -5835,7 +5822,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_switchgear_l",
         "name": "large switchgear",
         "symbol": "H",
@@ -5869,7 +5856,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_switchgear_s",
         "name": "small switchgear",
         "symbol": "L",
@@ -5907,7 +5894,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_lgtn_arrest",
         "name": "lightning arrester",
         "symbol": "}",
@@ -5937,7 +5924,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_station_disc",
         "name": "disconnect switch",
         "symbol": "h",
@@ -5975,7 +5962,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_current_trans",
         "name": "current transformer",
         "symbol": "{",
@@ -6008,7 +5995,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_potential_trans",
         "name": "potential transformer",
         "symbol": "8",
@@ -6041,7 +6028,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_dock",
         "name": "dock",
         "symbol": "8",
@@ -6066,7 +6053,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pontoon_dp",
         "name": "pontoon bridge",
         "symbol": "8",
@@ -6091,7 +6078,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pavement_bg_dp",
         "name": "bridge pavement",
         "symbol": ".",
@@ -6109,7 +6096,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_pavement_y_bg_dp",
         "name": "bridge yellow pavement",
         "symbol": ".",
@@ -6127,7 +6114,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sidewalk_bg_dp",
         "name": "bridge sidewalk",
         "symbol": ".",
@@ -6145,7 +6132,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_guardrail_bg_dp",
         "name": "guard rail",
         "symbol": "#",
@@ -6162,7 +6149,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_tree_blackjack",
         "name": "blackjack oak",
         "symbol": "7",
@@ -6185,7 +6172,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_claymound",
         "name": "mound of clay",
         "symbol": "#",
@@ -6202,7 +6189,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_sandmound",
         "name": "mound of sand",
         "symbol": "#",
@@ -6219,7 +6206,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_conveyor",
         "name": "conveyor belt",
         "symbol": "=",
@@ -6248,7 +6235,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_machinery_light",
         "name": "light machinery",
         "symbol": "$",
@@ -6288,7 +6275,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_machinery_heavy",
         "name": "heavy machinery",
         "symbol": "%",
@@ -6334,7 +6321,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_machinery_old",
         "name": "old machinery",
         "symbol": "",
@@ -6378,7 +6365,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_machinery_electronic",
         "name": "electronic machinery",
         "symbol": "$",
@@ -6429,7 +6416,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_low_stairs_begin",
         "name": "low stairs (beginning section)",
         "symbol": "<",
@@ -6448,7 +6435,7 @@
             ]
         }
     },{
-        "type" : "terrain",
+
         "ident" : "t_low_stairs_end",
         "name": "low stairs (end section)",
         "symbol": "<",
@@ -6469,7 +6456,7 @@
     },
     {
     "ident": "t_milking_machine",
-    "group": "terrain",
+
     "name": "milking machine",
     "symbol": "%",
     "color": [ "light_gray" ],
@@ -6498,7 +6485,7 @@
   },
   {
     "ident": "t_bulk_tank",
-    "group": "terrain",
+
     "name": "bulk tank",
     "symbol": "O",
     "color": [ "light_gray" ],
@@ -6531,7 +6518,6 @@
   },
   {
     "ident": "t_railroad_rubble",
-    "group": "terrain",
     "name": "railroad rubble",
     "symbol": "^",
     "color": [ "brown" ],
@@ -6540,7 +6526,6 @@
   },
   {
     "ident": "t_railroad_track",
-    "group": "terrain",
     "name": "railroad track",
     "symbol": "X",
     "color": [ "cyan" ],
@@ -6549,7 +6534,6 @@
   },
   {
     "ident": "t_railroad_track_on_tie",
-    "group": "terrain",
     "name": "railroad track",
     "symbol": "x",
     "color": [ "cyan" ],
@@ -6558,7 +6542,6 @@
   },
   {
     "ident": "t_railroad_tie",
-    "group": "terrain",
     "name": "railroad tie",
     "symbol": "#",
     "color": [ "dgray_brown" ],
@@ -6567,7 +6550,6 @@
   },
   {
     "ident": "t_floor_waxed",
-    "group": "terrain",
     "name": "waxed floor",
     "symbol": ".",
     "color": [ "light_red" ],
@@ -6586,7 +6568,7 @@
   },
   {
     "ident": "t_floor_waxed_y",
-    "group": "terrain",
+
     "name": "painted waxed floor",
     "symbol": ".",
     "color": [ "yellow" ],
@@ -6605,7 +6587,6 @@
   },
   {
     "ident": "t_backboard_in",
-    "group": "terrain",
     "name": "backboard",
     "symbol": "7",
     "color": [ "red" ],
@@ -6634,7 +6615,6 @@
   },
   {
     "ident": "t_open_air_rooved",
-    "group": "terrain",
     "name": "open air",
     "symbol": " ",
     "color": [ "i_cyan" ],
