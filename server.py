@@ -4,6 +4,7 @@ import os
 import random
 import sys
 import time
+import pprint
 from collections import defaultdict
 
 import src.global_vars
@@ -20,7 +21,7 @@ from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.terrain import Terrain
 from src.tileManager import TileManager
-from src.profession import ProfessionManager
+from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 #import game
 from src.worldmap import Worldmap
@@ -92,6 +93,38 @@ class Server(MastermindServerTCP):
 
         return None
 
+    def handle_new_player(self, ident):
+        self.players[ident] = Player(ident)
+        # self.players[ident].profession = 'survivor'
+        self.players[ident].position = random.choice(self.starting_locations)
+        self.worldmap.put_object_at_position(self.players[ident], self.players[ident].position)
+        self.localmaps[ident] = self.worldmap.get_chunks_near_position(self.players[ident].position)
+        # give the player their starting items by referencing the ProfessionManager.
+        # print('profession items ')
+        '''
+        ident survivor
+        _comment A basic as it comes. I'll use this for the default profession.
+        name Survivor
+        description Some would say that there's nothing particularly notable about you. But you survived. That's more than most can say right now.
+        skills ["{'survival': 1}"]
+        points 0
+        items {'equipped': [{'TORSO': 'backpack'}], 'in_containers': [{'backpack': 'cell_phone'}]}
+        flags []
+        CBMs []
+        '''
+        #print(self.players[ident].profession)
+        for key, value in self.ProfessionManager.PROFESSIONS[str(self.players[ident].profession)].items():
+            # print(key, ':', value)
+            if(key == 'items'):
+                print(value)
+                # TODO: load the items into the player equipment slots
+                for equip_location, item_ident in value['equipped'].items():
+                    print(equip_location, item_ident)
+                for location_ident, item_ident in value['in_containers'].items():
+                    print(location_ident, item_ident)
+
+        print('New player joined.', self.players[ident])
+
     def callback_client_handle(self, connection_object, data):
         #print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
         # use the data to determine what player is giving the command and if they are logged in yet.
@@ -109,11 +142,7 @@ class Server(MastermindServerTCP):
                             self.players[data.ident].position = tmp_player.position
                             self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(self.players[data.ident].position)
                         else: # new player
-                            print('new player joined.')
-                            self.players[data.ident] = Player(data.ident)
-                            self.players[data.ident].position = random.choice(self.starting_locations)
-                            self.worldmap.put_object_at_position(self.players[data.ident], self.players[data.ident].position)
-                            self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(self.players[data.ident].position)
+                           self.handle_new_player(data.ident)
 
                     print('Player ' + str(data.ident) + ' entered the world at position ' + str(self.players[data.ident].position))
                     self.callback_client_send(connection_object, self.players[data.ident])

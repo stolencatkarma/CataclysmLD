@@ -2,6 +2,8 @@
 import pygame
 import pygame.locals
 
+from .item import Container
+
 class Menu_item:
     # a single menu item that when clicked does something.
     def __init__(self):
@@ -196,7 +198,6 @@ class FontManager:
         return tile_table
 
     def convert_string_to_surface(self, string):
-        # 0-29    uppercase row
         if string is None:
             string = 'None'
         _map_8x12 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
@@ -421,6 +422,7 @@ class Equipment_Menu:
                 self.open_container_grid[i][j] = None # initialize it with no Item in this position.
         for container in self.open_containers:
             for item in container.contained_items:
+                print(item)
                 pass
 
 
@@ -541,7 +543,7 @@ class Equipment_Menu:
                     self.UI_components.append(location['slot0']['item'], location['slot0']['position'])
                     if(isinstance(location['slot0']['item'], Container) and location['slot0']['item'].opened == 'yes'): # if it's a container and open
                         for item in location['slot0']['item'].contained_items:
-                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (_self._x_count * 24), self._start_y + (_self._y_count * 24))))
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))))
                             self._x_count = self._x_count + 1
                             if(self._x_count > 27):
                                 self._x_count = 0
@@ -550,7 +552,7 @@ class Equipment_Menu:
                     self.UI_components.append(location['slot1']['item'], location['slot1']['position'])
                     if(isinstance(location['slot1']['item'], Container) and location['slot1']['item'].opened == 'yes'):
                         for item in location['slot0']['item'].contained_items:
-                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (_self._x_count * 24), self._start_y + (_self._y_count * 24))))
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))))
                             self._x_count = self._x_count + 1
                             if(self._x_count > 27):
                                 self._x_count = 0
@@ -561,7 +563,7 @@ class Equipment_Menu:
                         self.UI_components.append(location['slot_equipped']['item'], location['slot_equipped']['position'])
                         if(isinstance(location['slot_equipped']['item'], Container) and location['slot_equipped']['item'].opened == 'yes'):  # usually you can't equip a container to a equipment slot but let's do it anyways.
                             for item in location['slot0']['item'].contained_items:
-                                self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (_self._x_count * 24), self._start_y + (_self._y_count * 24))))
+                                self.UI_components.append(Equipment_Open_Container_Button(self.screen, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))))
                                 self._x_count = self._x_count + 1
                                 if(self._x_count > 27):
                                     self._x_count = 0
@@ -575,7 +577,7 @@ class Equipment_Menu:
 
 
 
-# class for when you create a super menu item for creature
+# class for when you create a super menu item for creatures
 class Super_menu_creature:
     def __init__(self):
         possible_actions = ['attack', 'attack_repeat', 'talk']

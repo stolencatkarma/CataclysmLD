@@ -13,3 +13,6 @@ class Player(Creature):
             print(bodyPart)
 
         print(self.profession)
+    
+    def __str__(self):
+        return self.name + ' the ' + str(self.profession)
