@@ -20,7 +20,7 @@ from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.tileManager import TileManager
 from src.user_interface import (Button, Crafting_Menu, Directional_choice,
-                                Equipment_Button, Equipment_Menu, FontManager,
+                                Equipment_Button, Equipment_Open_Container_Button, Equipment_Menu, FontManager,
                                 Hotbar, ListBox, Listbox_item, Movement_menu,
                                 Popup_menu, Super_menu, TextBox)
 from src.worldmap import Worldmap
@@ -464,6 +464,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                 _buttons.append(UI_component)
             elif(isinstance(UI_component, Equipment_Button)):
                 _equipment_buttons.append(UI_component)
+            elif(isinstance(UI_component, Equipment_Open_Container_Button)):
+                _equipment_buttons.append(UI_component)
 
         # clicking on a area where an item is equipped.
         #  with no item 'grabbed' and no item in slot.
@@ -481,7 +483,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
         # now that we've drawn the equipment menu we need to wait until the player clicks a UI_component.
         pygame.event.clear() # clear the event queue so we can wait for player feedback.
-        sidebar_components = []
         _grabbed = self.player.grabbed
         while True:
             self.screen.blit(equipment_menu.surface, (equipment_menu.x, equipment_menu.y))
@@ -489,6 +490,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                 UI_component.draw() # blit them to the screen.
             pygame.display.flip() # flip the screen after we've .draw() the UI_components
             event = pygame.event.wait() # wait for player input.
+            #TODO: drag the grabbed item with the mouse. right now it shows nothing.
             if event.type == pygame.QUIT:
                 client.disconnect()
                 pygame.quit()
@@ -507,7 +509,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                             print('clicked', UI_component )
                             if(_grabbed is None): # the temporary spot where the cursor is holding the item.
                                 _grabbed = UI_component.item
-                                UI_component.item = None # this only happens locally for now. the server doesn't care about the item on the cursor.
+                                UI_component.item = None # this only happens locally for now. The server doesn't care about the item on the cursor.
                             else: # we are holding an item
                                 if(UI_component.item is None):
                                     UI_component.item = _grabbed
@@ -585,7 +587,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                     _item_x = _item_x + 24
                     if(_item_x > 24*3+_start_item_x):
                         _item_y = _item_y + 24
-                        _item_x = 0
+                        _item_x = _start_item_x + 3
 
                 pygame.display.flip() # flip the screen
                 event = pygame.event.wait() # wait for player input.
@@ -604,11 +606,11 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                     _x_count = 0
                     _y_count = 0
                     for item in _item_groups[_page]:
-                        print('item.ident:', item.ident)
+                        print('item.ident:', item.ident, end=' ')
                         # return the item clicked and do something with it.
                         _item_x_min = _x_count * 24 + _start_item_x
                         _item_x_max = _x_count * 24 + 23 + _start_item_x
-                        print(_item_x_min, _item_x_max)
+                        print(_item_x_min, ',', _item_x_max)
 
                         if(_x_count > 3):
                             _x_count = 0
@@ -623,7 +625,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                                 print('clicked', str(item.ident))
 
                                 # now we know the ident of the item we can pass that info to the server and let it parse and handle it.
-
 
                                 _command = Command(self.player.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
                                 return _command

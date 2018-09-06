@@ -21,7 +21,9 @@
         "type" : "ammunition_type",
         "ident" : "nail",
         "name" : "nails",
-        "default" : "nail"
+        "default" : "nail",
+        "volume": 1,
+        "weight": 1
     },
     {
         "type" : "ammunition_type",

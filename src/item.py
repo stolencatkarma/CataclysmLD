@@ -12,12 +12,12 @@ class Item:
         # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
 
 class Container(Item): # containers are types of Items and can do everything an item can do.
-    def __init__(self, ident):
-        Item.__init__(self, ident)
+    def __init__(self, ident, reference):
+        Item.__init__(self, ident, reference)
         self.contained_items = []
         self.opened = 'yes' # I don't like using True/False in python.
-        self.base_weight = self.reference['weight'] # this plus all the contained items is how much the item weighs.
-        self.max_volume = self.reference['volume']
+        self.base_weight = int(self.reference['weight']) # this plus all the contained items is how much the item weighs.
+        self.max_volume = int(self.reference['volume'])
         self.contained_weight = 0
         self.contained_volume = 0
 
@@ -25,7 +25,7 @@ class Container(Item): # containers are types of Items and can do everything an 
         # total weight is the weight of all contained items.
         weight = 0
         for item in self.contained_items:
-            weight = weight + item.weight
+            weight = weight + int(item.reference['weight'])
         weight = weight + self.base_weight # add the base weight
         self.contained_weight = weight
 
@@ -33,9 +33,11 @@ class Container(Item): # containers are types of Items and can do everything an 
         # TODO: check right item type and container type (liquids go in liquid containers.)
 
         # check volume
-        if(int(item['volume']) + self.contained_volume > self.max_volume):
+        if(int(item.reference['volume']) + self.contained_volume < self.max_volume):
             self.contained_items.append(item)
             self.recalc_weight()
+            print(' - added item to container successfully.')
+            return True
         else:
             return False #TODO: send a message to the player that the container is full and they cannot do this.
 

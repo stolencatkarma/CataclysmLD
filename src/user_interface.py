@@ -190,7 +190,6 @@ class FontManager:
 
         tile_table = []
         for tile_y in range(0, int(image_height/height)):
-            line = []
             for tile_x in range(0, int(image_width/width)):
                 rect = (tile_x*width, tile_y*height, width, height)
                 #pygame.image.save(image.subsurface(rect), './fontmap/' + str(int(len(tile_table))) + '.png') # for saving the tilemap to individual files
@@ -358,30 +357,27 @@ class Equipment_Button:
         self.item = item
         self.screen = screen
         self.ref_TileManager = ref_TileManager
-        print(item)
-        if(self.item is not None):
-            self.fg = self.ref_TileManager.TILE_TYPES[item.ident]['fg']
 
     def draw(self):
         self.screen.blit(self.equipment_item_background, self.position)
         if(self.item is not None):
+            self.fg = self.ref_TileManager.TILE_TYPES[self.item.ident]['fg']
             self.screen.blit(self.ref_TileManager.TILE_MAP[self.fg], self.position)
 
 
 class Equipment_Open_Container_Button:
     def __init__(self, screen, ref_TileManager, position, item=None):
+        print('loaded equipment container')
         self.equipment_item_background = pygame.image.load('./img/equipment_container_background.png').convert_alpha()
         self.position = position
         self.item = item
         self.screen = screen
         self.ref_TileManager = ref_TileManager
-        print(item)
-        if(self.item is not None):
-            self.fg = self.ref_TileManager.TILE_TYPES[item.ident]['fg']
 
     def draw(self):
         self.screen.blit(self.equipment_item_background, self.position)
         if(self.item is not None):
+            self.fg = self.ref_TileManager.TILE_TYPES[self.item.ident]['fg']
             self.screen.blit(self.ref_TileManager.TILE_MAP[self.fg], self.position)
 
 class Equipment_Menu:
@@ -400,7 +396,7 @@ class Equipment_Menu:
     #  lftft-  236,214- 264,214
 
     #  8x16 empty grid which points to an equipped container.contained_items. it leaves an empty space at the end for adding more items through drag and drop.
-    #   8,296 start, 384, 192 size
+    #  (8, 296) start, 384, 192 size
     #  auto-sort should be OFF for anything container related so player's can move and sort as they wish and it will stay that way.
 
     def __init__(self, screen, rect, ref_FontManager, ref_TileManager, bodyParts):
@@ -419,20 +415,6 @@ class Equipment_Menu:
         self.screen = screen
         self.bodyParts = bodyParts
         self.TileManager = ref_TileManager
-
-
-        # overlay
-        self.open_containers = [] # these show up on the grid at the bottom. a list
-        self.open_container_grid = {} # 16 across and 8 down grid to hold the items in open containers.
-        for i in range(16):
-            self.open_container_grid[i] = {}
-            for j in range(8):
-                self.open_container_grid[i][j] = None # initialize it with no Item in this position.
-        for container in self.open_containers:
-            for item in container.contained_items:
-                print(item)
-                pass
-
 
         self.update()
 
@@ -474,7 +456,6 @@ class Equipment_Menu:
                 # then slot1
                 self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
                 self.equipment_slots[ident][location]['slot1']['position'] = (224, 4)
-
             if(ident == 'TORSO'):
                 self.equipment_slots[ident][location]['slot0']['item'] = bodyPart.slot0
                 self.equipment_slots[ident][location]['slot0']['position'] = (188, 62)
@@ -529,7 +510,6 @@ class Equipment_Menu:
                     self.equipment_slots[ident][location]['slot1']['item'] = bodyPart.slot1
                     self.equipment_slots[ident][location]['slot1']['position'] = (264, 214)
         self.UI_components = []
-        self._open_containers = [] # list
         self._x_count = 0
         self._y_count = 0
         self._start_x = 8
@@ -537,22 +517,24 @@ class Equipment_Menu:
         for key, ident in self.equipment_slots.items():
             # print(key, ident)
             for key, location in ident.items():
-                print(key, ' : ', location)
+                #print(key, ' : ', location)
                 # always blit the background if the limb exists.
-                # screen, position, item=None
                 
                 # append the items if it exists in the slot.
                 if(location['slot0']['item'] is not None):
                     self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot0']['position'], location['slot0']['item']))
                     if(isinstance(location['slot0']['item'], Container) and location['slot0']['item'].opened == 'yes'): # if it's a container and open
+                        #print('!!!!!!IS OPEN CONTAINER!!!!!!')
+                        #print(location['slot0']['item'].reference)
                         for item in location['slot0']['item'].contained_items:
-                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, self.TileManager, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24))), item)
+                            self.UI_components.append(Equipment_Open_Container_Button(self.screen, self.TileManager, (self._start_x + (self._x_count * 24), self._start_y + (self._y_count * 24)), item))
+                            print('added equipment_open_container button')
                             self._x_count = self._x_count + 1
                             if(self._x_count > 27):
                                 self._x_count = 0
                                 self._y_count = self._y_count + 1
                 else:
-                    self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot0']['position']))
+                    self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot0']['position'])) # load an empty equipment button
                                 
                 if(location['slot1']['item'] is not None):
                     self.UI_components.append(Equipment_Button(self.screen, self.TileManager, location['slot1']['position'], location['slot1']['item']))

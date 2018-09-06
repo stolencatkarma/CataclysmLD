@@ -126,16 +126,30 @@ class Server(MastermindServerTCP):
                     for bodypart in self.players[ident].body_parts:
                         if(bodypart.ident.split('_')[0] == equip_location):
                             if(bodypart.slot0 is None):
-                                bodypart.slot0 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
+                                if('container_type' in self.ItemManager.ITEM_TYPES[item_ident]):
+                                    bodypart.slot0 = Container(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
+                                else:
+                                    bodypart.slot0 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
                                 break
                             elif(bodypart.slot1 is None):
-                                bodypart.slot1 =  Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
+                                if('container_type' in self.ItemManager.ITEM_TYPES[item_ident]):
+                                    bodypart.slot1 = Container(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
+                                else:
+                                    bodypart.slot1 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
                                 break
                     else:
                         print('player needed an item but no free slots found')
-            elif(key == 'items_in_containers'):
+            elif(key == 'items_in_containers'): # load the items_in_containers into their containers we just created.
+                print('LOADING ITEMS INTO CONTAINERS')
                 for location_ident, item_ident in value.items():
                     print(location_ident, item_ident)
+                    # first find the location_ident so we can load a new item into it.
+                    for bodypart in self.players[ident].body_parts:
+                        if(bodypart.slot0 is not None):
+                            if(isinstance(bodypart.slot0, Container) and bodypart.slot0.ident == location_ident): # uses the first one it finds, maybe check if it's full?
+                                bodypart.slot0.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
+                            if(isinstance(bodypart.slot1, Container) and bodypart.slot1.ident == location_ident): # uses the first one it finds, maybe check if it's full?
+                                bodypart.slot1.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
 
         print('New player joined.', self.players[ident])
 
@@ -253,7 +267,7 @@ class Server(MastermindServerTCP):
                         break
 
                 if(_from_item == None): # we didn't find one, player sent bad information (possible hack?)
-                    print('_from_item not found. this is unusual.')
+                    print('!!! _from_item not found. this is unusual.')
                     return
 
                 # make a list of open_containers the player has to see if they can pick it up.
