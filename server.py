@@ -541,7 +541,7 @@ if __name__ == "__main__":
                 time.sleep(.001)
             server.calendar.advance_time_by_x_seconds(1) # a turn is one second.
             server.compute_turn() # where all queued creature actions get taken care of, as well as physics engine stuff.
-            print('turn: ' + str(server.calendar.get_turn()))
+            #print('turn: ' + str(server.calendar.get_turn()))
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             #TODO: unload from memory chunks that have no updates required. (such as no monsters, players, or fires)
             last_turn_time = time.time() # based off of system clock.

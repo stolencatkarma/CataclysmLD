@@ -275,20 +275,20 @@ class Worldmap:
 
     def build_json_building_at_position(self, filename, position): # applys the json file to world coordinates. can be done over multiple chunks.
         print('building: ' + str(filename) + ' at ' + str(position))
-        start = time.time()
+        #start = time.time()
         #TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
             data = json.load(json_file)
         #print(data)
-        group = data['group']
-        overmap_terrain = data['overmap_terrain']
+        # group = data['group']
+        # overmap_terrain = data['overmap_terrain']
         floors = data['floors']
         #print(floors)
         terrain = data['terrain'] # list
         furniture = data['furniture'] # list
         fill_terrain = data['fill_terrain'] # string
 
-        impassable_tiles = ['t_wall'] #TODO: make this global
+        impassable_tiles = ['t_wall'] # TODO: make this global
         for k, floor in floors.items():
             #print(k)
             i, j = 0, 0
@@ -314,8 +314,8 @@ class Worldmap:
                         pass
                     i = i + 1
                 j = j + 1
-        end = time.time()
-        duration = end - start
+        #end = time.time()
+        #duration = end - start
         #print('Building '+ str(filename) + ' took: ' + str(duration) + ' seconds.')
 
     def move_object_from_position_to_position(self, obj, from_position, to_position):
