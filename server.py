@@ -52,15 +52,13 @@ class Server(MastermindServerTCP):
         # self.options.save()
         self.worldmap = Worldmap(26) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
         self.starting_locations = [Position(23, 23, 0)] #TODO: starting locations should be loaded dynamically from secenarios
-        for i in range(1, 13):
-            self.starting_locations.append(Position(23*i, 23, 0))
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
         self.ItemManager = self.worldmap.ItemManager
         self.FurnitureManager = self.worldmap.FurnitureManager
 
-    def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. creatures that don't can walk or break through walls.
+    def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
         #print('----------------Calculating Route---------------------')
         #print('pos0: ' + str(pos0))
         #print('pos1: ' + str(pos1))
@@ -94,11 +92,22 @@ class Server(MastermindServerTCP):
                     reachable.append(adjacent)
 
         return None
+    
+    def find_spawn_point_for_new_player(self):
+        _tiles = self.worldmap.get_all_tiles()
+        random.shuffle(_tiles) # so we all don't spawn in one corner.
+        for tile in _tiles:
+            if(tile['terrain'].impassable):
+                continue
+            if(tile['creature'] is not None):
+                continue
+            
+            return tile['position']
 
     def handle_new_player(self, ident):
         self.players[ident] = Player(ident)
         # self.players[ident].profession = 'survivor'
-        self.players[ident].position = random.choice(self.starting_locations)
+        self.players[ident].position = self.find_spawn_point_for_new_player()
         self.worldmap.put_object_at_position(self.players[ident], self.players[ident].position)
         self.localmaps[ident] = self.worldmap.get_chunks_near_position(self.players[ident].position)
         # give the player their starting items by referencing the ProfessionManager.
@@ -151,7 +160,7 @@ class Server(MastermindServerTCP):
                             if(isinstance(bodypart.slot1, Container) and bodypart.slot1.ident == location_ident): # uses the first one it finds, maybe check if it's full?
                                 bodypart.slot1.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
 
-        print('New player joined.', self.players[ident])
+        print('New player joined.', self.players[ident].name)
 
     def callback_client_handle(self, connection_object, data):
         #print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
