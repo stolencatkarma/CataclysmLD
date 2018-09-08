@@ -671,12 +671,12 @@ if __name__ == "__main__":
                 client.player = next_update # client.player is updated
             if(isinstance(next_update, list)): # this is the list of chunks for the localmap
                 #print('got localmapupdate')
+                last_time = time.time() # save the last time we got a localmap update
                 client.localmap = client.convert_chunks_to_localmap(next_update)
                 client.player = client.find_player_in_localmap()
                 client.draw_view_at_position(client.player.position) # update after everything is complete.
                 client.messageBox.draw(client.screen) # update the screen after we've recieved an updated local view.
                 pygame.display.flip() # now we have a fully built frame, display it
-                last_time = time.time() # save the last time we got a localmap update
 
 
         # we also need to check and see if the player wants to do anything.

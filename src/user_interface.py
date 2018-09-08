@@ -259,16 +259,6 @@ class Crafting_Menu:
         self.sidebar['required_tool_tag'] = []
         self.sidebar['tools'] = []
         self.sidebar['components'] = []
-        '''
-        result: halberd
-        skill_used: fabrication
-        difficulty: 7
-        time: 360000
-        learned_from: [['textbook_weapwest', 6]]
-        required_tool_tag: ['HAMMER', 'CHISEL']
-        tools: [[['TONGS', -1]], [['ANVIL', -1]], [['swage', -1]], [['FORGE', 350], ['OXY_TORCH', 70]]]
-        components: [[['steel_lump', 3], ['steel_chunk', 12], ['scrap', 36]], [['2x4', 4], ['stick', 8]], [['fur', 2], ['leather', 2]]]
-        '''
         # build the menu
 
         self.UI_components = []

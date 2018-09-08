@@ -55,7 +55,7 @@ class Server(MastermindServerTCP):
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
-        self.ItemManager = self.worldmap.ItemManager
+        self.ItemManager = self.worldmap.ItemManager # loaded by the worldmap in its init()
         self.FurnitureManager = self.worldmap.FurnitureManager
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
@@ -116,7 +116,7 @@ class Server(MastermindServerTCP):
         ident : survivor
         _comment : A basic as it comes. I'll use this for the default profession.
         name : Survivor
-        description : Some would say that there's nothing particularly notable about you. But you survived. That's more than most can say right now.
+        description : Some ...
         skills : ["{'survival': 1}"]
         points : 0
         items : {'equipped': [{'TORSO': 'backpack'}], 'in_containers': [{'backpack': 'cell_phone'}]}
@@ -225,7 +225,7 @@ class Server(MastermindServerTCP):
                 self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
 
             if(data.command == 'calculated_move'):
-                print('Recieved calculated_move action. let\'s build a path for ' + str(data.ident))
+                print('Recieved calculated_move action. Building a path for ' + str(data.ident))
 
                 _position = Position(data.args[0], data.args[1], data.args[2])
                 _route = self.calculate_route(self.players[data.ident].position, _position) # returns a route from point 0 to point 1 as a series of Position(s)
