@@ -159,7 +159,46 @@ class Listbox_item:
         self.text = text
         self.surface_text = surface_text
         self.reference_object = reference_object
-        #text
+
+class CheckBox:
+    def __init__(self, screen, rect):
+        self.cb_false = pygame.image.load('./img/check_box_false.png').convert_alpha()
+        self.cb_true = pygame.image.load('./img/check_box_true.png').convert_alpha()
+        self.rect = rect
+        self.x = rect[0]
+        self.y = rect[1]
+        self.width = rect[2]
+        self.height = rect[3]
+        self.screen = screen
+        self.checked = 'no'       
+
+    
+    def draw(self):
+        if(self.checked == 'no'):
+            self.screen.blit(self.cb_false, (self.x, self.y)) 
+        elif(self.checked == 'yes'):
+            self.screen.blit(self.cb_true, (self.x, self.y)) 
+        
+
+class InputBox:
+    def __init__(self, screen, rect, ref_FontManager):
+        self.inputBox_background = pygame.image.load('./img/TextInput_box_192_24.png').convert_alpha()
+        self.rect = rect
+        self.x = rect[0]
+        self.y = rect[1]
+        self.width = rect[2]
+        self.height = rect[3]
+        self.screen = screen
+        self.ref_FontManager = ref_FontManager
+        self.active = 'no'
+        self.value = "" # what we blit to the inputbox. needs fontManager
+
+    
+    def draw(self):
+        self.screen.blit(self.inputBox_background, (self.x, self.y)) # blit the input box
+        _surface = self.ref_FontManager.convert_string_to_surface(self.value)
+        self.screen.blit(_surface, (self.x+4, self.y+8))
+    
 
 class TextBox:
     def __init__(self, screen, color, rect, surface_text):
@@ -210,7 +249,7 @@ class FontManager:
                 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6',
                 '7', '8', '9', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '=', '_', '+', '[', ']', '{',
-                '}', '\\', '|', ':', ';', '\"', '\'', '/', '~', '\`', ' ']
+                '}', '\\', '|', ':', ';', '\"', '\'', '/', '~', '\`', '.', ' ']
         _map_6x8 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
                 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6',

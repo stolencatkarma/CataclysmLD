@@ -1,10 +1,7 @@
-[
-  {
+{
       "firstName":"",
       "lastName":"",
       "savePassword": true,
       "password":"password",
-      "lastServerUsed":"localhost",
-      "lastIPUsed": 6317
-  }
-]
+      "serverList":["localhost:6317", "174.84.132.219:6317"]
+}

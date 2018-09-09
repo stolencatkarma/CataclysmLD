@@ -22,11 +22,46 @@ from src.tileManager import TileManager
 from src.user_interface import (Button, Crafting_Menu, Directional_choice,
                                 Equipment_Button, Equipment_Open_Container_Button, Equipment_Menu, FontManager,
                                 Hotbar, ListBox, Listbox_item, Movement_menu,
-                                Popup_menu, Super_menu, TextBox)
+                                Popup_menu, Super_menu, TextBox, InputBox)
 from src.worldmap import Worldmap
 
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
+    def __init__(self, first_name, last_name):
+        MastermindClientTCP.__init__(self)
+        pygame.init()
+        pygame.display.set_caption('Cataclysm: Looming Darkness')
+        self.screen = pygame.display.set_mode((854, 480), pygame.ANYFORMAT)
+        self.TileManager = TileManager()
+        self.ItemManager = ItemManager()
+        self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
+        self.FontManager = FontManager()
+        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
+        self.localmap = None
+        self.hotbars = []
+        self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
+
+
+        # insert buttons when we open a screen and destroy them when we leave it.
+        self.buttons = []
+        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (50,50,50,50)))
+        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (150,50,50,50)))
+        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (150,150,50,50)))
+        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (50,150,50,50)))
+        self.textboxes = []
+        self.listboxes = []
+        #self.listboxes.insert(0, ListBox(self.screen, (0,0,0), (160, 50, 200,200)))
+        #self.listboxes[0].add(Listbox_item('item 0', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 1', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 2', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 3', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 4', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 5', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 6', Item('brewing_cookbook')))
+        #self.listboxes[0].add(Listbox_item('item 7', Item('brewing_cookbook')))
+
+        self.messageBox = MessageBox(self.screen)
+
     def find_player_in_localmap(self):
         for tile in self.localmap:
             if(tile['creature'] is not None):
@@ -191,41 +226,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
         for textbox in self.textboxes: #draw the textboxes
             textbox.draw()
-
-    def __init__(self, first_name, last_name):
-        MastermindClientTCP.__init__(self)
-        pygame.init()
-        pygame.display.set_caption('Cataclysm: Looming Darkness')
-        self.screen = pygame.display.set_mode((854, 480), pygame.ANYFORMAT)
-        self.TileManager = TileManager()
-        self.ItemManager = ItemManager()
-        self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
-        self.FontManager = FontManager()
-        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats. #TODO: name and password.
-        self.localmap = None
-        self.hotbars = []
-        self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
-
-
-        # insert buttons when we open a screen and destroy them when we leave it.
-        self.buttons = []
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (50,50,50,50)))
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (150,50,50,50)))
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (150,150,50,50)))
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (50,150,50,50)))
-        self.textboxes = []
-        self.listboxes = []
-        #self.listboxes.insert(0, ListBox(self.screen, (0,0,0), (160, 50, 200,200)))
-        #self.listboxes[0].add(Listbox_item('item 0', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 1', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 2', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 3', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 4', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 5', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 6', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 7', Item('brewing_cookbook')))
-
-        self.messageBox = MessageBox(self.screen)
 
     def open_crafting_menu(self):
         #TODO: allow passing a string to skip to the choose direction part.
