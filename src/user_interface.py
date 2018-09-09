@@ -217,10 +217,10 @@ class TextBox:
         self.screen.blit(self.surface_text, (self.x, self.y))
 
 class FontManager:
-    def __init__(self):
+    def __init__(self, img='./img/font6x8.png'):
         self.tilemapPx = 6
         self.tilemapPy = 8
-        self.CHARACTER_MAP = self.load_font_table("./img/font6x8.png", self.tilemapPx, self.tilemapPy)
+        self.CHARACTER_MAP = self.load_font_table(img, self.tilemapPx, self.tilemapPy)
 
     def load_font_table(self, filename, width, height):
         print('loading font table: ' + str(filename))
@@ -254,13 +254,14 @@ class FontManager:
                 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6',
                 '7', '8', '9', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '=', '_', '+', '[', ']', '{',
-                '}', ':', ';', ',', ' ']
+                '}', ':', ';', ',', '.', ' ']
         count = 0
         surface = pygame.Surface((self.tilemapPx*len(string), self.tilemapPy))
         surface.fill((255,255,255,255))
         for char in string:
+            # print(char)
             # find the corresponding fontmap image and append it to the surface
-            surface.blit(self.CHARACTER_MAP[_map_8x10.index(char)], ((count*self.tilemapPx), 0))
+            surface.blit(self.CHARACTER_MAP[_map_6x8.index(char)], ((count*self.tilemapPx), 0))
             count = count + 1
 
         return surface

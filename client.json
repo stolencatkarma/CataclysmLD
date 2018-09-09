@@ -3,5 +3,5 @@
       "lastName":"",
       "savePassword": true,
       "password":"password",
-      "serverList":["localhost:6317", "174.84.132.219:6317"]
+      "serverList":[ "localhost:6317", "174.84.132.219:6317" ]
 }

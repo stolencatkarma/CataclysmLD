@@ -36,7 +36,7 @@ if __name__ == "__main__":
     pygame.init()
     pygame.display.set_caption('Cataclysm: Looming Darkness')
     _screen = pygame.display.set_mode((854, 480), pygame.ANYFORMAT)
-    _FontManager = FontManager()
+    _FontManager = FontManager('./img/font6x8.png')
     _backdrop = pygame.image.load('./img/client_login.png').convert_alpha()
     firstNameInputBox = InputBox(_screen, (340,131,192,24), _FontManager)
     firstNameInputBox.value = 'Andrew'
@@ -50,6 +50,7 @@ if __name__ == "__main__":
         print(server)
         _surface = _FontManager.convert_string_to_surface(server)
         item_to_add = Listbox_item(server, _surface, None)
+        serverList.add(item_to_add)
 
     UI_Components = []
     # UI_Components.append(_backdrop)
