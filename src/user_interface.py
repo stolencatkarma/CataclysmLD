@@ -98,7 +98,7 @@ class Button:
         self.screen.blit(self.surface_text, (text_center_x, text_center_y))
 
     def on_clicked(self, button, click_pos_x, click_pos_y):
-        # if the user clicks the bar what happens?
+        # if the user clicks the bar what happens? I usually just check for this in the next level up.
         if(button == 1):
             print('left click')
         elif(button == 3):
@@ -149,7 +149,7 @@ class ListBox:
                 return
         elif(str(button) == str(1)):
             items_per_page = int(self.height/12)
-            if(self.page*items_per_page+item_clicked <= len(self.item_list)):
+            if(self.page*items_per_page+item_clicked < len(self.item_list)):
                 return self.item_list[self.page*items_per_page+item_clicked]
             else:
                 return None
@@ -177,11 +177,18 @@ class CheckBox:
         if(self.checked == 'no'):
             self.screen.blit(self.cb_false, (self.x, self.y)) 
         elif(self.checked == 'yes'):
-            self.screen.blit(self.cb_true, (self.x, self.y)) 
+            self.screen.blit(self.cb_true, (self.x, self.y))
+
+    def on_clicked(self):
+        if(self.checked == 'no'):
+            self.checked = 'yes'
+        else:
+            self.checked = 'no'
+
         
 
 class InputBox:
-    def __init__(self, screen, rect, ref_FontManager):
+    def __init__(self, screen, rect, ref_FontManager, is_password_field='no'):
         self.inputBox_background = pygame.image.load('./img/TextInput_box_192_24.png').convert_alpha()
         self.rect = rect
         self.x = rect[0]
@@ -192,12 +199,20 @@ class InputBox:
         self.ref_FontManager = ref_FontManager
         self.active = 'no'
         self.value = "" # what we blit to the inputbox. needs fontManager
+        self.is_password_field = is_password_field
 
     
     def draw(self):
         self.screen.blit(self.inputBox_background, (self.x, self.y)) # blit the input box
-        _surface = self.ref_FontManager.convert_string_to_surface(self.value)
-        self.screen.blit(_surface, (self.x+4, self.y+8))
+        if(self.is_password_field == 'no'):
+            _surface = self.ref_FontManager.convert_string_to_surface(self.value)
+            self.screen.blit(_surface, (self.x+4, self.y+8))
+        else:
+            _tmp_str = ''
+            for count in range(len(self.value)):
+                _tmp_str = _tmp_str + '*'
+            _surface = self.ref_FontManager.convert_string_to_surface(_tmp_str)
+            self.screen.blit(_surface, (self.x+4, self.y+8))
     
 
 class TextBox:
