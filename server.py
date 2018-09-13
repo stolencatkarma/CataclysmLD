@@ -369,7 +369,6 @@ class Server(MastermindServerTCP):
                 # blueprint to position (empty blueprint on ground)
                 # blueprint to creature (grab from blueprint)
 
-
         return super(Server,self).callback_client_handle(connection_object,data)
 
     def callback_client_send(self, connection_object, data, compression=None):
@@ -442,31 +441,45 @@ class Server(MastermindServerTCP):
 
     # this function handles overseeing all creature movement, attacks, and interactions
     def compute_turn(self):
+        lights_to_process = [] # init a list for all our found lights around players.
         for player, chunks in self.localmaps.items():
             for chunk in chunks: # players typically get 9 chunks
                 for tile in chunk.tiles:
                     tile['lumens'] = 0 # reset light levels.
 
+        for player, chunks in self.localmaps.items():
+            for chunk in chunks: # players typically get 9 chunks
+                for tile in chunk.tiles:
+                    for item in tile['items']:
+                        for flag in self.ItemManager.ITEM_TYPES[item.ident]['flags']:
+                            if(flag.split('_')[0] == 'LIGHT'): # this item produces light.
+                                for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], int(flag.split('_')[1])):
+                                    tile['lumens'] = tile['lumens'] + int(int(flag.split('_')[1]) - distance)
+                    
+                    for flag in self.FurnitureManager.FURNITURE_TYPES[tile['furniture'].ident]:
+                        if(flag.split('_')[0] == 'LIGHT'): # this furniture produces light.
+                            for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], int(flag.split('_')[1])):
+                                tile['lumens'] = tile['lumens'] + int(int(flag.split('_')[1]) - distance)
+                        
+
+        
         creatures_to_process = [] # we want a list that contains all the non-duplicate creatures on all localmaps around players.
         for player, chunks in self.localmaps.items():
             for chunk in chunks: # players typically get 9 chunks
                 for tile in chunk.tiles:
                     if(tile['creature'] is not None and tile['creature'] not in creatures_to_process): # avoid duplicates
                         creatures_to_process.append(tile['creature'])
-
-
-
         for creature in creatures_to_process:
-            if(len(creature.command_queue) > 0):
+            if(len(creature.command_queue) > 0): # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
                 print('doing actions for: ' + str(creature.name))
                 self.process_creature_command_queue(creature)
 
-
-        for tile in self.worldmap.get_all_tiles():
+        
+        '''for tile in self.worldmap.get_all_tiles():
             if(tile['creature'] is not None):
                 #TODO: don't just draw a light around every creature. we need to check for all lights. We also need to have light blocked by walls.
                 for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], 8):
-                    tile['lumens'] = tile['lumens'] + int(8-distance)
+                    tile['lumens'] = tile['lumens'] + int(8-distance)'''
 
         # now that we've processed what everything wants to do we can return.
 
