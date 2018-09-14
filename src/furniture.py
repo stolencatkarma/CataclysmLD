@@ -28,6 +28,8 @@ class FurnitureManager: # holds all the furniture types from furniture.json
                 furniture['bash'] = None
             if(not 'bg' in furniture.keys()):
                 furniture['bg'] = None
+            if(not 'flags' in furniture.keys()):
+                furniture['flags'] = None
             try:
                 self.FURNITURE_TYPES[furniture['ident']]['move_cost_mod'] = furniture['move_cost_mod'] # ex, TILE_TYPES['ident']]['fg'] is a integer of the foreground of that ident
                 self.FURNITURE_TYPES[furniture['ident']]['name'] = furniture['name']
@@ -35,6 +37,9 @@ class FurnitureManager: # holds all the furniture types from furniture.json
                 self.FURNITURE_TYPES[furniture['ident']]['required_str'] = furniture['required_str']
                 self.FURNITURE_TYPES[furniture['ident']]['description'] = furniture['description']
                 self.FURNITURE_TYPES[furniture['ident']]['bash'] = furniture['bash']
+                self.FURNITURE_TYPES[furniture['ident']]['flags'] = list() 
+                for flag in furniture['flags']:
+                    self.FURNITURE_TYPES[furniture['ident']]['flags'].append(flag)
             except:
                 print('invalid furniture unsuccessfully loaded.' + str(furniture))
                 pass

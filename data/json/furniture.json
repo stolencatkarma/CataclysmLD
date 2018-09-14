@@ -2895,5 +2895,15 @@
                 { "item": "sheet_metal", "count": [0, 2] }
             ]
         }
+    },{
+        "type" : "furniture",
+        "ident" : "ceiling_fixture",
+        "name": "Ceiling Light",
+        "symbol": "o",
+        "bgcolor": "yellow",
+        "description": "A light attached to the ceiling.",
+        "move_cost_mod": 99,
+        "required_str": 99,
+        "flags": ["LIGHT_5"]
     }
 ]

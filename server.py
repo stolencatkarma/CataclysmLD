@@ -101,6 +101,8 @@ class Server(MastermindServerTCP):
                 continue
             if(tile['creature'] is not None):
                 continue
+            if(tile['terrain'].ident == 't_open_air'):
+                continue
             
             return tile['position']
 
@@ -451,15 +453,22 @@ class Server(MastermindServerTCP):
             for chunk in chunks: # players typically get 9 chunks
                 for tile in chunk.tiles:
                     for item in tile['items']:
+                        #print(item)
                         for flag in self.ItemManager.ITEM_TYPES[item.ident]['flags']:
                             if(flag.split('_')[0] == 'LIGHT'): # this item produces light.
                                 for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], int(flag.split('_')[1])):
                                     tile['lumens'] = tile['lumens'] + int(int(flag.split('_')[1]) - distance)
-                    
-                    for flag in self.FurnitureManager.FURNITURE_TYPES[tile['furniture'].ident]:
-                        if(flag.split('_')[0] == 'LIGHT'): # this furniture produces light.
-                            for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], int(flag.split('_')[1])):
-                                tile['lumens'] = tile['lumens'] + int(int(flag.split('_')[1]) - distance)
+                    if(tile['furniture'] is not None):# and tile['furniture']['flags'] is not None):
+                        #print('tile[\'furniture\'].ident', tile['furniture'].ident)
+                        for key in self.FurnitureManager.FURNITURE_TYPES[tile['furniture'].ident]:
+                            #print(key)
+                            if(key == 'flags'):
+                                for flag in self.FurnitureManager.FURNITURE_TYPES[tile['furniture'].ident]['flags']:
+                                    #print(flag)
+                                    if(flag.split('_')[0] == 'LIGHT'): # this furniture produces light.
+                                        for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], int(flag.split('_')[1])):
+                                            tile['lumens'] = tile['lumens'] + int(int(flag.split('_')[1]) - distance)
+                                        break
                         
 
         
@@ -519,9 +528,9 @@ class Server(MastermindServerTCP):
                                 elif(city_layout[int(i-1)][int(j)] != 'R'):
                                     json_file = './data/json/mapgen/road/city_road_3_way_p0.json'
                                 elif(city_layout[int(i)][int(j+1)] != 'R'):
-                                    json_file = './data/json/mapgen/road/city_road_3_way_u0.json'
-                                elif(city_layout[int(i)][int(j-1)] != 'R'):
                                     json_file = './data/json/mapgen/road/city_road_3_way_d0.json'
+                                elif(city_layout[int(i)][int(j-1)] != 'R'):
+                                    json_file = './data/json/mapgen/road/city_road_3_way_u0.json'
                             elif(attached_roads <= 2):
                                 if(city_layout[int(i+1)][int(j)] == 'R'):
                                     json_file = './data/json/mapgen/road/city_road_h.json'

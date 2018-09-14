@@ -54032,6 +54032,12 @@
           "fg": 4192,
           "bg": 0,
           "rotates": false
+        },
+        {
+          "ident": "ceiling_fixture",
+          "fg":3771,
+          "bg":0,
+          "rotates":false
         }
 
       ]

@@ -28,7 +28,7 @@
       "GWWWMWMWWWWGG",
       "GW^      uWGG",
       "GW>   hh cWGG",
-      "GIss  nn jIGG",
+      "GIss Onn jIGG",
       "GW    hh fWGG",
       "GWok     gWGG",
       "GWWWILIWWWWGG",
@@ -41,7 +41,7 @@
       " W         W ",
       " W         W ",
       " W        uW ",
-      " W^       cW ",
+      " W^   O   cW ",
       " W        jW ",
       " W        fW ",
       " W        gW ",
@@ -79,7 +79,8 @@
     "r": "f_rack",
     "s": "f_sofa",
     "t": "f_toilet",
-    "u": "f_cupboard"
+    "u": "f_cupboard",
+    "O": "ceiling_fixture"
   },
   "traps":{
     "1" : "tr_beartrap"
