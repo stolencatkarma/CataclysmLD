@@ -373,7 +373,7 @@ class Server(MastermindServerTCP):
 
         return super(Server,self).callback_client_handle(connection_object,data)
 
-    def callback_client_send(self, connection_object, data, compression=None):
+    def callback_client_send(self, connection_object, data, compression=True):
         #print("Server: Sending data \""+str(data)+"\" to client \""+str(connection_object.address)+"\" with compression \""+str(compression)+"\"!")
         return super(Server, self).callback_client_send(connection_object, data, compression)
 

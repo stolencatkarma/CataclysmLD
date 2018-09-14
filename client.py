@@ -665,12 +665,12 @@ if __name__ == "__main__":
         next_update = client.receive(False)
         if(next_update is not None):
             #print('--next_update--') # we recieved a message from the server. let's process it.
-            #print(next_update)
+            #print(type(next_update))
             if(isinstance(next_update, Player)):
                 #print('got playerupdate')
                 client.player = next_update # client.player is updated
-            if(isinstance(next_update, list)): # this is the list of chunks for the localmap
-                #print('got localmapupdate')
+            elif(isinstance(next_update, list)): # this is the list of chunks for the localmap compressed with zlib and pickled to binary
+                #print('got local mapupdate')
                 last_time = time.time() # save the last time we got a localmap update
                 client.localmap = client.convert_chunks_to_localmap(next_update)
                 client.player = client.find_player_in_localmap()
