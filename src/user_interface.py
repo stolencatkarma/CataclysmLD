@@ -2,7 +2,7 @@
 import pygame
 import pygame.locals
 
-from .item import Container
+from .item import Container, Blueprint
 
 class Menu_item:
     # a single menu item that when clicked does something.
@@ -409,7 +409,9 @@ class Equipment_Button:
             self.fg = self.ref_TileManager.TILE_TYPES[self.item.ident]['fg']
             self.screen.blit(self.ref_TileManager.TILE_MAP[self.fg], self.position)
 
-
+class Blueprint_Menu:
+    def __init__(self, screen, ref_TileManager, position):
+        #
 class Equipment_Open_Container_Button:
     def __init__(self, screen, ref_TileManager, position, item=None):
         print('loaded equipment container')
@@ -672,6 +674,11 @@ class Super_menu:
             #TODO: Support terrain super menu item.
             pass
         if len(tile['items']) > 0: # if there's at least 1 item here that's enough.
+            # check for a blueprint.
+            for item in tile['items']:
+                if(isinstance(item, Blueprint)):
+                    self.menu_items.append('Blueprint')
+                    break
             self.menu_items.append('Items')
         if tile['furniture'] is not None: # add the furniture submenu
             self.menu_items.append('Furniture')

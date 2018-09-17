@@ -349,7 +349,7 @@ class Worldmap:
             from_tile['creature'] = None
             return True
         if isinstance(obj, Terrain):
-            tile['terrain'] = obj
+            to_tile['terrain'] = obj
             return True
         if obj is Item:
             print('Moving ' + str(obj) + ' from ' + str(from_tile['position']) + ' to ' + str(to_tile['position']))
@@ -410,10 +410,10 @@ class Worldmap:
 
     def furniture_close(self, object, position): # the object doing the opening.
         tile = self.get_tile_by_position(position)
-        furiture = tile['furniture']
+        furniture = tile['furniture']
         if(furniture is not None):
             if 'close' in furniture: #
-                # replace this furniture with the close version.
+                # replace this furniture with the closed version.
                 # make sure to copy any items in it to the new one.
                 pass
         else:

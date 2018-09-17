@@ -443,6 +443,12 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         elif clicked == 'Items':
             # TODO: I assume the player wants to look at the items to decide what to take.
             return client.open_items_on_ground(pos, tile)
+        elif clicked == 'Blueprint':
+            return client.open_blueprint_menu(pos, tile)
+
+    def open_blueprint_menu(self, pos, tile):
+        self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
+        blueprint_menu = Blueprint_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager)
 
     def open_equipment_menu(self):
         self.screen.fill((55, 55, 55), special_flags=pygame.BLEND_SUB) # darken the screen to indicate an action is required.
@@ -535,7 +541,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                                     _position = Position(data.args[3], data.args[4], data.args[5]) # pass the position even if we may not need it.
                                     '''
 
-                                    _command = Command(self.player.name, 'move_item', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
+                                    _command = Command(self.player.name, 'move_item', (tile['position'].x, tile['position'].y, tile['position'].z))
                                     return _command
 
             elif(event.type == pygame.KEYUP):

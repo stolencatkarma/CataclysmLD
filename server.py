@@ -20,7 +20,7 @@ from src.player import Player
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.terrain import Terrain
-from src.tileManager import TileManager
+#from src.tileManager import TileManager
 from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 #import game
@@ -454,6 +454,8 @@ class Server(MastermindServerTCP):
                 for tile in chunk.tiles:
                     for item in tile['items']:
                         #print(item)
+                        if(isinstance(item, Blueprint)):
+                            continue
                         for flag in self.ItemManager.ITEM_TYPES[item.ident]['flags']:
                             if(flag.split('_')[0] == 'LIGHT'): # this item produces light.
                                 for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], int(flag.split('_')[1])):
@@ -584,7 +586,7 @@ if __name__ == "__main__":
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             dont_break = False
             print('done cleaning up.')
-        except Exception as e:
+        '''except Exception as e:
             print('!! Emergency Exit due to Server Exception. !!')
             print(e)
             print()
@@ -593,4 +595,4 @@ if __name__ == "__main__":
             server.disconnect()
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             dont_break = False
-            sys.exit()
+            sys.exit()'''
