@@ -2,7 +2,8 @@
 import pygame
 import pygame.locals
 
-from .item import Container, Blueprint
+from .item import Container
+from .blueprint import Blueprint
 
 class Menu_item:
     # a single menu item that when clicked does something.
@@ -411,7 +412,8 @@ class Equipment_Button:
 
 class Blueprint_Menu:
     def __init__(self, screen, ref_TileManager, position):
-        #
+        pass
+
 class Equipment_Open_Container_Button:
     def __init__(self, screen, ref_TileManager, position, item=None):
         print('loaded equipment container')
