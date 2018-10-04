@@ -6,7 +6,8 @@ import sys
 import time
 from collections import defaultdict
 
-
+import pyglet
+import glooey
 
 from Mastermind._mm_client import MastermindClientTCP
 from src.action import Action
@@ -36,28 +37,15 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
         self.localmap = None
         self.hotbars = []
-        self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
+        #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
+        
+        window = pyglet.window.Window(854, 480)
+        
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+        
+        gui = glooey.Gui(window)
 
-
-        # insert buttons when we open a screen and destroy them when we leave it.
-        self.buttons = []
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (50,50,50,50)))
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (150,50,50,50)))
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (150,150,50,50)))
-        #self.buttons.insert(0, Button(self.screen, 'BUTTON!', (120,120,120), (50,150,50,50)))
-        self.textboxes = []
-        self.listboxes = []
-        #self.listboxes.insert(0, ListBox(self.screen, (0,0,0), (160, 50, 200,200)))
-        #self.listboxes[0].add(Listbox_item('item 0', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 1', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 2', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 3', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 4', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 5', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 6', Item('brewing_cookbook')))
-        #self.listboxes[0].add(Listbox_item('item 7', Item('brewing_cookbook')))
-
-        self.messageBox = MessageBox(self.screen)
 
     def find_player_in_localmap(self):
         for tile in self.localmap:
@@ -70,10 +58,8 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
     def convert_chunks_to_localmap(self, list_of_chunks):
         tiles = []
         for chunk in list_of_chunks:
-            #print(list_of_chunks)
             for tile in chunk.tiles:
                 tiles.insert(len(tiles), tile)
-        #print('length of returned localmap: ' + str(len(tiles)))
         return tiles
 
     def lerp(self, start, end, t):

@@ -1,32 +1,16 @@
 import json
 from collections import defaultdict
-import pygame
+import pyglet
 
 class TileManager: # holds all the tile types from tile_config.json as well as terrain.json information because terrain can have a fg and bg
-    def load_tile_table(self, filename, width, height):
-        print('loading tile table: ' + str(filename))
-        #print(width)
-        #print(height)
-        image = pygame.image.load(filename).convert_alpha()
-        image_width, image_height = image.get_size()
-        #print(str(image_width))
-        #print(str(image_height))
-
-        tile_table = []
-        for tile_y in range(0, int(image_height/height)):
-            for tile_x in range(0, int(image_width/width)):
-                rect = (tile_x*width, tile_y*height, width, height)
-                # pygame.image.save(image.subsurface(rect), './tilemap/' + str(int(len(tile_table))) + '.png') # for saving the tilemap to individual files
-                tile_table.insert(int(len(tile_table)), image.subsurface(rect))
-        return tile_table
-
     def __init__(self):
-        self.tilemapPx = 24
-        self.tilemapPy = 24
+        self.tilemapPx = 32
+        self.tilemapPy = 32
         #TODO: replace this direct link to a variable in options.
-        self.TILE_MAP = self.load_tile_table("./tilesets/Chesthole+/tiles.png", self.tilemapPx, self.tilemapPy) # list correlating to .png part of the file. relates to tile.fg and tile.bg
+        pyglet.resource.path = ['tilesets/Chesthole32/tiles','tilesets/Chesthole32/tiles/background','tilesets/Chesthole32/tiles/monsters','tilesets/Chesthole32/tiles/terrain']
+        pyglet.resource.reindex()
         self.TILE_TYPES = defaultdict(dict) # the dict of tiles loaded from the tile_config.json
-        with open('./tilesets/Chesthole+/tile_config.json') as data_file: # load tile config so we know what tile goes with what ident
+        with open('./tilesets/Chesthole32/tile_config.json') as data_file: # load tile config so we know what tile goes with what ident
             data = json.load(data_file)
         for tiles in data['tiles-new']:
             for tile in tiles['tiles']:
@@ -84,7 +68,6 @@ class TileManager: # holds all the tile types from tile_config.json as well as t
             if(not 'deconstruct' in terrain.keys()):
                 terrain['deconstruct'] = None
             self.TILE_TYPES[terrain['ident']]['deconstruct'] = terrain['deconstruct']
-
 
         # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
         # keys_we_care_about = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
