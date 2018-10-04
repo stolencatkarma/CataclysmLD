@@ -74,13 +74,10 @@ class Worldmap:
                             self.WORLDMAP[i][j][k] = pickle.load(fp)
                             self.WORLDMAP[i][j][k].was_loaded = 'yes'
                         if(count < self.WORLD_SIZE-1):
-                            print('L', end='')
                             count = count + 1
                         else:
-                            print('L')
                             count = 0
                     else:
-                        print('C', end='')
                         self.WORLDMAP[i][j][k] = Chunk(i, j, k, self.chunk_size)
                         with open(path, 'wb') as fp:
                             pickle.dump(self.WORLDMAP[i][j][k], fp)
@@ -161,14 +158,11 @@ class Worldmap:
             for tile in self.WORLDMAP[x_count][y_count][z].tiles:
                 if tile['position'] == position:
                     #print()
-                    #print('found ' + str(position), end=' -- ')
                     return tile
                     #print()
             else:
                 print('FATAL ERROR: couldn\'t find chunk for tile')
         except Exception:
-            #print('~could not find tile at position ' + str(position) + ' making a new chunk: ' + str(x_count) + '_' + str(y_count)+ '_' + str(z), end=' - ')
-
             self.WORLDMAP[x_count][y_count][z] = Chunk(x_count, y_count, z, self.chunk_size)
             path = str('./worlds/default/' + str(x_count) + '_' + str(y_count) + '_' + str(z) + '.chunk')
             with open(path, 'wb') as fp:

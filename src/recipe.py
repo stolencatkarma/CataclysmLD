@@ -31,7 +31,6 @@ class RecipeManager:
                             else: # this is just a regular key/value pair. just add it as is.
                                 self.RECIPE_TYPES[item['result']][key] = value
 
-                            #print('.', end='')
                     #print()
 
         '''for result in self.RECIPE_TYPES.keys():

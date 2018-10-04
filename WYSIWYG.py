@@ -148,7 +148,6 @@ class Editor:
                 # light_intensity # 10 is max light level although lumen level may be higher.
                 light_intensity = min(int((255-(light_intensity*25))/3), 255)
                 light_intensity = max(light_intensity, 0)
-                #print(light_intensity, end=',')
                 #self.screen.fill((light_intensity, light_intensity, light_intensity), rect=(x*24, y*24, 24, 24), special_flags=pygame.BLEND_SUB)
 
                 # render debug text
@@ -303,9 +302,7 @@ class Editor:
                         self.ITEM_TYPES[item['ident']][key].append(str(add_value))
                 else:
                     self.ITEM_TYPES[item['ident']][key] = str(value)'''
-                #print('.', end='')
 
-                            #print('x', end='')
 if __name__ == "__main__": # if we start directly
     editor = Editor()
     while True:

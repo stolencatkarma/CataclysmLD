@@ -6,8 +6,7 @@ import sys
 import time
 from collections import defaultdict
 
-import pygame
-import pygame.locals
+
 
 from Mastermind._mm_client import MastermindClientTCP
 from src.action import Action
@@ -29,9 +28,7 @@ from src.worldmap import Worldmap
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def __init__(self, first_name, last_name):
         MastermindClientTCP.__init__(self)
-        pygame.init()
-        pygame.display.set_caption('Cataclysm: Looming Darkness')
-        self.screen = pygame.display.set_mode((854, 480), pygame.ANYFORMAT)
+
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
@@ -200,7 +197,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             # light_intensity # 10 is max light level although lumen level may be higher.
             light_intensity = min(int((255-(light_intensity*25))/3), 255)
             light_intensity = max(light_intensity, 0)
-            #print(light_intensity, end=',')
             self.screen.fill((light_intensity, light_intensity, light_intensity), rect=(x*24, y*24, 24, 24), special_flags=pygame.BLEND_SUB)
 
             # render debug text
@@ -612,7 +608,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
                     _x_count = 0
                     _y_count = 0
                     for item in _item_groups[_page]:
-                        print('item.ident:', item.ident, end=' ')
                         # return the item clicked and do something with it.
                         _item_x_min = _x_count * 24 + _start_item_x
                         _item_x_max = _x_count * 24 + 23 + _start_item_x
