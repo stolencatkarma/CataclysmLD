@@ -4,8 +4,7 @@ import sys
 import os
 import json
 
-from .bodypart import Bodypart
-
+from src.bodypart import Bodypart
 
 class Creature:
     def __init__(self):
@@ -32,7 +31,7 @@ class Creature:
         self.actions_per_turn = 1 # actions per turn (per second). (moving 5 ft a second is average walking speed)
         self.next_action_available = 0 # how many turns until we can take an action. if this is greater then 0 subtract 1 per turn until 0. add to this per action.
         self.hallucination = False # set True for no_clip, does_no_damage, chase_creature
-        self.tile_id = 1706 # base tile_id for new creatures.
+        self.tile_ident = 'player_female' # base ident for new creatures.
         self.dodges_per_turn = 0
         self.blocks_per_turn = 0
         self.move_mode = 'walk' # 'walk', 'run', 'sneak'

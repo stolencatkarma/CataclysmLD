@@ -6,15 +6,15 @@ import random
 import time
 from collections import defaultdict
 
-from .blueprint import Blueprint
-from .creature import Creature
-from .furniture import Furniture, FurnitureManager
-from .item import Item, ItemManager
-from .lighting import Lighting
-from .monster import Monster
-from .player import Player
-from .position import Position
-from .terrain import Terrain
+from src.blueprint import Blueprint
+from src.creature import Creature
+from src.furniture import Furniture, FurnitureManager
+from src.item import Item, ItemManager
+from src.lighting import Lighting
+from src.monster import Monster
+from src.player import Player
+from src.position import Position
+from src.terrain import Terrain
 
 # weather = [WEATHER_CLEAR, WEATHER_RAIN, WEATHER_FOG, WEATHER_STORM, WEATHER_TORNADO]
 
@@ -27,12 +27,11 @@ class Chunk:
         self.overmap_tile = 'open_air' # the tile represented on the over map
         self.is_dirty = True # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
         self.was_loaded = 'no'
-        start = time.time()
+        # start = time.time()
         for i in range(chunk_size): # 0-13
             for j in range(chunk_size): # 0-13
                 chunkdict = {}
                 chunkdict['position'] = Position(i + int(x * chunk_size), j + int(y * chunk_size), z) # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
-                #print(chunkdict['position'])
                 if(int(z) <= 0):
                     chunkdict['terrain'] = Terrain('t_dirt') # make the earth
                 else:
@@ -43,11 +42,10 @@ class Chunk:
                 chunkdict['vehicle'] = None # one per tile
                 chunkdict['trap'] = None # one per tile
                 chunkdict['bullet'] = None # one per tile (TODO: figure out a better way)
-                chunkdict['lumens'] = 0 # used in lightmap calculations
-                #print(chunkdict['position'])
+                chunkdict['lumens'] = 1 # used in lightmap calculations, use 1 for base so we never have total darkness.
                 self.tiles.append(chunkdict)
-        end = time.time()
-        duration = end - start
+        # end = time.time()
+        # duration = end - start
         #print('chunk generation took: ' + str(duration) + ' seconds.')
 
 class Worldmap:

@@ -1,5 +1,5 @@
-from .profession import Profession
-from .creature import Creature
+from src.profession import Profession
+from src.creature import Creature
 import pprint
 #from .position import *
 

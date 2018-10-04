@@ -183,7 +183,7 @@ class Server(MastermindServerTCP):
                         else: # new player
                            self.handle_new_player(data.ident)
 
-                    print('Player ' + str(data.ident) + ' entered the world at position ' + str(self.players[data.ident].position))
+                    print('Player ' + str(self.players[data.ident]) + ' entered the world at position ' + str(self.players[data.ident].position))
                     self.callback_client_send(connection_object, self.players[data.ident])
                 else:
                     print('password not accepted.')
@@ -197,6 +197,9 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, self.localmaps[data.ident])
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
+            if(data.command == 'ping'):
+                self.callback_client_send(connection_object, 'pong')
+
             if(data.command == 'move'):
                 self.players[data.ident].command_queue.append(Action(self.players[data.ident], 'move', [data.args[0]]))
 
@@ -486,11 +489,7 @@ class Server(MastermindServerTCP):
                 self.process_creature_command_queue(creature)
 
         
-        '''for tile in self.worldmap.get_all_tiles():
-            if(tile['creature'] is not None):
-                #TODO: don't just draw a light around every creature. we need to check for all lights. We also need to have light blocked by walls.
-                for tile, distance in self.worldmap.get_tiles_near_position(tile['position'], 8):
-                    tile['lumens'] = tile['lumens'] + int(8-distance)'''
+       
 
         # now that we've processed what everything wants to do we can return.
 

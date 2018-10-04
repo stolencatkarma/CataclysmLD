@@ -1,16 +1,12 @@
 import json
 from collections import defaultdict
-import pyglet
 
 class TileManager: # holds all the tile types from tile_config.json as well as terrain.json information because terrain can have a fg and bg
-    def __init__(self):
+    def __init__(self, tileset='Chesthole32'):
         self.tilemapPx = 32
         self.tilemapPy = 32
-        #TODO: replace this direct link to a variable in options.
-        pyglet.resource.path = ['tilesets/Chesthole32/tiles','tilesets/Chesthole32/tiles/background','tilesets/Chesthole32/tiles/monsters','tilesets/Chesthole32/tiles/terrain']
-        pyglet.resource.reindex()
         self.TILE_TYPES = defaultdict(dict) # the dict of tiles loaded from the tile_config.json
-        with open('./tilesets/Chesthole32/tile_config.json') as data_file: # load tile config so we know what tile goes with what ident
+        with open('./tilesets/'+ tileset +'/tile_config.json') as data_file: # load tile config so we know what tile goes with what ident
             data = json.load(data_file)
         for tiles in data['tiles-new']:
             for tile in tiles['tiles']:
