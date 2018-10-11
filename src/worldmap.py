@@ -133,8 +133,7 @@ class Worldmap:
         return ret # expensive function. use sparingly.
 
     def get_tile_by_position(self, position):
-        # print('Looking for position: ' + str(position))
-        x_count = 0 #
+        x_count = 0 # these two little loop gets us the right chunk FAST
         x = position.x
         while(x >= self.chunk_size):
             x = x - self.chunk_size
@@ -142,44 +141,31 @@ class Worldmap:
 
         y_count = 0 #
         y = position.y
-        # worldmap[x][y].tiles
         while(y >= self.chunk_size):
             y = y - self.chunk_size
             y_count = y_count + 1
 
         z = position.z
-        #print('~getting chunk ' + str(x_count) + ' ' + str(y_count) + ' ' + str(z))
-        #print('#####################')
 
-        # if it doesn't exist yet we need to create it.
+        
         try:
             for tile in self.WORLDMAP[x_count][y_count][z].tiles:
                 if tile['position'] == position:
-                    #print()
                     return tile
-                    #print()
             else:
-                print('FATAL ERROR: couldn\'t find chunk for tile')
+                raise Exception('FATAL ERROR: couldn\'t find chunk for tile')
         except Exception:
+            # if it doesn't exist yet (exception) we need to create it and return it.
             self.WORLDMAP[x_count][y_count][z] = Chunk(x_count, y_count, z, self.chunk_size)
             path = str('./worlds/default/' + str(x_count) + '_' + str(y_count) + '_' + str(z) + '.chunk')
             with open(path, 'wb') as fp:
                 pickle.dump(self.WORLDMAP[x_count][y_count][z], fp)
-                #print('created chunk.' + str(self.WORLDMAP[x_count][y_count][z]))
-
                 for tile in self.WORLDMAP[x_count][y_count][z].tiles:
                     if tile['position'] == position:
-                        #print('found ' + str(position))
                         return tile
                 else:
-                    print('couldn\'t find tile')
+                    raise Exception('ERROR: Could not find tile or create it. (this should never happen)')
 
-
-        '''for tile in self.WORLDMAP[x_count][y_count][position.z].tiles:
-            if tile['position'] == position:
-                #print('~~got position: ' + str(position))
-                #print('------------------')
-                return tile'''
 
 
 

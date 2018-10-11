@@ -108,32 +108,16 @@ class Server(MastermindServerTCP):
 
     def handle_new_player(self, ident):
         self.players[ident] = Player(ident)
-        # self.players[ident].profession = 'survivor'
+
         self.players[ident].position = self.find_spawn_point_for_new_player()
         self.worldmap.put_object_at_position(self.players[ident], self.players[ident].position)
         self.localmaps[ident] = self.worldmap.get_chunks_near_position(self.players[ident].position)
+
         # give the player their starting items by referencing the ProfessionManager.
-        # print('profession items ')
-        '''
-        ident : survivor
-        _comment : A basic as it comes. I'll use this for the default profession.
-        name : Survivor
-        description : Some ...
-        skills : ["{'survival': 1}"]
-        points : 0
-        items : {'equipped': [{'TORSO': 'backpack'}], 'in_containers': [{'backpack': 'cell_phone'}]}
-        flags : []
-        CBMs : []
-        '''
-        #print(self.players[ident].profession)
         for key, value in self.ProfessionManager.PROFESSIONS[str(self.players[ident].profession)].items():
-            print(key, ':', value)
-        
-            # print(value.items())
             # TODO: load the items into the player equipment slots as well as future things like CBMs and flags
             if(key == 'equipped_items'):
                 for equip_location, item_ident in value.items():
-                    print(equip_location, item_ident)
                     for bodypart in self.players[ident].body_parts:
                         if(bodypart.ident.split('_')[0] == equip_location):
                             if(bodypart.slot0 is None):
@@ -149,11 +133,9 @@ class Server(MastermindServerTCP):
                                     bodypart.slot1 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
                                 break
                     else:
-                        print('player needed an item but no free slots found')
+                        print('WARNING: player needed an item but no free slots found')
             elif(key == 'items_in_containers'): # load the items_in_containers into their containers we just created.
-                print('LOADING ITEMS INTO CONTAINERS')
                 for location_ident, item_ident in value.items():
-                    print(location_ident, item_ident)
                     # first find the location_ident so we can load a new item into it.
                     for bodypart in self.players[ident].body_parts:
                         if(bodypart.slot0 is not None):

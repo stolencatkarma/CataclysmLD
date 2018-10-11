@@ -292,7 +292,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Cataclysm LD Client', epilog="Please start the client with a first and last name for your character.")
     parser.add_argument('--host', metavar='Host', help='Server host', default='localhost')
-    parser.add_argument('-p', '--port', metavar='Port', type=int, help='Server port', default=6317)
+    parser.add_argument('--port', metavar='Port', type=int, help='Server port', default=6317)
     parser.add_argument('first_name', help='Player\'s first name')
     parser.add_argument('last_name', help='Player\'s last name')
 
