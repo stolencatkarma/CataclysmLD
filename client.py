@@ -10,7 +10,11 @@ import pyglet
 import glooey
 from pyglet.window import key as KEY
 from pyglet import clock
-
+pyglet.resource.path = [
+                        '/gfx/', 'gfx/inputbox', 
+                        'tilesets/Chesthole32/tiles','tilesets/Chesthole32/tiles/background','tilesets/Chesthole32/tiles/monsters','tilesets/Chesthole32/tiles/terrain'
+                        ]
+pyglet.resource.reindex()
 from Mastermind._mm_client import MastermindClientTCP
 
 from src.action import Action
@@ -23,14 +27,85 @@ from src.recipe import Recipe, RecipeManager
 from src.tileManager import TileManager
 from src.worldmap import Worldmap
 
+class InputBox(glooey.Form):
+    custom_alignment = 'center'
+
+    class Label(glooey.EditableLabel):
+        custom_font_size = 10
+        custom_color = '#b9ad86'
+        custom_alignment = 'top left'
+        custom_horz_padding = 5
+        custom_top_padding = 5
+        custom_width_hint = 200
+
+    class Base(glooey.Background):
+        custom_center = pyglet.resource.texture('form_center.png')
+        custom_left = pyglet.resource.image('form_left.png')
+        custom_right = pyglet.resource.image('form_right.png')
+
+
+# the first Window we see.
+class loginWindow(pyglet.window.Window):
+    def __init__(self):
+        pyglet.window.Window.__init__(self, 854, 480)
+        self.firstName = InputBox()
+        self.lastName = InputBox()
+        self.password = InputBox()
+        self.firstName.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
+        self.lastName.push_handlers(on_unfocus=lambda w: print(f"Last Name: '{w.text}'"))
+        self.password.push_handlers(on_unfocus=lambda w: print(f"password: ***************"))
+        
+        self.serverIP = InputBox()
+        self.serverPort = InputBox()
+        self.serverIP.push_handlers(on_unfocus=lambda w: print(f"serverIP: '{w.text}'"))
+        self.serverPort.push_handlers(on_unfocus=lambda w: print(f"serverPort: '{w.text}'"))
+
+
+        self.gui = glooey.Gui(self)
+        self.gui.padding = 24
+        
+        self.titleBox = glooey.HBox()
+
+        self.titleLabel = glooey.Label('Cataclysm: Looming Darkness') 
+        
+        self.titleBox.add(self.titleLabel)
+        
+        self.gui.add(self.titleBox)
+        
+        # self.titleLabel.debug_placement_problems()
+        # self.titleBox.debug_placement_problems()
+
+        self.vbox_left = glooey.VBox(24)
+        self.vbox_right = glooey.VBox(24)
+
+        self.vbox_left.add(glooey.misc.Spacer(0,24))
+        self.vbox_right.add(glooey.misc.Spacer(0,24))
+
+        self.vbox_left.add(glooey.Label('First Name:'))
+        self.vbox_right.add(self.firstName)
+        self.vbox_left.add(glooey.Label('Last Name:'))
+        self.vbox_right.add(self.lastName)
+        self.vbox_left.add(glooey.Label('password:'))
+        self.vbox_right.add(self.password)
+        self.vbox_left.add(glooey.Label('Server IP:'))
+        self.vbox_right.add(self.serverIP)
+        self.vbox_left.add(glooey.Label('Server Port:'))
+        self.vbox_right.add(self.serverPort)
+        
+        self.gui.add(self.vbox_left)
+        self.gui.add(self.vbox_right)
+
+    
+# The window after we login with a character
+class mainWindow(pyglet.window.Window):
+    pass
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def __init__(self, first_name, last_name):
         MastermindClientTCP.__init__(self)
-        self.chunk_size = (13,13)
+        self.chunk_size = (13, 13) # the only tuple you'll see I swear.
         self.TileManager = TileManager()
-        pyglet.resource.path = ['tilesets/Chesthole32/tiles','tilesets/Chesthole32/tiles/background','tilesets/Chesthole32/tiles/monsters','tilesets/Chesthole32/tiles/terrain']
-        pyglet.resource.reindex()
+       
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
         self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
@@ -40,19 +115,17 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         self.map_grid.set_left_padding(32) # for the border.
         self.map_grid.set_top_padding(32)
                 
-        for i in range(self.chunk_size[0]): # glooey uses y,x for grids from the top left.
+        for i in range(self.chunk_size[0]): # glooey uses x,y for grids from the top left.
             for j in range(self.chunk_size[1]):
                 self.map_grid.add(i, j, glooey.images.Image(pyglet.resource.texture('t_grass.png'))) # before we get an update we need to init the map with grass.
 
         #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
         
-        window = pyglet.window.Window(854, 480)
+        self.loginWindow = loginWindow()
         
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
         
-        gui = glooey.Gui(window)
-
         bg = glooey.Background()
         bg.set_appearance(
             center=pyglet.resource.texture('center.png'),
@@ -66,10 +139,10 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             bottom_right=pyglet.resource.texture('bottom_right.png')
             )
 
-        gui.add(bg)
-        gui.add(self.map_grid)
+        #gui.add(bg)
+       # gui.add(self.map_grid)
 
-        @window.event
+        @self.loginWindow.event
         def on_key_press(symbol, modifiers):
             if symbol == KEY.RETURN:
                 print('return')
@@ -216,34 +289,20 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             y = draw_position.y - position.y - (self.chunk_size[1]//2) # offset to put position in middle of viewport
 
             '''# first blit terrain
-            if(bg is not None):
-                self.screen.blit(self.TileManager.TILE_MAP[bg], (x*24, y*24)) # blit background of the terrain
-            if(fg is not None):
-                self.screen.blit(self.TileManager.TILE_MAP[fg], (x*24, y*24)) # blit foreground of the terrain
-
+           
             # then blit furniture
-            if(furniture is not None):
-                fg = self.TileManager.TILE_TYPES[furniture.ident]['fg']
-                self.screen.blit(self.TileManager.TILE_MAP[fg], (x*24, y*24))
+          
 
             # then blit items (if there is a pile of items check and see if any are blueprints. if so show those.)
             if(len(items) > 0):
                 for item in items:
                     # always show blueprints on top.
-                    if(isinstance(item, Blueprint)):
-                        fg = self.TileManager.TILE_TYPES[items[0].ident]['fg']
-                        self.screen.blit(self.TileManager.TILE_MAP[fg], (x*24, y*24))
-                        break
                 else:
                     # only display the first item 
-                    fg = self.TileManager.TILE_TYPES[items[0].ident]['fg']
-                    self.screen.blit(self.TileManager.TILE_MAP[fg], (x*24, y*24))
-
+          
             # then blit vehicles
 
             # then blit player and creatures and monsters (all creature types)
-            if(creature is not None):
-                self.screen.blit(self.TileManager.TILE_MAP[creature.tile_id], (x*24, y*24)) # TODO: need to build it if the player is wearing clothes, etc...
             '''
             # darken based on lumen level of the tile
             # light_intensity # 10 is max light level although lumen level may be higher.
@@ -252,7 +311,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             # self.screen.fill((light_intensity, light_intensity, light_intensity), rect=(x*24, y*24, 24, 24), special_flags=pygame.BLEND_SUB)
 
             # render debug text
-
 
             # then blit weather. Weather is the only thing above players and creatures.
             #TODO: blit weather
