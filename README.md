@@ -31,7 +31,7 @@ Generic installation instructions
 
 **Running a client**
 
-* `python client.py [--host Host] [-p Port] first_name last_name`,
+* `python client.py [--host Host] [--port Port] first_name last_name`,
         where `Host` and `Port` are those of the server.
         By default `Host` is `localhost`, `Port` is 6317,
         so it's safe to ommit them if you're running server locally.

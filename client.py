@@ -98,19 +98,11 @@ class loginWindow(pyglet.window.Window):
     
 # The window after we login with a character
 class mainWindow(pyglet.window.Window):
-    pass
-
-class Client(MastermindClientTCP): # extends MastermindClientTCP
-    def __init__(self, first_name, last_name):
-        MastermindClientTCP.__init__(self)
+    def __init__(self):
+        pyglet.window.Window.__init__(self, 854, 480)
+        self.gui = glooey.Gui(self)
         self.chunk_size = (13, 13) # the only tuple you'll see I swear.
-        self.TileManager = TileManager()
-       
-        self.ItemManager = ItemManager()
-        self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
-        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
-        self.localmap = None
-        self.hotbars = []
+
         self.map_grid = glooey.Grid(self.chunk_size[0], self.chunk_size[1], 32, 32) # chunk_size + tilemap size
         self.map_grid.set_left_padding(32) # for the border.
         self.map_grid.set_top_padding(32)
@@ -118,13 +110,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         for i in range(self.chunk_size[0]): # glooey uses x,y for grids from the top left.
             for j in range(self.chunk_size[1]):
                 self.map_grid.add(i, j, glooey.images.Image(pyglet.resource.texture('t_grass.png'))) # before we get an update we need to init the map with grass.
-
-        #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
-        
-        self.loginWindow = loginWindow()
-        
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
         
         bg = glooey.Background()
         bg.set_appearance(
@@ -139,8 +124,31 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             bottom_right=pyglet.resource.texture('bottom_right.png')
             )
 
-        #gui.add(bg)
-       # gui.add(self.map_grid)
+        self.gui.add(bg)
+        self.gui.add(self.map_grid)
+
+class Client(MastermindClientTCP): # extends MastermindClientTCP
+    def __init__(self, first_name, last_name):
+        MastermindClientTCP.__init__(self)
+        
+        self.TileManager = TileManager()
+       
+        self.ItemManager = ItemManager()
+        self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
+        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
+        self.localmap = None
+        self.hotbars = []
+       
+
+        #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
+        
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+        
+        self.loginWindow = loginWindow()
+        # after the player logs in a character need to open the mainWindow
+        
+       
 
         @self.loginWindow.event
         def on_key_press(symbol, modifiers):

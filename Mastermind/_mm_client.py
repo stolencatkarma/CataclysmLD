@@ -1,13 +1,13 @@
 import socket
 import select
 
-from . import _mm_netutil as netutil
-from ._mm_constants import *
-from ._mm_errors import *
+import Mastermind._mm_netutil as netutil
+from Mastermind._mm_constants import MM_TCP, MM_UDP, MM_UNKNOWN
+from Mastermind._mm_errors import MastermindErrorClient, MastermindWarningClient, MastermindErrorSocket
 
 class MastermindClientBase(object):
     def __init__(self, connection_type, timeout_connect, timeout_receive):
-        if connection_type not in [MM_TCP,MM_UDP]:
+        if connection_type not in [MM_TCP, MM_UDP]:
             raise MastermindErrorClient("Client type must be either MM_TCP or MM_UDP!")
         self._mm_connection_type = connection_type
         self._mm_ip = MM_UNKNOWN
@@ -25,7 +25,7 @@ class MastermindClientBase(object):
         if self._mm_connected:
             MastermindWarningClient("Client is already connected!  Ignoring .connect(...).")
             return
-        self._mm_make_connection(ip,port)
+        self._mm_make_connection(ip, port)
         self._mm_ip =   ip
         self._mm_port = port
         self._mm_connected = True
