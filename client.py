@@ -14,7 +14,11 @@ pyglet.resource.path = [
                         '/gfx/', 'gfx/inputbox', 
                         'tilesets/Chesthole32/tiles','tilesets/Chesthole32/tiles/background','tilesets/Chesthole32/tiles/monsters','tilesets/Chesthole32/tiles/terrain'
                         ]
+for folder in ['gfx/background', 'gfx/scrollbox/vbar/backward', 'gfx/scrollbox/vbar/forward','gfx/scrollbox/vbar/decoration','gfx/scrollbox/vbar/grip',  'gfx/scrollbox/frame/decoration']:
+    pyglet.resource.path.append(folder)
+    print('Loaded gfx folder', folder)
 pyglet.resource.reindex()
+
 from Mastermind._mm_client import MastermindClientTCP
 
 from src.action import Action
@@ -28,26 +32,101 @@ from src.tileManager import TileManager
 from src.worldmap import Worldmap
 
 class InputBox(glooey.Form):
-    custom_alignment = 'center'
+    #custom_alignment = 'center'
+    custom_height_hint = 12
 
     class Label(glooey.EditableLabel):
         custom_font_size = 10
         custom_color = '#b9ad86'
-        custom_alignment = 'top left'
-        custom_horz_padding = 5
-        custom_top_padding = 5
-        custom_width_hint = 200
+        #custom_alignment = 'top left'
+        custom_horz_padding = 2
+        custom_top_padding = 2
+        #custom_width_hint = 200
+        custom_height_hint = 12
 
     class Base(glooey.Background):
         custom_center = pyglet.resource.texture('form_center.png')
         custom_left = pyglet.resource.image('form_left.png')
         custom_right = pyglet.resource.image('form_right.png')
 
+class CustomScrollBox(glooey.ScrollBox):
+    #custom_alignment = 'center'
+    #custom_height_hint = 200
+
+    class Frame(glooey.Frame):
+        class Decoration(glooey.Background):
+            custom_center = pyglet.resource.texture('scrollbox_center.png')
+
+        class Box(glooey.Bin):
+            custom_horz_padding = 2
+        
+    class VBar(glooey.VScrollBar):
+        class Decoration(glooey.Background):
+            custom_top = pyglet.resource.image('bar_top.png')
+            custom_center = pyglet.resource.texture('bar_vert.png')
+            custom_bottom = pyglet.resource.image('bar_bottom.png')
+
+
+        class Forward(glooey.Button):
+            class Base(glooey.Image):
+                custom_image = pyglet.resource.image('forward_base.png')
+            class Over(glooey.Image):
+                custom_image = pyglet.resource.image('forward_over.png')
+            class Down(glooey.Image):
+                custom_image = pyglet.resource.image('forward_down.png')
+
+        class Backward(glooey.Button):
+            class Base(glooey.Image):
+                custom_image = pyglet.resource.image('backward_base.png')
+            class Over(glooey.Image):
+                custom_image = pyglet.resource.image('backward_over.png')
+            class Down(glooey.Image):
+                custom_image = pyglet.resource.image('backward_down.png')
+
+        class Grip(glooey.ButtonScrollGrip):
+
+            class Base(glooey.Background):
+                custom_top = pyglet.resource.image('grip_top_base.png')
+                custom_center = pyglet.resource.texture('grip_vert_base.png')
+                custom_bottom = pyglet.resource.image('grip_bottom_base.png')
+
+            class Over(glooey.Background):
+                custom_top = pyglet.resource.image('grip_top_over.png')
+                custom_center = pyglet.resource.texture('grip_vert_over.png')
+                custom_bottom = pyglet.resource.image('grip_bottom_over.png')
+
+            class Down(glooey.Background):
+                custom_top = pyglet.resource.image('grip_top_down.png')
+                custom_center = pyglet.resource.texture('grip_vert_down.png')
+                custom_bottom = pyglet.resource.image('grip_bottom_down.png')
+
+class ConnectButton(glooey.Button):
+    class MyLabel(glooey.Label):
+        custom_color = '#babdb6'
+        custom_font_size = 14
+
+    Label = MyLabel
+    #custom_alignment = 'fill'
+    custom_height_hint = 12
+
+    class Base(glooey.Background):
+        custom_color = '#204a87'
+
+    class Over(glooey.Background):
+        custom_color = '#3465a4'
+
+    class Down(glooey.Background):
+        custom_color = '#729fcff'
+
+    def __init__(self, text):
+        super().__init__(text)
+
+# Use pyglet to create a window as usual.
 
 # the first Window we see.
-class loginWindow(pyglet.window.Window):
+class LoginWindow(pyglet.window.Window):
     def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 480)
+        pyglet.window.Window.__init__(self, 854, 528)
         self.firstName = InputBox()
         self.lastName = InputBox()
         self.password = InputBox()
@@ -63,20 +142,16 @@ class loginWindow(pyglet.window.Window):
 
         self.gui = glooey.Gui(self)
         self.gui.padding = 24
-        
-        self.titleBox = glooey.HBox()
+        self.grid = glooey.Grid()
 
         self.titleLabel = glooey.Label('Cataclysm: Looming Darkness') 
+        self.titleLabel.custom_alignment = 'center'
         
-        self.titleBox.add(self.titleLabel)
-        
-        self.gui.add(self.titleBox)
-        
-        # self.titleLabel.debug_placement_problems()
-        # self.titleBox.debug_placement_problems()
+        self.gui.add(self.titleLabel)
 
-        self.vbox_left = glooey.VBox(24)
-        self.vbox_right = glooey.VBox(24)
+
+        self.vbox_left = glooey.VBox()
+        self.vbox_right = glooey.VBox()
 
         self.vbox_left.add(glooey.misc.Spacer(0,24))
         self.vbox_right.add(glooey.misc.Spacer(0,24))
@@ -91,9 +166,38 @@ class loginWindow(pyglet.window.Window):
         self.vbox_right.add(self.serverIP)
         self.vbox_left.add(glooey.Label('Server Port:'))
         self.vbox_right.add(self.serverPort)
+
+        with open('client.json') as f:
+            client_data = json.load(f)
         
-        self.gui.add(self.vbox_left)
-        self.gui.add(self.vbox_right)
+        self.firstName.text = client_data['firstName']
+        self.lastName.text = client_data['lastName']
+        self.serverList = client_data['serverList']
+
+        connectButton = ConnectButton('Connect')
+        connectButton.push_handlers(on_click=self.connect)
+        self.vbox_right.add(connectButton)
+
+        serverListScrollBox = CustomScrollBox()
+        for server in self.serverList:
+            _button = ConnectButton(server) # sets the active server to the one you press.
+            serverListScrollBox.add(_button)
+            print('added', server)
+        self.vbox_left.add(serverListScrollBox)
+        
+        self.grid.add(0,0,self.vbox_left)
+        self.grid.add(0,1,self.vbox_right)
+
+        self.gui.add(self.grid)
+        #self.vbox_left.debug_drawing_problems()
+        #self.vbox_right.debug_drawing_problems()
+
+    def connect(self, args):
+        name = self.firstName.text + self.lastName.text
+        print(name)
+        command = Command(name, 'login', ['password'])
+        client.send(command)
+
 
     
 # The window after we login with a character
@@ -145,12 +249,12 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
         
-        self.loginWindow = loginWindow()
+        self.LoginWindow = LoginWindow()
         # after the player logs in a character need to open the mainWindow
         
        
 
-        @self.loginWindow.event
+        @self.LoginWindow.event
         def on_key_press(symbol, modifiers):
             if symbol == KEY.RETURN:
                 print('return')
