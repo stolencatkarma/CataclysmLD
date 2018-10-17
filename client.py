@@ -41,7 +41,7 @@ class InputBox(glooey.Form):
         #custom_alignment = 'top left'
         custom_horz_padding = 2
         custom_top_padding = 2
-        #custom_width_hint = 200
+        custom_width_hint = 200
         custom_height_hint = 12
 
     class Base(glooey.Background):
@@ -51,7 +51,8 @@ class InputBox(glooey.Form):
 
 class CustomScrollBox(glooey.ScrollBox):
     #custom_alignment = 'center'
-    #custom_height_hint = 200
+    custom_size_hint = 300, 200
+    custom_height_hint = 200
 
     class Frame(glooey.Frame):
         class Decoration(glooey.Background):
@@ -141,31 +142,39 @@ class LoginWindow(pyglet.window.Window):
 
 
         self.gui = glooey.Gui(self)
-        self.gui.padding = 24
-        self.grid = glooey.Grid()
+        self.grid = glooey.Grid(0,0,0,0)
+        self.grid.padding = 16
+        self.bg = glooey.Background()
+        self.bg.set_appearance(
+            center=pyglet.resource.texture('center.png'),
+            top=pyglet.resource.texture('top.png'),
+            bottom=pyglet.resource.texture('bottom.png'),
+            left=pyglet.resource.texture('left.png'),
+            right=pyglet.resource.texture('right.png'),
+            top_left=pyglet.resource.texture('top_left.png'),
+            top_right=pyglet.resource.texture('top_right.png'),
+            bottom_left=pyglet.resource.texture('bottom_left.png'),
+            bottom_right=pyglet.resource.texture('bottom_right.png')
+            )
+              
+        self.gui.add(self.bg)
+        
 
         self.titleLabel = glooey.Label('Cataclysm: Looming Darkness') 
-        self.titleLabel.custom_alignment = 'center'
         
-        self.gui.add(self.titleLabel)
+        self.grid[0,1] = self.titleLabel
 
-
-        self.vbox_left = glooey.VBox()
-        self.vbox_right = glooey.VBox()
-
-        self.vbox_left.add(glooey.misc.Spacer(0,24))
-        self.vbox_right.add(glooey.misc.Spacer(0,24))
-
-        self.vbox_left.add(glooey.Label('First Name:'))
-        self.vbox_right.add(self.firstName)
-        self.vbox_left.add(glooey.Label('Last Name:'))
-        self.vbox_right.add(self.lastName)
-        self.vbox_left.add(glooey.Label('password:'))
-        self.vbox_right.add(self.password)
-        self.vbox_left.add(glooey.Label('Server IP:'))
-        self.vbox_right.add(self.serverIP)
-        self.vbox_left.add(glooey.Label('Server Port:'))
-        self.vbox_right.add(self.serverPort)
+        self.grid[1,0] = glooey.Label('First Name:')
+        
+        self.grid[1,1] = self.firstName
+        self.grid[2,0] = glooey.Label('Last Name:')
+        self.grid[2,1] = self.lastName
+        self.grid[3,0] = glooey.Label('password:')
+        self.grid[3,1] = self.password
+        self.grid[4,0] = glooey.Label('Server IP:')
+        self.grid[4,1] = self.serverIP
+        self.grid[5,0] = glooey.Label('Server Port:')
+        self.grid[5,1] = self.serverPort
 
         with open('client.json') as f:
             client_data = json.load(f)
@@ -176,21 +185,20 @@ class LoginWindow(pyglet.window.Window):
 
         connectButton = ConnectButton('Connect')
         connectButton.push_handlers(on_click=self.connect)
-        self.vbox_right.add(connectButton)
+        self.grid[6,1] = connectButton
 
         serverListScrollBox = CustomScrollBox()
+        serverListScrollBox.size_hint = 100,100
         for server in self.serverList:
             _button = ConnectButton(server) # sets the active server to the one you press.
             serverListScrollBox.add(_button)
             print('added', server)
-        self.vbox_left.add(serverListScrollBox)
+        self.grid[6,0] = serverListScrollBox
         
-        self.grid.add(0,0,self.vbox_left)
-        self.grid.add(0,1,self.vbox_right)
-
         self.gui.add(self.grid)
-        #self.vbox_left.debug_drawing_problems()
-        #self.vbox_right.debug_drawing_problems()
+        #self.grid.debug_drawing_problems()
+        #self.grid.debug_placement_problems()
+        
 
     def connect(self, args):
         name = self.firstName.text + self.lastName.text

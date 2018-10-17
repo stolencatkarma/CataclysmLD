@@ -147,7 +147,7 @@ class Server(MastermindServerTCP):
         print('New player joined.', self.players[ident].name)
 
     def callback_client_handle(self, connection_object, data):
-        #print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
+        print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
         # use the data to determine what player is giving the command and if they are logged in yet.
 
         if(isinstance(data, Command)): # the data we recieved was a command. process it.
