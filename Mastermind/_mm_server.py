@@ -130,6 +130,10 @@ class MastermindServerTCP(MastermindServerBase):
 
     def _mm_make_connection(self, ip,port):
         self._mm_unconnected_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self._mm_unconnected_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._mm_unconnected_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
+        self._mm_unconnected_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 2*60)
+        self._mm_unconnected_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)
         try:
             self._mm_unconnected_socket.bind((ip,port))
             self._mm_unconnected_socket.listen(5) #5 is the maximum backlog allowed
@@ -137,6 +141,7 @@ class MastermindServerTCP(MastermindServerBase):
             self._mm_unconnected_socket.close()
             raise MastermindErrorSocket("Server could not connect on port "+str(port)+"!  Perhaps another instance is already running?")
     def _mm_close_connection(self):
+        self._mm_unconnected_socket.shutdown( socket.SHUT_RD )
         self._mm_unconnected_socket.close()
 
     def callback_client_receive(self, connection_object):

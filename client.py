@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import json
 import math
@@ -126,14 +128,14 @@ class ConnectButton(glooey.Button):
 # the first Window we see.
 class LoginWindow(pyglet.window.Window):
     def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 528)
+        pyglet.window.Window.__init__(self, 854, 728)
         self.firstName = InputBox()
         self.lastName = InputBox()
         self.password = InputBox()
         self.firstName.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
         self.lastName.push_handlers(on_unfocus=lambda w: print(f"Last Name: '{w.text}'"))
         self.password.push_handlers(on_unfocus=lambda w: print(f"password: ***************"))
-        
+
         self.serverIP = InputBox()
         self.serverPort = InputBox()
         self.serverIP.push_handlers(on_unfocus=lambda w: print(f"serverIP: '{w.text}'"))
@@ -144,9 +146,9 @@ class LoginWindow(pyglet.window.Window):
         self.gui.padding = 24
         self.grid = glooey.Grid()
 
-        self.titleLabel = glooey.Label('Cataclysm: Looming Darkness') 
+        self.titleLabel = glooey.Label('Cataclysm: Looming Darkness')
         self.titleLabel.custom_alignment = 'center'
-        
+
         self.gui.add(self.titleLabel)
 
 
@@ -169,7 +171,7 @@ class LoginWindow(pyglet.window.Window):
 
         with open('client.json') as f:
             client_data = json.load(f)
-        
+
         self.firstName.text = client_data['firstName']
         self.lastName.text = client_data['lastName']
         self.serverList = client_data['serverList']
@@ -184,7 +186,7 @@ class LoginWindow(pyglet.window.Window):
             serverListScrollBox.add(_button)
             print('added', server)
         self.vbox_left.add(serverListScrollBox)
-        
+
         self.grid.add(0,0,self.vbox_left)
         self.grid.add(0,1,self.vbox_right)
 
@@ -199,7 +201,7 @@ class LoginWindow(pyglet.window.Window):
         client.send(command)
 
 
-    
+
 # The window after we login with a character
 class mainWindow(pyglet.window.Window):
     def __init__(self):
@@ -210,11 +212,11 @@ class mainWindow(pyglet.window.Window):
         self.map_grid = glooey.Grid(self.chunk_size[0], self.chunk_size[1], 32, 32) # chunk_size + tilemap size
         self.map_grid.set_left_padding(32) # for the border.
         self.map_grid.set_top_padding(32)
-                
+
         for i in range(self.chunk_size[0]): # glooey uses x,y for grids from the top left.
             for j in range(self.chunk_size[1]):
                 self.map_grid.add(i, j, glooey.images.Image(pyglet.resource.texture('t_grass.png'))) # before we get an update we need to init the map with grass.
-        
+
         bg = glooey.Background()
         bg.set_appearance(
             center=pyglet.resource.texture('center.png'),
@@ -234,25 +236,25 @@ class mainWindow(pyglet.window.Window):
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def __init__(self, first_name, last_name):
         MastermindClientTCP.__init__(self)
-        
+
         self.TileManager = TileManager()
-       
+
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
         self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
         self.localmap = None
         self.hotbars = []
-       
+
 
         #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
-        
+
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-        
+
         self.LoginWindow = LoginWindow()
         # after the player logs in a character need to open the mainWindow
-        
-       
+
+
 
         @self.LoginWindow.event
         def on_key_press(symbol, modifiers):
@@ -479,7 +481,7 @@ if __name__ == "__main__":
     command = None
 
     # if we recieve an update from the server process it. do this first.
-    
+
     def check_messages_from_server(dt):
         next_update = client.receive(False)
         if(next_update is not None):
@@ -495,8 +497,8 @@ if __name__ == "__main__":
                 client.update_map_for_position(client.player.position)
                 # client.draw_view_at_position(client.player.position) # update after everything is complete.
 
-           
-        
+
+
     def ping(dt):
         command = Command(client.player.name, 'ping')
         client.send(command)
