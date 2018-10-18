@@ -51,12 +51,15 @@ class Server(MastermindServerTCP):
         self.calendar = Calendar(0, 0, 0, 0, 0, 0) # all zeros is the epoch
         # self.options.save()
         self.worldmap = Worldmap(13) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        self.starting_locations = [Position(23, 23, 0)] #TODO: starting locations should be loaded dynamically from secenarios
+        # self.starting_locations = [Position(23, 23, 0)] #TODO: starting locations should be loaded dynamically from secenarios
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
         self.ItemManager = self.worldmap.ItemManager # loaded by the worldmap in its init()
         self.FurnitureManager = self.worldmap.FurnitureManager
+    
+    def get_connections(self):
+        return self._mm_connections
 
     def calculate_route(self, pos0, pos1, consider_impassable=True): # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
         #print('----------------Calculating Route---------------------')

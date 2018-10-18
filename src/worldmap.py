@@ -120,7 +120,6 @@ class Worldmap:
 
         return self.WORLDMAP[x_count][y_count][z]
 
-
     def get_all_tiles(self):
         ret = []
         #print('getting all tiles')
@@ -165,10 +164,6 @@ class Worldmap:
                         return tile
                 else:
                     raise Exception('ERROR: Could not find tile or create it. (this should never happen)')
-
-
-
-
 
     def get_chunks_near_position(self, position): # a localmap
         chunks = []

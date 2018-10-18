@@ -124,6 +124,28 @@ class ConnectButton(glooey.Button):
 
 # Use pyglet to create a window as usual.
 
+class ServerListButton(glooey.Button):
+    class MyLabel(glooey.Label):
+        custom_color = '#babdb6'
+        custom_font_size = 14
+
+    Label = MyLabel
+    #custom_alignment = 'fill'
+    custom_height_hint = 12
+
+    class Base(glooey.Background):
+        custom_color = '#3465a4'
+
+    class Over(glooey.Background):
+        custom_color = '#204a87'
+
+    class Down(glooey.Background):
+        custom_color = '#729fcff'
+
+    def __init__(self, text):
+        super().__init__(text)
+       
+
 # the first Window we see.
 class LoginWindow(pyglet.window.Window):
     def __init__(self):
@@ -189,24 +211,28 @@ class LoginWindow(pyglet.window.Window):
 
         serverListScrollBox = CustomScrollBox()
         serverListScrollBox.size_hint = 100,100
+        vbox_for_serverlist = glooey.VBox(0) 
         for server in self.serverList:
-            _button = ConnectButton(server) # sets the active server to the one you press.
-            serverListScrollBox.add(_button)
-            print('added', server)
+            _button = ServerListButton(server) # sets the active server to the one you press.
+            _button.push_handlers(on_click=self.set_host_and_port_InputBoxes)
+            vbox_for_serverlist.add(_button)
+        serverListScrollBox.add(vbox_for_serverlist)
         self.grid[6,0] = serverListScrollBox
         
         self.gui.add(self.grid)
         #self.grid.debug_drawing_problems()
         #self.grid.debug_placement_problems()
-        
 
     def connect(self, args):
         name = self.firstName.text + self.lastName.text
         print(name)
         command = Command(name, 'login', ['password'])
         client.send(command)
-
-
+    
+    def set_host_and_port_InputBoxes(self, server_and_port):
+        print(server_and_port)
+        self.serverIP.text = server_and_port.text.split(':')[0]
+        self.serverPort.text = server_and_port.text.split(':')[1]
     
 # The window after we login with a character
 class mainWindow(pyglet.window.Window):
@@ -434,7 +460,6 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
             # then blit weather. Weather is the only thing above players and creatures.
             #TODO: blit weather
-      
 
     def open_crafting_menu(self):
         list_of_known_recipes = []
@@ -487,7 +512,10 @@ if __name__ == "__main__":
     command = None
 
     # if we recieve an update from the server process it. do this first.
-    
+    # We always start out at the login window.
+    # once we recieve a list of characters SWITCH to the character select view.
+    # once the user selects a character ask the server to login into the world with it.
+    # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
     def check_messages_from_server(dt):
         next_update = client.receive(False)
         if(next_update is not None):
