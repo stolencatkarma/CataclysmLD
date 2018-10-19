@@ -527,7 +527,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Cataclysm LD Server')
     parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
-    parser.add_argument('-p', '--port', metavar='Port', type=int, help='Server port', default=6317)
+    parser.add_argument('--port', metavar='Port', type=int, help='Server port', default=6317)
 
     args = parser.parse_args()
     ip = args.host

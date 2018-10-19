@@ -3,37 +3,36 @@ Cataclysm: Looming Darkness
 
 A multiplayer re-imagining of Cataclysm: Dark Days Ahead.
 
-Currently the WYSIWYG building editor and pre-release of the client and server have been released.
+Currently the pre-release of the client and server is available for download.
+We are currently reworking the client to use pyglet and glooey as pygame was
+not working for our needs.
 
 ----
 
-Made with python 3.6.4 and pygame using Mastermind for the TCP backend.
+Made with python 3.7.0 64 bit and pyglet+glooey using Mastermind for the TCP backend.
 
-Discord: https://discord.gg/EqNQ784.
+Discord: https://discord.gg/EqNQ784
 
 Generic installation instructions
+
 ---
 
-* install python 3.6+
-* install pip - if on windows: https://pip.pypa.io/en/stable/installing/
+* install python 3.4+
+* install pip3 - if on windows: https://pip.pypa.io/en/stable/installing/
 * open a command shell and goto the Cataclysm:LD folder you downloaded and unzipped it to.
-* `pip install pygame`
+* `pip install pyglet glooey`
 
 ---
 
 **Running a server**
 
-* `python server.py [--host Host] [-p Port]`,
-        Host and Port are optional (defaults are `0.0.0.0:6317`)
-
-* `python server.py --help` for detailed usage
-
+* `python3 ./server.py [--host Host] [--port Port]`,
+        Host and Port are optional (defaults are `localhost:6317`)
 
 **Running a client**
 
-* `python client.py [--host Host] [--port Port] first_name last_name`,
+* `python3 ./client.py [--host Host] [--port Port]`,
         where `Host` and `Port` are those of the server.
-        By default `Host` is `localhost`, `Port` is 6317,
-        so it's safe to ommit them if you're running server locally.
+        By default `Host` is `localhost` and `Port` is 6317,
+        so it's safe to omit them if you are running server locally.
 
-* type `python client.py --help` for detailed usage information.
