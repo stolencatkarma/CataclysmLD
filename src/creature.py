@@ -1,4 +1,4 @@
-# defines base creature in the base. all monsters, players, npcs, and critters derive from this.
+# defines base creature in the base. all monsters, Characters, npcs, and critters derive from this.
 from collections import defaultdict
 import sys
 import os

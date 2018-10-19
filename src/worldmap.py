@@ -12,7 +12,7 @@ from src.furniture import Furniture, FurnitureManager
 from src.item import Item, ItemManager
 from src.lighting import Lighting
 from src.monster import Monster
-from src.player import Player
+from src.character import Character
 from src.position import Position
 from src.terrain import Terrain
 
@@ -58,7 +58,7 @@ class Worldmap:
         self.FurnitureManager = FurnitureManager()
         self.ItemManager = ItemManager()
         start = time.time()
-        #TODO: only need to load the chunks where there are actual players present in memory after generation.
+        #TODO: only need to load the chunks where there are actual Characters present in memory after generation.
         print('creating/loading world chunks')
         count = 0
         for i in range(self.WORLD_SIZE):
@@ -199,7 +199,7 @@ class Worldmap:
 
         return chunks
 
-    def get_player(self, ident):
+    def get_character(self, ident):
         #print('ident:' + str(ident))
         for tile in self.get_all_tiles():
             if(tile['creature'] is not None and tile['creature'].name == ident):
@@ -213,7 +213,7 @@ class Worldmap:
         tile = self.get_tile_by_position(position)
         #print(tile)
         self.get_chunk_by_position(position).is_dirty = True
-        if isinstance(obj, (Creature, Player, Monster)):
+        if isinstance(obj, (Creature, Character, Monster)):
             tile['creature'] = obj
             return
         elif isinstance(obj, Terrain):
@@ -310,7 +310,7 @@ class Worldmap:
         self.get_chunk_by_position(from_position).is_dirty = True
         self.get_chunk_by_position(to_position).is_dirty = True
         #print(self.get_chunk_by_position(to_position).is_dirty)
-        if isinstance(obj, (Creature, Player, Monster)):
+        if isinstance(obj, (Creature, Character, Monster)):
             # print('moving ' + str(obj) + ' from ' + str(from_position)+ ' to ' + str(to_position))
             if to_tile['terrain'].impassable:
                 print('tile is impassable')

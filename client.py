@@ -25,7 +25,7 @@ from src.action import Action
 from src.blueprint import Blueprint
 from src.command import Command
 from src.item import Item, ItemManager
-from src.player import Player
+from src.character import Character
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.tileManager import TileManager
@@ -150,11 +150,9 @@ class ServerListButton(glooey.Button):
 class LoginWindow(pyglet.window.Window):
     def __init__(self):
         pyglet.window.Window.__init__(self, 854, 528)
-        self.firstName = InputBox()
-        self.lastName = InputBox()
+        self.username = InputBox()
         self.password = InputBox()
-        self.firstName.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
-        self.lastName.push_handlers(on_unfocus=lambda w: print(f"Last Name: '{w.text}'"))
+        self.username.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
         self.password.push_handlers(on_unfocus=lambda w: print(f"password: ***************"))
         
         self.serverIP = InputBox()
@@ -181,16 +179,13 @@ class LoginWindow(pyglet.window.Window):
               
         self.gui.add(self.bg)
         
-
         self.titleLabel = glooey.Label('Cataclysm: Looming Darkness') 
         
         self.grid[0,1] = self.titleLabel
 
-        self.grid[1,0] = glooey.Label('First Name:')
+        self.grid[1,0] = glooey.Label('Username:')
         
-        self.grid[1,1] = self.firstName
-        self.grid[2,0] = glooey.Label('Last Name:')
-        self.grid[2,1] = self.lastName
+        self.grid[1,1] = self.username
         self.grid[3,0] = glooey.Label('password:')
         self.grid[3,1] = self.password
         self.grid[4,0] = glooey.Label('Server IP:')
@@ -201,8 +196,7 @@ class LoginWindow(pyglet.window.Window):
         with open('client.json') as f:
             client_data = json.load(f)
         
-        self.firstName.text = client_data['firstName']
-        self.lastName.text = client_data['lastName']
+        self.username.text = client_data['username']
         self.serverList = client_data['serverList']
 
         connectButton = ConnectButton('Connect')
@@ -224,8 +218,8 @@ class LoginWindow(pyglet.window.Window):
         #self.grid.debug_placement_problems()
 
     def connect(self, args):
-        name = self.firstName.text + self.lastName.text
-        print(name)
+        name = self.username.text
+        print('username:', name)
         command = Command(name, 'login', ['password'])
         client.send(command)
     
@@ -273,7 +267,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
        
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
-        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
+        self.character = Character(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
         self.localmap = None
         self.hotbars = []
        
@@ -293,14 +287,14 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
             if symbol == KEY.RETURN:
                 print('return')
             if symbol == KEY.W:
-                command = Command(self.player.name, 'move', ['north'])
+                command = Command(self.character.name, 'move', ['north'])
                 client.send(command)
 
 
     def find_player_in_localmap(self):
         for tile in self.localmap:
             if(tile['creature'] is not None):
-                if(tile['creature'].name == self.player.name):
+                if(tile['creature'].name == self.character.name):
                     return tile['creature']
         else:
             print('couldn\'t find player')
@@ -468,7 +462,7 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
 
     def open_movement_menu(self, pos, tile):
-        #_command = Command(client.player.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
+        #_command = Command(client.character.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
         # return _command
         pass
 
@@ -480,11 +474,11 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         pass 
 
     def open_equipment_menu(self):
-        # equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.player.body_parts)
+        # equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.character.body_parts)
         pass
 
     def open_items_on_ground(self, pos, tile):
-        # _command = Command(self.player.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
+        # _command = Command(self.character.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
         # return _command
         pass
 
@@ -496,8 +490,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Cataclysm LD Client', epilog="Please start the client with a first and last name for your character.")
     parser.add_argument('--host', metavar='Host', help='Server host', default='localhost')
     parser.add_argument('--port', metavar='Port', type=int, help='Server port', default=6317)
-    parser.add_argument('first_name', help='Player\'s first name')
-    parser.add_argument('last_name', help='Player\'s last name')
+    parser.add_argument('first_name', help='Character\'s first name')
+    parser.add_argument('last_name', help='Character\'s last name')
 
     args = parser.parse_args()
     ip = args.host
@@ -505,9 +499,9 @@ if __name__ == "__main__":
 
     client = Client(args.first_name, args.last_name)
     client.connect(ip, port)
-    command = Command(client.player.name, 'login', ['password'])
+    command = Command(client.character.name, 'login', ['password'])
     client.send(command)
-    command = Command(client.player.name, 'request_localmap_update')
+    command = Command(client.character.name, 'request_localmap_update')
     client.send(command)
     command = None
 
@@ -521,20 +515,20 @@ if __name__ == "__main__":
         if(next_update is not None):
             #print('--next_update--') # we recieved a message from the server. let's process it.
             #print(type(next_update))
-            if(isinstance(next_update, Player)):
+            if(isinstance(next_update, Character)):
                 #print('got playerupdate')
-                client.player = next_update # client.player is updated
+                client.character = next_update # client.character is updated
             elif(isinstance(next_update, list)): # this is the list of chunks for the localmap compressed with zlib and pickled to binary
                 #print('got local mapupdate')
                 client.localmap = client.convert_chunks_to_localmap(next_update)
-                client.player = client.find_player_in_localmap()
-                client.update_map_for_position(client.player.position)
-                # client.draw_view_at_position(client.player.position) # update after everything is complete.
+                client.character = client.find_player_in_localmap()
+                client.update_map_for_position(client.character.position)
+                # client.draw_view_at_position(client.character.position) # update after everything is complete.
 
            
         
     def ping(dt):
-        command = Command(client.player.name, 'ping')
+        command = Command(client.character.name, 'ping')
         client.send(command)
 
     clock.schedule_interval(check_messages_from_server, 0.25)

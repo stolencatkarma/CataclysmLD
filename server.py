@@ -18,7 +18,7 @@ from src.command import Command
 from src.furniture import Furniture, FurnitureManager
 from src.item import Container, Item
 from src.options import Options
-from src.player import Player
+from src.character import Character
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.terrain import Terrain
@@ -26,24 +26,24 @@ from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 from src.worldmap import Worldmap
 
-class OverMap: # when the player pulls up the OverMap. a OverMap for each player will have to be stored for undiscovered areas and when they use maps.
-    def __init__(self): # the ident of the player who owns this overmap.
+class OverMap: # when the character pulls up the OverMap. a OverMap for each character will have to be stored for undiscovered areas and when they use maps.
+    def __init__(self): # the ident of the character who owns this overmap.
         # over map size is the worldmap size
         # build the overmap from seen tiles, roadmaps, maps.
-        # if a player sees a chunk loaded it's safe to say they 'saw' that overmap tile.
+        # if a character sees a chunk loaded it's safe to say they 'saw' that overmap tile.
         return
 
 class Server(MastermindServerTCP):
     def __init__(self):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
-        self.players = {} # all the Players() that exist in the world whether connected or not.
-        self.localmaps = {} # the localmaps for each player.
-        self.overmaps = {} # the dict of all overmaps by player.name
+        self.characters = dict() # all the characters() that exist in the world whether connected or not.
+
+        self.localmaps = dict() # the localmaps for each character.
+        self.overmaps = dict() # the dict of all overmaps by character.name
         #self.options = Options()
         self.calendar = Calendar(0, 0, 0, 0, 0, 0) # all zeros is the epoch
         # self.options.save()
         self.worldmap = Worldmap(13) # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        # self.starting_locations = [Position(23, 23, 0)] #TODO: starting locations should be loaded dynamically from secenarios
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
@@ -88,7 +88,7 @@ class Server(MastermindServerTCP):
 
         return None
     
-    def find_spawn_point_for_new_player(self):
+    def find_spawn_point_for_new_character(self):
         _tiles = self.worldmap.get_all_tiles()
         random.shuffle(_tiles) # so we all don't spawn in one corner.
         for tile in _tiles:
@@ -101,19 +101,19 @@ class Server(MastermindServerTCP):
             
             return tile['position']
 
-    def handle_new_player(self, ident):
-        self.players[ident] = Player(ident)
+    def handle_new_character(self, ident):
+        self.characters[ident] = Character(ident)
 
-        self.players[ident].position = self.find_spawn_point_for_new_player()
-        self.worldmap.put_object_at_position(self.players[ident], self.players[ident].position)
-        self.localmaps[ident] = self.worldmap.get_chunks_near_position(self.players[ident].position)
+        self.characters[ident].position = self.find_spawn_point_for_new_character()
+        self.worldmap.put_object_at_position(self.characters[ident], self.characters[ident].position)
+        self.localmaps[ident] = self.worldmap.get_chunks_near_position(self.characters[ident].position)
 
-        # give the player their starting items by referencing the ProfessionManager.
-        for key, value in self.ProfessionManager.PROFESSIONS[str(self.players[ident].profession)].items():
-            # TODO: load the items into the player equipment slots as well as future things like CBMs and flags
+        # give the character their starting items by referencing the ProfessionManager.
+        for key, value in self.ProfessionManager.PROFESSIONS[str(self.characters[ident].profession)].items():
+            # TODO: load the items into the character equipment slots as well as future things like CBMs and flags
             if(key == 'equipped_items'):
                 for equip_location, item_ident in value.items():
-                    for bodypart in self.players[ident].body_parts:
+                    for bodypart in self.characters[ident].body_parts:
                         if(bodypart.ident.split('_')[0] == equip_location):
                             if(bodypart.slot0 is None):
                                 if('container_type' in self.ItemManager.ITEM_TYPES[item_ident]):
@@ -128,49 +128,49 @@ class Server(MastermindServerTCP):
                                     bodypart.slot1 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
                                 break
                     else:
-                        print('WARNING: player needed an item but no free slots found')
+                        print('WARNING: character needed an item but no free slots found')
             elif(key == 'items_in_containers'): # load the items_in_containers into their containers we just created.
                 for location_ident, item_ident in value.items():
                     # first find the location_ident so we can load a new item into it.
-                    for bodypart in self.players[ident].body_parts:
+                    for bodypart in self.characters[ident].body_parts:
                         if(bodypart.slot0 is not None):
                             if(isinstance(bodypart.slot0, Container) and bodypart.slot0.ident == location_ident): # uses the first one it finds, maybe check if it's full?
                                 bodypart.slot0.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
                             if(isinstance(bodypart.slot1, Container) and bodypart.slot1.ident == location_ident): # uses the first one it finds, maybe check if it's full?
                                 bodypart.slot1.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
 
-        print('New player joined.', self.players[ident].name)
+        print('New character joined.', self.characters[ident].name)
 
     def callback_client_handle(self, connection_object, data):
         print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
-        # use the data to determine what player is giving the command and if they are logged in yet.
+        # use the data to determine what character is giving the command and if they are logged in yet.
 
         if(isinstance(data, Command)): # the data we recieved was a command. process it.
             if(data.command == 'login'):
                 if(data.args[0] == 'password'): # TODO: put an actual password system in.
                     print('password accepted for ' + str(data.ident))
-                    if(not data.ident in self.players): # this player doesn't exist in the world yet.
-                        # check and see if the players has logged in before.
-                        tmp_player = self.worldmap.get_player(data.ident) # by 'name'
-                        if(tmp_player is not None): # player exists
-                            print('player exists. loading.')
-                            self.players[data.ident] = tmp_player
-                            self.players[data.ident].position = tmp_player.position
-                            self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(self.players[data.ident].position)
-                        else: # new player
-                           self.handle_new_player(data.ident)
+                    if(not data.ident in self.characters): # this character doesn't exist in the world yet.
+                        # check and see if the characters has logged in before.
+                        tmp_character = self.worldmap.get_character(data.ident) # by 'name'
+                        if(tmp_character is not None): # character exists
+                            print('character exists. loading.')
+                            self.characters[data.ident] = tmp_character
+                            self.characters[data.ident].position = tmp_character.position
+                            self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(self.characters[data.ident].position)
+                        else: # new character
+                           self.handle_new_character(data.ident)
 
-                    print('Player ' + str(self.players[data.ident]) + ' entered the world at position ' + str(self.players[data.ident].position))
-                    self.callback_client_send(connection_object, self.players[data.ident])
+                    print('character ' + str(self.characters[data.ident]) + ' entered the world at position ' + str(self.characters[data.ident].position))
+                    self.callback_client_send(connection_object, self.characters[data.ident])
                 else:
                     print('password not accepted.')
                     connection_object.disconnect()
 
-            if(data.command == 'request_player_update'):
-                self.callback_client_send(connection_object, self.players[data.ident])
+            if(data.command == 'request_character_update'):
+                self.callback_client_send(connection_object, self.characters[data.ident])
 
             if(data.command == 'request_localmap_update'):
-                self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(self.players[data.ident].position)
+                self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(self.characters[data.ident].position)
                 self.callback_client_send(connection_object, self.localmaps[data.ident])
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
@@ -178,27 +178,27 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, 'pong')
 
             if(data.command == 'move'):
-                self.players[data.ident].command_queue.append(Action(self.players[data.ident], 'move', [data.args[0]]))
+                self.characters[data.ident].command_queue.append(Action(self.characters[data.ident], 'move', [data.args[0]]))
 
             if(data.command == 'bash'):
-                self.players[data.ident].command_queue.append(Action(self.players[data.ident], 'bash', [data.args[0]]))
+                self.characters[data.ident].command_queue.append(Action(self.characters[data.ident], 'bash', [data.args[0]]))
 
             if(data.command == 'create_blueprint'): #  [result, direction])
                 # args 0 is ident args 1 is direction.
-                print('creating blueprint ' + str(data.args[0]) + ' for player ' + str(self.players[data.ident]))
+                print('creating blueprint ' + str(data.args[0]) + ' for character ' + str(self.characters[data.ident]))
                 # blueprint rules
                 # * there should be blueprints for terrain, furniture, items, and anything else that takes a slot up in the Worldmap.
                 # * they act as placeholders and then 'transform' into the type they are once completed.
                 # Blueprint(type, recipe)
                 position_to_create_at = None
                 if(data.args[1] == 'south'):
-                    position_to_create_at = Position(self.players[data.ident].position.x, self.players[data.ident].position.y+1, self.players[data.ident].position.z)
+                    position_to_create_at = Position(self.characters[data.ident].position.x, self.characters[data.ident].position.y+1, self.characters[data.ident].position.z)
                 elif(data.args[1] == 'north'):
-                    position_to_create_at = Position(self.players[data.ident].position.x, self.players[data.ident].position.y-1, self.players[data.ident].position.z)
+                    position_to_create_at = Position(self.characters[data.ident].position.x, self.characters[data.ident].position.y-1, self.characters[data.ident].position.z)
                 elif(data.args[1] == 'east'):
-                    position_to_create_at = Position(self.players[data.ident].position.x+1, self.players[data.ident].position.y, self.players[data.ident].position.z)
+                    position_to_create_at = Position(self.characters[data.ident].position.x+1, self.characters[data.ident].position.y, self.characters[data.ident].position.z)
                 elif(data.args[1] == 'west'):
-                    position_to_create_at = Position(self.players[data.ident].position.x-1, self.players[data.ident].position.y, self.players[data.ident].position.z)
+                    position_to_create_at = Position(self.characters[data.ident].position.x-1, self.characters[data.ident].position.y, self.characters[data.ident].position.z)
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[data.args[0]]
                 type_of = _recipe['type_of']
@@ -210,12 +210,12 @@ class Server(MastermindServerTCP):
                 print('Recieved calculated_move action. Building a path for ' + str(data.ident))
 
                 _position = Position(data.args[0], data.args[1], data.args[2])
-                _route = self.calculate_route(self.players[data.ident].position, _position) # returns a route from point 0 to point 1 as a series of Position(s)
+                _route = self.calculate_route(self.characters[data.ident].position, _position) # returns a route from point 0 to point 1 as a series of Position(s)
                 print(_route)
                 # fill the queue with move commands to reach the tile.
-                _x = self.players[data.ident].position.x
-                _y = self.players[data.ident].position.y
-                _z = self.players[data.ident].position.z
+                _x = self.characters[data.ident].position.x
+                _y = self.characters[data.ident].position.y
+                _z = self.characters[data.ident].position.z
                 action = None
                 if(_route is None):
                     print('No _route possible.')
@@ -225,44 +225,44 @@ class Server(MastermindServerTCP):
                     _next_y = step.y
                     _next_z = step.z
                     if(_x > _next_x):
-                        action = Action(self.players[data.ident], 'move', ['west'])
+                        action = Action(self.characters[data.ident], 'move', ['west'])
                     elif(_x < _next_x):
-                        action = Action(self.players[data.ident], 'move', ['east'])
+                        action = Action(self.characters[data.ident], 'move', ['east'])
                     elif(_y > _next_y):
-                        action = Action(self.players[data.ident], 'move', ['north'])
+                        action = Action(self.characters[data.ident], 'move', ['north'])
                     elif(_y < _next_y):
-                        action = Action(self.players[data.ident], 'move', ['south'])
+                        action = Action(self.characters[data.ident], 'move', ['south'])
                     elif(_z < _next_z):
-                        action = Action(self.players[data.ident], 'move', ['up'])
+                        action = Action(self.characters[data.ident], 'move', ['up'])
                     elif(_z > _next_z):
-                        action = Action(self.players[data.ident], 'move', ['down'])
-                    self.players[data.ident].command_queue.append(action)
+                        action = Action(self.characters[data.ident], 'move', ['down'])
+                    self.characters[data.ident].command_queue.append(action)
                     # pretend as if we are in the next position.
                     _x = _next_x
                     _y = _next_y
                     _z = _next_z
 
-            if(data.command == 'move_item_to_player_storage'): # when the player clicked on a ground item.
-                print('RECIEVED: move_item_to_player_storage', str(data))
-                _player = self.players[data.ident]
+            if(data.command == 'move_item_to_character_storage'): # when the character clicked on a ground item.
+                print('RECIEVED: move_item_to_character_storage', str(data))
+                _character = self.characters[data.ident]
                 _from_pos = Position(data.args[0], data.args[1], data.args[2])
                 _item_ident = data.args[3]
                 _from_item = None
                 _open_containers = []
-                print(_player, _from_pos, _item_ident)
-                # find the item that the player is requesting.
+                print(_character, _from_pos, _item_ident)
+                # find the item that the character is requesting.
                 for item in self.worldmap.get_tile_by_position(_from_pos)['items']:
                     if(item.ident == _item_ident):
                         # this is the item or at least the first one that matches the same ident.
                         _from_item = item  # save a reference to it to use.
                         break
 
-                if(_from_item == None): # we didn't find one, player sent bad information (possible hack?)
+                if(_from_item == None): # we didn't find one, character sent bad information (possible hack?)
                     print('!!! _from_item not found. this is unusual.')
                     return
 
-                # make a list of open_containers the player has to see if they can pick it up.
-                for bodyPart in _player.body_parts:
+                # make a list of open_containers the character has to see if they can pick it up.
+                for bodyPart in _character.body_parts:
                     if(bodyPart.slot0 is not None and isinstance(bodyPart.slot0, Container) and bodyPart.slot0.opened == 'yes'):
                         _open_containers.append(bodyPart.slot0)
                     if(bodyPart.slot1 is not None and isinstance(bodyPart.slot1, Container) and bodyPart.slot1.opened == 'yes'):
@@ -272,7 +272,7 @@ class Server(MastermindServerTCP):
                     print('no open containers found.')
                     return # no open containers.
 
-                # check if the player can carry that item.
+                # check if the character can carry that item.
                 for container in _open_containers:
                     # then find a spot for it to go (open_containers)
                     if(container.add_item(item)): # if it added it sucessfully.
@@ -285,13 +285,13 @@ class Server(MastermindServerTCP):
                                 break
                         return
                     else:
-                        print('could not add item to player inventory.')
-                    ### then send the player the updated version of themselves so they can refresh.
-            #end move_item_to_player_storage
+                        print('could not add item to character inventory.')
+                    ### then send the character the updated version of themselves so they can refresh.
+            #end move_item_to_character_storage
 
             if(data.command == 'move_item'):
                 # client sends 'hey server. can you move this item from this to that?'
-                _player_requesting = self.players[data.ident]
+                _character_requesting = self.characters[data.ident]
                 _item = data.args[0] # the item we are moving.
                 _from_type = data.args[1] # creature.held_item, creature.held_item.container, bodypart.equipped, bodypart.equipped.container, position, blueprint
                 _from_list = [] # the object list that contains the item. parse the type and fill this properly.
@@ -300,7 +300,7 @@ class Server(MastermindServerTCP):
 
                 # need to parse where it's coming from and where it's going.
                 if(_from_type == 'bodypart.equipped'):
-                    for bodypart in _player_requesting.body_parts[:]: # iterate a copy to remove properly.
+                    for bodypart in _character_requesting.body_parts[:]: # iterate a copy to remove properly.
                         if(_item in bodypart.equipped):
                             _from_list = bodypart.equipped
                             _from_list.remove(_item)
@@ -308,7 +308,7 @@ class Server(MastermindServerTCP):
                             print('moved correctly.')
                             return
                 elif(_from_type == 'bodypart.equipped.container'):
-                    for bodypart in _player_requesting.body_parts[:]: # iterate a copy to remove properly.
+                    for bodypart in _character_requesting.body_parts[:]: # iterate a copy to remove properly.
                         for item in bodypart.equipped: #could be a container or not.
                             if(isinstance(item, Container)): # if it's a container.
                                 for item2 in item.contained_items[:]: # check every item in the container.
@@ -336,7 +336,7 @@ class Server(MastermindServerTCP):
 
 
                 ### possible move types ###
-                # creature(held) to creature(held) (give to another player)
+                # creature(held) to creature(held) (give to another character)
                 # creature(held) to position(ground) (drop)
                 # creature(held) to bodypart (equip)
                 # bodypart to creature(held) (unequip)
@@ -379,61 +379,60 @@ class Server(MastermindServerTCP):
             if(action.action_type == 'move'):
                 actions_to_take = actions_to_take - 1 # moving costs 1 ap.
                 if(action.args[0] == 'south'):
-                    if(self.worldmap.move_object_from_position_to_position(self.players[creature.name], self.players[creature.name].position, Position(self.players[creature.name].position.x, self.players[creature.name].position.y+1, self.players[creature.name].position.z))):
-                        self.players[creature.name].position = Position(self.players[creature.name].position.x, self.players[creature.name].position.y+1, self.players[creature.name].position.z)
+                    if(self.worldmap.move_object_from_position_to_position(self.characters[creature.name], self.characters[creature.name].position, Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y+1, self.characters[creature.name].position.z))):
+                        self.characters[creature.name].position = Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y+1, self.characters[creature.name].position.z)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'north'):
-                    if(self.worldmap.move_object_from_position_to_position(self.players[creature.name], self.players[creature.name].position, Position(self.players[creature.name].position.x, self.players[creature.name].position.y-1, self.players[creature.name].position.z))):
-                        self.players[creature.name].position = Position(self.players[creature.name].position.x, self.players[creature.name].position.y-1, self.players[creature.name].position.z)
+                    if(self.worldmap.move_object_from_position_to_position(self.characters[creature.name], self.characters[creature.name].position, Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y-1, self.characters[creature.name].position.z))):
+                        self.characters[creature.name].position = Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y-1, self.characters[creature.name].position.z)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'east'):
-                    if(self.worldmap.move_object_from_position_to_position(self.players[creature.name], self.players[creature.name].position, Position(self.players[creature.name].position.x+1, self.players[creature.name].position.y, self.players[creature.name].position.z))):
-                        self.players[creature.name].position = Position(self.players[creature.name].position.x+1, self.players[creature.name].position.y, self.players[creature.name].position.z)
+                    if(self.worldmap.move_object_from_position_to_position(self.characters[creature.name], self.characters[creature.name].position, Position(self.characters[creature.name].position.x+1, self.characters[creature.name].position.y, self.characters[creature.name].position.z))):
+                        self.characters[creature.name].position = Position(self.characters[creature.name].position.x+1, self.characters[creature.name].position.y, self.characters[creature.name].position.z)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'west'):
-                    if(self.worldmap.move_object_from_position_to_position(self.players[creature.name], self.players[creature.name].position, Position(self.players[creature.name].position.x-1, self.players[creature.name].position.y, self.players[creature.name].position.z))):
-                        self.players[creature.name].position = Position(self.players[creature.name].position.x-1, self.players[creature.name].position.y, self.players[creature.name].position.z)
+                    if(self.worldmap.move_object_from_position_to_position(self.characters[creature.name], self.characters[creature.name].position, Position(self.characters[creature.name].position.x-1, self.characters[creature.name].position.y, self.characters[creature.name].position.z))):
+                        self.characters[creature.name].position = Position(self.characters[creature.name].position.x-1, self.characters[creature.name].position.y, self.characters[creature.name].position.z)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'up'):
-                    if(self.worldmap.move_object_from_position_to_position(self.players[creature.name], self.players[creature.name].position, Position(self.players[creature.name].position.x, self.players[creature.name].position.y, self.players[creature.name].position.z+1))):
-                        self.players[creature.name].position = Position(self.players[creature.name].position.x, self.players[creature.name].position.y, self.players[creature.name].position.z+1)
+                    if(self.worldmap.move_object_from_position_to_position(self.characters[creature.name], self.characters[creature.name].position, Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y, self.characters[creature.name].position.z+1))):
+                        self.characters[creature.name].position = Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y, self.characters[creature.name].position.z+1)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'down'):
-                    if(self.worldmap.move_object_from_position_to_position(self.players[creature.name], self.players[creature.name].position, Position(self.players[creature.name].position.x, self.players[creature.name].position.y, self.players[creature.name].position.z-1))):
-                        self.players[creature.name].position = Position(self.players[creature.name].position.x, self.players[creature.name].position.y, self.players[creature.name].position.z-1)
+                    if(self.worldmap.move_object_from_position_to_position(self.characters[creature.name], self.characters[creature.name].position, Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y, self.characters[creature.name].position.z-1))):
+                        self.characters[creature.name].position = Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y, self.characters[creature.name].position.z-1)
                     creature.command_queue.remove(action) # remove the action after we process it.
             elif(action.action_type == 'bash'):
                 actions_to_take = actions_to_take - 1 # bashing costs 1 ap.
                 if(action.args[0] == 'south'):
-                    self.worldmap.bash(self.players[creature.name], Position(self.players[creature.name].position.x, self.players[creature.name].position.y+1, self.players[creature.name].position.z))
-                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.players[creature.name].position)
+                    self.worldmap.bash(self.characters[creature.name], Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y+1, self.characters[creature.name].position.z))
+                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.characters[creature.name].position)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'north'):
-                    self.worldmap.bash(self.players[creature.name], Position(self.players[creature.name].position.x, self.players[creature.name].position.y-1, self.players[creature.name].position.z))
-                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.players[creature.name].position)
+                    self.worldmap.bash(self.characters[creature.name], Position(self.characters[creature.name].position.x, self.characters[creature.name].position.y-1, self.characters[creature.name].position.z))
+                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.characters[creature.name].position)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'east'):
-                    self.worldmap.bash(self.players[creature.name], Position(self.players[creature.name].position.x+1, self.players[creature.name].position.y, self.players[creature.name].position.z))
-                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.players[creature.name].position)
+                    self.worldmap.bash(self.characters[creature.name], Position(self.characters[creature.name].position.x+1, self.characters[creature.name].position.y, self.characters[creature.name].position.z))
+                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.characters[creature.name].position)
                     creature.command_queue.remove(action) # remove the action after we process it.
                 if(action.args[0] == 'west'):
-                    self.worldmap.bash(self.players[creature.name], Position(self.players[creature.name].position.x-1, self.players[creature.name].position.y, self.players[creature.name].position.z))
-                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.players[creature.name].position)
+                    self.worldmap.bash(self.characters[creature.name], Position(self.characters[creature.name].position.x-1, self.characters[creature.name].position.y, self.characters[creature.name].position.z))
+                    self.localmaps[creature.name] = self.worldmap.get_chunks_near_position(self.characters[creature.name].position)
                     creature.command_queue.remove(action) # remove the action after we process it.
 
     # this function handles overseeing all creature movement, attacks, and interactions
     def compute_turn(self):
-        lights_to_process = [] # init a list for all our found lights around players.
-        for player, chunks in self.localmaps.items():
-            for chunk in chunks: # players typically get 9 chunks
+        lights_to_process = [] # init a list for all our found lights around characters.
+        for character, chunks in self.localmaps.items():
+            for chunk in chunks: # characters typically get 9 chunks
                 for tile in chunk.tiles:
                     tile['lumens'] = 0 # reset light levels.
 
-        for player, chunks in self.localmaps.items():
-            for chunk in chunks: # players typically get 9 chunks
+        for character, chunks in self.localmaps.items():
+            for chunk in chunks: # characters typically get 9 chunks
                 for tile in chunk.tiles:
                     for item in tile['items']:
-                        #print(item)
                         if(isinstance(item, Blueprint)):
                             continue
                         for flag in self.ItemManager.ITEM_TYPES[item.ident]['flags']:
@@ -454,9 +453,9 @@ class Server(MastermindServerTCP):
                         
 
         
-        creatures_to_process = [] # we want a list that contains all the non-duplicate creatures on all localmaps around players.
-        for player, chunks in self.localmaps.items():
-            for chunk in chunks: # players typically get 9 chunks
+        creatures_to_process = [] # we want a list that contains all the non-duplicate creatures on all localmaps around characters.
+        for character, chunks in self.localmaps.items():
+            for chunk in chunks: # characters typically get 9 chunks
                 for tile in chunk.tiles:
                     if(tile['creature'] is not None and tile['creature'] not in creatures_to_process): # avoid duplicates
                         creatures_to_process.append(tile['creature'])
@@ -552,7 +551,7 @@ if __name__ == "__main__":
             server.compute_turn() # where all queued creature actions get taken care of, as well as physics engine stuff.
             #print('turn: ' + str(server.calendar.get_turn()))
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
-            #TODO: unload from memory chunks that have no updates required. (such as no monsters, players, or fires)
+            #TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
             last_turn_time = time.time() # based off of system clock.
         except KeyboardInterrupt:
             print('cleaning up before exiting.')
