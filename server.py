@@ -38,7 +38,7 @@ class OverMap: # when the character pulls up the OverMap. a OverMap for each cha
 class Server(MastermindServerTCP):
     def __init__(self, config, logger=None):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
-        self.config = config
+        self._config = config
         if logger == None:
             logging.basicConfig()
             self._log = logging.getLogger('root')
