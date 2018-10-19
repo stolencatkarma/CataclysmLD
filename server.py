@@ -148,7 +148,7 @@ class Server(MastermindServerTCP):
                             if(isinstance(bodypart.slot1, Container) and bodypart.slot1.ident == location_ident): # uses the first one it finds, maybe check if it's full?
                                 bodypart.slot1.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
 
-        self._log.info('New character joined: {}'.format( self.character[ident].name))
+        self._log.info('New character joined: {}'.format( self.characters[ident].name))
 
     def callback_client_handle(self, connection_object, data):
         print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
