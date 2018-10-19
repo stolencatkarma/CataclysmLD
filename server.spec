@@ -6,12 +6,15 @@ block_cipher = None
 a = Analysis(['server.py'],
              pathex=['D:\\Dropbox\\Dropbox\\Projects\\CataclysmLD'],
              binaries=[
-                        ('.\\img\\','.\\img\\'), 
+                        ('.\\img\\','.\\img\\'),
                         ('.\\data\\','.\\data\\'),
                         ('.\\tilesets\\','.\\tilesets\\'),
                         ('.\\worlds\\default\\delete.me','.\\worlds\\default\\'),
              ],
-             datas=[],
+             datas=[
+                 ('.\\server.cfg', '.'),
+                 ('.\\log\\delete.me', '.\\log'),
+             ],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
