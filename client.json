@@ -1,6 +1,5 @@
 {
-    "firstName": "",
-    "lastName": "",
+    "username": "",
     "password": "",
     "savePassword": true,
     "serverList": [

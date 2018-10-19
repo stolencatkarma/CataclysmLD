@@ -27,25 +27,25 @@ from src.action import Action
 from src.blueprint import Blueprint
 from src.command import Command
 from src.item import Item, ItemManager
-from src.player import Player
+from src.character import Character
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.tileManager import TileManager
 from src.worldmap import Worldmap
 
 class InputBox(glooey.Form):
-    #custom_alignment = 'center'
+    custom_alignment = 'center'
     custom_height_hint = 12
 
     class Label(glooey.EditableLabel):
         custom_font_size = 10
         custom_color = '#b9ad86'
-        #custom_alignment = 'top left'
-        custom_horz_padding = 2
+        custom_alignment = 'center'
+        custom_horz_padding = 4
         custom_top_padding = 2
-        #custom_width_hint = 200
+        custom_width_hint = 200
         custom_height_hint = 12
-
+        #TODO: import string; def format_alpha(entered_string): return "".join(char for char in entered_string if char in string.ascii_letters) # only allow valid non-space asicii
     class Base(glooey.Background):
         custom_center = pyglet.resource.texture('form_center.png')
         custom_left = pyglet.resource.image('form_left.png')
@@ -53,7 +53,8 @@ class InputBox(glooey.Form):
 
 class CustomScrollBox(glooey.ScrollBox):
     #custom_alignment = 'center'
-    #custom_height_hint = 200
+    custom_size_hint = 300, 200
+    custom_height_hint = 200
 
     class Frame(glooey.Frame):
         class Decoration(glooey.Background):
@@ -125,15 +126,35 @@ class ConnectButton(glooey.Button):
 
 # Use pyglet to create a window as usual.
 
-# the first Window we see.
+class ServerListButton(glooey.Button):
+    class MyLabel(glooey.Label):
+        custom_color = '#babdb6'
+        custom_font_size = 14
+
+    Label = MyLabel
+    #custom_alignment = 'fill'
+    custom_height_hint = 12
+
+    class Base(glooey.Background):
+        custom_color = '#3465a4'
+
+    class Over(glooey.Background):
+        custom_color = '#204a87'
+
+    class Down(glooey.Background):
+        custom_color = '#729fcff'
+
+    def __init__(self, text):
+        super().__init__(text)
+       
+
+# the first Window the user sees.
 class LoginWindow(pyglet.window.Window):
     def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 728)
-        self.firstName = InputBox()
-        self.lastName = InputBox()
+        pyglet.window.Window.__init__(self, 854, 480)
+        self.username = InputBox()
         self.password = InputBox()
-        self.firstName.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
-        self.lastName.push_handlers(on_unfocus=lambda w: print(f"Last Name: '{w.text}'"))
+        self.username.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
         self.password.push_handlers(on_unfocus=lambda w: print(f"password: ***************"))
 
         self.serverIP = InputBox()
@@ -143,66 +164,77 @@ class LoginWindow(pyglet.window.Window):
 
 
         self.gui = glooey.Gui(self)
-        self.gui.padding = 24
-        self.grid = glooey.Grid()
+        self.grid = glooey.Grid(0,0,0,0)
+        self.grid.padding = 16
+        self.bg = glooey.Background()
+        self.bg.set_appearance(
+            center=pyglet.resource.texture('center.png'),
+            top=pyglet.resource.texture('top.png'),
+            bottom=pyglet.resource.texture('bottom.png'),
+            left=pyglet.resource.texture('left.png'),
+            right=pyglet.resource.texture('right.png'),
+            top_left=pyglet.resource.texture('top_left.png'),
+            top_right=pyglet.resource.texture('top_right.png'),
+            bottom_left=pyglet.resource.texture('bottom_left.png'),
+            bottom_right=pyglet.resource.texture('bottom_right.png')
+            )
+              
+        self.gui.add(self.bg)
+        
+        self.titleLabel = glooey.Label('Cataclysm: Looming Darkness') 
+        
+        self.grid[0,1] = self.titleLabel
 
-        self.titleLabel = glooey.Label('Cataclysm: Looming Darkness')
-        self.titleLabel.custom_alignment = 'center'
-
-        self.gui.add(self.titleLabel)
-
-
-        self.vbox_left = glooey.VBox()
-        self.vbox_right = glooey.VBox()
-
-        self.vbox_left.add(glooey.misc.Spacer(0,24))
-        self.vbox_right.add(glooey.misc.Spacer(0,24))
-
-        self.vbox_left.add(glooey.Label('First Name:'))
-        self.vbox_right.add(self.firstName)
-        self.vbox_left.add(glooey.Label('Last Name:'))
-        self.vbox_right.add(self.lastName)
-        self.vbox_left.add(glooey.Label('password:'))
-        self.vbox_right.add(self.password)
-        self.vbox_left.add(glooey.Label('Server IP:'))
-        self.vbox_right.add(self.serverIP)
-        self.vbox_left.add(glooey.Label('Server Port:'))
-        self.vbox_right.add(self.serverPort)
+        self.grid[1,0] = glooey.Label('Username:')
+        
+        self.grid[1,1] = self.username
+        self.grid[3,0] = glooey.Label('password:')
+        self.grid[3,1] = self.password
+        self.grid[4,0] = glooey.Label('Server IP:')
+        self.grid[4,1] = self.serverIP
+        self.grid[5,0] = glooey.Label('Server Port:')
+        self.grid[5,1] = self.serverPort
 
         with open('client.json') as f:
             client_data = json.load(f)
-
-        self.firstName.text = client_data['firstName']
-        self.lastName.text = client_data['lastName']
+        
+        self.username.text = client_data['username']
         self.serverList = client_data['serverList']
 
         connectButton = ConnectButton('Connect')
         connectButton.push_handlers(on_click=self.connect)
-        self.vbox_right.add(connectButton)
+        self.grid[6,1] = connectButton
 
         serverListScrollBox = CustomScrollBox()
+        serverListScrollBox.size_hint = 100,100
+        vbox_for_serverlist = glooey.VBox(0) 
         for server in self.serverList:
-            _button = ConnectButton(server) # sets the active server to the one you press.
-            serverListScrollBox.add(_button)
-            print('added', server)
-        self.vbox_left.add(serverListScrollBox)
-
-        self.grid.add(0,0,self.vbox_left)
-        self.grid.add(0,1,self.vbox_right)
-
+            _button = ServerListButton(server) # sets the active server to the one you press.
+            _button.push_handlers(on_click=self.set_host_and_port_InputBoxes)
+            vbox_for_serverlist.add(_button)
+        serverListScrollBox.add(vbox_for_serverlist)
+        self.grid[6,0] = serverListScrollBox
+        
         self.gui.add(self.grid)
-        #self.vbox_left.debug_drawing_problems()
-        #self.vbox_right.debug_drawing_problems()
+        #self.grid.debug_drawing_problems()
+        #self.grid.debug_placement_problems()
 
     def connect(self, args):
-        name = self.firstName.text + self.lastName.text
-        print(name)
-        command = Command(name, 'login', ['password'])
-        client.send(command)
+        name = self.username.text
+        print('username:', name)
 
+       
+    def set_host_and_port_InputBoxes(self, server_and_port):
+        print(server_and_port)
+        self.serverIP.text = server_and_port.text.split(':')[0]
+        self.serverPort.text = server_and_port.text.split(':')[1]
 
+# The window that let's the user select a character or leads to a Window where you can generate a new one.
+class CharacterSelectWindow(pyglet.window.Window):
+    def __init__(self):
+        pyglet.window.Window.__init__(self, 854, 480)
 
-# The window after we login with a character
+# The window after we login with a character. Where the Main game is shown.
 class mainWindow(pyglet.window.Window):
     def __init__(self):
         pyglet.window.Window.__init__(self, 854, 480)
@@ -234,17 +266,15 @@ class mainWindow(pyglet.window.Window):
         self.gui.add(self.map_grid)
 
 class Client(MastermindClientTCP): # extends MastermindClientTCP
-    def __init__(self, first_name, last_name):
+    def __init__(self):
         MastermindClientTCP.__init__(self)
 
         self.TileManager = TileManager()
-
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
-        self.player = Player(str(first_name) + str(last_name)) # recieves updates from server. the player and all it's stats.
+        self.character = Character() # recieves updates from server. the player and all it's stats.
         self.localmap = None
         self.hotbars = []
-
 
         #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
 
@@ -253,22 +283,18 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
         self.LoginWindow = LoginWindow()
         # after the player logs in a character need to open the mainWindow
-
-
-
         @self.LoginWindow.event
         def on_key_press(symbol, modifiers):
             if symbol == KEY.RETURN:
                 print('return')
             if symbol == KEY.W:
-                command = Command(self.player.name, 'move', ['north'])
+                command = Command(self.character.name, 'move', ['north'])
                 client.send(command)
 
-
-    def find_player_in_localmap(self):
+    def find_character_in_localmap(self):
         for tile in self.localmap:
             if(tile['creature'] is not None):
-                if(tile['creature'].name == self.player.name):
+                if(tile['creature'].name == self.character.name):
                     return tile['creature']
         else:
             print('couldn\'t find player')
@@ -428,16 +454,14 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
 
             # then blit weather. Weather is the only thing above players and creatures.
             #TODO: blit weather
-      
 
     def open_crafting_menu(self):
         list_of_known_recipes = []
         for key, value in self.RecipeManager.RECIPE_TYPES.items(): #TODO: Don't just add them all. Pull them from creature.known_recipes
             list_of_known_recipes.append(value)
 
-
     def open_movement_menu(self, pos, tile):
-        #_command = Command(client.player.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
+        #_command = Command(client.character.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
         # return _command
         pass
 
@@ -449,64 +473,67 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         pass 
 
     def open_equipment_menu(self):
-        # equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.player.body_parts)
+        # equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.character.body_parts)
         pass
 
     def open_items_on_ground(self, pos, tile):
-        # _command = Command(self.player.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
+        # _command = Command(self.character.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
         # return _command
         pass
-
 
 #
 #   if we start a client directly
 #
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Cataclysm LD Client', epilog="Please start the client with a first and last name for your character.")
-    parser.add_argument('--host', metavar='Host', help='Server host', default='localhost')
+
+    parser = argparse.ArgumentParser(description='Cataclysm LD Client')
+    parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
     parser.add_argument('--port', metavar='Port', type=int, help='Server port', default=6317)
-    parser.add_argument('first_name', help='Player\'s first name')
-    parser.add_argument('last_name', help='Player\'s last name')
 
     args = parser.parse_args()
     ip = args.host
     port = args.port
 
-    client = Client(args.first_name, args.last_name)
-    client.connect(ip, port)
-    command = Command(client.player.name, 'login', ['password'])
-    client.send(command)
-    command = Command(client.player.name, 'request_localmap_update')
-    client.send(command)
-    command = None
-
     # if we recieve an update from the server process it. do this first.
-
+    # We always start out at the login window.
+    # once we recieve a list of characters SWITCH to the character select view.
+    # once the user selects a character ask the server to login into the world with it.
+    # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
     def check_messages_from_server(dt):
         next_update = client.receive(False)
         if(next_update is not None):
-            #print('--next_update--') # we recieved a message from the server. let's process it.
-            #print(type(next_update))
-            if(isinstance(next_update, Player)):
+            print('--next_update--') # we recieved a message from the server. let's process it.
+            print(type(next_update))
+            #if(isinstance(next_update, Character)):
                 #print('got playerupdate')
-                client.player = next_update # client.player is updated
-            elif(isinstance(next_update, list)): # this is the list of chunks for the localmap compressed with zlib and pickled to binary
+            #    client.character = next_update # client.character is updated
+            #elif(isinstance(next_update, list)): # this is the list of chunks for the localmap
                 #print('got local mapupdate')
-                client.localmap = client.convert_chunks_to_localmap(next_update)
-                client.player = client.find_player_in_localmap()
-                client.update_map_for_position(client.player.position)
-                # client.draw_view_at_position(client.player.position) # update after everything is complete.
+            #    client.localmap = client.convert_chunks_to_localmap(next_update)
+            #    client.character = client.find_character_in_localmap()
+            #    client.update_map_for_position(client.character.position)
+                # client.draw_view_at_position(client.character.position) # update after everything is complete.
 
-
+    def login():
+        # we'll do the below to login and recieve a list of characters.
+        client.connect(ip, port)
+        command = Command(client.character.name, 'login', ['password']) #TODO: hashed and salted passwords.
+        client.send(command)
+        command = Command(client.character.name, 'request_localmap_update')
+        client.send(command)
+        command = None
+        # -------------------------------------------------------
+        clock.schedule_interval(check_messages_from_server, 0.25)
+        clock.schedule_interval(ping, 30.0) # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server.
+        
 
     def ping(dt):
-        command = Command(client.player.name, 'ping')
+        command = Command(client.character.name, 'ping')
         client.send(command)
 
-    clock.schedule_interval(check_messages_from_server, 0.25)
-    clock.schedule_interval(ping, 30.0) # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server.
     
+    client = Client()
     
-    pyglet.app.event_loop.run() # main event loop starts here.
+    pyglet.app.event_loop.run() # main event loop starts here.    
 
     

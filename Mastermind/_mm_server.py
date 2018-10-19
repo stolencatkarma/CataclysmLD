@@ -3,9 +3,9 @@ import socket
 import time
 import threading
 
-from . import _mm_netutil as netutil
-from ._mm_constants import *
-from ._mm_errors import *
+import Mastermind._mm_netutil as netutil
+from Mastermind._mm_constants import *
+from Mastermind._mm_errors import *
 
 class MastermindServerCallbacksDebug(object):
     def callback_connect          (self                                          ):
@@ -29,6 +29,7 @@ class MastermindServerCallbacksDebug(object):
     def callback_client_send      (self, connection_object, data,compression=None):
         print("Server: About to send data \""+str(data)+"\" to client \""+str(connection_object.address)+"\" with compression \""+str(compression)+"\"!")
         return super(MastermindServerCallbacksDebug,self).callback_client_send(connection_object, data,compression)
+        
 class MastermindServerCallbacksEcho(object):
     def callback_client_handle(self, connection_object, data):
         self.callback_client_send(connection_object, data)
@@ -51,6 +52,7 @@ class MastermindServerBase(object):
         self._mm_accepting_new_connections = False
         self._mm_should_run = False
         self._mm_connected = False
+
     def __del__(self):
         if self._mm_accepting_new_connections:
             MastermindWarningServer("For a server, .accepting_disallow() was not called before destruction!  Calling automatically.")
@@ -75,6 +77,7 @@ class MastermindServerBase(object):
         self.callback_connect()
 
         self._mm_connected = True
+
     def disconnect(self):
         if not self._mm_connected:
             MastermindWarningServer("Server is already disconnected!  Ignoring .disconnect().")
@@ -120,10 +123,12 @@ class MastermindServerBase(object):
         self._mm_server_thread.start()
         while not self._mm_should_run: pass
         self._mm_accepting_new_connections = True
+
     def accepting_disallow(self):
         self._mm_should_run = False
         self._mm_server_thread.join()
         self._mm_accepting_new_connections = False
+
 class MastermindServerTCP(MastermindServerBase):
     def __init__(self, time_server_refresh=0.5,time_connection_refresh=0.5,time_connection_timeout=5.0):
         MastermindServerBase.__init__(self, MM_TCP, time_server_refresh,time_connection_refresh,time_connection_timeout)
@@ -159,39 +164,6 @@ class MastermindServerTCP(MastermindServerBase):
             connection.thread.start()
             while not connection.handling: pass
             self._mm_connections[address] = connection
-class MastermindServerUDP(MastermindServerBase):
-    def __init__(self, time_server_refresh=0.5,time_connection_refresh=0.5,time_connection_timeout=5.0, max_packet_size=4096):
-        MastermindServerBase.__init__(self, MM_UDP, time_server_refresh,time_connection_refresh,time_connection_timeout)
-        self._mm_max_packet_size = max_packet_size
-
-    def _mm_make_connection(self, ip,port):
-        self._mm_server_socket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-        try:
-            self._mm_server_socket.bind((ip,port))
-        except:
-            self._mm_server_socket.close()
-            raise MastermindErrorSocket("Server could not connect on port "+str(port)+"!  Perhaps another instance is already running?")
-    def _mm_close_connection(self):
-        self._mm_server_socket.close()
-
-    def callback_client_receive(self, connection_object): pass
-
-    def accepting_allow_wait_forever(self):
-        self._mm_should_run = True
-        while self._mm_should_run:
-            input_ready,output_ready,except_ready = select.select([self._mm_server_socket],[],[],self._mm_time_server_refresh)
-            if input_ready == []: continue
-
-            data,address = netutil.packet_recv_udp(self._mm_server_socket,self._mm_max_packet_size)
-            if address not in self._mm_connections:
-                connection = MastermindConnectionThreadUDP(self, address)
-                connection.thread = threading.Thread(target=connection.run_forever)
-                connection.thread.start()
-                while not connection.handling: pass
-                self._mm_connections[address] = connection
-
-            self.callback_client_receive(self._mm_connections[address])
-            self._mm_connections[address].handle(data)
 
 class MastermindConnectionThread(object):
     def __init__(self, server, socket,address):
@@ -204,6 +176,7 @@ class MastermindConnectionThread(object):
         self.handling = False
     def terminate(self):
         self.handling = False
+
 class MastermindConnectionThreadTCP(MastermindConnectionThread):
     def __init__(self, server, socket,address):
         MastermindConnectionThread.__init__(self, server, socket,address)
@@ -212,7 +185,7 @@ class MastermindConnectionThreadTCP(MastermindConnectionThread):
 
         self.handling = True
         while self.handling:
-            input_ready,output_ready,except_ready = select.select([self.socket],[],[],self.server._mm_time_connection_refresh)
+            input_ready, output_ready, except_ready = select.select([self.socket],[],[],self.server._mm_time_connection_refresh)
             if input_ready == []:
                 self.amount_waiting += self.server._mm_time_connection_refresh
                 if self.amount_waiting > self.server._mm_time_connection_timeout: break
@@ -225,29 +198,4 @@ class MastermindConnectionThreadTCP(MastermindConnectionThread):
 
             self.amount_waiting = 0.0
         self.server.callback_disconnect_client(self)
-class MastermindConnectionThreadUDP(MastermindConnectionThread):
-    def __init__(self, server, address):
-        MastermindConnectionThread.__init__(self, server, server._mm_server_socket,address)
-        self.mutex = threading.Lock()
-    def run_forever(self):
-        self.server.callback_connect_client(self)
-
-        self.handling = True
-        while self.handling:
-            time.sleep(self.server._mm_time_connection_refresh)
-
-            self.mutex.acquire()
-            self.amount_waiting += self.server._mm_time_connection_refresh
-            done = self.amount_waiting > self.server._mm_time_connection_timeout
-            self.mutex.release()
-            if done: break
-
-        self.server.callback_disconnect_client(self)
-    def handle(self, data):
-        self.mutex.acquire()
-
-        self.server.callback_client_handle(self,data)
-
-        self.amount_waiting = 0.0
-
-        self.mutex.release()
+        
