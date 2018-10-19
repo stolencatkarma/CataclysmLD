@@ -22,17 +22,9 @@ from src.player import Player
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.terrain import Terrain
-#from src.tileManager import TileManager
 from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
-#import game
 from src.worldmap import Worldmap
-
-#import pygame
-#import pygame.locals
-
-
-
 
 class OverMap: # when the player pulls up the OverMap. a OverMap for each player will have to be stored for undiscovered areas and when they use maps.
     def __init__(self): # the ident of the player who owns this overmap.
@@ -40,8 +32,6 @@ class OverMap: # when the player pulls up the OverMap. a OverMap for each player
         # build the overmap from seen tiles, roadmaps, maps.
         # if a player sees a chunk loaded it's safe to say they 'saw' that overmap tile.
         return
-
-#ClassServer = MastermindServerTCP
 
 class Server(MastermindServerTCP):
     def __init__(self):
