@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import pprint
+import configparser
 import logging.config
 from collections import defaultdict
 
@@ -35,8 +36,9 @@ class OverMap: # when the character pulls up the OverMap. a OverMap for each cha
         return
 
 class Server(MastermindServerTCP):
-    def __init__(self, logger=None):
+    def __init__(self, config, logger=None):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
+        self.config = config
         if logger == None:
             logging.basicConfig()
             self._log = logging.getLogger('root')
@@ -223,7 +225,7 @@ class Server(MastermindServerTCP):
                 _position = Position(data.args[0], data.args[1], data.args[2])
                 _route = self.calculate_route(self.characters[data.ident].position, _position) # returns a route from point 0 to point 1 as a series of Position(s)
                 print(_route)
-                self._log.debug('Calculated route for Player {}: {}'.format(self.players[data.ident],
+                self._log.debug('Calculated route for Character {}: {}'.format(self.characters[data.ident],
                                                                             _route))
 
                 # fill the queue with move commands to reach the tile.
@@ -543,31 +545,44 @@ if __name__ == "__main__":
     parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
     parser.add_argument('--port', metavar='Port', type=int, help='Server port', default=6317)
     parser.add_argument('--config', metavar='Config', help="Configuration file", default='server.cfg')
-
     args = parser.parse_args()
-    ip = args.host
-    port = args.port
 
-    # Enable logging
+    # Configuration Parser - configured values override command line
+    configParser = configparser.ConfigParser()
+    configParser.read( args.config )
+
+    # Grab the values within the configuration file's DEFAULT scope and
+    # make them available as configuration values
+    defaultConfig = configParser["DEFAULT"]
+    ip = defaultConfig.get( "listen_address", args.host )
+    port = int(defaultConfig.get( "listen_port", args.port ))
+
+    # Enable logging - It uses its own configparser for the same file
     logging.config.fileConfig( args.config )
     log = logging.getLogger( "root" )
     log.info( "Server is start at {}:{}".format(ip, port) )
 
-    server = Server( logger=log )
+    server = Server( logger=log, config=defaultConfig )
     server.connect(ip, port)
     server.accepting_allow()
 
     dont_break = True
-    time_offset = 1.0 # 0.5 is twice as fast, 2.0 is twice as slow
+    time_offset = float(defaultConfig.get("time_offset", 1.0)) # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
-    server.generate_and_apply_city_layout(1)
+    citySize = int(defaultConfig.get("city_size", 1))
+    log.info("City size: {}".format(citySize))
+    server.generate_and_apply_city_layout(citySize)
 
-    print('Started up Cataclysm: Looming Darkness Server.')
+    time_per_turn = int(defaultConfig.get("time_per_turn", 1))
+    log.info("time_per_turn: {}".format(time_per_turn))
+    spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
+    log.info("spin_delay_ms: {}".format(spin_delay_ms))
+    log.info('Started up Cataclysm: Looming Darkness Server.')
     while dont_break:
         try:
             while(time.time() - last_turn_time < time_offset): # try to keep up with the time offset but never go faster than it.
-                time.sleep(.001)
-            server.calendar.advance_time_by_x_seconds(1) # a turn is one second.
+                time.sleep(spin_delay_ms)
+            server.calendar.advance_time_by_x_seconds(time_per_turn) # a turn is one second.
             server.compute_turn() # where all queued creature actions get taken care of, as well as physics engine stuff.
             #print('turn: ' + str(server.calendar.get_turn()))
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
