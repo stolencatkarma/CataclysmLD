@@ -146,6 +146,7 @@ class MastermindServerTCP(MastermindServerBase):
             self._mm_unconnected_socket.close()
             raise MastermindErrorSocket("Server could not connect on port "+str(port)+"!  Perhaps another instance is already running?")
     def _mm_close_connection(self):
+        self._mm_unconnected_socket.shutdown( socket.SHUT_RD )
         self._mm_unconnected_socket.close()
 
     def callback_client_receive(self, connection_object):

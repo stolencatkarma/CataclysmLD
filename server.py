@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import pprint
+import logging.config
 from collections import defaultdict
 
 import src.global_vars
@@ -34,8 +35,16 @@ class OverMap: # when the character pulls up the OverMap. a OverMap for each cha
         return
 
 class Server(MastermindServerTCP):
-    def __init__(self):
+    def __init__(self, logger=None):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
+        if logger == None:
+            logging.basicConfig()
+            self._log = logging.getLogger('root')
+            self._log.warn('Basic logging configuration fallback used because no logger defined.')
+
+        else:
+            self._log = logger
+
         self.characters = dict() # all the characters() that exist in the world whether connected or not.
 
         self.localmaps = dict() # the localmaps for each character.
@@ -98,7 +107,7 @@ class Server(MastermindServerTCP):
                 continue
             if(tile['terrain'].ident == 't_open_air'):
                 continue
-            
+
             return tile['position']
 
     def handle_new_character(self, ident):
@@ -139,7 +148,7 @@ class Server(MastermindServerTCP):
                             if(isinstance(bodypart.slot1, Container) and bodypart.slot1.ident == location_ident): # uses the first one it finds, maybe check if it's full?
                                 bodypart.slot1.add_item(Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]))
 
-        print('New character joined.', self.characters[ident].name)
+        self._log.info('New character joined: {}'.format( self.characters[ident].name))
 
     def callback_client_handle(self, connection_object, data):
         print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
@@ -186,6 +195,8 @@ class Server(MastermindServerTCP):
             if(data.command == 'create_blueprint'): #  [result, direction])
                 # args 0 is ident args 1 is direction.
                 print('creating blueprint ' + str(data.args[0]) + ' for character ' + str(self.characters[data.ident]))
+                self._log.info('creating blueprint {} for character {}'.format(str(data.args[0]),
+                                                                            str(self.characters[data.ident])))
                 # blueprint rules
                 # * there should be blueprints for terrain, furniture, items, and anything else that takes a slot up in the Worldmap.
                 # * they act as placeholders and then 'transform' into the type they are once completed.
@@ -207,18 +218,21 @@ class Server(MastermindServerTCP):
                 self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
 
             if(data.command == 'calculated_move'):
-                print('Recieved calculated_move action. Building a path for ' + str(data.ident))
+                self._log.debug( 'Recieved calculated_move action. Building a path for {}'.format(str(data.ident)))
 
                 _position = Position(data.args[0], data.args[1], data.args[2])
                 _route = self.calculate_route(self.characters[data.ident].position, _position) # returns a route from point 0 to point 1 as a series of Position(s)
                 print(_route)
+                self._log.debug('Calculated route for Player {}: {}'.format(self.players[data.ident],
+                                                                            _route))
+
                 # fill the queue with move commands to reach the tile.
                 _x = self.characters[data.ident].position.x
                 _y = self.characters[data.ident].position.y
                 _z = self.characters[data.ident].position.z
                 action = None
                 if(_route is None):
-                    print('No _route possible.')
+                    self._log.debug('No _route possible.')
                     return
                 for step in _route:
                     _next_x = step.x
@@ -528,12 +542,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Cataclysm LD Server')
     parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
     parser.add_argument('--port', metavar='Port', type=int, help='Server port', default=6317)
+    parser.add_argument('--config', metavar='Config', help="Configuration file", default='server.cfg')
 
     args = parser.parse_args()
     ip = args.host
     port = args.port
 
-    server = Server()
+    # Enable logging
+    logging.config.fileConfig( args.config )
+    log = logging.getLogger( "root" )
+    log.info( "Server is start at {}:{}".format(ip, port) )
+
+    server = Server( logger=log )
     server.connect(ip, port)
     server.accepting_allow()
 
@@ -554,13 +574,13 @@ if __name__ == "__main__":
             #TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
             last_turn_time = time.time() # based off of system clock.
         except KeyboardInterrupt:
-            print('cleaning up before exiting.')
+            log.info('cleaning up before exiting.')
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             dont_break = False
-            print('done cleaning up.')
+            log.info('done cleaning up.')
         '''except Exception as e:
             print('!! Emergency Exit due to Server Exception. !!')
             print(e)

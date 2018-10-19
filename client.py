@@ -156,7 +156,7 @@ class LoginWindow(pyglet.window.Window):
         self.password = InputBox()
         self.username.push_handlers(on_unfocus=lambda w: print(f"First Name: '{w.text}'"))
         self.password.push_handlers(on_unfocus=lambda w: print(f"password: ***************"))
-        
+
         self.serverIP = InputBox()
         self.serverPort = InputBox()
         self.serverIP.push_handlers(on_unfocus=lambda w: print(f"serverIP: '{w.text}'"))
@@ -244,11 +244,11 @@ class mainWindow(pyglet.window.Window):
         self.map_grid = glooey.Grid(self.chunk_size[0], self.chunk_size[1], 32, 32) # chunk_size + tilemap size
         self.map_grid.set_left_padding(32) # for the border.
         self.map_grid.set_top_padding(32)
-                
+
         for i in range(self.chunk_size[0]): # glooey uses x,y for grids from the top left.
             for j in range(self.chunk_size[1]):
                 self.map_grid.add(i, j, glooey.images.Image(pyglet.resource.texture('t_grass.png'))) # before we get an update we need to init the map with grass.
-        
+
         bg = glooey.Background()
         bg.set_appearance(
             center=pyglet.resource.texture('center.png'),
@@ -268,7 +268,7 @@ class mainWindow(pyglet.window.Window):
 class Client(MastermindClientTCP): # extends MastermindClientTCP
     def __init__(self):
         MastermindClientTCP.__init__(self)
-        
+
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager() # contains all the known recipes in the game. for reference.
@@ -277,13 +277,12 @@ class Client(MastermindClientTCP): # extends MastermindClientTCP
         self.hotbars = []
 
         #self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
-        
+
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-        
+
         self.LoginWindow = LoginWindow()
         # after the player logs in a character need to open the mainWindow
-        
         @self.LoginWindow.event
         def on_key_press(symbol, modifiers):
             if symbol == KEY.RETURN:
@@ -527,6 +526,7 @@ if __name__ == "__main__":
         clock.schedule_interval(check_messages_from_server, 0.25)
         clock.schedule_interval(ping, 30.0) # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server.
         
+
     def ping(dt):
         command = Command(client.character.name, 'ping')
         client.send(command)
