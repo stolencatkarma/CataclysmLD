@@ -4,6 +4,7 @@ import pickle
 import pprint
 import random
 import time
+import logging
 from collections import defaultdict
 
 from src.blueprint import Blueprint
@@ -52,6 +53,7 @@ class Worldmap:
     # let's make the world map and fill it with chunks!
 
     def __init__(self, WORLD_SIZE): # size in chunks along one axis.
+        self._log = logging.getLogger('worldmap')
         self.WORLD_SIZE = WORLD_SIZE
         self.WORLDMAP = defaultdict(dict) # dict of dicts for chunks
         self.chunk_size = 13 # size of the chunk, leave it hardcoded here. (0-12)
@@ -59,7 +61,7 @@ class Worldmap:
         self.ItemManager = ItemManager()
         start = time.time()
         #TODO: only need to load the chunks where there are actual Characters present in memory after generation.
-        print('creating/loading world chunks')
+        self._log.debug('creating/loading world chunks')
         count = 0
         for i in range(self.WORLD_SIZE):
             for j in range(self.WORLD_SIZE):
@@ -82,9 +84,8 @@ class Worldmap:
 
         end = time.time()
         duration = end - start
-        print()
-        print('---------------------------------------------')
-        print('World generation took: ' + str(duration) + ' seconds.')
+        self._log.debug('---------------------------------------------')
+        self._log.debug('World generation took: {} seconds'.format(duration) )
 
     def update_chunks_on_disk(self): # after our map in memory changes we need to update the chunk file on disk.
         for i in range(self.WORLD_SIZE):
@@ -94,7 +95,7 @@ class Worldmap:
                     if(os.path.isfile(path)):
                         if(chunk.is_dirty):
                             with open(path, 'wb') as fp:
-                                print(str(i) + '_' + str(j) + '_' + str(k) + '.chunk is_dirty. Saving changes to disk.')
+                                self._log.debug('{}_{}_{}.chunk is dirty. Saving changes to disk.'.format(i, j, k))
                                 self.WORLDMAP[i][j][k].is_dirty = False
                                 pickle.dump(self.WORLDMAP[i][j][k], fp)
 
@@ -116,19 +117,18 @@ class Worldmap:
 
         z = position.z
 
-        #print('~getting chunk ' + str(x_count) + ' ' + str(y_count))
-
+        self._log.debug('getting chunk {} {}'.format(x_count, y_count))
         return self.WORLDMAP[x_count][y_count][z]
 
     def get_all_tiles(self):
         ret = []
-        #print('getting all tiles')
+        self._log.debug('getting all tiles')
         for i, dictionary_x in self.WORLDMAP.items():
             for j, dictionary_y in dictionary_x.items():
                 for k, chunk in dictionary_y.items():
                     for tile in chunk.tiles:
                         ret.append(tile)
-        #print('all tiles: ' + str(len(ret)))
+        self._log.debug('all tiles: {}'.format(len(ret)))
         return ret # expensive function. use sparingly.
 
     def get_tile_by_position(self, position):
@@ -146,7 +146,7 @@ class Worldmap:
 
         z = position.z
 
-        
+
         try:
             for tile in self.WORLDMAP[x_count][y_count][z].tiles:
                 if tile['position'] == position:
@@ -238,7 +238,7 @@ class Worldmap:
             elif(obj.type_of == 'Item'):
                 items = tile['items'] # which is []
                 items.append(obj)
-                print('added blueprint for an Item.')
+                self._log.debug('added blueprint for an Item.')
                 return
             elif(obj.type_of == 'Furniture'):
                 tile['furniture'] = obj
@@ -247,8 +247,8 @@ class Worldmap:
         #TODO: the rest of the types.
 
     def build_json_building_at_position(self, filename, position): # applys the json file to world coordinates. can be done over multiple chunks.
-        print('building: ' + str(filename) + ' at ' + str(position))
-        #start = time.time()
+        self._log.debug('building: {} at {}'.format(filename, position))
+        start = time.time()
         #TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
             data = json.load(json_file)
@@ -287,15 +287,15 @@ class Worldmap:
                         pass
                     i = i + 1
                 j = j + 1
-        #end = time.time()
-        #duration = end - start
-        #print('Building '+ str(filename) + ' took: ' + str(duration) + ' seconds.')
+        end = time.time()
+        duration = end - start
+        self._log.debug('Building {} took: {} seconds.'.format(filename, duration))
 
     def move_object_from_position_to_position(self, obj, from_position, to_position):
         from_tile = self.get_tile_by_position(from_position)
         to_tile = self.get_tile_by_position(to_position)
         if(to_tile is None or from_tile is None):
-            print('tile doesn\'t exist. this should NEVER get called. get_tile_by_position creates a new chunk and tiles if we need it.')
+            self._log.error('tile doesn\'t exist. This should NEVER get called. get_tile_by_position creates a new chunk and tiles if we need it.')
             return False
         if(from_position.z != to_position.z): # check for stairs.
             if(from_position.z < to_position.z):
@@ -311,12 +311,12 @@ class Worldmap:
         self.get_chunk_by_position(to_position).is_dirty = True
         #print(self.get_chunk_by_position(to_position).is_dirty)
         if isinstance(obj, (Creature, Character, Monster)):
-            # print('moving ' + str(obj) + ' from ' + str(from_position)+ ' to ' + str(to_position))
+            self._log.debug('moving {} from {} to {}.'.format(obj,from_position,to_position))
             if to_tile['terrain'].impassable:
-                print('tile is impassable')
+                self._log.debug('tile is impassable')
                 return False
             if to_tile['creature'] is not None: # don't replace creatures in the tile if we move over them.
-                print('creature is impassable')
+                self._log.debug('creature is impassable')
                 return False
             to_tile['creature'] = obj
             from_tile['creature'] = None
@@ -335,7 +335,7 @@ class Worldmap:
             return True
         if obj is Furniture:
             if to_tile['furniture'] is not None:
-                print('already furniture there.')
+                self._log.debug('already furniture there.')
                 return False
             to_tile['furniture'] = obj
             from_tile['furniture'] = None
@@ -432,13 +432,13 @@ class Worldmap:
         num_firedept = int(size / 12)
         num_jail = int(size / 12)
 
-        #print('num_residential: ' + str(num_residential))
-        #print('num_commercial: ' + str(num_commercial))
-        #print('num_industrial: ' + str(num_industrial))
-        #print('num_hospitals: ' + str(num_hospitals))
-        #print('num_police: ' + str(num_police))
-        #print('num_firedept: ' + str(num_firedept))
-        #print('num_jail: ' + str(num_jail))
+        self._log.debug('num_residential: ' + str(num_residential))
+        self._log.debug('num_commercial: ' + str(num_commercial))
+        self._log.debug('num_industrial: ' + str(num_industrial))
+        self._log.debug('num_hospitals: ' + str(num_hospitals))
+        self._log.debug('num_police: ' + str(num_police))
+        self._log.debug('num_firedept: ' + str(num_firedept))
+        self._log.debug('num_jail: ' + str(num_jail))
 
 
         # put road every 4th tile with houses on either side.
