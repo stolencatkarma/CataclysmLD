@@ -1,3 +1,6 @@
+import logging
+
+
 class MastermindError(Exception):
     def __init__(self,error_message):
         self._mm_error_message = error_message
@@ -13,7 +16,8 @@ class MastermindErrorSocket(MastermindError):
 
 class MastermindWarning(object):
     def __init__(self,error_message):
-        print(error_message)
+        self._log = logging.getLogger( "network" )
+        self._log.warn(error_message)
 class MastermindWarningClient(MastermindWarning):
     def __init__(self,error_message): MastermindWarning.__init__(self,error_message)
 class MastermindWarningServer(MastermindWarning):

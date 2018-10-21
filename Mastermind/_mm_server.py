@@ -160,7 +160,8 @@ class MastermindServerTCP(MastermindServerBase):
 
             connected_socket,address = self._mm_unconnected_socket.accept()
             connection = MastermindConnectionThreadTCP(self, connected_socket,address)
-            connection.thread = threading.Thread(target=connection.run_forever)
+            connection.thread = threading.Thread(target=connection.run_forever,
+                                                 name='TCPClientThread-{}'.format(address))
             connection.thread.start()
             while not connection.handling: pass
             self._mm_connections[address] = connection
