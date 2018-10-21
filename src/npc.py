@@ -3,10 +3,11 @@
 # forts are mini-cities that get built over time by factions.
 from creature import Creature
 
+
 class Npc(Creature):
     def __init__(self):
         Creature.__init__(self)
-        self.wanted_item_pos = None # Position(x,y,z)
+        self.wanted_item_pos = None  # Position(x,y,z)
         self.guard_pos = None
         self.goal = None
         self.fetching_item = False
@@ -16,5 +17,4 @@ class Npc(Creature):
         self.marked_for_death = False
         self.dead = False
         self.mission = None
-
 
