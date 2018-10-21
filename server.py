@@ -137,7 +137,8 @@ class Server(MastermindServerTCP):
                                     bodypart.slot1 = Item(item_ident, self.ItemManager.ITEM_TYPES[item_ident]) # need to pass the reference to load the item with data.
                                 break
                     else:
-                        print('WARNING: character needed an item but no free slots found')
+                        self._log.warn('character needed an item but no free slots found')
+#                        print('WARNING: character needed an item but no free slots found')
             elif(key == 'items_in_containers'): # load the items_in_containers into their containers we just created.
                 for location_ident, item_ident in value.items():
                     # first find the location_ident so we can load a new item into it.
@@ -151,7 +152,8 @@ class Server(MastermindServerTCP):
         self._log.info('New character joined: {}'.format( self.character[ident].name))
 
     def callback_client_handle(self, connection_object, data):
-        print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
+        self._log.debug("Server: Recieved data {} from client {}.".format(data, connection_object.address))
+#        print("Server: Recieved data \""+str(data)+"\" from client \""+str(connection_object.address)+"\".")
         # use the data to determine what character is giving the command and if they are logged in yet.
 
         if(isinstance(data, Command)): # the data we recieved was a command. process it.
@@ -372,11 +374,11 @@ class Server(MastermindServerTCP):
         return super(Server, self).callback_client_send(connection_object, data, compression)
 
     def callback_connect_client(self, connection_object):
-        print("Server: Client from \""+str(connection_object.address)+"\" connected.")
+        self._log.info("Server: Client from {} connected.".format(connection_object.address))
         return super(Server, self).callback_connect_client(connection_object)
 
     def callback_disconnect_client(self, connection_object):
-        print("Server: Client from \""+str(connection_object.address)+"\" disconnected.")
+        self._log.info("Server: Client from {} disconnected.".format(connection_object.address))
         return super(Server, self).callback_disconnect_client(connection_object)
 
     def process_creature_command_queue(self, creature):
@@ -562,7 +564,7 @@ if __name__ == "__main__":
     last_turn_time = time.time()
     server.generate_and_apply_city_layout(1)
 
-    print('Started up Cataclysm: Looming Darkness Server.')
+    log.info('Started up Cataclysm: Looming Darkness Server.')
     while dont_break:
         try:
             while(time.time() - last_turn_time < time_offset): # try to keep up with the time offset but never go faster than it.
