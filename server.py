@@ -213,73 +213,76 @@ class Server(MastermindServerTCP):
             )
         )
         # use the data to determine what character is giving the command and if they are logged in yet.
-
-        if isinstance(data, Command):  # the data we recieved was a command. process it.
-            if data.command == "login":
+        try:
+            _command = Command(data["ident"], data["command"], data["args"])
+        except:
+            self._log.debug(
+                "Server: invalid data {} from client {}.".format(
+                    data, connection_object.address
+                )
+            )
+        if isinstance(_command, Command):  # we recieved a command. process it.
+            if _command["command"] == "login":
                 if (
-                    data.args[0] == "password"
+                    _command["args"][0] == "password"
                 ):  # TODO: put an actual password system in.
-                    print("password accepted for " + str(data.ident))
-                    if (
-                        not data.ident in self.characters
-                    ):  # this character doesn't exist in the world yet.
-                        # check and see if the characters has logged in before.
-                        tmp_character = self.worldmap.get_character(
-                            data.ident
-                        )  # by 'name'
-                        if tmp_character is not None:  # character exists
-                            print("character exists. loading.")
-                            self.characters[data.ident] = tmp_character
-                            self.characters[
-                                data.ident
-                            ].position = tmp_character.position
-                            self.localmaps[
-                                data.ident
-                            ] = self.worldmap.get_chunks_near_position(
-                                self.characters[data.ident].position
-                            )
-                        else:  # new character
-                            self.handle_new_character(data.ident)
-
-                    print(
-                        "character "
-                        + str(self.characters[data.ident])
-                        + " entered the world at position "
-                        + str(self.characters[data.ident].position)
-                    )
-                    self.callback_client_send(
-                        connection_object, self.characters[data.ident]
-                    )
+                    print("password accepted for " + str(_command["ident"]))
                 else:
                     print("password not accepted.")
                     connection_object.disconnect()
 
-            if data.command == "request_character_update":
+            if _command["command"] == "request_character_add_to_world":
+                if not data.ident in self.characters:
+                    # this character doesn't exist in the world yet.
+                    # check and see if the characters has logged in before.
+                    tmp_character = self.worldmap.get_character(data.ident)
+                    if tmp_character is not None:  # character exists
+                        print("character exists. loading.")
+                        self.characters[data.ident] = tmp_character
+                        self.characters[data.ident].position = tmp_character.position
+                        self.localmaps[
+                            data.ident
+                        ] = self.worldmap.get_chunks_near_position(
+                            self.characters[data.ident].position
+                        )
+                    else:  # new character
+                        self.handle_new_character(data.ident)
+
+                self._log.debug(
+                    "Server: character logged in {} from client {}.".format(
+                        character.name, connection_object.address
+                    )
+                )
                 self.callback_client_send(
                     connection_object, self.characters[data.ident]
                 )
 
-            if data.command == "request_localmap_update":
+            if _command["command"] == "request_character_update":
+                self.callback_client_send(
+                    connection_object, self.characters[data.ident]
+                )
+
+            if _command["command"] == "request_localmap_update":
                 self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(
                     self.characters[data.ident].position
                 )
                 self.callback_client_send(connection_object, self.localmaps[data.ident])
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
-            if data.command == "ping":
+            if _command["command"] == "ping":
                 self.callback_client_send(connection_object, "pong")
 
-            if data.command == "move":
+            if _command["command"] == "move":
                 self.characters[data.ident].command_queue.append(
                     Action(self.characters[data.ident], "move", [data.args[0]])
                 )
 
-            if data.command == "bash":
+            if _command["command"] == "bash":
                 self.characters[data.ident].command_queue.append(
                     Action(self.characters[data.ident], "bash", [data.args[0]])
                 )
 
-            if data.command == "create_blueprint":  #  [result, direction])
+            if _command["command"] == "create_blueprint":  #  [result, direction])
                 # args 0 is ident args 1 is direction.
                 print(
                     "creating blueprint "
@@ -330,7 +333,7 @@ class Server(MastermindServerTCP):
                     bp_to_create, position_to_create_at
                 )
 
-            if data.command == "calculated_move":
+            if _command["command"] == "calculated_move":
                 self._log.debug(
                     "Recieved calculated_move action. Building a path for {}".format(
                         str(data.ident)
@@ -378,9 +381,8 @@ class Server(MastermindServerTCP):
                     _y = _next_y
                     _z = _next_z
 
-            if (
-                data.command == "move_item_to_character_storage"
-            ):  # when the character clicked on a ground item.
+            # when the character clicked on a ground item.
+            if _command["command"] == "move_item_to_character_storage":
                 print("RECIEVED: move_item_to_character_storage", str(data))
                 _character = self.characters[data.ident]
                 _from_pos = Position(data.args[0], data.args[1], data.args[2])
@@ -395,9 +397,8 @@ class Server(MastermindServerTCP):
                         _from_item = item  # save a reference to it to use.
                         break
 
-                if (
-                    _from_item == None
-                ):  # we didn't find one, character sent bad information (possible hack?)
+                # we didn't find one, character sent bad information (possible hack?)
+                if _from_item == None:
                     print("!!! _from_item not found. this is unusual.")
                     return
 
@@ -445,7 +446,7 @@ class Server(MastermindServerTCP):
                     ### then send the character the updated version of themselves so they can refresh.
             # end move_item_to_character_storage
 
-            if data.command == "move_item":
+            if _command["command"] == "move_item":
                 # client sends 'hey server. can you move this item from this to that?'
                 _character_requesting = self.characters[data.ident]
                 _item = data.args[0]  # the item we are moving.
