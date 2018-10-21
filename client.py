@@ -143,9 +143,6 @@ class ConnectButton(glooey.Button):
         super().__init__(text)
 
 
-# Use pyglet to create a window as usual.
-
-
 class ServerListButton(glooey.Button):
     class MyLabel(glooey.Label):
         custom_color = "#babdb6"
@@ -174,9 +171,7 @@ class LoginWindow(pyglet.window.Window):
         pyglet.window.Window.__init__(self, 854, 480)
         self.username = InputBox()
         self.password = InputBox()
-        self.username.push_handlers(
-            on_unfocus=lambda w: print(f"First Name: '{w.text}'")
-        )
+        self.username.push_handlers(on_unfocus=lambda w: print(f"username: '{w.text}'"))
         self.password.push_handlers(
             on_unfocus=lambda w: print(f"password: ***************")
         )
@@ -227,7 +222,6 @@ class LoginWindow(pyglet.window.Window):
         self.serverList = client_data["serverList"]
 
         connectButton = ConnectButton("Connect")
-        connectButton.push_handlers(on_click=self.connect)
         self.grid[6, 1] = connectButton
 
         serverListScrollBox = CustomScrollBox()
@@ -245,10 +239,6 @@ class LoginWindow(pyglet.window.Window):
         self.gui.add(self.grid)
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
-
-    def connect(self, args):
-        name = self.username.text
-        print("username:", name)
 
     def set_host_and_port_InputBoxes(self, server_and_port):
         print(server_and_port)
@@ -306,6 +296,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
+        self.username = ""
         self.RecipeManager = (
             RecipeManager()
         )  # contains all the known recipes in the game. for reference.
@@ -321,14 +312,64 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
         self.LoginWindow = LoginWindow()
+        self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
+
+    # if we recieve an update from the server process it. do this first.
+    # We always start out at the login window.
+    # once we recieve a list of characters SWITCH to the character select view.
+    # once the user selects a character ask the server to login into the world with it.
+    # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
+    def check_messages_from_server(self, dt):
+        next_update = client.receive(False)
+        if next_update is not None:
+            print(
+                "--next_update--"
+            )  # we recieved a message from the server. let's process it.
+            print(type(next_update))
+            # if(isinstance(next_update, Character)):
+            # print('got playerupdate')
+            #    client.character = next_update # client.character is updated
+            # elif(isinstance(next_update, list)): # this is the list of chunks for the localmap
+            # print('got local mapupdate')
+            #    client.localmap = client.convert_chunks_to_localmap(next_update)
+            #    client.character = client.find_character_in_localmap()
+            #    client.update_map_for_position(client.character.position)
+            # client.draw_view_at_position(client.character.position) # update after everything is complete.
+
+    def login(self, dt):
+        # we'll do the below to login and recieve a list of characters.
+        self.connect(
+            self.LoginWindow.serverIP.text, int(self.LoginWindow.serverPort.text)
+        )
+        command = Command(
+            self.LoginWindow.username.text, "login", ["password"]
+        )  # TODO: hashed and salted passwords.
+        self.send(command)
+        """
+        command = Command(self.LoginWindow.character.name, "request_localmap_update")
+        self.send(command)
+        """
+        command = None
+        # -------------------------------------------------------
+        clock.schedule_interval(self.check_messages_from_server, 0.25)
+        clock.schedule_interval(
+            self.ping, 30.0
+        )  # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server.
+
+    def ping(self, dt):
+        command = Command(client.character.name, "ping")
+        client.send(command)
+
+        """
         # after the player logs in a character need to open the mainWindow
-        @self.LoginWindow.event
+        @self.mainWindow.event
         def on_key_press(symbol, modifiers):
             if symbol == KEY.RETURN:
                 print("return")
             if symbol == KEY.W:
                 command = Command(self.character.name, "move", ["north"])
                 client.send(command)
+        """
 
     def find_character_in_localmap(self):
         for tile in self.localmap:
@@ -554,58 +595,6 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 #   if we start a client directly
 #
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="Cataclysm LD Client")
-    parser.add_argument("--host", metavar="Host", help="Server host", default="0.0.0.0")
-    parser.add_argument(
-        "--port", metavar="Port", type=int, help="Server port", default=6317
-    )
-
-    args = parser.parse_args()
-    ip = args.host
-    port = args.port
-
-    # if we recieve an update from the server process it. do this first.
-    # We always start out at the login window.
-    # once we recieve a list of characters SWITCH to the character select view.
-    # once the user selects a character ask the server to login into the world with it.
-    # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
-    def check_messages_from_server(dt):
-        next_update = client.receive(False)
-        if next_update is not None:
-            print(
-                "--next_update--"
-            )  # we recieved a message from the server. let's process it.
-            print(type(next_update))
-            # if(isinstance(next_update, Character)):
-            # print('got playerupdate')
-            #    client.character = next_update # client.character is updated
-            # elif(isinstance(next_update, list)): # this is the list of chunks for the localmap
-            # print('got local mapupdate')
-            #    client.localmap = client.convert_chunks_to_localmap(next_update)
-            #    client.character = client.find_character_in_localmap()
-            #    client.update_map_for_position(client.character.position)
-            # client.draw_view_at_position(client.character.position) # update after everything is complete.
-
-    def login():
-        # we'll do the below to login and recieve a list of characters.
-        client.connect(ip, port)
-        command = Command(
-            client.character.name, "login", ["password"]
-        )  # TODO: hashed and salted passwords.
-        client.send(command)
-        command = Command(client.character.name, "request_localmap_update")
-        client.send(command)
-        command = None
-        # -------------------------------------------------------
-        clock.schedule_interval(check_messages_from_server, 0.25)
-        clock.schedule_interval(
-            ping, 30.0
-        )  # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server.
-
-    def ping(dt):
-        command = Command(client.character.name, "ping")
-        client.send(command)
 
     client = Client()
 
