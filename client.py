@@ -336,7 +336,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 if tile["creature"].name == self.character.name:
                     return tile["creature"]
         else:
-            print("couldn't find player")
+            print("couldn't find character")
 
     def convert_chunks_to_localmap(self, list_of_chunks):
         tiles = []
