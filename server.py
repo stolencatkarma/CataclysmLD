@@ -204,7 +204,7 @@ class Server(MastermindServerTCP):
                                     )
                                 )
 
-        self._log.info("New character joined: {}".format(self.characters[ident].name))
+        self._log.info("New character added to world: {}".format(self.characters[ident].name))
 
     def callback_client_handle(self, connection_object, data):
         self._log.debug(
@@ -212,7 +212,7 @@ class Server(MastermindServerTCP):
                 data, connection_object.address
             )
         )
-        # use the data to determine what character is giving the command and if they are logged in yet.
+
         try:
             _command = Command(data["ident"], data["command"], data["args"])
         except:
@@ -221,65 +221,86 @@ class Server(MastermindServerTCP):
                     data, connection_object.address
                 )
             )
-        if isinstance(_command, Command):  # we recieved a command. process it.
+            return
+
+        # we recieved a valid command. process it.
+        if isinstance(_command, Command):
             if _command["command"] == "login":
-                if (
-                    _command["args"][0] == "password"
-                ):  # TODO: put an actual password system in.
+                # check whether this username has an account.
+                try:
+                    for root, dirs, files in os.walk("./accounts/"):
+                        if dirs == _command["ident"]:
+                            print("username already exists.")
+                except:
+                    print("username doesn't have an account. let's set one up.")
+
+                # TODO: put an actual password system in.
+                if _command["args"][0] == "password":
                     print("password accepted for " + str(_command["ident"]))
+                    # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
+                    _tmp_list = list()
+                    # if there are no characters to add the list remains empty.
+
+                    for root, dirs, files in os.walk(
+                        "./accounts/" + _command["ident"] + "/characters/"
+                    ):
+                        for file_data in files:
+                            if file_data.endswith(".character"):
+                                with open(
+                                    root + "/ " + file_data, encoding="utf-8"
+                                ) as data_file:
+                                    data = json.load(data_file)
+                                    _tmp_list.append(data)
+
+                    self.callback_client_send(connection_object, _tmp_list)
                 else:
                     print("password not accepted.")
                     connection_object.disconnect()
 
-            if _command["command"] == "request_character_add_to_world":
-                if not data.ident in self.characters:
+            if _command["command"] == "create_new_character":
+                if not data["ident"] in self.characters:
                     # this character doesn't exist in the world yet.
-                    # check and see if the characters has logged in before.
-                    tmp_character = self.worldmap.get_character(data.ident)
-                    if tmp_character is not None:  # character exists
-                        print("character exists. loading.")
-                        self.characters[data.ident] = tmp_character
-                        self.characters[data.ident].position = tmp_character.position
-                        self.localmaps[
-                            data.ident
-                        ] = self.worldmap.get_chunks_near_position(
-                            self.characters[data.ident].position
+                    self.handle_new_character(data["ident"])
+                    self._log.debug(
+                        "Server: character created: {} From client {}.".format(
+                            tmp_character.name, connection_object.address
                         )
-                    else:  # new character
-                        self.handle_new_character(data.ident)
-
-                self._log.debug(
-                    "Server: character logged in {} from client {}.".format(
-                        character.name, connection_object.address
                     )
-                )
-                self.callback_client_send(
-                    connection_object, self.characters[data.ident]
-                )
+                    self.callback_client_send(
+                        connection_object, "character added sucessfully."
+                    )
+                else:
+                    self._log.debug(
+                        "Server: character NOT created. Already Exists.: {} From client {}.".format(
+                            tmp_character.name, connection_object.address
+                        )
+                    )
 
             if _command["command"] == "request_character_update":
                 self.callback_client_send(
-                    connection_object, self.characters[data.ident]
+                    connection_object, self.characters[data["ident"]]
                 )
 
             if _command["command"] == "request_localmap_update":
-                self.localmaps[data.ident] = self.worldmap.get_chunks_near_position(
-                    self.characters[data.ident].position
+                self.localmaps[data["ident"]] = self.worldmap.get_chunks_near_position(
+                    self.characters[data["ident"]].position
                 )
-                self.callback_client_send(connection_object, self.localmaps[data.ident])
+                self.callback_client_send(
+                    connection_object, self.localmaps[data["ident"]]
+                )
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
             if _command["command"] == "ping":
                 self.callback_client_send(connection_object, "pong")
 
             if _command["command"] == "move":
-                self.characters[data.ident].command_queue.append(
-                    Action(self.characters[data.ident], "move", [data.args[0]])
+                self.characters[data["ident"]].command_queue.append(
+                    Action(self.characters[data["ident"]], "move", [data.args[0]])
                 )
 
             if _command["command"] == "bash":
-                self.characters[data.ident].command_queue.append(
-                    Action(self.characters[data.ident], "bash", [data.args[0]])
+                self.characters[data["ident"]].command_queue.append(
+                    Action(self.characters[data["ident"]], "bash", [data.args[0]])
                 )
 
             if _command["command"] == "create_blueprint":  #  [result, direction])
@@ -288,11 +309,11 @@ class Server(MastermindServerTCP):
                     "creating blueprint "
                     + str(data.args[0])
                     + " for character "
-                    + str(self.characters[data.ident])
+                    + str(self.characters[data["ident"]])
                 )
                 self._log.info(
                     "creating blueprint {} for character {}".format(
-                        str(data.args[0]), str(self.characters[data.ident])
+                        str(data.args[0]), str(self.characters[data["ident"]])
                     )
                 )
                 # blueprint rules
@@ -302,27 +323,27 @@ class Server(MastermindServerTCP):
                 position_to_create_at = None
                 if data.args[1] == "south":
                     position_to_create_at = Position(
-                        self.characters[data.ident].position.x,
-                        self.characters[data.ident].position.y + 1,
-                        self.characters[data.ident].position.z,
+                        self.characters[data["ident"]].position.x,
+                        self.characters[data["ident"]].position.y + 1,
+                        self.characters[data["ident"]].position.z,
                     )
                 elif data.args[1] == "north":
                     position_to_create_at = Position(
-                        self.characters[data.ident].position.x,
-                        self.characters[data.ident].position.y - 1,
-                        self.characters[data.ident].position.z,
+                        self.characters[data["ident"]].position.x,
+                        self.characters[data["ident"]].position.y - 1,
+                        self.characters[data["ident"]].position.z,
                     )
                 elif data.args[1] == "east":
                     position_to_create_at = Position(
-                        self.characters[data.ident].position.x + 1,
-                        self.characters[data.ident].position.y,
-                        self.characters[data.ident].position.z,
+                        self.characters[data["ident"]].position.x + 1,
+                        self.characters[data["ident"]].position.y,
+                        self.characters[data["ident"]].position.z,
                     )
                 elif data.args[1] == "west":
                     position_to_create_at = Position(
-                        self.characters[data.ident].position.x - 1,
-                        self.characters[data.ident].position.y,
-                        self.characters[data.ident].position.z,
+                        self.characters[data["ident"]].position.x - 1,
+                        self.characters[data["ident"]].position.y,
+                        self.characters[data["ident"]].position.z,
                     )
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[data.args[0]]
@@ -336,25 +357,25 @@ class Server(MastermindServerTCP):
             if _command["command"] == "calculated_move":
                 self._log.debug(
                     "Recieved calculated_move action. Building a path for {}".format(
-                        str(data.ident)
+                        str(data["ident"])
                     )
                 )
 
                 _position = Position(data.args[0], data.args[1], data.args[2])
                 _route = self.calculate_route(
-                    self.characters[data.ident].position, _position
+                    self.characters[data["ident"]].position, _position
                 )  # returns a route from point 0 to point 1 as a series of Position(s)
                 print(_route)
                 self._log.debug(
                     "Calculated route for Character {}: {}".format(
-                        self.characters[data.ident], _route
+                        self.characters[data["ident"]], _route
                     )
                 )
 
                 # fill the queue with move commands to reach the tile.
-                _x = self.characters[data.ident].position.x
-                _y = self.characters[data.ident].position.y
-                _z = self.characters[data.ident].position.z
+                _x = self.characters[data["ident"]].position.x
+                _y = self.characters[data["ident"]].position.y
+                _z = self.characters[data["ident"]].position.z
                 action = None
                 if _route is None:
                     self._log.debug("No _route possible.")
@@ -364,27 +385,36 @@ class Server(MastermindServerTCP):
                     _next_y = step.y
                     _next_z = step.z
                     if _x > _next_x:
-                        action = Action(self.characters[data.ident], "move", ["west"])
+                        action = Action(
+                            self.characters[data["ident"]], "move", ["west"]
+                        )
                     elif _x < _next_x:
-                        action = Action(self.characters[data.ident], "move", ["east"])
+                        action = Action(
+                            self.characters[data["ident"]], "move", ["east"]
+                        )
                     elif _y > _next_y:
-                        action = Action(self.characters[data.ident], "move", ["north"])
+                        action = Action(
+                            self.characters[data["ident"]], "move", ["north"]
+                        )
                     elif _y < _next_y:
-                        action = Action(self.characters[data.ident], "move", ["south"])
+                        action = Action(
+                            self.characters[data["ident"]], "move", ["south"]
+                        )
                     elif _z < _next_z:
-                        action = Action(self.characters[data.ident], "move", ["up"])
+                        action = Action(self.characters[data["ident"]], "move", ["up"])
                     elif _z > _next_z:
-                        action = Action(self.characters[data.ident], "move", ["down"])
-                    self.characters[data.ident].command_queue.append(action)
+                        action = Action(
+                            self.characters[data["ident"]], "move", ["down"]
+                        )
+                    self.characters[data["ident"]].command_queue.append(action)
                     # pretend as if we are in the next position.
                     _x = _next_x
                     _y = _next_y
                     _z = _next_z
 
-            # when the character clicked on a ground item.
             if _command["command"] == "move_item_to_character_storage":
                 print("RECIEVED: move_item_to_character_storage", str(data))
-                _character = self.characters[data.ident]
+                _character = self.characters[data["ident"]]
                 _from_pos = Position(data.args[0], data.args[1], data.args[2])
                 _item_ident = data.args[3]
                 _from_item = None
@@ -444,11 +474,10 @@ class Server(MastermindServerTCP):
                     else:
                         print("could not add item to character inventory.")
                     ### then send the character the updated version of themselves so they can refresh.
-            # end move_item_to_character_storage
 
             if _command["command"] == "move_item":
                 # client sends 'hey server. can you move this item from this to that?'
-                _character_requesting = self.characters[data.ident]
+                _character_requesting = self.characters[data["ident"]]
                 _item = data.args[0]  # the item we are moving.
                 _from_type = data.args[
                     1

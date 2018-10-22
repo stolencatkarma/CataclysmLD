@@ -321,10 +321,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
     # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
     def check_messages_from_server(self, dt):
         next_update = client.receive(False)
+        # we recieved a message from the server. let's process it.
         if next_update is not None:
-            print(
-                "--next_update--"
-            )  # we recieved a message from the server. let's process it.
+            print("--next_update--")
             print(type(next_update))
             # if(isinstance(next_update, Character)):
             # print('got playerupdate')
