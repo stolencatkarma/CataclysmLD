@@ -204,7 +204,9 @@ class Server(MastermindServerTCP):
                                     )
                                 )
 
-        self._log.info("New character added to world: {}".format(self.characters[ident].name))
+        self._log.info(
+            "New character added to world: {}".format(self.characters[ident].name)
+        )
 
     def callback_client_handle(self, connection_object, data):
         self._log.debug(
@@ -227,12 +229,27 @@ class Server(MastermindServerTCP):
         if isinstance(_command, Command):
             if _command["command"] == "login":
                 # check whether this username has an account.
-                try:
-                    for root, dirs, files in os.walk("./accounts/"):
-                        if dirs == _command["ident"]:
-                            print("username already exists.")
-                except:
+                print("checking validity of account.")
+                # try:
+                if os.path.isdir("./accounts/" + _command["ident"]):
+                    print("username already exists.")
+                else:
                     print("username doesn't have an account. let's set one up.")
+                    _path = "./accounts/" + _command["ident"]
+                    try:
+                        os.mkdir(_path)
+                    except OSError:
+                        print("Creation of the directory %s failed" % _path)
+                    else:
+                        print("Successfully created the directory %s " % _path)
+
+                    _path = "./accounts/" + _command["ident"] + "/characters/"
+                    try:
+                        os.mkdir(_path)
+                    except OSError:
+                        print("Creation of the directory %s failed" % _path)
+                    else:
+                        print("Successfully created the directory %s " % _path)
 
                 # TODO: put an actual password system in.
                 if _command["args"][0] == "password":
