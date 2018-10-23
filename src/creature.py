@@ -20,16 +20,15 @@ class Creature:
         self.stats["perception"]["max"] = 20
         self.stats["constitution"]["base"] = 8
         self.stats["constitution"]["max"] = 20
-        self.known_recipes = (
-            []
-        )  # known_recipes[0] = Recipe(ident, favorite) -  pull full recipe info from RecipeManager['ident'] - NPCs may know recipes that's why its in Creature
-        self.command_queue = (
-            []
-        )  # what each creature wants to do this turn and the upcoming turns. contains a list of Action(s) that are processed by the server.
+        # known_recipes[0] = Recipe(ident, favorite) -  pull full recipe info from RecipeManager['ident'] - NPCs may know recipes that's why its in Creature
+        self.known_recipes = list()
+        # what each creature wants to do this turn and the upcoming turns. contains a list of Action(s) that are processed by the server.
+        self.command_queue = list()
         self.gender = "male"
         self.radiation = 0  # radiation level. hurts some helps others.
-        self.name = None  # is optional
-        self.affected_by = []  # TODO: create afflictions.
+        # name is optional here. characters and most NPCs would have a name.
+        self.name = None
+        self.affected_by = list()  # TODO: create afflictions.
         self.in_vehicle = False  # other wise have a reference to the vehicle it's in.
         self.controlling_vehicle = False
         self.possible_actions = [
@@ -70,6 +69,5 @@ class Creature:
             Bodypart("HAND_LEFT"),
             Bodypart("HAND_RIGHT"),
         ]
-        self.grabbed = (
-            None
-        )  # the 'special' area where items held on the mouse cursor are stored.
+        # the 'special' area where items held on the mouse cursor are stored.
+        self.grabbed = None

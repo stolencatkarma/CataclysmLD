@@ -280,7 +280,7 @@ class Server(MastermindServerTCP):
                     self.handle_new_character(data["ident"])
                     self._log.debug(
                         "Server: character created: {} From client {}.".format(
-                            tmp_character.name, connection_object.address
+                            data["ident"], connection_object.address
                         )
                     )
                     self.callback_client_send(
@@ -289,7 +289,7 @@ class Server(MastermindServerTCP):
                 else:
                     self._log.debug(
                         "Server: character NOT created. Already Exists.: {} From client {}.".format(
-                            tmp_character.name, connection_object.address
+                            data["ident"], connection_object.address
                         )
                     )
 

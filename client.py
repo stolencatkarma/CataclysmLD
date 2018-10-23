@@ -248,8 +248,47 @@ class LoginWindow(pyglet.window.Window):
 
 # The window that let's the user select a character or leads to a Window where you can generate a new one.
 class CharacterSelectWindow(pyglet.window.Window):
-    def __init__(self):
+    def __init__(self, list_of_characters):
         pyglet.window.Window.__init__(self, 854, 480)
+
+        self.gui = glooey.Gui(self)
+        self.grid = glooey.Grid(0, 0, 0, 0)
+        self.grid.padding = 16
+        self.bg = glooey.Background()
+        self.bg.set_appearance(
+            center=pyglet.resource.texture("center.png"),
+            top=pyglet.resource.texture("top.png"),
+            bottom=pyglet.resource.texture("bottom.png"),
+            left=pyglet.resource.texture("left.png"),
+            right=pyglet.resource.texture("right.png"),
+            top_left=pyglet.resource.texture("top_left.png"),
+            top_right=pyglet.resource.texture("top_right.png"),
+            bottom_left=pyglet.resource.texture("bottom_left.png"),
+            bottom_right=pyglet.resource.texture("bottom_right.png"),
+        )
+
+        self.gui.add(self.bg)
+
+        self.titleLabel = glooey.Label("Please Select or Create a Character.")
+
+        self.grid[0, 1] = self.titleLabel
+
+        characterListScrollBox = CustomScrollBox()
+        characterListScrollBox.size_hint = 100, 100
+        vbox_for_characterlist = glooey.VBox(0)
+        for character in list_of_characters:
+            _button = characterListButton(character)
+            _button.push_handlers(on_click=self.select_character)
+            vbox_for_characterlist.add(_button)
+        serverListScrollBox.add(vbox_for_characterlist)
+        self.grid[2, 0] = serverListScrollBox
+
+        self.gui.add(self.grid)
+        # self.grid.debug_drawing_problems()
+        # self.grid.debug_placement_problems()
+
+    def select_character(self):
+        pass
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -297,16 +336,12 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
         self.username = ""
-        self.RecipeManager = (
-            RecipeManager()
-        )  # contains all the known recipes in the game. for reference.
-        self.character = (
-            Character()
-        )  # recieves updates from server. the player and all it's stats.
+        # contains all the known recipes in the game. for reference.
+        self.RecipeManager = RecipeManager()
+        # recieves updates from server. the player and all it's stats.
+        self.character = None
         self.localmap = None
-        self.hotbars = []
-
-        # self.hotbars.insert(0, Hotbar(self.screen, 10, 10))
+        self.hotbars = []  # TODO: remake in pyglet.
 
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
