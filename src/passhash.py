@@ -1,44 +1,46 @@
-# Utility functions for managing salted hash passwords
 import os
 import hashlib
 
+# server has SALT and HASHED_PASSWORD
+# client has password but needs SALT
 
-# Simply pass in a raw text password. The output is a salted, hashed
-# password. Note, this function generates different output with every
-# call, even with identical inputs. Which is, after all, entirely
-# purpose of a salted hash password. Which is why the salt is part
-# of the output. The output should be securely stored in its entirety.
-def hashPassword(password):
-    salt = hashlib.sha256()
-    salt.update(os.urandom(60))
-    hexSalt = salt.hexdigest()
 
+def makeSalt():
+    _salt = hashlib.sha256()
+    _salt.update(os.urandom(60))
+    # print(_salt.hexdigest())
+    return _salt.hexdigest()
+
+
+def hashPassword(password, salt):
     hash = hashlib.sha256()
-    hash.update((password + hexSalt).encode("utf-8"))
-    hexHash = hash.hexdigest()
-    newPass = hexSalt + hexHash
-
-    return newPass
-
-
-# This function accepts a raw text password and the stored
-# salted hash password it is to be compared. Returns
-# true if the password matches. False if they do not.
-def validatePassword(password, saltedHash):
-    salt = saltedHash[:64]
-    saltedPass = password + salt
-
-    hash = hashlib.sha256()
-    hash.update(saltedPass.encode("utf-8"))
-    calcSaltedHash = hash.hexdigest()
-
-    return saltedHash[64:] == calcSaltedHash
+    hash.update((password + salt).encode("utf-8"))
+    return hash.hexdigest()
 
 
 if __name__ == "__main__":
-    password = "hownowbrowncow"
-    saltedHash = hashPassword(password)
-    print(saltedHash)
-    print("EQUAL TRUE: {}".format(validatePassword(password, saltedHash)))
-    print("EQUAL FALSE: {}".format(validatePassword(password * 2, saltedHash)))
+    _salt = makeSalt()
+    print("hashed:", hashPassword("password", _salt))
 
+
+# login process
+# client logs in with username -> server sends SALT -> client sends back (hash(password + SALT)) -> server verifies against HASHED_PASSWORD
+# at no time does the server or client send or recieve a plain text password.
+
+# creation process
+# server doesn't know about username
+# user logs in and sends username
+# if no account exists by that name create salt and send it.
+# if client recieves salt ask if this is new user. if no, return and restart login.
+# if yes, hash and salt the password and send to server.
+# server stores hashed password along with the salt it generated.
+
+# /accounts/username/SALT
+# /accounts/username/HASHED_PASSWORD
+# /accounts/username/character_name1.character
+# /accounts/username/character_name2.character
+# server.usernames[0].SALT
+# server.usernames[0].HASHED_PASSWORD
+# client.username
+# client.password
+# client.SALT (recieves from server on login)

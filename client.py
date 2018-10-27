@@ -142,11 +142,31 @@ class ConnectButton(glooey.Button):
     def __init__(self, text):
         super().__init__(text)
 
+class CharacterListButton(glooey.Button):
+    class MyLabel(glooey.Label):
+        custom_color = "#babdb6"
+        custom_font_size = 14
+
+    Label = MyLabel
+    # custom_alignment = 'fill'
+    custom_height_hint = 12
+
+    class Base(glooey.Background):
+        custom_color = "#204a87"
+
+    class Over(glooey.Background):
+        custom_color = "#3465a4"
+
+    class Down(glooey.Background):
+        custom_color = "#729fcff"
+
+    def __init__(self, text):
+        super().__init__(text)
 
 class ServerListButton(glooey.Button):
     class MyLabel(glooey.Label):
         custom_color = "#babdb6"
-        custom_font_size = 14
+        custom_font_size = 12
 
     Label = MyLabel
     # custom_alignment = 'fill'
@@ -228,9 +248,8 @@ class LoginWindow(pyglet.window.Window):
         serverListScrollBox.size_hint = 100, 100
         vbox_for_serverlist = glooey.VBox(0)
         for server in self.serverList:
-            _button = ServerListButton(
-                server
-            )  # sets the active server to the one you press.
+            _button = ServerListButton(server)
+            # sets the active server to the one you press.
             _button.push_handlers(on_click=self.set_host_and_port_InputBoxes)
             vbox_for_serverlist.add(_button)
         serverListScrollBox.add(vbox_for_serverlist)
@@ -280,8 +299,8 @@ class CharacterSelectWindow(pyglet.window.Window):
             _button = characterListButton(character)
             _button.push_handlers(on_click=self.select_character)
             vbox_for_characterlist.add(_button)
-        serverListScrollBox.add(vbox_for_characterlist)
-        self.grid[2, 0] = serverListScrollBox
+        characterListScrollBox.add(vbox_for_characterlist)
+        self.grid[2, 0] = characterListScrollBox
 
         self.gui.add(self.grid)
         # self.grid.debug_drawing_problems()
@@ -360,6 +379,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         if next_update is not None:
             print("--next_update--")
             print(type(next_update))
+            if(isinstance(next_update, list)):
+                # list of chunks or list of characters?
+                print("list:", next_update)
             # if(isinstance(next_update, Character)):
             # print('got playerupdate')
             #    client.character = next_update # client.character is updated
@@ -386,9 +408,8 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         command = None
         # -------------------------------------------------------
         clock.schedule_interval(self.check_messages_from_server, 0.25)
-        clock.schedule_interval(
-            self.ping, 30.0
-        )  # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server.
+        # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
+        #clock.schedule_interval(self.ping, 30.0)
 
     def ping(self, dt):
         command = Command(client.character.name, "ping")

@@ -11,7 +11,6 @@ import configparser
 import logging.config
 from collections import defaultdict
 
-import src.global_vars
 from Mastermind._mm_server import MastermindServerTCP
 from src.action import Action
 from src.blueprint import Blueprint
@@ -51,17 +50,16 @@ class Server(MastermindServerTCP):
         else:
             self._log = logger
 
-        self.characters = (
-            dict()
-        )  # all the characters() that exist in the world whether connected or not.
+        # all the characters() that exist in the world whether connected or not.
+        self.characters = dict()
+
         self.localmaps = dict()  # the localmaps for each character.
         self.overmaps = dict()  # the dict of all overmaps by character.name
         # self.options = Options()
         self.calendar = Calendar(0, 0, 0, 0, 0, 0)  # all zeros is the epoch
         # self.options.save()
-        self.worldmap = Worldmap(
-            13
-        )  # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
+        # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
+        self.worldmap = Worldmap(13)
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
@@ -71,9 +69,8 @@ class Server(MastermindServerTCP):
     def get_connections(self):
         return self._mm_connections
 
-    def calculate_route(
-        self, pos0, pos1, consider_impassable=True
-    ):  # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
+    # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
+    def calculate_route(self, pos0, pos1, consider_impassable=True):
         reachable = [pos0]
         explored = []
 
@@ -242,6 +239,8 @@ class Server(MastermindServerTCP):
                         print("Creation of the directory %s failed" % _path)
                     else:
                         print("Successfully created the directory %s " % _path)
+
+                    
 
                     _path = "./accounts/" + _command["ident"] + "/characters/"
                     try:
