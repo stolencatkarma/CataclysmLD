@@ -272,30 +272,31 @@ class Server(MastermindServerTCP):
                         f.write(str(_command["args"][0]))
                 else:
                     print("password exists")
-                    with open(str(_path + "HASHED_PASSWORD")) as f:
-                        _checkPW = f.read()
-                        if _checkPW == _command["args"][0]:
-                            print("password accepted for " + str(_command["ident"]))
-                            # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
-                            _tmp_list = list()
-                            # if there are no characters to add the list remains empty.
+                    
+                with open(str(_path + "HASHED_PASSWORD")) as f:
+                    _checkPW = f.read()
+                    if _checkPW == _command["args"][0]:
+                        print("password accepted for " + str(_command["ident"]))
+                        # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
+                        _tmp_list = list()
+                        # if there are no characters to add the list remains empty.
 
-                            for root, dirs, files in os.walk(
-                                "./accounts/" + _command["ident"] + "/characters/"
-                            ):
-                                for file_data in files:
-                                    if file_data.endswith(".character"):
-                                        with open(
-                                            root + "/ " + file_data,
-                                            encoding="utf-8",
-                                        ) as data_file:
-                                            data = json.load(data_file)
-                                            _tmp_list.append(data)
+                        for root, dirs, files in os.walk(
+                            "./accounts/" + _command["ident"] + "/characters/"
+                        ):
+                            for file_data in files:
+                                if file_data.endswith(".character"):
+                                    with open(
+                                        root + "/ " + file_data,
+                                        encoding="utf-8",
+                                    ) as data_file:
+                                        data = json.load(data_file)
+                                        _tmp_list.append(data)
 
-                            self.callback_client_send(connection_object, _tmp_list)
-                        else:
-                            print("password not accepted.")
-                            connection_object.disconnect()
+                        self.callback_client_send(connection_object, _tmp_list)
+                    else:
+                        print("password not accepted.")
+                        connection_object.disconnect()
 
             if _command["command"] == "create_new_character":
                 if not data["ident"] in self.characters:

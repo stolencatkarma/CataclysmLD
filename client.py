@@ -242,6 +242,7 @@ class LoginWindow(pyglet.window.Window):
             client_data = json.load(f)
 
         self.username.text = client_data["username"]
+        self.password.text = client_data["password"]
         self.serverList = client_data["serverList"]
 
         connectButton = ConnectButton("Connect")
@@ -296,31 +297,29 @@ class CharacterSelectWindow(pyglet.window.Window):
         self.grid[0, 1] = self.titleLabel
 
         self.gui.add(self.grid)
+        self._draw()
 
     def fill_character_list(self, list_of_characters):
         characterListScrollBox = CustomScrollBox()
         characterListScrollBox.size_hint = 100, 100
         vbox_for_characterlist = glooey.VBox(0)
         for character in list_of_characters:
-            _button = characterListButton(character)
+            _button = CharacterListButton(character)
             _button.push_handlers(on_click=self.select_character)
             vbox_for_characterlist.add(_button)
         characterListScrollBox.add(vbox_for_characterlist)
         self.grid[2, 0] = characterListScrollBox
 
-       
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
 
     def select_character(self):
         pass
 
-    # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
-        # clock.schedule_interval(self.ping, 30.0)
 
-    def ping(self, dt):
-        command = Command(client.character.name, "ping")
-        client.send(command)
+    
+    def on_update(self, dt):
+        self._draw()
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -362,235 +361,249 @@ class mainWindow(pyglet.window.Window):
 
         # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
         # clock.schedule_interval(self.ping, 30.0)
+    def on_update(self, dt):
+        self._draw()
 
-        def ping(self, dt):
-            command = Command(client.character.name, "ping")
-            client.send(command)
+    def ping(self, dt):
+        command = Command(client.character.name, "ping")
+        client.send(command)
 
+    def find_character_in_localmap(self):
+        for tile in self.localmap:
+            if tile["creature"] is not None:
+                if tile["creature"].name == self.character.name:
+                    return tile["creature"]
+        else:
+            print("couldn't find character")
 
-        def find_character_in_localmap(self):
-            for tile in self.localmap:
-                if tile["creature"] is not None:
-                    if tile["creature"].name == self.character.name:
-                        return tile["creature"]
+    def convert_chunks_to_localmap(self, list_of_chunks):
+        tiles = []
+        for chunk in list_of_chunks:
+            for tile in chunk.tiles:
+                tiles.insert(len(tiles), tile)
+        return tiles
+
+    def lerp(self, start, end, t):
+        return start + t * (end - start)
+
+    def lerp_point(self, p0, p1, t):
+        return (int(self.lerp(p0[0], p1[0], t)), int(self.lerp(p0[1], p1[1], t)))
+
+    def diagonal_distance(self, p0, p1):
+        dx = p1[0] - p0[0]
+        dy = p1[1] - p0[1]
+        return max(abs(dx), abs(dy))
+
+    def line(self, p0, p1):
+        points = []
+        diagonal_distance = self.diagonal_distance(p0, p1)
+        for step in range(diagonal_distance):
+            points.append(self.lerp_point(p0, p1, step / diagonal_distance))
+        return points  # so now we have a set of points along a line.
+
+    def trim_localmap(self, origin_position, radius=10):
+        # origin_position = origin_position # store the player position for fov origin
+        # convert chunks to grid
+        level = defaultdict(dict)
+        for tile in self.localmap[:]:  # we only need the tiles around radius.
+            if (
+                int(tile["position"].x) < origin_position.x - radius
+                or int(tile["position"].x) > origin_position.x + radius + 1
+            ):
+                self.localmap.remove(tile)
+            elif (
+                int(tile["position"].y) < origin_position.y - radius
+                or int(tile["position"].y) > origin_position.y + radius + 1
+            ):
+                self.localmap.remove(tile)
             else:
-                print("couldn't find character")
+                level[str(tile["position"].x)][str(tile["position"].y)] = tile[
+                    "terrain"
+                ].impassable  # so either remove a tile or figure out if it's impassable.
 
-        def convert_chunks_to_localmap(self, list_of_chunks):
-            tiles = []
-            for chunk in list_of_chunks:
-                for tile in chunk.tiles:
-                    tiles.insert(len(tiles), tile)
-            return tiles
+        # draw a line to each edge of the viewport using grid_edges
+        # x's include top row and bottom rows, y's include min and max of viewport.
+        grid_edges = []
+        # now we have a level grid. let's get our edges so we can plot lines from origin to edge.
+        for x in range(
+            origin_position.x - radius, origin_position.x + radius + 1
+        ):  # X
+            grid_edges.append((x, origin_position.y - radius))
+            grid_edges.append((x, origin_position.y + radius))
+        for y in range(
+            origin_position.y - radius, origin_position.y + radius + 1
+        ):  # Y
+            grid_edges.append((origin_position.x - radius, y))
+            grid_edges.append((origin_position.x + radius, y))
+        # print('grid_edges: ' + str(len(grid_edges)))
 
-        def lerp(self, start, end, t):
-            return start + t * (end - start)
+        tiles_to_keep = []
+        # now we need to remove tiles which are out of our field of view.
+        for destination in grid_edges:
+            for point in self.line(
+                (origin_position.x, origin_position.y), destination
+            ):
+                if level[str(point[0])][str(point[1])] == True:  # (impassable)
+                    tiles_to_keep.append(
+                        point
+                    )  # do this to keep the blocking wall visible.
+                    break  # hit a wall. move on to the next ray.
+                else:
+                    tiles_to_keep.append(point)
 
-        def lerp_point(self, p0, p1, t):
-            return (int(self.lerp(p0[0], p1[0], t)), int(self.lerp(p0[1], p1[1], t)))
-
-        def diagonal_distance(self, p0, p1):
-            dx = p1[0] - p0[0]
-            dy = p1[1] - p0[1]
-            return max(abs(dx), abs(dy))
-
-        def line(self, p0, p1):
-            points = []
-            diagonal_distance = self.diagonal_distance(p0, p1)
-            for step in range(diagonal_distance):
-                points.append(self.lerp_point(p0, p1, step / diagonal_distance))
-            return points  # so now we have a set of points along a line.
-
-        def trim_localmap(self, origin_position, radius=10):
-            # origin_position = origin_position # store the player position for fov origin
-            # convert chunks to grid
-            level = defaultdict(dict)
-            for tile in self.localmap[:]:  # we only need the tiles around radius.
+        for tiles in self.localmap[:]:  # iterate a copy to remove correctly.
+            for point in tiles_to_keep:
                 if (
-                    int(tile["position"].x) < origin_position.x - radius
-                    or int(tile["position"].x) > origin_position.x + radius + 1
+                    tiles["position"].x == point[0]
+                    and tiles["position"].y == point[1]
                 ):
-                    self.localmap.remove(tile)
-                elif (
-                    int(tile["position"].y) < origin_position.y - radius
-                    or int(tile["position"].y) > origin_position.y + radius + 1
-                ):
-                    self.localmap.remove(tile)
-                else:
-                    level[str(tile["position"].x)][str(tile["position"].y)] = tile[
-                        "terrain"
-                    ].impassable  # so either remove a tile or figure out if it's impassable.
+                    break
+            else:
+                self.localmap.remove(tiles)
 
-            # draw a line to each edge of the viewport using grid_edges
-            # x's include top row and bottom rows, y's include min and max of viewport.
-            grid_edges = []
-            # now we have a level grid. let's get our edges so we can plot lines from origin to edge.
-            for x in range(origin_position.x - radius, origin_position.x + radius + 1):  # X
-                grid_edges.append((x, origin_position.y - radius))
-                grid_edges.append((x, origin_position.y + radius))
-            for y in range(origin_position.y - radius, origin_position.y + radius + 1):  # Y
-                grid_edges.append((origin_position.x - radius, y))
-                grid_edges.append((origin_position.x + radius, y))
-            # print('grid_edges: ' + str(len(grid_edges)))
+    def update_map_for_position(self, position):
+        if self.localmap is not None:
+            # our map_grid is 13x13 but our localmap contains 13*3 x 13*3 tiles worth of chunks so we need
+            # to draw the viewport from the position only 13x13
+            position = self.convert_position_to_local_coords(position)
+            # first set terrain to the terrain image
+            for tile in self.localmap:
+                _pos = self.convert_position_to_local_coords(
+                    tile["position"]
+                )  # (0-38, 0-38)
+                x = _pos.x - position.x + 6
+                y = _pos.y - position.y + 6
+                if x < 0 or x > 12:
+                    continue
+                if y < 0 or y > 12:
+                    continue
+                self.map_grid[x, y].set_image(
+                    pyglet.resource.texture(tile["terrain"].ident + ".png")
+                )  # must be (0-12, 0-12)
 
-            tiles_to_keep = []
-            # now we need to remove tiles which are out of our field of view.
-            for destination in grid_edges:
-                for point in self.line((origin_position.x, origin_position.y), destination):
-                    if level[str(point[0])][str(point[1])] == True:  # (impassable)
-                        tiles_to_keep.append(
-                            point
-                        )  # do this to keep the blocking wall visible.
-                        break  # hit a wall. move on to the next ray.
-                    else:
-                        tiles_to_keep.append(point)
-
-            for tiles in self.localmap[:]:  # iterate a copy to remove correctly.
-                for point in tiles_to_keep:
-                    if tiles["position"].x == point[0] and tiles["position"].y == point[1]:
-                        break
-                else:
-                    self.localmap.remove(tiles)
-
-        def update_map_for_position(self, position):
-            if self.localmap is not None:
-                # our map_grid is 13x13 but our localmap contains 13*3 x 13*3 tiles worth of chunks so we need
-                # to draw the viewport from the position only 13x13
-                position = self.convert_position_to_local_coords(position)
-                # first set terrain to the terrain image
-                for tile in self.localmap:
-                    _pos = self.convert_position_to_local_coords(
-                        tile["position"]
-                    )  # (0-38, 0-38)
-                    x = _pos.x - position.x + 6
-                    y = _pos.y - position.y + 6
-                    if x < 0 or x > 12:
-                        continue
-                    if y < 0 or y > 12:
-                        continue
+                # then overlay furniture on that.
+                if tile["furniture"] is not None:
                     self.map_grid[x, y].set_image(
-                        pyglet.resource.texture(tile["terrain"].ident + ".png")
-                    )  # must be (0-12, 0-12)
+                        pyglet.resource.texture(tile["furniture"].ident + ".png")
+                    )
 
-                    # then overlay furniture on that.
-                    if tile["furniture"] is not None:
-                        self.map_grid[x, y].set_image(
-                            pyglet.resource.texture(tile["furniture"].ident + ".png")
+                # then overlay items on that.
+                if tile["items"] is not None and len(tile["items"]) > 0:
+                    self.map_grid[x, y].set_image(
+                        pyglet.resource.texture(tile["items"][0].ident + ".png")
+                    )  # just show the first item
+
+                # then overlay creatures on that.
+                if tile["creature"] is not None:
+                    self.map_grid[x, y].set_image(
+                        pyglet.resource.texture(
+                            tile["creature"].tile_ident + ".png"
                         )
+                    )
 
-                    # then overlay items on that.
-                    if tile["items"] is not None and len(tile["items"]) > 0:
-                        self.map_grid[x, y].set_image(
-                            pyglet.resource.texture(tile["items"][0].ident + ".png")
-                        )  # just show the first item
+            print("FPS:", pyglet.clock.get_fps())
 
-                    # then overlay creatures on that.
-                    if tile["creature"] is not None:
-                        self.map_grid[x, y].set_image(
-                            pyglet.resource.texture(tile["creature"].tile_ident + ".png")
-                        )
+    def convert_position_to_local_coords(self, position):
+        # local coordinates are always from (0,0) to (chunk.size[1] * 3 , chunk.size[0] * 3)
+        # and must return a position within that size.
+        x = position.x
+        y = position.y
+        z = position.z
 
-                print("FPS:", pyglet.clock.get_fps())
+        while x >= self.chunk_size[0] * 3:
+            x = x - self.chunk_size[0] * 3
+        while y >= self.chunk_size[1] * 3:
+            y = y - self.chunk_size[1] * 3
 
-        def convert_position_to_local_coords(self, position):
-            # local coordinates are always from (0,0) to (chunk.size[1] * 3 , chunk.size[0] * 3)
-            # and must return a position within that size.
-            x = position.x
-            y = position.y
-            z = position.z
+        return Position(x, y, z)
 
-            while x >= self.chunk_size[0] * 3:
-                x = x - self.chunk_size[0] * 3
-            while y >= self.chunk_size[1] * 3:
-                y = y - self.chunk_size[1] * 3
+    def draw_view_at_position(self, draw_position):
+        # TODO: lerp the positions of creatures from one frame to the next.
+        self.trim_localmap(draw_position)  # update field of view and lighting
 
-            return Position(x, y, z)
+        # at this point the localmap should've been trimmed of unseeable tiles. draw what's left at position.
+        for tile in self.localmap:  # draw the localmap for the controlling player.
+            terrain = tile["terrain"]
+            position = tile["position"]  # Position(x, y, z)
+            creature = tile["creature"]  # Creature()
+            furniture = tile["furniture"]  # Furniture()
+            items = tile["items"]  # list [] of Item()
+            light_intensity = tile["lumens"]
 
-        def draw_view_at_position(self, draw_position):
-            # TODO: lerp the positions of creatures from one frame to the next.
-            self.trim_localmap(draw_position)  # update field of view and lighting
+            fg = self.TileManager.TILE_TYPES[terrain.ident]["fg"]
+            bg = self.TileManager.TILE_TYPES[terrain.ident]["bg"]
 
-            # at this point the localmap should've been trimmed of unseeable tiles. draw what's left at position.
-            for tile in self.localmap:  # draw the localmap for the controlling player.
-                terrain = tile["terrain"]
-                position = tile["position"]  # Position(x, y, z)
-                creature = tile["creature"]  # Creature()
-                furniture = tile["furniture"]  # Furniture()
-                items = tile["items"]  # list [] of Item()
-                light_intensity = tile["lumens"]
+            x = (
+                draw_position.x - position.x - (self.chunk_size[0] // 2)
+            )  # offset to put position in middle of viewport
+            y = (
+                draw_position.y - position.y - (self.chunk_size[1] // 2)
+            )  # offset to put position in middle of viewport
 
-                fg = self.TileManager.TILE_TYPES[terrain.ident]["fg"]
-                bg = self.TileManager.TILE_TYPES[terrain.ident]["bg"]
+            """# first blit terrain
+        
+            # then blit furniture
+        
 
-                x = (
-                    draw_position.x - position.x - (self.chunk_size[0] // 2)
-                )  # offset to put position in middle of viewport
-                y = (
-                    draw_position.y - position.y - (self.chunk_size[1] // 2)
-                )  # offset to put position in middle of viewport
+            # then blit items (if there is a pile of items check and see if any are blueprints. if so show those.)
+            if(len(items) > 0):
+                for item in items:
+                    # always show blueprints on top.
+                else:
+                    # only display the first item 
+        
+            # then blit vehicles
 
-                """# first blit terrain
-            
-                # then blit furniture
-            
+            # then blit player and creatures and monsters (all creature types)
+            """
+            # darken based on lumen level of the tile
+            # light_intensity # 10 is max light level although lumen level may be higher.
+            # light_intensity = min(int((255-(light_intensity*25))/3), 255)
+            # light_intensity = max(light_intensity, 0)
+            # self.screen.fill((light_intensity, light_intensity, light_intensity), rect=(x*24, y*24, 24, 24), special_flags=pygame.BLEND_SUB)
 
-                # then blit items (if there is a pile of items check and see if any are blueprints. if so show those.)
-                if(len(items) > 0):
-                    for item in items:
-                        # always show blueprints on top.
-                    else:
-                        # only display the first item 
-            
-                # then blit vehicles
+            # render debug text
 
-                # then blit player and creatures and monsters (all creature types)
-                """
-                # darken based on lumen level of the tile
-                # light_intensity # 10 is max light level although lumen level may be higher.
-                # light_intensity = min(int((255-(light_intensity*25))/3), 255)
-                # light_intensity = max(light_intensity, 0)
-                # self.screen.fill((light_intensity, light_intensity, light_intensity), rect=(x*24, y*24, 24, 24), special_flags=pygame.BLEND_SUB)
+            # then blit weather. Weather is the only thing above players and creatures.
+            # TODO: blit weather
 
-                # render debug text
+    def open_crafting_menu(self):
+        list_of_known_recipes = []
+        for (
+            key,
+            value,
+        ) in (
+            self.RecipeManager.RECIPE_TYPES.items()
+        ):  # TODO: Don't just add them all. Pull them from creature.known_recipes
+            list_of_known_recipes.append(value)
 
-                # then blit weather. Weather is the only thing above players and creatures.
-                # TODO: blit weather
+    def open_movement_menu(self, pos, tile):
+        # _command = Command(client.character.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
+        # return _command
+        pass
 
-        def open_crafting_menu(self):
-            list_of_known_recipes = []
-            for (
-                key,
-                value,
-            ) in (
-                self.RecipeManager.RECIPE_TYPES.items()
-            ):  # TODO: Don't just add them all. Pull them from creature.known_recipes
-                list_of_known_recipes.append(value)
+    def open_super_menu(self, pos, tile):
+        pass
 
-        def open_movement_menu(self, pos, tile):
-            # _command = Command(client.character.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
-            # return _command
-            pass
+    def open_blueprint_menu(self, pos, tile):
+        # blueprint_menu = Blueprint_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager)
+        pass
 
-        def open_super_menu(self, pos, tile):
-            pass
+    def open_equipment_menu(self):
+        # equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.character.body_parts)
+        pass
 
-        def open_blueprint_menu(self, pos, tile):
-            # blueprint_menu = Blueprint_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager)
-            pass
-
-        def open_equipment_menu(self):
-            # equipment_menu = Equipment_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager, self.character.body_parts)
-            pass
-
-        def open_items_on_ground(self, pos, tile):
-            # _command = Command(self.character.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
-            # return _command
-            pass
-
+    def open_items_on_ground(self, pos, tile):
+        # _command = Command(self.character.name, 'move_item_to_player_storage', (tile['position'].x, tile['position'].y, tile['position'].z, item.ident)) # ask the server to pickup the item by ident. #TODO: is there a better way to pass it to the server without opening ourselves up to cheating?
+        # return _command
+        pass
 
 
 class Client(MastermindClientTCP):  # extends MastermindClientTCP
     def __init__(self):
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+
         MastermindClientTCP.__init__(self)
 
         self.TileManager = TileManager()
@@ -598,24 +611,23 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.username = ""
         # contains all the known recipes in the game. for reference.
         self.RecipeManager = RecipeManager()
-        # recieves updates from server. the player and all it's stats.
+        # recieves updates from server. the character and all it's stats.
         self.character = None
         self.localmap = None
         self.hotbars = []  # TODO: remake in pyglet.
 
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-
+       
         self.LoginWindow = LoginWindow()
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
         # init but don't show the window
-        self.mainWindow = mainWindow() 
+        self.mainWindow = mainWindow()
 
         # init but don't show the window
-        self.CharacterSelectWindow = CharacterSelectWindow() 
-        
+        self.CharacterSelectWindow = CharacterSelectWindow()
 
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
@@ -632,15 +644,20 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 # list of characters.
                 print("list:", next_update)
                 # open the character select screen.
+                self.LoginWindow.set_visible(False)
+                self.CharacterSelectWindow.set_visible(True)
+                self.CharacterSelectWindow.switch_to()
 
             if isinstance(next_update, str):
                 print(next_update)
                 # server sent salt
                 _hashedPW = hashPassword(self.LoginWindow.password.text, next_update)
-                command = Command(self.LoginWindow.username.text, "hashed_password", [str(_hashedPW)])
+                command = Command(
+                    self.LoginWindow.username.text, "hashed_password", [str(_hashedPW)]
+                )
                 # send back hashed password.
                 self.send(command)
-            
+
             # if(isinstance(next_update, Character)):
             # print('got playerupdate')
             #    client.character = next_update # client.character is updated
@@ -664,10 +681,14 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         """
         command = None
         # -------------------------------------------------------
-        clock.schedule_interval(self.LoginWindow_check_messages_from_server, 0.25)
-       
-
+        clock.schedule_interval(self.LoginWindow_check_messages_from_server, 1)
     
+    # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
+    # clock.schedule_interval(self.ping, 30.0)
+    def ping(self, dt):
+        command = Command(self.username, "ping")
+        client.send(command)
+
 
 #
 #   if we start a client directly
