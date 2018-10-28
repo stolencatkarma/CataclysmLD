@@ -12,6 +12,7 @@ import pyglet
 import glooey
 from pyglet.window import key as KEY
 from pyglet import clock
+from src.passhash import hashPassword
 
 pyglet.resource.path = [
     "/gfx/",
@@ -142,6 +143,7 @@ class ConnectButton(glooey.Button):
     def __init__(self, text):
         super().__init__(text)
 
+
 class CharacterListButton(glooey.Button):
     class MyLabel(glooey.Label):
         custom_color = "#babdb6"
@@ -162,6 +164,7 @@ class CharacterListButton(glooey.Button):
 
     def __init__(self, text):
         super().__init__(text)
+
 
 class ServerListButton(glooey.Button):
     class MyLabel(glooey.Label):
@@ -373,15 +376,23 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
     # once we recieve a list of characters SWITCH to the character select view.
     # once the user selects a character ask the server to login into the world with it.
     # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
-    def check_messages_from_server(self, dt):
+    def LoginWindow_check_messages_from_server(self, dt):
         next_update = client.receive(False)
         # we recieved a message from the server. let's process it.
         if next_update is not None:
             print("--next_update--")
             print(type(next_update))
-            if(isinstance(next_update, list)):
+            if isinstance(next_update, list):
                 # list of chunks or list of characters?
                 print("list:", next_update)
+            if isinstance(next_update, str):
+                print(next_update)
+                # server sent salt
+                _hashedPW = hashPassword(self.LoginWindow.password.text, next_update)
+                command = Command(self.LoginWindow.username.text, "hashed_password", [str(_hashedPW)])
+                # send back hashed password.
+                self.send(command)
+            
             # if(isinstance(next_update, Character)):
             # print('got playerupdate')
             #    client.character = next_update # client.character is updated
@@ -397,9 +408,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.connect(
             self.LoginWindow.serverIP.text, int(self.LoginWindow.serverPort.text)
         )
-        command = Command(
-            self.LoginWindow.username.text, "login", ["password"]
-        )  # TODO: hashed and salted passwords.
+        command = Command(self.LoginWindow.username.text, "login", ["noargs"])
         self.send(command)
         """
         command = Command(self.LoginWindow.character.name, "request_localmap_update")
@@ -407,9 +416,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         """
         command = None
         # -------------------------------------------------------
-        clock.schedule_interval(self.check_messages_from_server, 0.25)
+        clock.schedule_interval(self.LoginWindow_check_messages_from_server, 0.25)
         # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
-        #clock.schedule_interval(self.ping, 30.0)
+        # clock.schedule_interval(self.ping, 30.0)
 
     def ping(self, dt):
         command = Command(client.character.name, "ping")

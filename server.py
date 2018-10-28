@@ -26,6 +26,7 @@ from src.terrain import Terrain
 from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 from src.worldmap import Worldmap
+from src.passhash import makeSalt
 
 
 class OverMap:  # when the character pulls up the OverMap. a OverMap for each character will have to be stored for undiscovered areas and when they use maps.
@@ -227,12 +228,17 @@ class Server(MastermindServerTCP):
             if _command["command"] == "login":
                 # check whether this username has an account.
                 print("checking validity of account.")
+                _path = "./accounts/" + _command["ident"] + "/"
                 # try:
                 if os.path.isdir("./accounts/" + _command["ident"]):
                     print("username already exists.")
+                    with open(str(_path + "SALT")) as f:
+                        # send the user their salt.
+                        _salt = f.read()
+                        self.callback_client_send(connection_object, str(_salt))
                 else:
                     print("username doesn't have an account. let's set one up.")
-                    _path = "./accounts/" + _command["ident"]
+
                     try:
                         os.mkdir(_path)
                     except OSError:
@@ -240,7 +246,13 @@ class Server(MastermindServerTCP):
                     else:
                         print("Successfully created the directory %s " % _path)
 
-                    
+                    # create salt file
+                    _salt = makeSalt()
+                    with open(str(_path + "SALT"), 'w') as f:
+                        f.write(str(_salt))
+
+                    # send the user their salt.
+                    self.callback_client_send(connection_object, str(_salt))
 
                     _path = "./accounts/" + _command["ident"] + "/characters/"
                     try:
@@ -250,28 +262,40 @@ class Server(MastermindServerTCP):
                     else:
                         print("Successfully created the directory %s " % _path)
 
-                # TODO: put an actual password system in.
-                if _command["args"][0] == "password":
-                    print("password accepted for " + str(_command["ident"]))
-                    # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
-                    _tmp_list = list()
-                    # if there are no characters to add the list remains empty.
-
-                    for root, dirs, files in os.walk(
-                        "./accounts/" + _command["ident"] + "/characters/"
-                    ):
-                        for file_data in files:
-                            if file_data.endswith(".character"):
-                                with open(
-                                    root + "/ " + file_data, encoding="utf-8"
-                                ) as data_file:
-                                    data = json.load(data_file)
-                                    _tmp_list.append(data)
-
-                    self.callback_client_send(connection_object, _tmp_list)
+            if _command["command"] == "hashed_password":
+                print("checking hashed_password")
+                _path = "./accounts/" + _command["ident"] + "/"
+                if not os.path.isfile(str(_path + "HASHED_PASSWORD")):
+                    # recieved hashedPW from user, save it and send them a list of characters. (presumaably zero if this is a new user. maybe give options to take over NPCs?)
+                    print("storing password for " + str(_command["ident"]))
+                    with open(str(_path + "HASHED_PASSWORD"), 'w') as f:
+                        f.write(str(_command["args"][0]))
                 else:
-                    print("password not accepted.")
-                    connection_object.disconnect()
+                    print("password exists")
+                    with open(str(_path + "HASHED_PASSWORD")) as f:
+                        _checkPW = f.read()
+                        if _checkPW == _command["args"][0]:
+                            print("password accepted for " + str(_command["ident"]))
+                            # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
+                            _tmp_list = list()
+                            # if there are no characters to add the list remains empty.
+
+                            for root, dirs, files in os.walk(
+                                "./accounts/" + _command["ident"] + "/characters/"
+                            ):
+                                for file_data in files:
+                                    if file_data.endswith(".character"):
+                                        with open(
+                                            root + "/ " + file_data,
+                                            encoding="utf-8",
+                                        ) as data_file:
+                                            data = json.load(data_file)
+                                            _tmp_list.append(data)
+
+                            self.callback_client_send(connection_object, _tmp_list)
+                        else:
+                            print("password not accepted.")
+                            connection_object.disconnect()
 
             if _command["command"] == "create_new_character":
                 if not data["ident"] in self.characters:
