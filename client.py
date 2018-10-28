@@ -270,8 +270,8 @@ class LoginWindow(pyglet.window.Window):
 
 # The window that let's the user select a character or leads to a Window where you can generate a new one.
 class CharacterSelectWindow(pyglet.window.Window):
-    def __init__(self, list_of_characters):
-        pyglet.window.Window.__init__(self, 854, 480)
+    def __init__(self):
+        pyglet.window.Window.__init__(self, 854, 480, visible=False)
 
         self.gui = glooey.Gui(self)
         self.grid = glooey.Grid(0, 0, 0, 0)
@@ -295,6 +295,9 @@ class CharacterSelectWindow(pyglet.window.Window):
 
         self.grid[0, 1] = self.titleLabel
 
+        self.gui.add(self.grid)
+
+    def fill_character_list(self, list_of_characters):
         characterListScrollBox = CustomScrollBox()
         characterListScrollBox.size_hint = 100, 100
         vbox_for_characterlist = glooey.VBox(0)
@@ -305,7 +308,7 @@ class CharacterSelectWindow(pyglet.window.Window):
         characterListScrollBox.add(vbox_for_characterlist)
         self.grid[2, 0] = characterListScrollBox
 
-        self.gui.add(self.grid)
+       
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
 
@@ -323,7 +326,7 @@ class CharacterSelectWindow(pyglet.window.Window):
 # The window after we login with a character. Where the Main game is shown.
 class mainWindow(pyglet.window.Window):
     def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 480)
+        pyglet.window.Window.__init__(self, 854, 480, visible=False)
         self.gui = glooey.Gui(self)
         self.chunk_size = (13, 13)  # the only tuple you'll see I swear.
 
@@ -606,6 +609,14 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.LoginWindow = LoginWindow()
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
+        # init but don't show the window
+        self.mainWindow = mainWindow() 
+
+        # init but don't show the window
+        self.CharacterSelectWindow = CharacterSelectWindow() 
+        
+
+
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
     # once we recieve a list of characters SWITCH to the character select view.
@@ -618,8 +629,10 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
             print("--next_update--")
             print(type(next_update))
             if isinstance(next_update, list):
-                # list of chunks or list of characters?
+                # list of characters.
                 print("list:", next_update)
+                # open the character select screen.
+
             if isinstance(next_update, str):
                 print(next_update)
                 # server sent salt
