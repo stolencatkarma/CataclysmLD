@@ -187,8 +187,31 @@ class CreateNewCharacterButton(glooey.Button):
 
     def __init__(self):
         super().__init__("Create a Character")
-    
-        
+
+
+class CharacterGenButton(glooey.Button):
+    custom_padding = 2
+
+    class MyLabel(glooey.Label):
+        custom_color = "#babdb6"
+        custom_font_size = 12
+        custom_padding = 2
+
+    Label = MyLabel
+    # custom_alignment = 'fill'
+    custom_height_hint = 12
+
+    class Base(glooey.Background):
+        custom_color = "#204a87"
+
+    class Over(glooey.Background):
+        custom_color = "#3465a4"
+
+    class Down(glooey.Background):
+        custom_color = "#729fcff"
+
+    def __init__(self, text):
+        super().__init__(text)
 
 
 class ServerListButton(glooey.Button):
@@ -214,7 +237,7 @@ class ServerListButton(glooey.Button):
 
 
 # the first Window the user sees.
-class LoginWindow(glooey.containers.Frame):
+class LoginWindow(glooey.containers.VBox):
     def __init__(self):
         super().__init__()
 
@@ -234,20 +257,6 @@ class LoginWindow(glooey.containers.Frame):
 
         self.grid = glooey.Grid(0, 0, 0, 0)
         self.padding = 16
-        self.bg = glooey.Background()
-        self.bg.set_appearance(
-            center=pyglet.resource.texture("center.png"),
-            top=pyglet.resource.texture("top.png"),
-            bottom=pyglet.resource.texture("bottom.png"),
-            left=pyglet.resource.texture("left.png"),
-            right=pyglet.resource.texture("right.png"),
-            top_left=pyglet.resource.texture("top_left.png"),
-            top_right=pyglet.resource.texture("top_right.png"),
-            bottom_left=pyglet.resource.texture("bottom_left.png"),
-            bottom_right=pyglet.resource.texture("bottom_right.png"),
-        )
-
-        self.add(self.bg)
 
         self.titleLabel = glooey.Label("Cataclysm: Looming Darkness")
 
@@ -285,6 +294,7 @@ class LoginWindow(glooey.containers.Frame):
         self.grid[6, 0] = serverListScrollBox
 
         self.add(self.grid)
+
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
 
@@ -295,25 +305,12 @@ class LoginWindow(glooey.containers.Frame):
 
 
 # The window that let's the user select a character or leads to a Window where you can generate a new one.
-class CharacterSelectWindow(glooey.containers.Frame):
+class CharacterSelectWindow(glooey.containers.VBox):
     def __init__(self, list_of_characters):
         super().__init__()
+
         self.grid = glooey.Grid(0, 0, 0, 0)
         self.grid.padding = 16
-        self.bg = glooey.Background()
-        self.bg.set_appearance(
-            center=pyglet.resource.texture("center.png"),
-            top=pyglet.resource.texture("top.png"),
-            bottom=pyglet.resource.texture("bottom.png"),
-            left=pyglet.resource.texture("left.png"),
-            right=pyglet.resource.texture("right.png"),
-            top_left=pyglet.resource.texture("top_left.png"),
-            top_right=pyglet.resource.texture("top_right.png"),
-            bottom_left=pyglet.resource.texture("bottom_left.png"),
-            bottom_right=pyglet.resource.texture("bottom_right.png"),
-        )
-
-        self.add(self.bg)
 
         self.titleLabel = glooey.Label("Please Select or Create a Character.")
 
@@ -343,38 +340,48 @@ class CharacterSelectWindow(glooey.containers.Frame):
 
     def select_character(self, dt):
         pass
-    
-class CharacterGenerationWindow(glooey.containers.Frame):
+
+
+class CharacterGenerationWindow(glooey.containers.VBox):
+    custom_padding = 16
+    # has 6 unchanging buttons on top which control which screen the player is on for genning
+    # screens are 'scenario', 'profession', 'traits', 'stats', 'skills', 'description'
     def __init__(self):
         super().__init__()
-        self.grid = glooey.Grid(0, 0, 0, 0)
-        self.grid.padding = 16
-        self.bg = glooey.Background()
-        self.bg.set_appearance(
-            center=pyglet.resource.texture("center.png"),
-            top=pyglet.resource.texture("top.png"),
-            bottom=pyglet.resource.texture("bottom.png"),
-            left=pyglet.resource.texture("left.png"),
-            right=pyglet.resource.texture("right.png"),
-            top_left=pyglet.resource.texture("top_left.png"),
-            top_right=pyglet.resource.texture("top_right.png"),
-            bottom_left=pyglet.resource.texture("bottom_left.png"),
-            bottom_right=pyglet.resource.texture("bottom_right.png"),
-        )
+        self.points = 8
 
-        self.add(self.bg)
+        _screens = [
+            "scenario",
+            "profession",
+            "traits",
+            "stats",
+            "skills",
+            "description",
+        ]
 
-        self.titleLabel = glooey.Label("Generating a new character.")
+        top_buttons = glooey.HBox()
+        for screen in _screens:
+            _button = CharacterGenButton(screen)
+            top_buttons.add(_button)
+        self.add(top_buttons)
 
-        self.grid[0, 1] = self.titleLabel
+        # now add the remaining points label
+        points_box = glooey.HBox()
 
-        self.add(self.grid) 
+        self.pointsLabel = glooey.Label("Points Left:")
+        points_box.add(self.pointsLabel)
+        self.pointsPointsLabel = glooey.Label(str(self.points))
+        points_box.add(self.pointsPointsLabel)
+        self.add(points_box)
 
 
+        main_frame = glooey.containers.Grid(0, 0, 0, 0)
+        main_frame[0, 0] = glooey.Placeholder(50, 50)
+        self.add(main_frame)
 
 
 # The window after we login with a character. Where the Main game is shown.
-class mainWindow(glooey.containers.Frame):
+class mainWindow(glooey.containers.VBox):
     def __init__(self):
         super().__init__()
 
@@ -652,6 +659,21 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui = glooey.Gui(self.window)
 
+        self.bg = glooey.Background()
+        self.bg.set_appearance(
+            center=pyglet.resource.texture("center.png"),
+            top=pyglet.resource.texture("top.png"),
+            bottom=pyglet.resource.texture("bottom.png"),
+            left=pyglet.resource.texture("left.png"),
+            right=pyglet.resource.texture("right.png"),
+            top_left=pyglet.resource.texture("top_left.png"),
+            top_right=pyglet.resource.texture("top_right.png"),
+            bottom_left=pyglet.resource.texture("bottom_left.png"),
+            bottom_right=pyglet.resource.texture("bottom_right.png"),
+        )
+
+        self.gui.add(self.bg)
+
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
         self.RecipeManager = RecipeManager()
@@ -669,11 +691,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.gui.add(self.LoginWindow)
 
         # init but don't show the window
-        #self.mainWindow = mainWindow()
-    
-    
-
-
+        # self.mainWindow = mainWindow()
 
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
@@ -693,8 +711,24 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                     print("list:", next_update)
                     # open the character select screen.
                     self.gui.clear()
+                    self.bg = glooey.Background()
+                    self.bg.set_appearance(
+                        center=pyglet.resource.texture("center.png"),
+                        top=pyglet.resource.texture("top.png"),
+                        bottom=pyglet.resource.texture("bottom.png"),
+                        left=pyglet.resource.texture("left.png"),
+                        right=pyglet.resource.texture("right.png"),
+                        top_left=pyglet.resource.texture("top_left.png"),
+                        top_right=pyglet.resource.texture("top_right.png"),
+                        bottom_left=pyglet.resource.texture("bottom_left.png"),
+                        bottom_right=pyglet.resource.texture("bottom_right.png"),
+                    )
+
+                    self.gui.add(self.bg)
                     self.CharacterSelectWindow = CharacterSelectWindow(next_update)
-                    self.CharacterSelectWindow.create_button.push_handlers(on_click=self.create_new_character)
+                    self.CharacterSelectWindow.create_button.push_handlers(
+                        on_click=self.create_new_character
+                    )
                     self.gui.add(self.CharacterSelectWindow)
                     self.state = "character_select"
 
@@ -716,17 +750,29 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
             if next_update is not None:
                 print("--next_update in character_select--")
                 print(type(next_update))
-        
-        
+
         if self.state == "character_gen":
             if next_update is not None:
                 print("--next_update in character_gen--")
                 print(type(next_update))
-                
-                
+
     def create_new_character(self, dt):
         # switch to the character generation screen
         self.gui.clear()
+        self.bg = glooey.Background()
+        self.bg.set_appearance(
+            center=pyglet.resource.texture("center.png"),
+            top=pyglet.resource.texture("top.png"),
+            bottom=pyglet.resource.texture("bottom.png"),
+            left=pyglet.resource.texture("left.png"),
+            right=pyglet.resource.texture("right.png"),
+            top_left=pyglet.resource.texture("top_left.png"),
+            top_right=pyglet.resource.texture("top_right.png"),
+            bottom_left=pyglet.resource.texture("bottom_left.png"),
+            bottom_right=pyglet.resource.texture("bottom_right.png"),
+        )
+
+        self.gui.add(self.bg)
         self.CharacterGenerationWindow = CharacterGenerationWindow()
         self.gui.add(self.CharacterGenerationWindow)
         self.state = "character_gen"
