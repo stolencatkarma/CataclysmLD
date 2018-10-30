@@ -187,6 +187,8 @@ class CreateNewCharacterButton(glooey.Button):
 
     def __init__(self):
         super().__init__("Create a Character")
+    
+        
 
 
 class ServerListButton(glooey.Button):
@@ -326,9 +328,9 @@ class CharacterSelectWindow(glooey.containers.Frame):
         characterListScrollBox.size_hint = 100, 100
         vbox_for_characterlist = glooey.VBox(0)
         # add the create new character button first then add the list the of characters for the user.
-        _button = CreateNewCharacterButton()
-        _button.push_handlers(on_click=self.create_new_character)
-        vbox_for_characterlist.add(_button)
+        self.create_button = CreateNewCharacterButton()
+
+        vbox_for_characterlist.add(self.create_button)
         for character in list_of_characters:
             _button = CharacterListButton(character)
             _button.push_handlers(on_click=self.select_character)
@@ -339,12 +341,36 @@ class CharacterSelectWindow(glooey.containers.Frame):
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
 
-    def select_character(self):
+    def select_character(self, dt):
         pass
+    
+class CharacterGenerationWindow(glooey.containers.Frame):
+    def __init__(self):
+        super().__init__()
+        self.grid = glooey.Grid(0, 0, 0, 0)
+        self.grid.padding = 16
+        self.bg = glooey.Background()
+        self.bg.set_appearance(
+            center=pyglet.resource.texture("center.png"),
+            top=pyglet.resource.texture("top.png"),
+            bottom=pyglet.resource.texture("bottom.png"),
+            left=pyglet.resource.texture("left.png"),
+            right=pyglet.resource.texture("right.png"),
+            top_left=pyglet.resource.texture("top_left.png"),
+            top_right=pyglet.resource.texture("top_right.png"),
+            bottom_left=pyglet.resource.texture("bottom_left.png"),
+            bottom_right=pyglet.resource.texture("bottom_right.png"),
+        )
 
-    def create_new_character(self):
-        # switch to the character generation screen
-        pass
+        self.add(self.bg)
+
+        self.titleLabel = glooey.Label("Generating a new character.")
+
+        self.grid[0, 1] = self.titleLabel
+
+        self.add(self.grid) 
+
+
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -619,10 +645,12 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.state = "login"  # character_select, character_gen, main
         MastermindClientTCP.__init__(self)
 
-        window = pyglet.window.Window(854, 480)
-        # pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        # pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-        self.gui = glooey.Gui(window)
+        self.window = pyglet.window.Window(854, 480)
+
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+
+        self.gui = glooey.Gui(self.window)
 
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
@@ -641,7 +669,11 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.gui.add(self.LoginWindow)
 
         # init but don't show the window
-        self.mainWindow = mainWindow()
+        #self.mainWindow = mainWindow()
+    
+    
+
+
 
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
@@ -662,6 +694,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                     # open the character select screen.
                     self.gui.clear()
                     self.CharacterSelectWindow = CharacterSelectWindow(next_update)
+                    self.CharacterSelectWindow.create_button.push_handlers(on_click=self.create_new_character)
                     self.gui.add(self.CharacterSelectWindow)
                     self.state = "character_select"
 
@@ -683,6 +716,20 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
             if next_update is not None:
                 print("--next_update in character_select--")
                 print(type(next_update))
+        
+        
+        if self.state == "character_gen":
+            if next_update is not None:
+                print("--next_update in character_gen--")
+                print(type(next_update))
+                
+                
+    def create_new_character(self, dt):
+        # switch to the character generation screen
+        self.gui.clear()
+        self.CharacterGenerationWindow = CharacterGenerationWindow()
+        self.gui.add(self.CharacterGenerationWindow)
+        self.state = "character_gen"
 
     def login(self, dt):
         # we'll do the below to login and recieve a list of characters.
