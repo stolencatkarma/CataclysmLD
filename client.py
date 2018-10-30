@@ -14,6 +14,7 @@ from pyglet.window import key as KEY
 from pyglet import clock
 from src.passhash import hashPassword
 
+# load the tileset TODO: support different tilesets.
 pyglet.resource.path = [
     "tilesets/Chesthole32/tiles",
     "tilesets/Chesthole32/tiles/background",
@@ -166,6 +167,28 @@ class CharacterListButton(glooey.Button):
         super().__init__(text)
 
 
+class CreateNewCharacterButton(glooey.Button):
+    class MyLabel(glooey.Label):
+        custom_color = "#babdb6"
+        custom_font_size = 14
+
+    Label = MyLabel
+    # custom_alignment = 'fill'
+    custom_height_hint = 12
+
+    class Base(glooey.Background):
+        custom_color = "#204a87"
+
+    class Over(glooey.Background):
+        custom_color = "#3465a4"
+
+    class Down(glooey.Background):
+        custom_color = "#729fcff"
+
+    def __init__(self):
+        super().__init__("Create a Character")
+
+
 class ServerListButton(glooey.Button):
     class MyLabel(glooey.Label):
         custom_color = "#babdb6"
@@ -189,9 +212,10 @@ class ServerListButton(glooey.Button):
 
 
 # the first Window the user sees.
-class LoginWindow(pyglet.window.Window):
+class LoginWindow(glooey.containers.Frame):
     def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 480)
+        super().__init__()
+
         self.username = InputBox()
         self.password = InputBox()
         self.username.push_handlers(on_unfocus=lambda w: print(f"username: '{w.text}'"))
@@ -206,9 +230,8 @@ class LoginWindow(pyglet.window.Window):
             on_unfocus=lambda w: print(f"serverPort: '{w.text}'")
         )
 
-        self.gui = glooey.Gui(self)
         self.grid = glooey.Grid(0, 0, 0, 0)
-        self.grid.padding = 16
+        self.padding = 16
         self.bg = glooey.Background()
         self.bg.set_appearance(
             center=pyglet.resource.texture("center.png"),
@@ -222,7 +245,7 @@ class LoginWindow(pyglet.window.Window):
             bottom_right=pyglet.resource.texture("bottom_right.png"),
         )
 
-        self.gui.add(self.bg)
+        self.add(self.bg)
 
         self.titleLabel = glooey.Label("Cataclysm: Looming Darkness")
 
@@ -259,7 +282,7 @@ class LoginWindow(pyglet.window.Window):
         serverListScrollBox.add(vbox_for_serverlist)
         self.grid[6, 0] = serverListScrollBox
 
-        self.gui.add(self.grid)
+        self.add(self.grid)
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
 
@@ -270,11 +293,9 @@ class LoginWindow(pyglet.window.Window):
 
 
 # The window that let's the user select a character or leads to a Window where you can generate a new one.
-class CharacterSelectWindow(pyglet.window.Window):
-    def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 480, visible=False)
-
-        self.gui = glooey.Gui(self)
+class CharacterSelectWindow(glooey.containers.Frame):
+    def __init__(self, list_of_characters):
+        super().__init__()
         self.grid = glooey.Grid(0, 0, 0, 0)
         self.grid.padding = 16
         self.bg = glooey.Background()
@@ -290,19 +311,24 @@ class CharacterSelectWindow(pyglet.window.Window):
             bottom_right=pyglet.resource.texture("bottom_right.png"),
         )
 
-        self.gui.add(self.bg)
+        self.add(self.bg)
 
         self.titleLabel = glooey.Label("Please Select or Create a Character.")
 
         self.grid[0, 1] = self.titleLabel
 
-        self.gui.add(self.grid)
-        self._draw()
+        self.add(self.grid)
+
+        self.fill_character_list(list_of_characters)
 
     def fill_character_list(self, list_of_characters):
         characterListScrollBox = CustomScrollBox()
         characterListScrollBox.size_hint = 100, 100
         vbox_for_characterlist = glooey.VBox(0)
+        # add the create new character button first then add the list the of characters for the user.
+        _button = CreateNewCharacterButton()
+        _button.push_handlers(on_click=self.create_new_character)
+        vbox_for_characterlist.add(_button)
         for character in list_of_characters:
             _button = CharacterListButton(character)
             _button.push_handlers(on_click=self.select_character)
@@ -316,17 +342,16 @@ class CharacterSelectWindow(pyglet.window.Window):
     def select_character(self):
         pass
 
-
-    
-    def on_update(self, dt):
-        self._draw()
+    def create_new_character(self):
+        # switch to the character generation screen
+        pass
 
 
 # The window after we login with a character. Where the Main game is shown.
-class mainWindow(pyglet.window.Window):
+class mainWindow(glooey.containers.Frame):
     def __init__(self):
-        pyglet.window.Window.__init__(self, 854, 480, visible=False)
-        self.gui = glooey.Gui(self)
+        super().__init__()
+
         self.chunk_size = (13, 13)  # the only tuple you'll see I swear.
 
         self.map_grid = glooey.Grid(
@@ -356,11 +381,12 @@ class mainWindow(pyglet.window.Window):
             bottom_right=pyglet.resource.texture("bottom_right.png"),
         )
 
-        self.gui.add(bg)
-        self.gui.add(self.map_grid)
+        self.add(bg)
+        self.add(self.map_grid)
 
         # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
         # clock.schedule_interval(self.ping, 30.0)
+
     def on_update(self, dt):
         self._draw()
 
@@ -425,14 +451,10 @@ class mainWindow(pyglet.window.Window):
         # x's include top row and bottom rows, y's include min and max of viewport.
         grid_edges = []
         # now we have a level grid. let's get our edges so we can plot lines from origin to edge.
-        for x in range(
-            origin_position.x - radius, origin_position.x + radius + 1
-        ):  # X
+        for x in range(origin_position.x - radius, origin_position.x + radius + 1):  # X
             grid_edges.append((x, origin_position.y - radius))
             grid_edges.append((x, origin_position.y + radius))
-        for y in range(
-            origin_position.y - radius, origin_position.y + radius + 1
-        ):  # Y
+        for y in range(origin_position.y - radius, origin_position.y + radius + 1):  # Y
             grid_edges.append((origin_position.x - radius, y))
             grid_edges.append((origin_position.x + radius, y))
         # print('grid_edges: ' + str(len(grid_edges)))
@@ -440,9 +462,7 @@ class mainWindow(pyglet.window.Window):
         tiles_to_keep = []
         # now we need to remove tiles which are out of our field of view.
         for destination in grid_edges:
-            for point in self.line(
-                (origin_position.x, origin_position.y), destination
-            ):
+            for point in self.line((origin_position.x, origin_position.y), destination):
                 if level[str(point[0])][str(point[1])] == True:  # (impassable)
                     tiles_to_keep.append(
                         point
@@ -453,10 +473,7 @@ class mainWindow(pyglet.window.Window):
 
         for tiles in self.localmap[:]:  # iterate a copy to remove correctly.
             for point in tiles_to_keep:
-                if (
-                    tiles["position"].x == point[0]
-                    and tiles["position"].y == point[1]
-                ):
+                if tiles["position"].x == point[0] and tiles["position"].y == point[1]:
                     break
             else:
                 self.localmap.remove(tiles)
@@ -496,9 +513,7 @@ class mainWindow(pyglet.window.Window):
                 # then overlay creatures on that.
                 if tile["creature"] is not None:
                     self.map_grid[x, y].set_image(
-                        pyglet.resource.texture(
-                            tile["creature"].tile_ident + ".png"
-                        )
+                        pyglet.resource.texture(tile["creature"].tile_ident + ".png")
                     )
 
             print("FPS:", pyglet.clock.get_fps())
@@ -601,72 +616,73 @@ class mainWindow(pyglet.window.Window):
 
 class Client(MastermindClientTCP):  # extends MastermindClientTCP
     def __init__(self):
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-
+        self.state = "login"  # character_select, character_gen, main
         MastermindClientTCP.__init__(self)
+
+        window = pyglet.window.Window(854, 480)
+        # pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        # pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+        self.gui = glooey.Gui(window)
 
         self.TileManager = TileManager()
         self.ItemManager = ItemManager()
-        self.username = ""
-        # contains all the known recipes in the game. for reference.
         self.RecipeManager = RecipeManager()
+
         # recieves updates from server. the character and all it's stats.
         self.character = None
+        self.username = ""
+        # contains all the known recipes in the game. for reference.
         self.localmap = None
         self.hotbars = []  # TODO: remake in pyglet.
 
-       
         self.LoginWindow = LoginWindow()
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
+        self.gui.add(self.LoginWindow)
+
         # init but don't show the window
         self.mainWindow = mainWindow()
-
-        # init but don't show the window
-        self.CharacterSelectWindow = CharacterSelectWindow()
-
-        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-        pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
     # once we recieve a list of characters SWITCH to the character select view.
     # once the user selects a character ask the server to login into the world with it.
     # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
-    def LoginWindow_check_messages_from_server(self, dt):
+    def check_messages_from_server(self, dt):
+        # commands recieved while in the login window
         next_update = client.receive(False)
-        # we recieved a message from the server. let's process it.
-        if next_update is not None:
-            print("--next_update--")
-            print(type(next_update))
-            if isinstance(next_update, list):
-                # list of characters.
-                print("list:", next_update)
-                # open the character select screen.
-                self.LoginWindow.set_visible(False)
-                self.CharacterSelectWindow.set_visible(True)
-                self.CharacterSelectWindow.switch_to()
+        if self.state == "login":
+            # we recieved a message from the server. let's process it.
+            if next_update is not None:
+                print("--next_update in login--")
+                print(type(next_update))
+                if isinstance(next_update, list):
+                    # list of characters.
+                    print("list:", next_update)
+                    # open the character select screen.
+                    self.gui.clear()
+                    self.CharacterSelectWindow = CharacterSelectWindow(next_update)
+                    self.gui.add(self.CharacterSelectWindow)
+                    self.state = "character_select"
 
-            if isinstance(next_update, str):
-                print(next_update)
-                # server sent salt
-                _hashedPW = hashPassword(self.LoginWindow.password.text, next_update)
-                command = Command(
-                    self.LoginWindow.username.text, "hashed_password", [str(_hashedPW)]
-                )
-                # send back hashed password.
-                self.send(command)
+                if isinstance(next_update, str):
+                    print(next_update)
+                    # server sent salt
+                    _hashedPW = hashPassword(
+                        self.LoginWindow.password.text, next_update
+                    )
+                    command = Command(
+                        self.LoginWindow.username.text,
+                        "hashed_password",
+                        [str(_hashedPW)],
+                    )
+                    # send back hashed password.
+                    self.send(command)
 
-            # if(isinstance(next_update, Character)):
-            # print('got playerupdate')
-            #    client.character = next_update # client.character is updated
-            # elif(isinstance(next_update, list)): # this is the list of chunks for the localmap
-            # print('got local mapupdate')
-            #    client.localmap = client.convert_chunks_to_localmap(next_update)
-            #    client.character = client.find_character_in_localmap()
-            #    client.update_map_for_position(client.character.position)
-            # client.draw_view_at_position(client.character.position) # update after everything is complete.
+        if self.state == "character_select":
+            if next_update is not None:
+                print("--next_update in character_select--")
+                print(type(next_update))
 
     def login(self, dt):
         # we'll do the below to login and recieve a list of characters.
@@ -681,8 +697,8 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         """
         command = None
         # -------------------------------------------------------
-        clock.schedule_interval(self.LoginWindow_check_messages_from_server, 1)
-    
+        clock.schedule_interval(self.check_messages_from_server, 0.1)
+
     # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
     # clock.schedule_interval(self.ping, 30.0)
     def ping(self, dt):
