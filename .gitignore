@@ -9,4 +9,7 @@
 *.pickle
 /dist/*
 /build/*
+# ignore logs
 /log/*
+# ignore accounts
+/accounts/*

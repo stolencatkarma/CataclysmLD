@@ -41,7 +41,7 @@ from src.action import Action
 from src.blueprint import Blueprint
 from src.command import Command
 from src.item import Item, ItemManager
-from src.character import Character
+from src.character import Character 
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.tileManager import TileManager
@@ -143,6 +143,8 @@ class CustomScrollBox(glooey.ScrollBox):
 
 class CharacterGenerationScrollBox(glooey.ScrollBox):
     custom_alignment = 'center'
+    custom_size_hint = 200, 300
+    custom_height_hint = 200
 
 
     class Frame(glooey.Frame):
@@ -413,7 +415,7 @@ class CharacterSelectWindow(glooey.containers.VBox):
     def select_character(self, dt):
         pass
 
-
+from src.creature import Creature
 class CharacterGenerationWindow(glooey.containers.VBox):
     custom_padding = 16
     # minimum size
@@ -422,7 +424,15 @@ class CharacterGenerationWindow(glooey.containers.VBox):
     # screens are 'scenario', 'profession', 'traits', 'stats', 'skills', 'description'
     def __init__(self):
         super().__init__()
+        
+        # our points available to spend on traits
         self.points = 8
+        
+        # stuff we need to pass to the server to validate a character.
+        self.name = "John Smith"
+
+        # create a generic creature for the user to work from.
+        self.creature = Creature()
 
         _screens = [
             "scenario",
@@ -470,7 +480,7 @@ class CharacterGenerationWindow(glooey.containers.VBox):
             self[0,2] = glooey.Label('Gender:')
             self[0,3] = CharacterGenerationInputBox()
             self[1,0] = glooey.Label('Profession:')
-            self[1,1] = glooey.Label('Blacksmith')
+            self[1,1] = glooey.Label('Default')
             self[1,2] = glooey.Label('Scenario:')
             self[1,3] = glooey.Label('Evacuee')
             self[2,0] = glooey.Label('Stats:')

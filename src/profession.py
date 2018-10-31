@@ -16,7 +16,7 @@ class ProfessionManager:
     def __init__(self):
         # load professions from file and save references to them.
         self.PROFESSIONS = defaultdict(dict)
-        for root, dirs, files in os.walk('./data/json/professions/'):
+        for root, _, files in os.walk('./data/json/professions/'):
             for file_data in files:
                 if file_data.endswith('.json'):
                     with open(root+'/'+file_data, encoding='utf-8') as data_file: 

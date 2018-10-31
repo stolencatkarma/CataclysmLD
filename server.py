@@ -248,7 +248,7 @@ class Server(MastermindServerTCP):
 
                     # create salt file
                     _salt = makeSalt()
-                    with open(str(_path + "SALT"), 'w') as f:
+                    with open(str(_path + "SALT"), "w") as f:
                         f.write(str(_salt))
 
                     # send the user their salt.
@@ -268,11 +268,11 @@ class Server(MastermindServerTCP):
                 if not os.path.isfile(str(_path + "HASHED_PASSWORD")):
                     # recieved hashedPW from user, save it and send them a list of characters. (presumaably zero if this is a new user. maybe give options to take over NPCs?)
                     print("storing password for " + str(_command["ident"]))
-                    with open(str(_path + "HASHED_PASSWORD"), 'w') as f:
+                    with open(str(_path + "HASHED_PASSWORD"), "w") as f:
                         f.write(str(_command["args"][0]))
                 else:
                     print("password exists")
-                    
+
                 with open(str(_path + "HASHED_PASSWORD")) as f:
                     _checkPW = f.read()
                     if _checkPW == _command["args"][0]:
@@ -281,14 +281,13 @@ class Server(MastermindServerTCP):
                         _tmp_list = list()
                         # if there are no characters to add the list remains empty.
 
-                        for root, dirs, files in os.walk(
+                        for root, _, files in os.walk(
                             "./accounts/" + _command["ident"] + "/characters/"
                         ):
                             for file_data in files:
                                 if file_data.endswith(".character"):
                                     with open(
-                                        root + "/ " + file_data,
-                                        encoding="utf-8",
+                                        root + "/ " + file_data, encoding="utf-8"
                                     ) as data_file:
                                         data = json.load(data_file)
                                         _tmp_list.append(data)
@@ -813,15 +812,13 @@ class Server(MastermindServerTCP):
 
     # this function handles overseeing all creature movement, attacks, and interactions
     def compute_turn(self):
-        lights_to_process = (
-            []
-        )  # init a list for all our found lights around characters.
-        for character, chunks in self.localmaps.items():
+        # init a list for all our found lights around characters.
+        for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
                 for tile in chunk.tiles:
                     tile["lumens"] = 0  # reset light levels.
 
-        for character, chunks in self.localmaps.items():
+        for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
                 for tile in chunk.tiles:
                     for item in tile["items"]:
@@ -840,19 +837,14 @@ class Server(MastermindServerTCP):
                                     tile["lumens"] = tile["lumens"] + int(
                                         int(flag.split("_")[1]) - distance
                                     )
-                    if (
-                        tile["furniture"] is not None
-                    ):  # and tile['furniture']['flags'] is not None):
-                        # print('tile[\'furniture\'].ident', tile['furniture'].ident)
+                    if tile["furniture"] is not None:
                         for key in self.FurnitureManager.FURNITURE_TYPES[
                             tile["furniture"].ident
                         ]:
-                            # print(key)
                             if key == "flags":
                                 for flag in self.FurnitureManager.FURNITURE_TYPES[
                                     tile["furniture"].ident
                                 ]["flags"]:
-                                    # print(flag)
                                     if (
                                         flag.split("_")[0] == "LIGHT"
                                     ):  # this furniture produces light.
@@ -866,22 +858,20 @@ class Server(MastermindServerTCP):
                                                 int(flag.split("_")[1]) - distance
                                             )
                                         break
-
-        creatures_to_process = (
-            []
-        )  # we want a list that contains all the non-duplicate creatures on all localmaps around characters.
-        for character, chunks in self.localmaps.items():
+        # we want a list that contains all the non-duplicate creatures on all localmaps around characters.
+        creatures_to_process = list()
+        for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
                 for tile in chunk.tiles:
                     if (
                         tile["creature"] is not None
                         and tile["creature"] not in creatures_to_process
-                    ):  # avoid duplicates
+                    ):
                         creatures_to_process.append(tile["creature"])
+
         for creature in creatures_to_process:
-            if (
-                len(creature.command_queue) > 0
-            ):  # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
+            # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
+            if len(creature.command_queue) > 0:
                 print("doing actions for: " + str(creature.name))
                 self.process_creature_command_queue(creature)
 

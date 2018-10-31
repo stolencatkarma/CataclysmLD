@@ -26,11 +26,14 @@ class Creature:
         self.command_queue = list()
         self.gender = "male"
         self.radiation = 0  # radiation level. hurts some helps others.
+        
         # name is optional here. characters and most NPCs would have a name.
         self.name = None
-        self.affected_by = list()  # TODO: create afflictions.
-        self.in_vehicle = False  # other wise have a reference to the vehicle it's in.
-        self.controlling_vehicle = False
+        
+        self.in_vehicle = None  # other wise have a reference to the vehicle it's in.
+        self.controlling_vehicle = None
+        
+        # what is this creature able to do?
         self.possible_actions = [
             "move",
             "attack",
@@ -40,16 +43,16 @@ class Creature:
             "wear",
             "remove",
             "reload",
-        ]  # what is this creature able to do?
-        self.actions_per_turn = (
-            1
-        )  # actions per turn (per second). (moving 5 ft a second is average walking speed)
-        self.next_action_available = (
-            0
-        )  # how many turns until we can take an action. if this is greater then 0 subtract 1 per turn until 0. add to this per action.
-        self.hallucination = (
-            False
-        )  # set True for no_clip, does_no_damage, chase_creature
+        ]
+
+        # actions per turn (per second). (moving 5 ft a second is average walking speed)
+        self.actions_per_turn = 1
+
+        # how many turns until we can take an action. if this is greater then 0 subtract 1 per turn until 0. add to this per action.
+        self.next_action_available = 0
+
+        # set True for no_clip, does_no_damage, chase_creature
+        self.hallucination = False
         self.tile_ident = "player_female"  # base ident for new creatures.
         self.dodges_per_turn = 0
         self.blocks_per_turn = 0
