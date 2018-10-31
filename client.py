@@ -13,6 +13,7 @@ import glooey
 from pyglet.window import key as KEY
 from pyglet import clock
 from src.passhash import hashPassword
+from src.character import Character
 
 # load the tileset TODO: support different tilesets.
 pyglet.resource.path = [
@@ -41,7 +42,7 @@ from src.action import Action
 from src.blueprint import Blueprint
 from src.command import Command
 from src.item import Item, ItemManager
-from src.character import Character 
+from src.character import Character
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
 from src.tileManager import TileManager
@@ -66,6 +67,7 @@ class InputBox(glooey.Form):
         custom_center = pyglet.resource.texture("form_center.png")
         custom_left = pyglet.resource.image("form_left.png")
         custom_right = pyglet.resource.image("form_right.png")
+
 
 class CharacterGenerationInputBox(glooey.Form):
     custom_alignment = "center"
@@ -141,11 +143,11 @@ class CustomScrollBox(glooey.ScrollBox):
                 custom_center = pyglet.resource.texture("grip_vert_down.png")
                 custom_bottom = pyglet.resource.image("grip_bottom_down.png")
 
+
 class CharacterGenerationScrollBox(glooey.ScrollBox):
-    custom_alignment = 'center'
+    custom_alignment = "center"
     custom_size_hint = 200, 300
     custom_height_hint = 200
-
 
     class Frame(glooey.Frame):
         class Decoration(glooey.Background):
@@ -415,7 +417,7 @@ class CharacterSelectWindow(glooey.containers.VBox):
     def select_character(self, dt):
         pass
 
-from src.creature import Creature
+
 class CharacterGenerationWindow(glooey.containers.VBox):
     custom_padding = 16
     # minimum size
@@ -424,15 +426,16 @@ class CharacterGenerationWindow(glooey.containers.VBox):
     # screens are 'scenario', 'profession', 'traits', 'stats', 'skills', 'description'
     def __init__(self):
         super().__init__()
-        
+
         # our points available to spend on traits
         self.points = 8
-        
+
         # stuff we need to pass to the server to validate a character.
         self.name = "John Smith"
 
         # create a generic creature for the user to work from.
-        self.creature = Creature()
+        self.character = Character()
+        
 
         _screens = [
             "scenario",
@@ -474,23 +477,21 @@ class CharacterGenerationWindow(glooey.containers.VBox):
 
     class descriptionTab(glooey.containers.Grid):
         def __init__(self):
-            super().__init__(0,0,0,0)
-            self[0,0] = glooey.Label('Name:')
-            self[0,1] = CharacterGenerationInputBox()
-            self[0,2] = glooey.Label('Gender:')
-            self[0,3] = CharacterGenerationInputBox()
-            self[1,0] = glooey.Label('Profession:')
-            self[1,1] = glooey.Label('Default')
-            self[1,2] = glooey.Label('Scenario:')
-            self[1,3] = glooey.Label('Evacuee')
-            self[2,0] = glooey.Label('Stats:')
-            self[2,1] = glooey.Label('Traits:')
-            self[2,2] = glooey.Label('Skills:')
-            self[3,0] = CharacterGenerationScrollBox()
-            self[3,1] = CharacterGenerationScrollBox()
-            self[3,2] = CharacterGenerationScrollBox()
-            
-
+            super().__init__(0, 0, 0, 0)
+            self[0, 0] = glooey.Label("Name:")
+            self[0, 1] = CharacterGenerationInputBox()
+            self[0, 2] = glooey.Label("Gender:")
+            self[0, 3] = CharacterGenerationInputBox()
+            self[1, 0] = glooey.Label("Profession:")
+            self[1, 1] = glooey.Label("Default")
+            self[1, 2] = glooey.Label("Scenario:")
+            self[1, 3] = glooey.Label("Evacuee")
+            self[2, 0] = glooey.Label("Stats:")
+            self[2, 1] = glooey.Label("Traits:")
+            self[2, 2] = glooey.Label("Skills:")
+            self[3, 0] = CharacterGenerationScrollBox()
+            self[3, 1] = CharacterGenerationScrollBox()
+            self[3, 2] = CharacterGenerationScrollBox()
 
         # nameLabel -       nameInputBox -          genderLabel -       genderInputBox
         # professionLabel - selectedProfession -    scenarioLabel -     selectedScenario
@@ -537,11 +538,11 @@ class mainWindow(glooey.containers.VBox):
         self.add(bg)
         self.add(self.map_grid)
 
+        # TODO: lerp the positions of creatures from one frame to the next.
+        # self.old_map = self.localmap
+
         # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
         # clock.schedule_interval(self.ping, 30.0)
-
-    def on_update(self, dt):
-        self._draw()
 
     def ping(self, dt):
         command = Command(client.character.name, "ping")
@@ -686,7 +687,6 @@ class mainWindow(glooey.containers.VBox):
         return Position(x, y, z)
 
     def draw_view_at_position(self, draw_position):
-        # TODO: lerp the positions of creatures from one frame to the next.
         self.trim_localmap(draw_position)  # update field of view and lighting
 
         # at this point the localmap should've been trimmed of unseeable tiles. draw what's left at position.
@@ -870,11 +870,37 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
             if next_update is not None:
                 print("--next_update in character_select--")
                 print(type(next_update))
+                if isinstance(next_update, list):
+                    # list of characters.
+                    print("list:", next_update)
+                    # re-fresh the character select screen.
+                    self.gui.clear()
+                    self.bg = glooey.Background()
+                    self.bg.set_appearance(
+                        center=pyglet.resource.texture("center.png"),
+                        top=pyglet.resource.texture("top.png"),
+                        bottom=pyglet.resource.texture("bottom.png"),
+                        left=pyglet.resource.texture("left.png"),
+                        right=pyglet.resource.texture("right.png"),
+                        top_left=pyglet.resource.texture("top_left.png"),
+                        top_right=pyglet.resource.texture("top_right.png"),
+                        bottom_left=pyglet.resource.texture("bottom_left.png"),
+                        bottom_right=pyglet.resource.texture("bottom_right.png"),
+                    )
+
+                    self.gui.add(self.bg)
+                    self.CharacterSelectWindow = CharacterSelectWindow(next_update)
+                    self.CharacterSelectWindow.create_button.push_handlers(
+                        on_click=self.create_new_character
+                    )
+                    self.gui.add(self.CharacterSelectWindow)
 
         if self.state == "character_gen":
             if next_update is not None:
                 print("--next_update in character_gen--")
                 print(type(next_update))
+
+   
 
     def create_new_character(self, dt):
         # switch to the character generation screen
@@ -894,9 +920,23 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui.add(self.bg)
         self.CharacterGenerationWindow = CharacterGenerationWindow()
+        self.CharacterGenerationWindow.finish_button.push_handlers(
+            self.send_completed_character(dt)
+        )
         self.gui.add(self.CharacterGenerationWindow)
         self.state = "character_gen"
+    
+    def send_completed_character(self, dt):
+        # gather up all the character info from the chargen window and send it.
+        _data = self.CharacterGenerationWindow.character.to_json()
 
+        command = Command(
+            self.LoginWindow.username.text, "completed_character", [_data]
+        )
+        self.send(command)
+        # go back to the charcterSelectWindow and update it with the new character and let them select it.
+        self.state = "character_select"
+    
     def login(self, dt):
         # we'll do the below to login and recieve a list of characters.
         self.connect(
