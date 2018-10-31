@@ -67,11 +67,83 @@ class InputBox(glooey.Form):
         custom_left = pyglet.resource.image("form_left.png")
         custom_right = pyglet.resource.image("form_right.png")
 
+class CharacterGenerationInputBox(glooey.Form):
+    custom_alignment = "center"
+    custom_height_hint = 12
+
+    class Label(glooey.EditableLabel):
+        custom_font_size = 12
+        custom_color = "#b9ad86"
+        custom_alignment = "center"
+        custom_horz_padding = 4
+        custom_top_padding = 2
+        custom_width_hint = 200
+        custom_height_hint = 12
+        # TODO: import string; def format_alpha(entered_string): return "".join(char for char in entered_string if char in string.ascii_letters) # only allow valid non-space asicii
+
+    class Base(glooey.Background):
+        custom_center = pyglet.resource.texture("form_center.png")
+        custom_left = pyglet.resource.image("form_left.png")
+        custom_right = pyglet.resource.image("form_right.png")
+
 
 class CustomScrollBox(glooey.ScrollBox):
     # custom_alignment = 'center'
     custom_size_hint = 300, 200
     custom_height_hint = 200
+
+    class Frame(glooey.Frame):
+        class Decoration(glooey.Background):
+            custom_center = pyglet.resource.texture("scrollbox_center.png")
+
+        class Box(glooey.Bin):
+            custom_horz_padding = 2
+
+    class VBar(glooey.VScrollBar):
+        class Decoration(glooey.Background):
+            custom_top = pyglet.resource.image("bar_top.png")
+            custom_center = pyglet.resource.texture("bar_vert.png")
+            custom_bottom = pyglet.resource.image("bar_bottom.png")
+
+        class Forward(glooey.Button):
+            class Base(glooey.Image):
+                custom_image = pyglet.resource.image("forward_base.png")
+
+            class Over(glooey.Image):
+                custom_image = pyglet.resource.image("forward_over.png")
+
+            class Down(glooey.Image):
+                custom_image = pyglet.resource.image("forward_down.png")
+
+        class Backward(glooey.Button):
+            class Base(glooey.Image):
+                custom_image = pyglet.resource.image("backward_base.png")
+
+            class Over(glooey.Image):
+                custom_image = pyglet.resource.image("backward_over.png")
+
+            class Down(glooey.Image):
+                custom_image = pyglet.resource.image("backward_down.png")
+
+        class Grip(glooey.ButtonScrollGrip):
+            class Base(glooey.Background):
+                custom_top = pyglet.resource.image("grip_top_base.png")
+                custom_center = pyglet.resource.texture("grip_vert_base.png")
+                custom_bottom = pyglet.resource.image("grip_bottom_base.png")
+
+            class Over(glooey.Background):
+                custom_top = pyglet.resource.image("grip_top_over.png")
+                custom_center = pyglet.resource.texture("grip_vert_over.png")
+                custom_bottom = pyglet.resource.image("grip_bottom_over.png")
+
+            class Down(glooey.Background):
+                custom_top = pyglet.resource.image("grip_top_down.png")
+                custom_center = pyglet.resource.texture("grip_vert_down.png")
+                custom_bottom = pyglet.resource.image("grip_bottom_down.png")
+
+class CharacterGenerationScrollBox(glooey.ScrollBox):
+    custom_alignment = 'center'
+
 
     class Frame(glooey.Frame):
         class Decoration(glooey.Background):
@@ -130,7 +202,7 @@ class ConnectButton(glooey.Button):
 
     Label = MyLabel
     # custom_alignment = 'fill'
-    custom_height_hint = 12
+    # custom_height_hint = 12
 
     class Base(glooey.Background):
         custom_color = "#204a87"
@@ -190,7 +262,7 @@ class CreateNewCharacterButton(glooey.Button):
 
 
 class CharacterGenButton(glooey.Button):
-    custom_padding = 2
+    custom_padding = 8
 
     class MyLabel(glooey.Label):
         custom_color = "#babdb6"
@@ -344,6 +416,8 @@ class CharacterSelectWindow(glooey.containers.VBox):
 
 class CharacterGenerationWindow(glooey.containers.VBox):
     custom_padding = 16
+    # minimum size
+    custom_default_cell_size = 2
     # has 6 unchanging buttons on top which control which screen the player is on for genning
     # screens are 'scenario', 'profession', 'traits', 'stats', 'skills', 'description'
     def __init__(self):
@@ -359,25 +433,61 @@ class CharacterGenerationWindow(glooey.containers.VBox):
             "description",
         ]
 
-        top_buttons = glooey.HBox()
+        # the row of buttons on top. responsible for switching the subcontext below points left.
+        top_buttons = glooey.HBox(0)
+
+        # finish_button is self. so we can access it easier.
+        self.finish_button = ConnectButton("Commit")
+
         for screen in _screens:
             _button = CharacterGenButton(screen)
             top_buttons.add(_button)
+
+        top_buttons.add(self.finish_button)
+
         self.add(top_buttons)
 
         # now add the remaining points label
         points_box = glooey.HBox()
+        pointsLabel = glooey.Label("Points Left:")
+        points_box.add(pointsLabel)
 
-        self.pointsLabel = glooey.Label("Points Left:")
-        points_box.add(self.pointsLabel)
-        self.pointsPointsLabel = glooey.Label(str(self.points))
-        points_box.add(self.pointsPointsLabel)
+        self.pointsLeftLabel = glooey.Label(str(self.points))
+        points_box.add(self.pointsLeftLabel)
         self.add(points_box)
 
-
-        main_frame = glooey.containers.Grid(0, 0, 0, 0)
-        main_frame[0, 0] = glooey.Placeholder(50, 50)
+        # our main_frame will be a single use container that we replace the contents of.
+        main_frame = glooey.containers.Bin()
+        main_frame.custom_padding = 8
+        main_frame.add(self.descriptionTab())
         self.add(main_frame)
+
+    class descriptionTab(glooey.containers.Grid):
+        def __init__(self):
+            super().__init__(0,0,0,0)
+            self[0,0] = glooey.Label('Name:')
+            self[0,1] = CharacterGenerationInputBox()
+            self[0,2] = glooey.Label('Gender:')
+            self[0,3] = CharacterGenerationInputBox()
+            self[1,0] = glooey.Label('Profession:')
+            self[1,1] = glooey.Label('Blacksmith')
+            self[1,2] = glooey.Label('Scenario:')
+            self[1,3] = glooey.Label('Evacuee')
+            self[2,0] = glooey.Label('Stats:')
+            self[2,1] = glooey.Label('Traits:')
+            self[2,2] = glooey.Label('Skills:')
+            self[3,0] = CharacterGenerationScrollBox()
+            self[3,1] = CharacterGenerationScrollBox()
+            self[3,2] = CharacterGenerationScrollBox()
+            
+
+
+        # nameLabel -       nameInputBox -          genderLabel -       genderInputBox
+        # professionLabel - selectedProfession -    scenarioLabel -     selectedScenario
+        # statsLabel -      TraitsLabel -           SkillsLabel
+        # statsScrollbox -  TraitsScrollbox -       SkillsScrollBox
+
+        pass
 
 
 # The window after we login with a character. Where the Main game is shown.
