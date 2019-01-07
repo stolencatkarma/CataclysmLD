@@ -295,7 +295,8 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object, _tmp_list)
                     else:
                         print("password not accepted.")
-                        connection_object.disconnect()
+                        self.callback_client_send(connection_object, "disconnect")
+                        connection_object.terminate()
 
             if _command["command"] == "create_new_character":
                 if not data["ident"] in self.characters:
