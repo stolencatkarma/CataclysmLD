@@ -475,11 +475,14 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         main_frame.add(self.descriptionTab())
         self.add(main_frame)
 
+   
+
     class descriptionTab(glooey.containers.Grid):
         def __init__(self):
             super().__init__(0, 0, 0, 0)
             self[0, 0] = glooey.Label("Name:")
             self[0, 1] = CharacterGenerationInputBox()
+            self[0, 1].push_handlers(on_unfocus=self.set_name)
             self[0, 2] = glooey.Label("Gender:")
             self[0, 3] = CharacterGenerationInputBox()
             self[1, 0] = glooey.Label("Profession:")
@@ -498,7 +501,11 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         # statsLabel -      TraitsLabel -           SkillsLabel
         # statsScrollbox -  TraitsScrollbox -       SkillsScrollBox
 
-        pass
+        def set_name(self, dt):
+            self.get_parent().get_parent().character.name = self[0, 1].text
+
+        
+    
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -746,7 +753,8 @@ class mainWindow(glooey.containers.VBox):
             list_of_known_recipes.append(value)
 
     def open_movement_menu(self, pos, tile):
-        # _command = Command(client.character.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z)) # send calculated_move action to server and give it the position of the tile we clicked.
+        # _command = Command(client.character.name, 'calculated_move', (tile['position'].x, tile['position'].y, tile['position'].z))
+        # send calculated_move action to server and give it the position of the tile we clicked.
         # return _command
         pass
 
@@ -800,7 +808,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         # recieves updates from server. the character and all it's stats.
         self.character = None
-        self.username = ""
+
         # contains all the known recipes in the game. for reference.
         self.localmap = None
         self.hotbars = []  # TODO: remake in pyglet.
@@ -923,9 +931,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui.add(self.bg)
         self.CharacterGenerationWindow = CharacterGenerationWindow()
-        self.CharacterGenerationWindow.finish_button.push_handlers(
-            "commit", self.send_completed_character(dt)
-        )
+        self.CharacterGenerationWindow.finish_button.push_handlers(on_click=self.send_completed_character)
         self.gui.add(self.CharacterGenerationWindow)
         self.state = "character_gen"
 
@@ -935,7 +941,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         print(_data)
 
-        command = Command(self.username, "completed_character", [_data])
+        command = Command(self.CharacterGenerationWindow.character.name, "completed_character", [_data])
         self.send(command)
         # go back to the charcterSelectWindow and update it with the new character and let them select it.
         self.state = "character_select"

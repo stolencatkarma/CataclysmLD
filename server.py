@@ -299,9 +299,9 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object, "disconnect")
                         connection_object.terminate()
 
-            if _command["command"] == "create_new_character":
+            if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:
-                    _character = jsonpickle.decode(data)
+                    _character = jsonpickle.decode(data['args'][0])
                     # this character doesn't exist in the world yet.
                     self.handle_new_character(data["ident"], _character)
                     self._log.debug(
