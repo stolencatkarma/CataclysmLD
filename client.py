@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import jsonpickle
 import json
 import math
 import os
@@ -435,7 +436,6 @@ class CharacterGenerationWindow(glooey.containers.VBox):
 
         # create a generic creature for the user to work from.
         self.character = Character()
-        
 
         _screens = [
             "scenario",
@@ -853,6 +853,11 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                     self.state = "character_select"
 
                 if isinstance(next_update, str):
+                    if next_update == "disconnect":
+                        self.disconnect()
+                        return
+
+                if isinstance(next_update, str):
                     print(next_update)
                     # server sent salt
                     _hashedPW = hashPassword(
@@ -900,8 +905,6 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 print("--next_update in character_gen--")
                 print(type(next_update))
 
-   
-
     def create_new_character(self, dt):
         # switch to the character generation screen
         self.gui.clear()
@@ -921,22 +924,22 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.gui.add(self.bg)
         self.CharacterGenerationWindow = CharacterGenerationWindow()
         self.CharacterGenerationWindow.finish_button.push_handlers(
-            self.send_completed_character(dt)
+            "commit", self.send_completed_character(dt)
         )
         self.gui.add(self.CharacterGenerationWindow)
         self.state = "character_gen"
-    
+
     def send_completed_character(self, dt):
         # gather up all the character info from the chargen window and send it.
-        _data = self.CharacterGenerationWindow.character.to_json()
+        _data = jsonpickle.encode(self.CharacterGenerationWindow.character)
 
-        command = Command(
-            self.LoginWindow.username.text, "completed_character", [_data]
-        )
+        print(_data)
+
+        command = Command(self.username, "completed_character", [_data])
         self.send(command)
         # go back to the charcterSelectWindow and update it with the new character and let them select it.
         self.state = "character_select"
-    
+
     def login(self, dt):
         # we'll do the below to login and recieve a list of characters.
         self.connect(

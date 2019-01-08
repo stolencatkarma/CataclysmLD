@@ -15,8 +15,3 @@ class Character(Creature):
     def __str__(self):
         return self.name + " the " + str(self.profession)
 
-    def to_json(self):
-        pass
-
-    def from_json(self):
-        pass

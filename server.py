@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import json
+import jsonpickle
 import os
 import random
 import sys
@@ -9,6 +9,7 @@ import time
 import pprint
 import configparser
 import logging.config
+import pickle
 from collections import defaultdict
 
 from Mastermind._mm_server import MastermindServerTCP
@@ -120,8 +121,8 @@ class Server(MastermindServerTCP):
 
             return tile["position"]
 
-    def handle_new_character(self, ident):
-        self.characters[ident] = Character(ident)
+    def handle_new_character(self, ident, character):
+        self.characters[ident] = character
 
         self.characters[ident].position = self.find_spawn_point_for_new_character()
         self.worldmap.put_object_at_position(
@@ -300,8 +301,9 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "create_new_character":
                 if not data["ident"] in self.characters:
+                    _character = jsonpickle.decode(data)
                     # this character doesn't exist in the world yet.
-                    self.handle_new_character(data["ident"])
+                    self.handle_new_character(data["ident"], _character)
                     self._log.debug(
                         "Server: character created: {} From client {}.".format(
                             data["ident"], connection_object.address
@@ -344,7 +346,7 @@ class Server(MastermindServerTCP):
                     Action(self.characters[data["ident"]], "bash", [data.args[0]])
                 )
 
-            if _command["command"] == "create_blueprint":  #  [result, direction])
+            if _command["command"] == "create_blueprint":  # [result, direction])
                 # args 0 is ident args 1 is direction.
                 print(
                     "creating blueprint "
@@ -514,7 +516,7 @@ class Server(MastermindServerTCP):
                         return
                     else:
                         print("could not add item to character inventory.")
-                    ### then send the character the updated version of themselves so they can refresh.
+                    # then send the character the updated version of themselves so they can refresh.
 
             if _command["command"] == "move_item":
                 # client sends 'hey server. can you move this item from this to that?'
@@ -549,7 +551,8 @@ class Server(MastermindServerTCP):
                         :
                     ]:  # iterate a copy to remove properly.
                         for item in bodypart.equipped:  # could be a container or not.
-                            if isinstance(item, Container):  # if it's a container.
+                            # if it's a container.
+                            if isinstance(item, Container):
                                 for item2 in item.contained_items[
                                     :
                                 ]:  # check every item in the container.
@@ -1044,9 +1047,11 @@ if __name__ == "__main__":
             server.calendar.advance_time_by_x_seconds(
                 time_per_turn
             )  # a turn is one second.
-            server.compute_turn()  # where all queued creature actions get taken care of, as well as physics engine stuff.
+            # where all queued creature actions get taken care of, as well as physics engine stuff.
+            server.compute_turn()
             # print('turn: ' + str(server.calendar.get_turn()))
-            server.worldmap.update_chunks_on_disk()  # if the worldmap in memory changed update it on the hard drive.
+            # if the worldmap in memory changed update it on the hard drive.
+            server.worldmap.update_chunks_on_disk()
             # TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
             last_turn_time = time.time()  # based off of system clock.
         except KeyboardInterrupt:
@@ -1054,7 +1059,8 @@ if __name__ == "__main__":
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
-            server.worldmap.update_chunks_on_disk()  # if the worldmap in memory changed update it on the hard drive.
+            # if the worldmap in memory changed update it on the hard drive.
+            server.worldmap.update_chunks_on_disk()
             dont_break = False
             log.info("done cleaning up.")
         """except Exception as e:
@@ -1067,4 +1073,3 @@ if __name__ == "__main__":
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             dont_break = False
             sys.exit()"""
-
