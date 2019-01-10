@@ -320,7 +320,6 @@ class LoginWindow(glooey.containers.VBox):
 
         self.username = InputBox()
         self.password = InputBox()
-        
 
         self.password.push_handlers(
             on_unfocus=lambda w: print(f"password: ***************")
@@ -378,9 +377,8 @@ class LoginWindow(glooey.containers.VBox):
         # self.grid.debug_placement_problems()
 
     def set_ident(self, dt):
-        print('setting ident to', self.username.text)
+        print("setting ident to", self.username.text)
         self.get_root().ident = self.username.get_text()
-        
 
     def set_host_and_port_InputBoxes(self, server_and_port):
         print(server_and_port)
@@ -407,17 +405,21 @@ class CharacterSelectWindow(glooey.containers.VBox):
     def fill_character_list(self, list_of_characters):
         characterListScrollBox = CustomScrollBox()
         characterListScrollBox.size_hint = 100, 100
-        vbox_for_characterlist = glooey.VBox(0)
+        self.vbox_for_characterlist = glooey.VBox(0)
         # add the create new character button first then add the list the of characters for the user.
         self.create_button = CreateNewCharacterButton()
 
-        vbox_for_characterlist.add(self.create_button)
+        # add the first button
+        self.vbox_for_characterlist.add(self.create_button)
+        # add the character buttons
         for character in list_of_characters:
+            print(character)
             _decoded = jsonpickle.decode(character, keys=True)
-            _button = CharacterListButton(_decoded['name'])
+            _button = CharacterListButton(_decoded["name"])
             _button.push_handlers(on_click=self.select_character)
-            vbox_for_characterlist.add(_button)
-        characterListScrollBox.add(vbox_for_characterlist)
+            self.vbox_for_characterlist.add(_button)
+
+        characterListScrollBox.add(self.vbox_for_characterlist)
         self.grid[2, 0] = characterListScrollBox
 
     def select_character(self, dt):
@@ -781,7 +783,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.state = "login"  # character_select, character_gen, main
         MastermindClientTCP.__init__(self)
 
-        self.window = pyglet.window.Window(854, 480)
+        self.window = pyglet.window.Window(896, 896)
 
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
@@ -818,10 +820,10 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
         self.gui.add(self.LoginWindow)
-        self.gui.ident = 'boogeyman'
+        self.gui.ident = "boogeyman"
 
         # init but don't show the window
-        # self.mainWindow = mainWindow()
+        self.mainWindow = mainWindow()
 
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
@@ -884,7 +886,6 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         if self.state == "character_select":
             if next_update is not None:
                 print("--next_update in character_select--")
-                print(next_update)
                 if isinstance(next_update, list):
                     # list of characters.
                     print("list:", next_update)
@@ -909,19 +910,59 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                         on_click=self.create_new_character
                     )
                     self.gui.add(self.CharacterSelectWindow)
+                    for button in self.CharacterSelectWindow.vbox_for_characterlist:
+                        if(button.text != 'Create a Character'):
+                            button.push_handlers(on_click=lambda w: self.choose_character(w.text))
 
-                if(isinstance(next_update, str)):
-                    if(next_update == 'character_added_sucessfully'):
-                        print('server added our character successfully')
+                if isinstance(next_update, str):
+                    if next_update == "character_added_sucessfully":
+                        print("server added our character successfully")
+                        self.gui.clear()
+                        self.bg = glooey.Background()
+                        self.bg.set_appearance(
+                            center=pyglet.resource.texture("center.png"),
+                            top=pyglet.resource.texture("top.png"),
+                            bottom=pyglet.resource.texture("bottom.png"),
+                            left=pyglet.resource.texture("left.png"),
+                            right=pyglet.resource.texture("right.png"),
+                            top_left=pyglet.resource.texture("top_left.png"),
+                            top_right=pyglet.resource.texture("top_right.png"),
+                            bottom_left=pyglet.resource.texture("bottom_left.png"),
+                            bottom_right=pyglet.resource.texture("bottom_right.png"),
+                        )
 
+                        self.gui.add(self.bg)
+                        self.CharacterSelectWindow = CharacterSelectWindow(next_update)
+                        self.CharacterSelectWindow.create_button.push_handlers(
+                            on_click=self.create_new_character
+                        )
+                        self.gui.add(self.CharacterSelectWindow)
+                        for button in self.CharacterSelectWindow.vbox_for_characterlist:
+                            if(button.text != 'Create a Character'):
+                                button.push_handlers(on_click=lambda w: self.choose_character(w.text))
+
+
+        if self.state == "main":
+            self.gui.clear()
+            self.gui.add(self.mainWindow)
+            print('--in state main--')
+            if next_update is not None:
+                print('next_update in main', next_update)
+                # we recieved a localmap from the server.
+            else:
+                command = Command(self.gui.ident, "request_localmap_update", [self.character.name])
+
+            
 
         if self.state == "character_gen":
             if next_update is not None:
                 print("--next_update in character_gen--")
                 print(next_update)
-    
-    def choose_character(self, dt):
-        pass
+
+    def choose_character(self, name):
+        self.state = "main"
+        command = Command(self.gui.ident, "choose_character", [name])
+        self.send(command)
 
     def create_new_character(self, dt):
         # switch to the character generation screen
@@ -950,16 +991,12 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
     def send_completed_character(self, dt):
         # gather up all the character info from the chargen window and send it. the 'commit' button
         _data = jsonpickle.encode(self.CharacterGenerationWindow.character)
-        #print(_data)
+        # print(_data)
 
         # set this before sending the command to keep things in order.
         self.state = "character_select"
 
-        command = Command(
-            self.gui.ident,
-            "completed_character",
-            [_data],
-        )
+        command = Command(self.gui.ident, "completed_character", [_data])
         self.send(command)
         # go back to the charcterSelectWindow and update it with the new character and let them select it.
 

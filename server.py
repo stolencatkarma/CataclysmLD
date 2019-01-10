@@ -123,24 +123,26 @@ class Server(MastermindServerTCP):
             return tile["position"]
 
     def handle_new_character(self, ident, character):
-        self.characters[ident] = character
+        #ident is the account, character is the Character()
+        self.characters[character.name] = character
 
-        self.characters[ident].position = self.find_spawn_point_for_new_character()
+        self.characters[character.name].position = self.find_spawn_point_for_new_character()
         self.worldmap.put_object_at_position(
-            self.characters[ident], self.characters[ident].position
+            self.characters[character.name], self.characters[character.name].position
         )
-        self.localmaps[ident] = self.worldmap.get_chunks_near_position(
-            self.characters[ident].position
+        #print('!!!!!!!!!!!!!!!!!!!!!', self.characters[character.name].position)
+        self.localmaps[character.name] = self.worldmap.get_chunks_near_position(
+            self.characters[character.name].position
         )
 
         # give the character their starting items by referencing the ProfessionManager.
         for key, value in self.ProfessionManager.PROFESSIONS[
-            str(self.characters[ident].profession)
+            str(self.characters[character.name].profession)
         ].items():
             # TODO: load the items into the character equipment slots as well as future things like CBMs and flags
             if key == "equipped_items":
                 for equip_location, item_ident in value.items():
-                    for bodypart in self.characters[ident].body_parts:
+                    for bodypart in self.characters[character.name].body_parts:
                         if bodypart.ident.split("_")[0] == equip_location:
                             if bodypart.slot0 is None:
                                 if (
@@ -181,7 +183,7 @@ class Server(MastermindServerTCP):
             ):  # load the items_in_containers into their containers we just created.
                 for location_ident, item_ident in value.items():
                     # first find the location_ident so we can load a new item into it.
-                    for bodypart in self.characters[ident].body_parts:
+                    for bodypart in self.characters[character.name].body_parts:
                         if bodypart.slot0 is not None:
                             if (
                                 isinstance(bodypart.slot0, Container)
@@ -219,7 +221,7 @@ class Server(MastermindServerTCP):
             json.dump(_encoded, fp)
 
         self._log.info(
-            "New character added to world: {}".format(self.characters[ident].name)
+            "New character added to world: {}".format(character.name)
         )
 
     def callback_client_handle(self, connection_object, data):
@@ -302,7 +304,6 @@ class Server(MastermindServerTCP):
                             for file_data in files:
                                 if file_data.endswith(".character"):
                                     with open(root + file_data, 'r') as data_file:
-                                        print(data_file)
                                         _raw = json.load(data_file)
                                         # client will need to decode these 
                                         _tmp_list.append(_raw)
@@ -313,6 +314,14 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object, "disconnect")
                         connection_object.terminate()
 
+            if _command["command"] == "choose_character":
+                # send the current localmap to the player choosing the character
+                print(data)
+                print(self.characters)
+                print(self.localmaps)
+                self.callback_client_send(connection_object, self.localmaps[data['args'][0]])
+                pass
+
             if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:
                     _character = jsonpickle.decode(data["args"][0])
@@ -320,7 +329,7 @@ class Server(MastermindServerTCP):
                     self.handle_new_character(data["ident"], _character)
                     self._log.debug(
                         "Server: character created: {} From client {}.".format(
-                            data["ident"], connection_object.address
+                            _character.name, connection_object.address
                         )
                     )
                     self.callback_client_send(
