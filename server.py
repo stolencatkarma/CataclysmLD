@@ -319,7 +319,7 @@ class Server(MastermindServerTCP):
                 print(data)
                 print(self.characters)
                 print(self.localmaps)
-                self.callback_client_send(connection_object, self.localmaps[data['args'][0]])
+                self.callback_client_send(connection_object, jsonpickle.encode(self.localmaps[data['args'][0]]))
                 pass
 
             if _command["command"] == "completed_character":
