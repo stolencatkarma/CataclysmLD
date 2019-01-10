@@ -188,8 +188,9 @@ class Worldmap:
             for tile in self.WORLDMAP[x_count][y_count][z].tiles:
                 if tile["position"] == position:
                     return tile
-            else:
-                raise Exception("FATAL ERROR: couldn't find chunk for tile")
+            #else:
+            #    print("position",str(position))
+            #    raise Exception("FATAL ERROR: couldn't find chunk for tile")
         except Exception:
             # if it doesn't exist yet (exception) we need to create it and return it.
             self.WORLDMAP[x_count][y_count][z] = Chunk(
@@ -210,6 +211,7 @@ class Worldmap:
                     if tile["position"] == position:
                         return tile
                 else:
+                    print('position we couldnt find', str(position))
                     raise Exception(
                         "ERROR: Could not find tile or create it. (this should never happen)"
                     )

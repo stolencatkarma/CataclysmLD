@@ -2,6 +2,7 @@
 
 import argparse
 import jsonpickle
+import json
 import os
 import random
 import sys
@@ -202,6 +203,20 @@ class Server(MastermindServerTCP):
                                         self.ItemManager.ITEM_TYPES[item_ident],
                                     )
                                 )
+        path = str(
+            "./accounts/"
+            + str(ident)
+            + "/"
+            + str("characters")
+            + "/"
+            + str(character.name)
+            + ".character"
+        )
+
+        with open(path, "w") as fp:
+            _encoded = jsonpickle.encode(character, unpicklable=False, warn=True)
+            print(_encoded)
+            json.dump(_encoded, fp)
 
         self._log.info(
             "New character added to world: {}".format(self.characters[ident].name)
@@ -281,17 +296,16 @@ class Server(MastermindServerTCP):
                         # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
                         _tmp_list = list()
                         # if there are no characters to add the list remains empty.
-
                         for root, _, files in os.walk(
                             "./accounts/" + _command["ident"] + "/characters/"
                         ):
                             for file_data in files:
                                 if file_data.endswith(".character"):
-                                    with open(
-                                        root + "/ " + file_data, encoding="utf-8"
-                                    ) as data_file:
-                                        data = json.load(data_file)
-                                        _tmp_list.append(data)
+                                    with open(root + file_data, 'r') as data_file:
+                                        print(data_file)
+                                        _raw = json.load(data_file)
+                                        # client will need to decode these 
+                                        _tmp_list.append(_raw)
 
                         self.callback_client_send(connection_object, _tmp_list)
                     else:
@@ -301,7 +315,7 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:
-                    _character = jsonpickle.decode(data['args'][0])
+                    _character = jsonpickle.decode(data["args"][0])
                     # this character doesn't exist in the world yet.
                     self.handle_new_character(data["ident"], _character)
                     self._log.debug(
@@ -310,7 +324,7 @@ class Server(MastermindServerTCP):
                         )
                     )
                     self.callback_client_send(
-                        connection_object, "character added sucessfully."
+                        connection_object, "character_added_sucessfully"
                     )
                 else:
                     self._log.debug(

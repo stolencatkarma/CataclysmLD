@@ -320,7 +320,8 @@ class LoginWindow(glooey.containers.VBox):
 
         self.username = InputBox()
         self.password = InputBox()
-        self.username.push_handlers(on_unfocus=lambda w: print(f"username: '{w.text}'"))
+        
+
         self.password.push_handlers(
             on_unfocus=lambda w: print(f"password: ***************")
         )
@@ -357,6 +358,7 @@ class LoginWindow(glooey.containers.VBox):
         self.serverList = client_data["serverList"]
 
         connectButton = ConnectButton("Connect")
+        connectButton.push_handlers(on_click=self.set_ident)
         self.grid[6, 1] = connectButton
 
         serverListScrollBox = CustomScrollBox()
@@ -374,6 +376,11 @@ class LoginWindow(glooey.containers.VBox):
 
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
+
+    def set_ident(self, dt):
+        print('setting ident to', self.username.text)
+        self.get_root().ident = self.username.get_text()
+        
 
     def set_host_and_port_InputBoxes(self, server_and_port):
         print(server_and_port)
@@ -406,16 +413,15 @@ class CharacterSelectWindow(glooey.containers.VBox):
 
         vbox_for_characterlist.add(self.create_button)
         for character in list_of_characters:
-            _button = CharacterListButton(character)
+            _decoded = jsonpickle.decode(character, keys=True)
+            _button = CharacterListButton(_decoded['name'])
             _button.push_handlers(on_click=self.select_character)
             vbox_for_characterlist.add(_button)
         characterListScrollBox.add(vbox_for_characterlist)
         self.grid[2, 0] = characterListScrollBox
 
-        # self.grid.debug_drawing_problems()
-        # self.grid.debug_placement_problems()
-
     def select_character(self, dt):
+        # need to setup the MainWindow and show it.
         pass
 
 
@@ -475,8 +481,6 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         main_frame.add(self.descriptionTab())
         self.add(main_frame)
 
-   
-
     class descriptionTab(glooey.containers.Grid):
         def __init__(self):
             super().__init__(0, 0, 0, 0)
@@ -503,9 +507,6 @@ class CharacterGenerationWindow(glooey.containers.VBox):
 
         def set_name(self, dt):
             self.get_parent().get_parent().character.name = self[0, 1].text
-
-        
-    
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -817,6 +818,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
         self.gui.add(self.LoginWindow)
+        self.gui.ident = 'boogeyman'
 
         # init but don't show the window
         # self.mainWindow = mainWindow()
@@ -882,7 +884,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         if self.state == "character_select":
             if next_update is not None:
                 print("--next_update in character_select--")
-                print(type(next_update))
+                print(next_update)
                 if isinstance(next_update, list):
                     # list of characters.
                     print("list:", next_update)
@@ -908,10 +910,18 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                     )
                     self.gui.add(self.CharacterSelectWindow)
 
+                if(isinstance(next_update, str)):
+                    if(next_update == 'character_added_sucessfully'):
+                        print('server added our character successfully')
+
+
         if self.state == "character_gen":
             if next_update is not None:
                 print("--next_update in character_gen--")
-                print(type(next_update))
+                print(next_update)
+    
+    def choose_character(self, dt):
+        pass
 
     def create_new_character(self, dt):
         # switch to the character generation screen
@@ -931,20 +941,27 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui.add(self.bg)
         self.CharacterGenerationWindow = CharacterGenerationWindow()
-        self.CharacterGenerationWindow.finish_button.push_handlers(on_click=self.send_completed_character)
+        self.CharacterGenerationWindow.finish_button.push_handlers(
+            on_click=self.send_completed_character
+        )
         self.gui.add(self.CharacterGenerationWindow)
         self.state = "character_gen"
 
     def send_completed_character(self, dt):
-        # gather up all the character info from the chargen window and send it.
+        # gather up all the character info from the chargen window and send it. the 'commit' button
         _data = jsonpickle.encode(self.CharacterGenerationWindow.character)
+        #print(_data)
 
-        print(_data)
+        # set this before sending the command to keep things in order.
+        self.state = "character_select"
 
-        command = Command(self.CharacterGenerationWindow.character.name, "completed_character", [_data])
+        command = Command(
+            self.gui.ident,
+            "completed_character",
+            [_data],
+        )
         self.send(command)
         # go back to the charcterSelectWindow and update it with the new character and let them select it.
-        self.state = "character_select"
 
     def login(self, dt):
         # we'll do the below to login and recieve a list of characters.

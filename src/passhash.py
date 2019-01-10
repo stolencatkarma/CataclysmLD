@@ -37,10 +37,5 @@ if __name__ == "__main__":
 
 # /accounts/username/SALT
 # /accounts/username/HASHED_PASSWORD
-# /accounts/username/character_name1.character
-# /accounts/username/character_name2.character
-# server.usernames[0].SALT
-# server.usernames[0].HASHED_PASSWORD
-# client.username
-# client.password
-# client.SALT (recieves from server on login)
+# /accounts/username/characters/name1.character
+# /accounts/username/characters/name1.character
