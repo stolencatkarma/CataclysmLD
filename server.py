@@ -329,15 +329,24 @@ class Server(MastermindServerTCP):
                             _character.name, connection_object.address
                         )
                     )
-                    self.callback_client_send(
-                        connection_object, "character_added_sucessfully"
-                    )
                 else:
                     self._log.debug(
                         "Server: character NOT created. Already Exists.: {} From client {}.".format(
                             data["ident"], connection_object.address
                         )
                     )
+                _tmp_list = list()
+                for root, _, files in os.walk(
+                        "./accounts/" + _command["ident"] + "/characters/"
+                    ):
+                        for file_data in files:
+                            if file_data.endswith(".character"):
+                                with open(root + file_data, 'r') as data_file:
+                                    _raw = json.load(data_file)
+                                    # client will need to decode these 
+                                    _tmp_list.append(_raw)
+
+                self.callback_client_send(connection_object, _tmp_list)
 
             if _command["command"] == "request_character_update":
                 self.callback_client_send(
