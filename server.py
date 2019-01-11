@@ -113,6 +113,8 @@ class Server(MastermindServerTCP):
         _tiles = self.worldmap.get_all_tiles()
         random.shuffle(_tiles)  # so we all don't spawn in one corner.
         for tile in _tiles:
+            if tile['position'].x < 13 or tile['position'].y < 13 or tile['position'].z != 0:
+                continue
             if tile["terrain"].impassable:
                 continue
             if tile["creature"] is not None:
@@ -316,8 +318,7 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "choose_character":
                 # send the current localmap to the player choosing the character
-                self.callback_client_send(connection_object, jsonpickle.encode(self.localmaps[data['args'][0]]))
-                pass
+                self.callback_client_send(connection_object, jsonpickle.encode(self.localmaps[data['args'][0]], unpicklable=False, keys=True))
 
             if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:

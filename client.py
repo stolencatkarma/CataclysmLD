@@ -884,11 +884,13 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         if self.state == "main":
             self.gui.clear()
-            self.gui.add(self.mainWindow)
+            self.gui.add(self.mainWindow())
             print("--in state main--")
+            print(self.localmap)
             if next_update is not None:
                 print("next_update in main", next_update)
                 # we recieved a localmap from the server.
+                self.localmap = jsonpickle.decode(next_update)
 
         if self.state == "character_gen":
             if next_update is not None:
