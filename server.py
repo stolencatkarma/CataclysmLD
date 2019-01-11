@@ -316,9 +316,6 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "choose_character":
                 # send the current localmap to the player choosing the character
-                print(data)
-                print(self.characters)
-                print(self.localmaps)
                 self.callback_client_send(connection_object, jsonpickle.encode(self.localmaps[data['args'][0]]))
                 pass
 
