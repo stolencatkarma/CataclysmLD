@@ -8,6 +8,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+import pprint
 
 import pyglet
 import glooey
@@ -333,16 +334,9 @@ class LoginWindow(glooey.containers.VBox):
         self.username = InputBox()
         self.password = InputBox()
 
-        self.password.push_handlers(
-            on_unfocus=lambda w: print(f"password: ***************")
-        )
-
         self.serverIP = InputBox()
         self.serverPort = InputBox()
         self.serverIP.push_handlers(on_unfocus=lambda w: print(f"serverIP: '{w.text}'"))
-        self.serverPort.push_handlers(
-            on_unfocus=lambda w: print(f"serverPort: '{w.text}'")
-        )
 
         self.grid = glooey.Grid(0, 0, 0, 0)
         self.padding = 16
@@ -419,7 +413,6 @@ class CharacterSelectWindow(glooey.containers.VBox):
         self.vbox_for_characterlist.add(self.create_button)
         # add the character buttons
         for character in list_of_characters:
-            print(character)
             _decoded = jsonpickle.decode(character, keys=True)
             _button = CharacterListButton(_decoded["name"])
             _button.push_handlers(on_click=self.select_character)
@@ -444,7 +437,6 @@ class CharacterGenerationWindow(glooey.containers.VBox):
 
         # our points available to spend on traits
         self.points = 8
-        
 
         _screens = [
             "scenario",
@@ -484,8 +476,8 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         self.main_frame.add(self.descriptionTab())
         self.add(self.main_frame)
 
-        self.name = ''
-        self.gender = ''
+        self.name = ""
+        self.gender = ""
 
     class descriptionTab(glooey.containers.Grid):
         def __init__(self):
@@ -505,46 +497,56 @@ class CharacterGenerationWindow(glooey.containers.VBox):
             self[3, 0] = CharacterGenerationScrollBox()
             self[3, 1] = CharacterGenerationScrollBox()
             self[3, 2] = CharacterGenerationScrollBox()
-        
 
         # nameLabel -       nameInputBox -          genderLabel -       genderInputBox
         # professionLabel - selectedProfession -    scenarioLabel -     selectedScenario
         # statsLabel -      TraitsLabel -           SkillsLabel
         # statsScrollbox -  TraitsScrollbox -       SkillsScrollBox
 
+# MaptTile is a clickable widget with a reference the the localmap data.
+class MapTile(glooey.Image):
+    def __init__(self, tile):
+        super().__init__(pyglet.resource.image('t_null.png'))
+        # dict from localmap
+        self.tile = tile
+   
+
 
 # The window after we login with a character. Where the Main game is shown.
 class mainWindow(glooey.containers.Stack):
-    def __init__(self):
+    def __init__(self, localmap, character_name):
         super().__init__()
-
+        self.localmap = self.convert_chunks_to_localmap(localmap)
+        self.character_name = character_name
         self.chunk_size = (13, 13)  # the only tuple you'll see I swear.
 
         self.map_grid = glooey.Grid(
             self.chunk_size[0], self.chunk_size[1], 32, 32
         )  # chunk_size + tilemap size
-        self.map_grid.set_left_padding(32)  # for the border.
-        self.map_grid.set_top_padding(32)
+        self.map_grid.set_left_padding(16)  # for the border.
+        self.map_grid.set_top_padding(16)
 
-        for i in range(
-            self.chunk_size[0]
-        ):  # glooey uses x,y for grids from the top left.
+        self.TileManager = TileManager()
+        self.ItemManager = ItemManager()
+        self.RecipeManager = RecipeManager()
+
+        # glooey uses x,y for grids from the top left.
+        for i in range(self.chunk_size[0]):
             for j in range(self.chunk_size[1]):
+                # init the MapTile(s)
                 self.map_grid.add(
-                    i, j, glooey.images.Image(pyglet.resource.texture("t_grass.png"))
-                )  # before we get an update we need to init the map with grass.
+                    i, j, MapTile(None)
+                )
 
         # insert the background into our ordered groups.
         self.insert(CustomBackground(), 0)
 
         # insert the map_grid into our ordered group.
         self.insert(self.map_grid, 1)
-
-        # TODO: lerp the positions of creatures from one frame to the next.
-        # self.old_map = self.localmap
-
-        # our keep-alive event. without this the server would disconnect if we don't send data within the timeout for the server. (usually 60 seconds)
-        # clock.schedule_interval(self.ping, 30.0)
+        #self.insert(self.weather_board, 2)
+        self.update_map_for_position(self.find_character_in_localmap().position)
+        # self.draw_view_at_position(self.convert_position_to_local_coords(self.find_character_in_localmap().position))
+        
 
     def ping(self, dt):
         command = Command(client.character.name, "ping")
@@ -553,14 +555,16 @@ class mainWindow(glooey.containers.Stack):
     def find_character_in_localmap(self):
         for tile in self.localmap:
             if tile["creature"] is not None:
-                if tile["creature"].name == self.character.name:
+                if tile["creature"].name == self.character_name:
                     return tile["creature"]
         else:
             print("couldn't find character")
 
     def convert_chunks_to_localmap(self, list_of_chunks):
         tiles = []
+        # these are still raw decoded jsonpickle objects at this point.
         for chunk in list_of_chunks:
+            #pprint.pprint(chunk)
             for tile in chunk.tiles:
                 tiles.insert(len(tiles), tile)
         return tiles
@@ -613,7 +617,6 @@ class mainWindow(glooey.containers.Stack):
         for y in range(origin_position.y - radius, origin_position.y + radius + 1):  # Y
             grid_edges.append((origin_position.x - radius, y))
             grid_edges.append((origin_position.x + radius, y))
-        # print('grid_edges: ' + str(len(grid_edges)))
 
         tiles_to_keep = []
         # now we need to remove tiles which are out of our field of view.
@@ -688,55 +691,6 @@ class mainWindow(glooey.containers.Stack):
 
         return Position(x, y, z)
 
-    def draw_view_at_position(self, draw_position):
-        self.trim_localmap(draw_position)  # update field of view and lighting
-
-        # at this point the localmap should've been trimmed of unseeable tiles. draw what's left at position.
-        for tile in self.localmap:  # draw the localmap for the controlling player.
-            terrain = tile["terrain"]
-            position = tile["position"]  # Position(x, y, z)
-            creature = tile["creature"]  # Creature()
-            furniture = tile["furniture"]  # Furniture()
-            items = tile["items"]  # list [] of Item()
-            light_intensity = tile["lumens"]
-
-            fg = self.TileManager.TILE_TYPES[terrain.ident]["fg"]
-            bg = self.TileManager.TILE_TYPES[terrain.ident]["bg"]
-
-            x = (
-                draw_position.x - position.x - (self.chunk_size[0] // 2)
-            )  # offset to put position in middle of viewport
-            y = (
-                draw_position.y - position.y - (self.chunk_size[1] // 2)
-            )  # offset to put position in middle of viewport
-
-            """# first blit terrain
-        
-            # then blit furniture
-        
-
-            # then blit items (if there is a pile of items check and see if any are blueprints. if so show those.)
-            if(len(items) > 0):
-                for item in items:
-                    # always show blueprints on top.
-                else:
-                    # only display the first item 
-        
-            # then blit vehicles
-
-            # then blit player and creatures and monsters (all creature types)
-            """
-            # darken based on lumen level of the tile
-            # light_intensity # 10 is max light level although lumen level may be higher.
-            # light_intensity = min(int((255-(light_intensity*25))/3), 255)
-            # light_intensity = max(light_intensity, 0)
-            # self.screen.fill((light_intensity, light_intensity, light_intensity), rect=(x*24, y*24, 24, 24), special_flags=pygame.BLEND_SUB)
-
-            # render debug text
-
-            # then blit weather. Weather is the only thing above players and creatures.
-            # TODO: blit weather
-
     def open_crafting_menu(self):
         list_of_known_recipes = []
         for (
@@ -776,7 +730,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         MastermindClientTCP.__init__(self)
 
         self.window = pyglet.window.Window(896, 498)
-        self.client_name = ''
+        self.client_name = ""
+        self.character_name = ""
+        self.last_request = time.time()
 
         pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
         pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
@@ -798,9 +754,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui.add(self.bg)
 
-        self.TileManager = TileManager
-        self.ItemManager = ItemManager
-        self.RecipeManager = RecipeManager
+        
 
         # TODO: make new hotbar in pyglet.
         self.hotbars = []
@@ -809,9 +763,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
         self.gui.add(self.LoginWindow)
-
-        self.character = None
-        self.localmap = None
+     
 
         # init but don't show the window
         self.mainWindow = mainWindow
@@ -820,7 +772,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
     # We always start out at the login window.
     # once we recieve a list of characters SWITCH to the character select view.
     # once the user selects a character ask the server to login into the world with it.
-    # once we recieve a world state SWITCH to the mainWindow. client.character and localmap should be filled.
+    # once we recieve a world state SWITCH to the mainWindow. mainWindow.localmap should be filled.
     def check_messages_from_server(self, dt):
         # commands recieved while in the login window
         next_update = client.receive(False)
@@ -828,10 +780,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
             # we recieved a message from the server. let's process it.
             if next_update is not None:
                 print("--next_update in login--")
-                print(type(next_update))
                 if isinstance(next_update, list):
                     # list of characters.
-                    print("list:", next_update)
+                    #print("list:", next_update)
                     # open the character select screen.
                     self.gui.clear()
                     self.gui.add(CustomBackground())
@@ -848,7 +799,6 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                         return
 
                 if isinstance(next_update, str):
-                    print(next_update)
                     # server sent salt
                     _hashedPW = hashPassword(
                         self.LoginWindow.password.text, next_update
@@ -866,7 +816,6 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 print("--next_update in character_select--")
                 if isinstance(next_update, list):
                     # list of characters.
-                    print("list:", next_update)
                     # re-fresh the character select screen.
                     self.gui.clear()
 
@@ -883,14 +832,18 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                             )
 
         if self.state == "main":
-            self.gui.clear()
-            self.gui.add(self.mainWindow())
-            print("--in state main--")
-            print(self.localmap)
             if next_update is not None:
-                print("next_update in main", next_update)
+                self.gui.clear()
+                print("next_update in main", type(next_update))
+                _raw_nine_chunks = jsonpickle.decode(next_update)
                 # we recieved a localmap from the server.
-                self.localmap = jsonpickle.decode(next_update)
+                # is localmap
+                self.gui.add(self.mainWindow(_raw_nine_chunks, self.character_name))
+            elif time.time() - self.last_request > 1:
+                command = Command(self.client_name, "request_localmap_update", [self.character_name])
+                self.send(command)
+                self.last_request = time.time()
+            
 
         if self.state == "character_gen":
             if next_update is not None:
@@ -899,6 +852,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
     def choose_character(self, name):
         self.state = "main"
+        self.character_name = name
         command = Command(self.client_name, "choose_character", [name])
         self.send(command)
 
@@ -921,8 +875,12 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
     def send_completed_character(self, dt):
         # gather up all the character info from the chargen window and send it. the 'commit' button
 
-        self.character.name = self.CharacterGenerationWindow.main_frame.get_child()[0, 1].text
-        self.character.gender = self.CharacterGenerationWindow.main_frame.get_child()[0, 3].text
+        self.character.name = self.CharacterGenerationWindow.main_frame.get_child()[
+            0, 1
+        ].text
+        self.character.gender = self.CharacterGenerationWindow.main_frame.get_child()[
+            0, 3
+        ].text
         _data = jsonpickle.encode(self.character)
 
         # set this before sending the command to keep things in order.
@@ -939,8 +897,8 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         )
 
         # set our client_name for future sending.
-        self.client_name = self.LoginWindow.username.text 
-        
+        self.client_name = self.LoginWindow.username.text
+
         command = Command(self.LoginWindow.username.text, "login", ["noargs"])
         self.send(command)
         # -------------------------------------------------------

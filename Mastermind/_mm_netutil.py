@@ -25,8 +25,6 @@ def packet_send(sock, protocol_and_udpaddress, data, compression): #E.g.: =(MM_T
     length = len(data_str)
     data_to_send = struct.pack('!I', length) + data_str
 
-    print(data_to_send)
-
     try:
         if protocol_and_udpaddress[0] == MM_TCP:
             sock.send(data_to_send)

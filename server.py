@@ -132,7 +132,6 @@ class Server(MastermindServerTCP):
         self.worldmap.put_object_at_position(
             self.characters[character.name], self.characters[character.name].position
         )
-        #print('!!!!!!!!!!!!!!!!!!!!!', self.characters[character.name].position)
         self.localmaps[character.name] = self.worldmap.get_chunks_near_position(
             self.characters[character.name].position
         )
@@ -219,7 +218,6 @@ class Server(MastermindServerTCP):
 
         with open(path, "w") as fp:
             _encoded = jsonpickle.encode(character, unpicklable=False, warn=True)
-            print(_encoded)
             json.dump(_encoded, fp)
 
         self._log.info(
@@ -247,18 +245,14 @@ class Server(MastermindServerTCP):
         if isinstance(_command, Command):
             if _command["command"] == "login":
                 # check whether this username has an account.
-                print("checking validity of account.")
                 _path = "./accounts/" + _command["ident"] + "/"
                 # try:
                 if os.path.isdir("./accounts/" + _command["ident"]):
-                    print("username already exists.")
                     with open(str(_path + "SALT")) as f:
                         # send the user their salt.
                         _salt = f.read()
                         self.callback_client_send(connection_object, str(_salt))
                 else:
-                    print("username doesn't have an account. let's set one up.")
-
                     try:
                         os.mkdir(_path)
                     except OSError:
@@ -283,11 +277,9 @@ class Server(MastermindServerTCP):
                         print("Successfully created the directory %s " % _path)
 
             if _command["command"] == "hashed_password":
-                print("checking hashed_password")
                 _path = "./accounts/" + _command["ident"] + "/"
                 if not os.path.isfile(str(_path + "HASHED_PASSWORD")):
                     # recieved hashedPW from user, save it and send them a list of characters. (presumaably zero if this is a new user. maybe give options to take over NPCs?)
-                    print("storing password for " + str(_command["ident"]))
                     with open(str(_path + "HASHED_PASSWORD"), "w") as f:
                         f.write(str(_command["args"][0]))
                 else:
@@ -312,13 +304,16 @@ class Server(MastermindServerTCP):
 
                         self.callback_client_send(connection_object, _tmp_list)
                     else:
-                        print("password not accepted.")
                         self.callback_client_send(connection_object, "disconnect")
                         connection_object.terminate()
 
             if _command["command"] == "choose_character":
                 # send the current localmap to the player choosing the character
-                self.callback_client_send(connection_object, jsonpickle.encode(self.localmaps[data['args'][0]], unpicklable=False, keys=True))
+                self.characters[data['args'][0]] = self.worldmap.get_character(data['args'][0])
+                self.localmaps[data['args'][0]] = self.worldmap.get_chunks_near_position(
+                    self.characters[data['args'][0]].position
+                )
+                self.callback_client_send(connection_object, jsonpickle.encode(self.localmaps[data['args'][0]]))
 
             if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:
@@ -349,17 +344,12 @@ class Server(MastermindServerTCP):
 
                 self.callback_client_send(connection_object, _tmp_list)
 
-            if _command["command"] == "request_character_update":
-                self.callback_client_send(
-                    connection_object, self.characters[data["ident"]]
-                )
-
             if _command["command"] == "request_localmap_update":
-                self.localmaps[data["ident"]] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["ident"]].position
+                self.localmaps[data["args"][0]] = self.worldmap.get_chunks_near_position(
+                    self.characters[data["args"][0]].position
                 )
                 self.callback_client_send(
-                    connection_object, self.localmaps[data["ident"]]
+                    connection_object, jsonpickle.encode(self.localmaps[data["args"][0]])
                 )
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
@@ -438,7 +428,6 @@ class Server(MastermindServerTCP):
                 _route = self.calculate_route(
                     self.characters[data["ident"]].position, _position
                 )  # returns a route from point 0 to point 1 as a series of Position(s)
-                print(_route)
                 self._log.debug(
                     "Calculated route for Character {}: {}".format(
                         self.characters[data["ident"]], _route
@@ -486,13 +475,11 @@ class Server(MastermindServerTCP):
                     _z = _next_z
 
             if _command["command"] == "move_item_to_character_storage":
-                print("RECIEVED: move_item_to_character_storage", str(data))
                 _character = self.characters[data["ident"]]
                 _from_pos = Position(data.args[0], data.args[1], data.args[2])
                 _item_ident = data.args[3]
                 _from_item = None
                 _open_containers = []
-                print(_character, _from_pos, _item_ident)
                 # find the item that the character is requesting.
                 for item in self.worldmap.get_tile_by_position(_from_pos)["items"]:
                     if item.ident == _item_ident:
@@ -502,7 +489,6 @@ class Server(MastermindServerTCP):
 
                 # we didn't find one, character sent bad information (possible hack?)
                 if _from_item == None:
-                    print("!!! _from_item not found. this is unusual.")
                     return
 
                 # make a list of open_containers the character has to see if they can pick it up.
@@ -521,16 +507,12 @@ class Server(MastermindServerTCP):
                         _open_containers.append(bodyPart.slot1)
 
                 if len(_open_containers) <= 0:
-                    print("no open containers found.")
                     return  # no open containers.
 
                 # check if the character can carry that item.
                 for container in _open_containers:
                     # then find a spot for it to go (open_containers)
                     if container.add_item(item):  # if it added it sucessfully.
-                        print(
-                            "added item correctly. trying to remove it from the world."
-                        )
                         # remove it from the world.
                         for item in self.worldmap.get_tile_by_position(_from_pos)[
                             "items"
@@ -541,7 +523,6 @@ class Server(MastermindServerTCP):
                                 self.worldmap.get_tile_by_position(_from_pos)[
                                     "items"
                                 ].remove(item)
-                                print("removed item from the world successfully.")
                                 break
                         return
                     else:
@@ -574,7 +555,6 @@ class Server(MastermindServerTCP):
                             _from_list = bodypart.equipped
                             _from_list.remove(_item)
                             _to_list.append(_item)
-                            print("moved correctly.")
                             return
                 elif _from_type == "bodypart.equipped.container":
                     for bodypart in _character_requesting.body_parts[
@@ -590,14 +570,12 @@ class Server(MastermindServerTCP):
                                         _from_list = item.contained_items
                                         _from_list.remove(_item)
                                         _to_list.append(_item)
-                                        print("moved correctly.")
                                         return
                 elif _from_type == "position":
                     _from_list = self.worldmap.get_tile_by_position(_position)["items"]
                     if _item in _from_list:
                         _from_list.remove(_item)
                         _to_list.append(_item)
-                        print("moved correctly.")
                         return
                 elif (
                     _from_type == "blueprint"
@@ -609,7 +587,6 @@ class Server(MastermindServerTCP):
                             _from_list = item.contained_items
                             _from_list.remove(_item)
                             _to_list.append(_item)
-                            print("moved correctly.")
                             return
 
                 ### possible move types ###
@@ -631,7 +608,6 @@ class Server(MastermindServerTCP):
         return super(Server, self).callback_client_handle(connection_object, data)
 
     def callback_client_send(self, connection_object, data, compression=True):
-        # print("Server: Sending data \""+str(data)+"\" to client \""+str(connection_object.address)+"\" with compression \""+str(compression)+"\"!")
         return super(Server, self).callback_client_send(
             connection_object, data, compression
         )
@@ -906,9 +882,8 @@ class Server(MastermindServerTCP):
         for creature in creatures_to_process:
             # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
             if len(creature.command_queue) > 0:
-                print("doing actions for: " + str(creature.name))
                 self.process_creature_command_queue(creature)
-
+        
         # now that we've processed what everything wants to do we can return.
 
     def generate_and_apply_city_layout(self, city_size):
@@ -1079,7 +1054,6 @@ if __name__ == "__main__":
             )  # a turn is one second.
             # where all queued creature actions get taken care of, as well as physics engine stuff.
             server.compute_turn()
-            # print('turn: ' + str(server.calendar.get_turn()))
             # if the worldmap in memory changed update it on the hard drive.
             server.worldmap.update_chunks_on_disk()
             # TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
@@ -1094,9 +1068,6 @@ if __name__ == "__main__":
             dont_break = False
             log.info("done cleaning up.")
         """except Exception as e:
-            print('!! Emergency Exit due to Server Exception. !!')
-            print(e)
-            print()
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()

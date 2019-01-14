@@ -141,7 +141,6 @@ class Worldmap:
         )  # check and see if it exists if not create it.
         x_count = 0  #
         x = position.x
-        # print(position)
         while x >= self.chunk_size:
             x = x - self.chunk_size
             x_count = x_count + 1
@@ -189,7 +188,6 @@ class Worldmap:
                 if tile["position"] == position:
                     return tile
             #else:
-            #    print("position",str(position))
             #    raise Exception("FATAL ERROR: couldn't find chunk for tile")
         except Exception:
             # if it doesn't exist yet (exception) we need to create it and return it.
@@ -259,7 +257,6 @@ class Worldmap:
         return chunks
 
     def get_character(self, ident):
-        # print('ident:' + str(ident))
         for tile in self.get_all_tiles():
             if tile["creature"] is not None and tile["creature"].name == ident:
                 print("found player:" + tile["creature"].name)
@@ -272,15 +269,12 @@ class Worldmap:
     ):  # attempts to take any object (creature, item, furniture) and put it in the right spot in the WORLDMAP
         # TODO: check if something is already there. right now it just replaces it
         tile = self.get_tile_by_position(position)
-        # print(tile)
         self.get_chunk_by_position(position).is_dirty = True
         if isinstance(obj, (Creature, Character, Monster)):
             tile["creature"] = obj
             return
         elif isinstance(obj, Terrain):
             tile["terrain"] = obj
-            # tile = self.get_tile_by_position(position)
-            # print(tile['terrain'])
             return
         elif isinstance(obj, Item):
             items = tile["items"]  # which is []
@@ -292,9 +286,6 @@ class Worldmap:
         elif isinstance(
             obj, Blueprint
         ):  # a blueprint takes up the slot that the final object is. e.g Terrain blueprint takes up the Terrain slot in the world map.
-            # print('isinstance blueprint')
-            # print(obj.type_of)
-            # print(str(obj.type_of))
             if obj.type_of == "Terrain":
                 tile["terrain"] = obj
                 return
@@ -317,44 +308,35 @@ class Worldmap:
         # TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
             data = json.load(json_file)
-        # print(data)
         # group = data['group']
         # overmap_terrain = data['overmap_terrain']
         floors = data["floors"]
-        # print(floors)
         terrain = data["terrain"]  # list
         furniture = data["furniture"]  # list
         fill_terrain = data["fill_terrain"]  # string
 
         impassable_tiles = ["t_wall"]  # TODO: make this global
         for k, floor in floors.items():
-            # print(k)
             i, j = 0, 0
             for row in floor:
                 i = 0
                 for char in row:
-                    # print(char)
-                    # print(terrain)
                     impassable = False
                     t_position = Position(position.x + i, position.y + j, k)
                     self.put_object_at_position(
                         Terrain(fill_terrain, impassable), t_position
                     )  # use fill_terrain if unrecognized.
                     if char in terrain:
-                        # print('char in terrain')
                         if terrain[char] in impassable_tiles:
                             impassable = True
-                        # print('placing: ' + str(terrain[char]))
                         self.put_object_at_position(
                             Terrain(terrain[char], impassable), t_position
                         )
                     elif char in furniture:
-                        # print('placing: ' + str(furniture[char]))
                         self.put_object_at_position(
                             Furniture(furniture[char]), t_position
                         )
                     else:
-                        # print('placed : ' + str(fill_terrain))
                         pass
                     i = i + 1
                 j = j + 1
@@ -379,10 +361,8 @@ class Worldmap:
                 if from_tile["terrain"].ident != "t_stairs_down":
                     print("no down stairs there")
                     return False
-        # print(self.get_chunk_by_position(to_position).is_dirty)
         self.get_chunk_by_position(from_position).is_dirty = True
         self.get_chunk_by_position(to_position).is_dirty = True
-        # print(self.get_chunk_by_position(to_position).is_dirty)
         if isinstance(obj, (Creature, Character, Monster)):
             self._log.debug(
                 "moving {} from {} to {}.".format(obj, from_position, to_position)
@@ -438,10 +418,7 @@ class Worldmap:
             furniture_type = self.FurnitureManager.FURNITURE_TYPES[
                 tile["furniture"].ident
             ]
-            # print(tile['furniture'])
             for item in furniture_type["bash"]["items"]:
-                print(item)
-                print(str(self.ItemManager.ITEM_TYPES[str(item["item"])]))
                 self.put_object_at_position(
                     Item(
                         self.ItemManager.ITEM_TYPES[str(item["item"])]["ident"],
@@ -455,7 +432,6 @@ class Worldmap:
             # if player can break it then delete the furniture and add the bash items from it to the tile.
             return
         if terrain is not None:
-            # pprint(terrain['bash'])
             # get the 'bash' dict for this object from terrain.json if any
             # if dict is not None:
             # get 'str_min'
@@ -495,8 +471,6 @@ class Worldmap:
                 dx = position.x - i
                 dy = position.y - j
                 distance = max(abs(dx), abs(dy))
-                # distance = int(abs(position.x) + abs(i)) - int(abs(position.y) + abs(j)) # 1,2 to 2,4 would be distance 2. we'll see how this looks
-                # print(distance)
                 ret_tiles.append(
                     (self.get_tile_by_position(Position(i, j, position.z)), distance)
                 )
@@ -598,9 +572,8 @@ class Worldmap:
 
         for j in range(size):
             for i in range(size):
-                # print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
+                #print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
                 pass
-            print()
 
         return city_layout
 
