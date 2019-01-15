@@ -6,25 +6,7 @@ class TileManager: # holds all the tile types from tile_config.json as well as t
         self.tilemapPx = 32
         self.tilemapPy = 32
         self.TILE_TYPES = defaultdict(dict) # the dict of tiles loaded from the tile_config.json
-        with open('./tilesets/'+ tileset +'/tile_config.json') as data_file: # load tile config so we know what tile goes with what ident
-            data = json.load(data_file)
-        for tiles in data['tiles-new']:
-            for tile in tiles['tiles']:
-                if(not 'bg' in tile.keys()): # some entries don't contain a bg, fixing this.
-                    tile['bg'] = None
-                if(not 'fg' in tile.keys()):
-                    tile['fg'] = None
-                if(not 'rotates' in tile.keys()):
-                    tile['rotates'] = False
-                try:
-                    self.TILE_TYPES[tile['ident']]['fg'] = tile['fg'] # eg, tile['ident']['fg'] is a integer of the foreground of that ident
-                    self.TILE_TYPES[tile['ident']]['bg'] = tile['bg']
-                    self.TILE_TYPES[tile['ident']]['rotates'] = tile['rotates']
-                    # tile['multitile']
-                    # tile['additional_tiles']))
-                except:
-                    pass
-        with open('./data/json/terrain.json') as data_file: # load tile config so we know what tile goes with what ident
+        with open('./data/json/terrain.json') as data_file: # load terrain data as well.
             data = json.load(data_file)
         for terrain in data:
             #pprint(terrain)

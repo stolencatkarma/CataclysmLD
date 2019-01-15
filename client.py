@@ -31,9 +31,10 @@ from src.worldmap import Worldmap
 # load the tileset TODO: support different tilesets.
 pyglet.resource.path = [
     "tilesets/Chesthole32/tiles",
-    "tilesets/Chesthole32/tiles/background",
     "tilesets/Chesthole32/tiles/monsters",
     "tilesets/Chesthole32/tiles/terrain",
+    "tilesets/Chesthole32/tiles/plants",
+    "tilesets/Chesthole32/tiles/furniture",
 ]
 for folder in [
     "/gfx/",
@@ -504,11 +505,29 @@ class CharacterGenerationWindow(glooey.containers.VBox):
 
 
 # MaptTile is a clickable widget with a reference the the localmap data.
-class MapTile(glooey.Image):
+class MapTile(glooey.containers.Stack):
     def __init__(self, tile):
-        super().__init__(pyglet.resource.image('t_null.png'))
+        super().__init__()
         # dict from localmap
         self.tile = tile
+        print(self.tile)
+        if self.tile is not None:
+
+            self.terrain = glooey.Image(pyglet.resource.image(str(self.tile['terrain'].ident) + '.png'))
+            self.insert(self.terrain, 0)
+            if self.tile['furniture'] is not None:
+                self.furniture = glooey.Image(pyglet.resource.image(str(self.tile['furniture'].ident) + '.png'))
+                self.insert(self.furnitureg, 1)
+            # only one item is ever shown
+            if len(self.tile['items']) > 0:
+                self.item = glooey.Image(pyglet.resource.image(str(self.tile['items'][0].ident) + '.png'))
+                self.insert(self.item, 2)
+            if self.tile['creature'] is not None:
+                self.creature = glooey.Image(pyglet.resource.image(str(self.tile['creature'].tile_ident) + '.png'))
+                self.insert(self.creature, 3)
+
+
+
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -541,7 +560,6 @@ class MainWindow(glooey.containers.Stack):
         self.insert(self.map_grid, 1)
         # self.insert(self.weather_board, 2)
         self.update_map_for_position(self.find_character_in_localmap().position)
-        # self.draw_view_at_position(self.convert_position_to_local_coords(self.find_character_in_localmap().position))
 
     def ping(self, dt):
         command = Command(client.character.name, "ping")
@@ -648,28 +666,8 @@ class MainWindow(glooey.containers.Stack):
                     continue
                 if y < 0 or y > 12:
                     continue
-                self.map_grid[x, y].set_image(
-                    pyglet.resource.texture(tile["terrain"].ident + ".png")
-                )  # must be (0-12, 0-12)
-
-                # then overlay furniture on that.
-                if tile["furniture"] is not None:
-                    self.map_grid[x, y].set_image(
-                        pyglet.resource.texture(tile["furniture"].ident + ".png")
-                    )
-
-                # then overlay items on that.
-                if tile["items"] is not None and len(tile["items"]) > 0:
-                    self.map_grid[x, y].set_image(
-                        pyglet.resource.texture(tile["items"][0].ident + ".png")
-                    )  # just show the first item
-
-                # then overlay creatures on that.
-                if tile["creature"] is not None:
-                    self.map_grid[x, y].set_image(
-                        pyglet.resource.texture(tile["creature"].tile_ident + ".png")
-                    )
-
+                self.map_grid[x,y] = MapTile(tile)                
+                
             # print("FPS:", pyglet.clock.get_fps())
 
     def convert_position_to_local_coords(self, position):
@@ -734,20 +732,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui = glooey.Gui(self.window)
 
-        self.bg = glooey.Background()
-        self.bg.set_appearance(
-            center=pyglet.resource.texture("center.png"),
-            top=pyglet.resource.texture("top.png"),
-            bottom=pyglet.resource.texture("bottom.png"),
-            left=pyglet.resource.texture("left.png"),
-            right=pyglet.resource.texture("right.png"),
-            top_left=pyglet.resource.texture("top_left.png"),
-            top_right=pyglet.resource.texture("top_right.png"),
-            bottom_left=pyglet.resource.texture("bottom_left.png"),
-            bottom_right=pyglet.resource.texture("bottom_right.png"),
-        )
-
-        self.gui.add(self.bg)
+        self.gui.add(CustomBackground())
 
         # TODO: make new hotbar in pyglet.
         self.hotbars = []
@@ -828,7 +813,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 # we recieved a localmap from the server.
                 # is localmap
                 self.gui.add(self.main_window(_raw_nine_chunks, self.character_name))
-            elif time.time() - self.last_request > 1:
+            elif time.time() - self.last_request > 1.0:
                 command = Command(self.client_name, "request_localmap_update", [self.character_name])
                 self.send(command)
                 self.last_request = time.time()
