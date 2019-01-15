@@ -1,14 +1,10 @@
-# defines a client to server command.
 class Command(dict):
-    # types of commands 'move',
-    def __init__(self, ident, command, args=[]):
+    """A client to server command"""
+
+    __slots__ = 'ident', 'command', 'args'
+
+    def __init__(self, ident, command, args):
+        super().__init__()
         self['ident'] = ident
         self['command'] = command
-        self['args'] = list(args) # expects a list e.g Command(player, 'move', ['up'])
-
-    def __str__(self):
-        ret = self['ident']
-        ret = ret + ' : ' + str(self['command'])
-        for arg in self['args']:
-            ret = ret + ' : ' + str(arg)
-        return ret
+        self['args'] = args

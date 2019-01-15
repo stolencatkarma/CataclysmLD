@@ -1,21 +1,32 @@
 #!/usr/bin/env python3
 
 import argparse
-import jsonpickle
+import pprint
 import json
 import math
 import os
 import sys
 import time
 from collections import defaultdict
-import pprint
 
 import pyglet
 import glooey
-from pyglet.window import key as KEY
 from pyglet import clock
 from src.passhash import hashPassword
+
+from Mastermind._mm_client import MastermindClientTCP
+
+from src.action import Action
+from src.blueprint import Blueprint
+from src.command import Command
+from src.item import Item, ItemManager
 from src.character import Character
+from src.position import Position
+from src.recipe import Recipe, RecipeManager
+from src.tilemanager import TileManager
+from src.serializer import encode_packet, decode_packet
+from src.worldmap import Worldmap
+
 
 # load the tileset TODO: support different tilesets.
 pyglet.resource.path = [
@@ -36,19 +47,8 @@ for folder in [
 ]:
     pyglet.resource.path.append(folder)
     print("Loaded gfx folder", folder)
+
 pyglet.resource.reindex()
-
-from Mastermind._mm_client import MastermindClientTCP
-
-from src.action import Action
-from src.blueprint import Blueprint
-from src.command import Command
-from src.item import Item, ItemManager
-from src.character import Character
-from src.position import Position
-from src.recipe import Recipe, RecipeManager
-from src.tileManager import TileManager
-from src.worldmap import Worldmap
 
 
 class CustomBackground(glooey.Background):
@@ -362,29 +362,27 @@ class LoginWindow(glooey.containers.VBox):
         self.password.text = client_data["password"]
         self.serverList = client_data["serverList"]
 
-        connectButton = ConnectButton("Connect")
-        self.grid[6, 1] = connectButton
+        self.grid[6, 1] = ConnectButton("Connect")
 
-        serverListScrollBox = CustomScrollBox()
-        serverListScrollBox.size_hint = 100, 100
+        server_list_scroll_box = CustomScrollBox()
+        server_list_scroll_box.size_hint = 100, 100
         vbox_for_serverlist = glooey.VBox(0)
         for server in self.serverList:
             _button = ServerListButton(server)
             # sets the active server to the one you press.
-            _button.push_handlers(on_click=self.set_host_and_port_InputBoxes)
+            _button.push_handlers(on_click=self.set_host_and_port_input_boxes)
             vbox_for_serverlist.add(_button)
-        serverListScrollBox.add(vbox_for_serverlist)
-        self.grid[6, 0] = serverListScrollBox
+        server_list_scroll_box.add(vbox_for_serverlist)
+        self.grid[6, 0] = server_list_scroll_box
 
         self.add(self.grid)
 
         # self.grid.debug_drawing_problems()
         # self.grid.debug_placement_problems()
 
-    def set_host_and_port_InputBoxes(self, server_and_port):
+    def set_host_and_port_input_boxes(self, server_and_port):
         self.serverIP.text = server_and_port.text.split(":")[0]
         self.serverPort.text = server_and_port.text.split(":")[1]
-
 
 # The window that let's the user select a character or leads to a Window where you can generate a new one.
 class CharacterSelectWindow(glooey.containers.VBox):
@@ -403,8 +401,8 @@ class CharacterSelectWindow(glooey.containers.VBox):
         self.fill_character_list(list_of_characters)
 
     def fill_character_list(self, list_of_characters):
-        characterListScrollBox = CustomScrollBox()
-        characterListScrollBox.size_hint = 100, 100
+        character_list_scroll_box = CustomScrollBox()
+        character_list_scroll_box.size_hint = 100, 100
         self.vbox_for_characterlist = glooey.VBox(0)
         # add the create new character button first then add the list the of characters for the user.
         self.create_button = CreateNewCharacterButton()
@@ -413,13 +411,13 @@ class CharacterSelectWindow(glooey.containers.VBox):
         self.vbox_for_characterlist.add(self.create_button)
         # add the character buttons
         for character in list_of_characters:
-            _decoded = jsonpickle.decode(character, keys=True)
+            _decoded = decode_packet(character, keys=True)
             _button = CharacterListButton(_decoded["name"])
             _button.push_handlers(on_click=self.select_character)
             self.vbox_for_characterlist.add(_button)
 
-        characterListScrollBox.add(self.vbox_for_characterlist)
-        self.grid[2, 0] = characterListScrollBox
+        character_list_scroll_box.add(self.vbox_for_characterlist)
+        self.grid[2, 0] = character_list_scroll_box
 
     def select_character(self, dt):
         # need to setup the MainWindow and show it.
@@ -432,6 +430,7 @@ class CharacterGenerationWindow(glooey.containers.VBox):
     custom_default_cell_size = 2
     # has 6 unchanging buttons on top which control which screen the player is on for genning
     # screens are 'scenario', 'profession', 'traits', 'stats', 'skills', 'description'
+
     def __init__(self):
         super().__init__()
 
@@ -463,8 +462,8 @@ class CharacterGenerationWindow(glooey.containers.VBox):
 
         # now add the remaining points label
         points_box = glooey.HBox()
-        pointsLabel = glooey.Label("Points Left:")
-        points_box.add(pointsLabel)
+        points_label = glooey.Label("Points Left:")
+        points_box.add(points_label)
 
         self.pointsLeftLabel = glooey.Label(str(self.points))
         points_box.add(self.pointsLeftLabel)
@@ -473,13 +472,13 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         # our main_frame will be a single use container that we replace the contents of.
         self.main_frame = glooey.containers.Bin()
         self.main_frame.custom_padding = 8
-        self.main_frame.add(self.descriptionTab())
+        self.main_frame.add(self.DescriptionTab())
         self.add(self.main_frame)
 
         self.name = ""
         self.gender = ""
 
-    class descriptionTab(glooey.containers.Grid):
+    class DescriptionTab(glooey.containers.Grid):
         def __init__(self):
             super().__init__(0, 0, 0, 0)
 
@@ -503,26 +502,25 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         # statsLabel -      TraitsLabel -           SkillsLabel
         # statsScrollbox -  TraitsScrollbox -       SkillsScrollBox
 
+
 # MaptTile is a clickable widget with a reference the the localmap data.
 class MapTile(glooey.Image):
     def __init__(self, tile):
         super().__init__(pyglet.resource.image('t_null.png'))
         # dict from localmap
         self.tile = tile
-   
 
 
 # The window after we login with a character. Where the Main game is shown.
-class mainWindow(glooey.containers.Stack):
+class MainWindow(glooey.containers.Stack):
     def __init__(self, localmap, character_name):
         super().__init__()
         self.localmap = self.convert_chunks_to_localmap(localmap)
         self.character_name = character_name
         self.chunk_size = (13, 13)  # the only tuple you'll see I swear.
 
-        self.map_grid = glooey.Grid(
-            self.chunk_size[0], self.chunk_size[1], 32, 32
-        )  # chunk_size + tilemap size
+        # chunk_size + tilemap size
+        self.map_grid = glooey.Grid(self.chunk_size[0], self.chunk_size[1], 32, 32)
         self.map_grid.set_left_padding(16)  # for the border.
         self.map_grid.set_top_padding(16)
 
@@ -534,19 +532,16 @@ class mainWindow(glooey.containers.Stack):
         for i in range(self.chunk_size[0]):
             for j in range(self.chunk_size[1]):
                 # init the MapTile(s)
-                self.map_grid.add(
-                    i, j, MapTile(None)
-                )
+                self.map_grid.add(i, j, MapTile(None))
 
         # insert the background into our ordered groups.
         self.insert(CustomBackground(), 0)
 
         # insert the map_grid into our ordered group.
         self.insert(self.map_grid, 1)
-        #self.insert(self.weather_board, 2)
+        # self.insert(self.weather_board, 2)
         self.update_map_for_position(self.find_character_in_localmap().position)
         # self.draw_view_at_position(self.convert_position_to_local_coords(self.find_character_in_localmap().position))
-        
 
     def ping(self, dt):
         command = Command(client.character.name, "ping")
@@ -564,7 +559,7 @@ class mainWindow(glooey.containers.Stack):
         tiles = []
         # these are still raw decoded jsonpickle objects at this point.
         for chunk in list_of_chunks:
-            #pprint.pprint(chunk)
+            # pprint.pprint(chunk)
             for tile in chunk.tiles:
                 tiles.insert(len(tiles), tile)
         return tiles
@@ -622,7 +617,7 @@ class mainWindow(glooey.containers.Stack):
         # now we need to remove tiles which are out of our field of view.
         for destination in grid_edges:
             for point in self.line((origin_position.x, origin_position.y), destination):
-                if level[str(point[0])][str(point[1])] == True:  # (impassable)
+                if level[str(point[0])][str(point[1])] is True:  # (impassable)
                     tiles_to_keep.append(
                         point
                     )  # do this to keep the blocking wall visible.
@@ -727,7 +722,7 @@ class mainWindow(glooey.containers.Stack):
 class Client(MastermindClientTCP):  # extends MastermindClientTCP
     def __init__(self):
         self.state = "login"  # character_select, character_gen, main
-        MastermindClientTCP.__init__(self)
+        super().__init__()
 
         self.window = pyglet.window.Window(896, 498)
         self.client_name = ""
@@ -754,8 +749,6 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
         self.gui.add(self.bg)
 
-        
-
         # TODO: make new hotbar in pyglet.
         self.hotbars = []
 
@@ -763,16 +756,15 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.LoginWindow.grid[6, 1].push_handlers(on_click=self.login)  # Connect Button
 
         self.gui.add(self.LoginWindow)
-     
 
         # init but don't show the window
-        self.mainWindow = mainWindow
+        self.main_window = MainWindow
 
     # if we recieve an update from the server process it. do this first.
     # We always start out at the login window.
     # once we recieve a list of characters SWITCH to the character select view.
     # once the user selects a character ask the server to login into the world with it.
-    # once we recieve a world state SWITCH to the mainWindow. mainWindow.localmap should be filled.
+    # once we recieve a world state SWITCH to the MainWindow. MainWindow.localmap should be filled.
     def check_messages_from_server(self, dt):
         # commands recieved while in the login window
         next_update = client.receive(False)
@@ -782,7 +774,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 print("--next_update in login--")
                 if isinstance(next_update, list):
                     # list of characters.
-                    #print("list:", next_update)
+                    # print("list:", next_update)
                     # open the character select screen.
                     self.gui.clear()
                     self.gui.add(CustomBackground())
@@ -800,14 +792,11 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
                 if isinstance(next_update, str):
                     # server sent salt
-                    _hashedPW = hashPassword(
-                        self.LoginWindow.password.text, next_update
-                    )
-                    command = Command(
-                        self.LoginWindow.username.text,
-                        "hashed_password",
-                        [str(_hashedPW)],
-                    )
+                    _hashedPW = hashPassword(self.LoginWindow.password.text, next_update)
+                    command = Command(self.LoginWindow.username.text,
+                                      "hashed_password",
+                                      [str(_hashedPW)])
+
                     # send back hashed password.
                     self.send(command)
 
@@ -835,15 +824,14 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
             if next_update is not None:
                 self.gui.clear()
                 print("next_update in main", type(next_update))
-                _raw_nine_chunks = jsonpickle.decode(next_update)
+                _raw_nine_chunks = decode_packet(next_update)
                 # we recieved a localmap from the server.
                 # is localmap
-                self.gui.add(self.mainWindow(_raw_nine_chunks, self.character_name))
+                self.gui.add(self.main_window(_raw_nine_chunks, self.character_name))
             elif time.time() - self.last_request > 1:
                 command = Command(self.client_name, "request_localmap_update", [self.character_name])
                 self.send(command)
                 self.last_request = time.time()
-            
 
         if self.state == "character_gen":
             if next_update is not None:
@@ -881,7 +869,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         self.character.gender = self.CharacterGenerationWindow.main_frame.get_child()[
             0, 3
         ].text
-        _data = jsonpickle.encode(self.character)
+        _data = encode_packet(self.character)
 
         # set this before sending the command to keep things in order.
         self.state = "character_select"
@@ -911,12 +899,8 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         client.send(command)
 
 
-#
-#   if we start a client directly
-#
 if __name__ == "__main__":
-
     client = Client()
+    pyglet.app.run()
 
-    pyglet.app.event_loop.run()  # main event loop starts here.
 
