@@ -18,7 +18,7 @@ from src.command import Command
 from src.item import Item, ItemManager
 from src.position import Position
 from src.recipe import Recipe, RecipeManager
-from src.tileManager import TileManager
+from src.tilemanager import TileManager
 from src.worldmap import Plane, Chunk
 
 # load all the resources we can use and index them.
