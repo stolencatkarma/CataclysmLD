@@ -51,7 +51,18 @@ for folder in [
 
 pyglet.resource.reindex()
 
-from src.UIComponents import CustomBackground, InputBox, CharacterGenerationInputBox, CustomScrollBox, CharacterGenerationScrollBox,ConnectButton ,CharacterListButton , CreateNewCharacterButton, CharacterGenButton, ServerListButton 
+from src.UIComponents import (
+    CustomBackground,
+    InputBox,
+    CharacterGenerationInputBox,
+    CustomScrollBox,
+    CharacterGenerationScrollBox,
+    ConnectButton,
+    CharacterListButton,
+    CreateNewCharacterButton,
+    CharacterGenButton,
+    ServerListButton,
+)
 
 
 # the first Window the user sees.
@@ -112,6 +123,7 @@ class LoginWindow(glooey.containers.VBox):
         self.serverIP.text = server_and_port.text.split(":")[0]
         self.serverPort.text = server_and_port.text.split(":")[1]
 
+
 # The window that let's the user select a character or leads to a Window where you can generate a new one.
 class CharacterSelectWindow(glooey.containers.VBox):
     def __init__(self, list_of_characters):
@@ -150,6 +162,7 @@ class CharacterSelectWindow(glooey.containers.VBox):
     def select_character(self, dt):
         # need to setup the MainWindow and show it.
         pass
+
 
 # the window that has all the components to make a new character from scratch
 class CharacterGenerationWindow(glooey.containers.VBox):
@@ -230,6 +243,7 @@ class CharacterGenerationWindow(glooey.containers.VBox):
         # statsLabel -      TraitsLabel -           SkillsLabel
         # statsScrollbox -  TraitsScrollbox -       SkillsScrollBox
 
+
 # MaptTile is a clickable widget with a reference the the localmap data.
 class MapTile(glooey.containers.Stack):
     def __init__(self, tile):
@@ -239,21 +253,28 @@ class MapTile(glooey.containers.Stack):
         print(self.tile)
         if self.tile is not None:
 
-            self.terrain = glooey.Image(pyglet.resource.image(str(self.tile['terrain'].ident) + '.png'))
+            self.terrain = glooey.Image(
+                pyglet.resource.image(str(self.tile["terrain"].ident) + ".png")
+            )
             self.insert(self.terrain, 0)
-            if self.tile['furniture'] is not None:
-                self.furniture = glooey.Image(pyglet.resource.image(str(self.tile['furniture'].ident) + '.png'))
+            if self.tile["furniture"] is not None:
+                self.furniture = glooey.Image(
+                    pyglet.resource.image(str(self.tile["furniture"].ident) + ".png")
+                )
                 self.insert(self.furnitureg, 1)
             # only one item is ever shown
-            if len(self.tile['items']) > 0:
-                self.item = glooey.Image(pyglet.resource.image(str(self.tile['items'][0].ident) + '.png'))
+            if len(self.tile["items"]) > 0:
+                self.item = glooey.Image(
+                    pyglet.resource.image(str(self.tile["items"][0].ident) + ".png")
+                )
                 self.insert(self.item, 2)
-            if self.tile['creature'] is not None:
-                self.creature = glooey.Image(pyglet.resource.image(str(self.tile['creature'].tile_ident) + '.png'))
+            if self.tile["creature"] is not None:
+                self.creature = glooey.Image(
+                    pyglet.resource.image(
+                        str(self.tile["creature"].tile_ident) + ".png"
+                    )
+                )
                 self.insert(self.creature, 3)
-
-
-
 
 
 # The window after we login with a character. Where the Main game is shown.
@@ -392,8 +413,8 @@ class MainWindow(glooey.containers.Stack):
                     continue
                 if y < 0 or y > 12:
                     continue
-                self.map_grid[x,y] = MapTile(tile)                
-                
+                self.map_grid[x, y] = MapTile(tile)
+
             # print("FPS:", pyglet.clock.get_fps())
 
     def convert_position_to_local_coords(self, position):
@@ -503,10 +524,14 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 
                 if isinstance(next_update, str):
                     # server sent salt
-                    _hashedPW = hashPassword(self.LoginWindow.password.text, next_update)
-                    command = Command(self.LoginWindow.username.text,
-                                      "hashed_password",
-                                      [str(_hashedPW)])
+                    _hashedPW = hashPassword(
+                        self.LoginWindow.password.text, next_update
+                    )
+                    command = Command(
+                        self.LoginWindow.username.text,
+                        "hashed_password",
+                        [str(_hashedPW)],
+                    )
 
                     # send back hashed password.
                     self.send(command)
@@ -540,7 +565,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 # is localmap
                 self.gui.add(self.main_window(_raw_nine_chunks, self.character_name))
             elif time.time() - self.last_request > 1.0:
-                command = Command(self.client_name, "request_localmap_update", [self.character_name])
+                command = Command(
+                    self.client_name, "request_localmap_update", [self.character_name]
+                )
                 self.send(command)
                 self.last_request = time.time()
 
@@ -613,5 +640,4 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
 if __name__ == "__main__":
     client = Client()
     pyglet.app.run()
-
 
