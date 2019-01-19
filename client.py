@@ -62,6 +62,7 @@ from src.UIComponents import (
     CreateNewCharacterButton,
     CharacterGenButton,
     ServerListButton,
+    SuperMenu,
 )
 
 
@@ -250,7 +251,7 @@ class MapTile(glooey.containers.Stack):
         super().__init__()
         # dict from localmap
         self.tile = tile
-        print(self.tile)
+        #print(self.tile)
         if self.tile is not None:
 
             self.terrain = glooey.Image(
@@ -413,7 +414,9 @@ class MainWindow(glooey.containers.Stack):
                     continue
                 if y < 0 or y > 12:
                     continue
-                self.map_grid[x, y] = MapTile(tile)
+                _maptile = MapTile(tile)
+                _maptile.push_handlers(on_click=self.open_super_menu)
+                self.map_grid[x, y] = _maptile
 
             # print("FPS:", pyglet.clock.get_fps())
 
@@ -447,8 +450,12 @@ class MainWindow(glooey.containers.Stack):
         # return _command
         pass
 
-    def open_super_menu(self, pos, tile):
-        pass
+    def open_super_menu(self, tile):
+        # when the super menu is open we should pause localmap updates and wait for a response.
+        _super_menu = SuperMenu(tile)
+        self.insert(_super_menu, 9)
+
+        
 
     def open_blueprint_menu(self, pos, tile):
         # blueprint_menu = Blueprint_Menu(self.screen, (0, 0, 400, 496), self.FontManager, self.TileManager)
@@ -559,10 +566,9 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
         if self.state == "main":
             if next_update is not None:
                 self.gui.clear()
-                print("next_update in main", type(next_update))
+                #print("next_update in main", type(next_update))
                 _raw_nine_chunks = decode_packet(next_update)
                 # we recieved a localmap from the server.
-                # is localmap
                 self.gui.add(self.main_window(_raw_nine_chunks, self.character_name))
             elif time.time() - self.last_request > 1.0:
                 command = Command(

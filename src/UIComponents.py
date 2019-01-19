@@ -276,3 +276,14 @@ class ServerListButton(glooey.Button):
     def __init__(self, text):
         super().__init__(text)
 
+# The super menu loads all possible actions that can be taken on the tile and all objects contained within.
+class SuperMenu(CustomScrollBox):
+    def __init__(self, tile):
+        super().__init__()
+        # if not impassable -> move, build, 
+        # if creature -> submenu - attack, trade,
+        # if items -> mini loot window
+        # if furniture -> grab, bash, deconstruct, activate (activate a sofa to sit, activate a door to open/close, lock/unlock, peek)
+        # if vehicle -> enter, ride on top, other (to be implemented chapter 2)
+        # if trap -> disarm, trigger, 
+        # 
