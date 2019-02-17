@@ -1,0 +1,42 @@
+{
+  "group": "",
+  "overmap_terrain": "",
+  "fill_terrain": "",
+  "comment": "Select the terrain and furniture you'd like to use from the json directories and fill them in under 'terrain' and 'furniture'",
+  "comment2": "Using those selections fill in each of the 13 lines with 13 symbols. Blank spaces ' ' will use 'fill_terrain'.",
+  "comment3": "Be sure to fill in the information above, too."
+  "comment4": "0 is the ground floor. Upper floors are positive and basements and below are negative. (1,0,-1 would have an upper floor and basement)"
+  "floors": {
+    "0": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  "terrain": {
+    "comment": "The open_air and trashcan are examples to use or delete as you see fit. Follow this pattern when adding more."
+    ".": "t_open_air",
+  },
+  "furniture": {
+    "a": "f_trashcan",
+  },
+  "traps":{
+    "1" : "tr_beartrap"
+  },
+  "place_loot": [
+    { "comment": "attempts to place loot randomly from groups of items." },
+    { "group": "cleaning", "x": 2, "y": 13, "chance": 95 }
+  ],
+  "place_monsters": [
+    { "comment": "attempts to place monsters randomly from monster groups." }
+  ]
+}
