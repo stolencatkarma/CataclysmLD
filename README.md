@@ -11,10 +11,10 @@ not working for our needs.
 
 A playable release is coming soon and will follow an episodic pattern, with each release adding more:
 
-Episode 1 - Immediately after the cataclysm. This will be the minimum playable product.
-Episode 2 - Vehicles. One of the more complex - and enjoyable - systems in C:DDA.
-Episode 3 - Bionics and Mutations. The main sci-fi elements of the game brought to multiplayer.
-Episode 4+ - Continued Expansion. Maps, graphics, and content on for as long as there are people willing to work on it.
+Chapter 1 - Immediately after the cataclysm. This will be the minimum playable product.
+Chapter 2 - Vehicles. One of the more complex - and enjoyable - systems in C:DDA.
+Chapter 3 - Bionics and Mutations. The main sci-fi elements of the game brought to multiplayer.
+Chapter 4+ - Continued Expansion. Maps, graphics, and content on for as long as there are people willing to work on it.
 
 Helping hands are always welcome, especially those familiar with pyglet and glooey. If you'd like to contribute follow the Discord link below.
 
@@ -31,19 +31,16 @@ Generic installation instructions
 * install python 3.4+
 * install pip3 - if on windows: https://pip.pypa.io/en/stable/installing/
 * open a command shell and goto the Cataclysm:LD folder you downloaded and unzipped it to.
-* `pip install pyglet glooey`
+* `pip install pyglet glooey jsonpickle`
 
 ---
 
 **Running a server**
 
-* `python3 ./server.py [--host Host] [--port Port]`,
-        Host and Port are optional (defaults are `localhost:6317`)
+* `python3 ./server.py
 
 **Running a client**
 
-* `python3 ./client.py [--host Host] [--port Port]`,
-        where `Host` and `Port` are those of the server.
-        By default `Host` is `localhost` and `Port` is 6317,
-        so it's safe to omit them if you are running server locally.
+* `python3 ./client.py`
+       
 
