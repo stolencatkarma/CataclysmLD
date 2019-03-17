@@ -37,7 +37,7 @@ Generic installation instructions
 
 **Running a server**
 
-* `python3 ./server.py
+* `python3 ./server.py`
 
 **Running a client**
 
