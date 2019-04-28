@@ -262,8 +262,8 @@ class MapTile(glooey.containers.Stack):
                 self.furniture = glooey.Image(
                     pyglet.resource.image(str(self.tile["furniture"].ident) + ".png")
                 )
-                self.insert(self.furnitureg, 1)
-            # only one item is ever shown
+                self.insert(self.furniture, 1)
+            # only one item is ever shown TODO: if pile show pile_of_stuff.png
             if len(self.tile["items"]) > 0:
                 self.item = glooey.Image(
                     pyglet.resource.image(str(self.tile["items"][0].ident) + ".png")
@@ -453,6 +453,10 @@ class MainWindow(glooey.containers.Stack):
     def open_super_menu(self, tile):
         # when the super menu is open we should pause localmap updates and wait for a response.
         _super_menu = SuperMenu(tile)
+        _super_menu.add(ServerListButton('Move'))
+        _super_menu.add(ServerListButton('Attack'))
+        _super_menu.add(ServerListButton('ThirdOption'))
+
         self.insert(_super_menu, 9)
 
         
@@ -570,12 +574,7 @@ class Client(MastermindClientTCP):  # extends MastermindClientTCP
                 _raw_nine_chunks = decode_packet(next_update)
                 # we recieved a localmap from the server.
                 self.gui.add(self.main_window(_raw_nine_chunks, self.character_name))
-            elif time.time() - self.last_request > 1.0:
-                command = Command(
-                    self.client_name, "request_localmap_update", [self.character_name]
-                )
-                self.send(command)
-                self.last_request = time.time()
+            
 
         if self.state == "character_gen":
             if next_update is not None:

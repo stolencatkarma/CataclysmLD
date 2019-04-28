@@ -73,8 +73,8 @@ class Server(MastermindServerTCP):
     def get_connections(self):
         return self._mm_connections
 
-    # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
     def calculate_route(self, pos0, pos1, consider_impassable=True):
+        # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
         reachable = [pos0]
         explored = []
 
@@ -244,6 +244,7 @@ class Server(MastermindServerTCP):
 
         # we recieved a valid command. process it.
         if isinstance(_command, Command):
+            print(_command)
             if _command["command"] == "login":
                 # check whether this username has an account.
                 _path = "./accounts/" + _command["ident"] + "/"
@@ -608,7 +609,7 @@ class Server(MastermindServerTCP):
 
         return super(Server, self).callback_client_handle(connection_object, data)
 
-    def callback_client_send(self, connection_object, data, compression=True):
+    def callback_client_send(self, connection_object, data, compression=False):
         return super(Server, self).callback_client_send(
             connection_object, data, compression
         )
@@ -821,8 +822,9 @@ class Server(MastermindServerTCP):
                         action
                     )  # remove the action after we process it.
 
-    # this function handles overseeing all creature movement, attacks, and interactions
     def compute_turn(self):
+        # this function handles overseeing all creature movement, attacks, and interactions
+        
         # init a list for all our found lights around characters.
         for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
