@@ -21,5 +21,5 @@ def packet_recv_tcp(sock):
     data_str = sock.recv(MM_MAX_PAYLOAD_SIZE)
     print(data_str)
     
-    data = json.loads(data_str)
+    data = json.loads(data_str.decode("utf-8"))
     return (data, True)
