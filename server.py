@@ -244,7 +244,6 @@ class Server(MastermindServerTCP):
 
         # we recieved a valid command. process it.
         if isinstance(_command, Command):
-            print(_command)
             if _command["command"] == "login":
                 # check whether this username has an account.
                 _path = "./accounts/" + _command["ident"] + "/"

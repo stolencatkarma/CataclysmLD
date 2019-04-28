@@ -13,6 +13,7 @@ def packet_send(sock, protocol_and_udpaddress, data, compression): #E.g.: =(MM_T
 
     print(data_str.encode('ascii'))
     sock.send(data_str.encode('ascii'))
+    return True
 
 
 
