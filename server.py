@@ -28,8 +28,6 @@ from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 from src.worldmap import Worldmap
 from src.passhash import makeSalt
-from src.serializer import encode_packet, decode_packet
-
 
 
 class OverMap:  # when the character pulls up the OverMap. a OverMap for each character will have to be stored for undiscovered areas and when they use maps.
@@ -218,8 +216,7 @@ class Server(MastermindServerTCP):
         )
 
         with open(path, "w") as fp:
-            _encoded = encode_packet(character, unpicklable=False, warn=True)
-            json.dump(_encoded, fp)
+            json.dump(character, fp)
 
         self._log.info(
             "New character added to world: {}".format(character.name)
@@ -314,11 +311,11 @@ class Server(MastermindServerTCP):
                 self.localmaps[data['args'][0]] = self.worldmap.get_chunks_near_position(
                     self.characters[data['args'][0]].position
                 )
-                self.callback_client_send(connection_object, encode_packet(self.localmaps[data['args'][0]]))
+                self.callback_client_send(connection_object, self.localmaps[data['args'][0]])
 
             if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:
-                    _character = decode_packet(data["args"][0])
+                    _character = data["args"][0]
                     # this character doesn't exist in the world yet.
                     self.handle_new_character(data["ident"], _character)
                     self._log.debug(
@@ -350,7 +347,7 @@ class Server(MastermindServerTCP):
                     self.characters[data["args"][0]].position
                 )
                 self.callback_client_send(
-                    connection_object, encode_packet(self.localmaps[data["args"][0]])
+                    connection_object, self.localmaps[data["args"][0]]
                 )
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
