@@ -1,9 +1,5 @@
 from src.profession import Profession
 from src.creature import Creature
-import pprint
-
-# from .position import *
-
 
 class Character(Creature):
     def __init__(self, name="John Doe"):

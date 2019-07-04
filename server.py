@@ -10,6 +10,7 @@ import pprint
 import configparser
 import logging.config
 import pickle
+import jsonpickle
 from collections import defaultdict
 
 from Mastermind._mm_server import MastermindServerTCP
@@ -27,7 +28,7 @@ from src.terrain import Terrain
 from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 from src.worldmap import Worldmap
-from src.passhash import makeSalt
+from src.passhash import makeSalt, hashPassword
 
 
 class OverMap:  # when the character pulls up the OverMap. a OverMap for each character will have to be stored for undiscovered areas and when they use maps.
@@ -52,7 +53,7 @@ class Server(MastermindServerTCP):
         else:
             self._log = logger
 
-        # all the characters() that exist in the world whether connected or not.
+        # all the Character()s that exist in the world whether connected or not.
         self.characters = dict()
 
         self.localmaps = dict()  # the localmaps for each character.
@@ -112,7 +113,11 @@ class Server(MastermindServerTCP):
         _tiles = self.worldmap.get_all_tiles()
         random.shuffle(_tiles)  # so we all don't spawn in one corner.
         for tile in _tiles:
-            if tile['position'].x < 13 or tile['position'].y < 13 or tile['position'].z != 0:
+            if (
+                tile["position"].x < 13
+                or tile["position"].y < 13
+                or tile["position"].z != 0
+            ):
                 continue
             if tile["terrain"].impassable:
                 continue
@@ -124,10 +129,12 @@ class Server(MastermindServerTCP):
             return tile["position"]
 
     def handle_new_character(self, ident, character):
-        #ident is the account, character is the Character()
+        # ident is the account, character is the Character()
         self.characters[character.name] = character
 
-        self.characters[character.name].position = self.find_spawn_point_for_new_character()
+        self.characters[
+            character.name
+        ].position = self.find_spawn_point_for_new_character()
         self.worldmap.put_object_at_position(
             self.characters[character.name], self.characters[character.name].position
         )
@@ -214,14 +221,15 @@ class Server(MastermindServerTCP):
             + str(character.name)
             + ".character"
         )
-
+        import jsonpickle
         with open(path, "w") as fp:
-            json.dump(character, fp)
+            _pickled = jsonpickle.encode(character)
+            pprint.pprint(_pickled)
+            fp.write(_pickled)
 
-        self._log.info(
-            "New character added to world: {}".format(character.name)
-        )
+        self._log.info("New character added to world: {}".format(character.name))
 
+    # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
         self._log.debug(
             "Server: Recieved data {} from client {}.".format(
@@ -244,13 +252,26 @@ class Server(MastermindServerTCP):
             if _command["command"] == "login":
                 # check whether this username has an account.
                 _path = "./accounts/" + _command["ident"] + "/"
-                # try:
                 if os.path.isdir("./accounts/" + _command["ident"]):
-                    with open(str(_path + "SALT")) as f:
-                        # send the user their salt.
-                        _salt = f.read()
-                        self.callback_client_send(connection_object, str(_salt))
+                    # account exists. check the sent password against the saved one.
+                    with open(str(_path + "SALT"), "r") as _salt:
+                        with open(str(_path + "HASHED_PASSWORD"), "r") as _hashed_password:
+                            # read the password hashed
+                            _check = hashPassword(_command['args'], _salt.read())
+                            _check2 = _hashed_password.read()
+                            if ( _check == _check2):
+                                print('password accepted for '+ str(_command['ident']))
+                                _message = {"login":"Accepted"}
+                                self.callback_client_send(connection_object, json.dumps(_message))
+
+                            else:
+                                print('password not accepted for '+ str(_command['ident']))
+                                connection_object.terminate()
+                                # this player can recieve a list of characters they own.
+                                pass
+
                 else:
+                    # account doesn't exist. create a directory for them.
                     try:
                         os.mkdir(_path)
                     except OSError:
@@ -258,13 +279,14 @@ class Server(MastermindServerTCP):
                     else:
                         print("Successfully created the directory %s " % _path)
 
-                    # create salt file
                     _salt = makeSalt()
                     with open(str(_path + "SALT"), "w") as f:
+                        # write the password salt
                         f.write(str(_salt))
 
-                    # send the user their salt.
-                    self.callback_client_send(connection_object, str(_salt))
+                    with open(str(_path + "HASHED_PASSWORD"), "w") as f:
+                        # write the password hashed
+                        f.write(str(hashPassword(_command["args"], _salt)))
 
                     _path = "./accounts/" + _command["ident"] + "/characters/"
                     try:
@@ -273,49 +295,27 @@ class Server(MastermindServerTCP):
                         print("Creation of the directory %s failed" % _path)
                     else:
                         print("Successfully created the directory %s " % _path)
-
-            if _command["command"] == "hashed_password":
-                _path = "./accounts/" + _command["ident"] + "/"
-                if not os.path.isfile(str(_path + "HASHED_PASSWORD")):
-                    # recieved hashedPW from user, save it and send them a list of characters. (presumaably zero if this is a new user. maybe give options to take over NPCs?)
-                    with open(str(_path + "HASHED_PASSWORD"), "w") as f:
-                        f.write(str(_command["args"][0]))
-                else:
-                    print("password exists")
-
-                with open(str(_path + "HASHED_PASSWORD")) as f:
-                    _checkPW = f.read()
-                    if _checkPW == _command["args"][0]:
-                        print("password accepted for " + str(_command["ident"]))
-                        # get a list of the Character(s) the username 'owns' and send it to them. it's okay to send an empty list.
-                        _tmp_list = list()
-                        # if there are no characters to add the list remains empty.
-                        for root, _, files in os.walk(
-                            "./accounts/" + _command["ident"] + "/characters/"
-                        ):
-                            for file_data in files:
-                                if file_data.endswith(".character"):
-                                    with open(root + file_data, 'r') as data_file:
-                                        _raw = json.load(data_file)
-                                        # client will need to decode these 
-                                        _tmp_list.append(_raw)
-
-                        self.callback_client_send(connection_object, _tmp_list)
-                    else:
-                        self.callback_client_send(connection_object, "disconnect")
-                        connection_object.terminate()
-
+                    
+                    _message = {"login":"Accepted"}
+                    self.callback_client_send(connection_object, json.dumps(_message))
+            
             if _command["command"] == "choose_character":
                 # send the current localmap to the player choosing the character
-                self.characters[data['args'][0]] = self.worldmap.get_character(data['args'][0])
-                self.localmaps[data['args'][0]] = self.worldmap.get_chunks_near_position(
-                    self.characters[data['args'][0]].position
+                self.characters[data["args"][0]] = self.worldmap.get_character(
+                    data["args"][0]
                 )
-                self.callback_client_send(connection_object, self.localmaps[data['args'][0]])
+                self.localmaps[
+                    data["args"][0]
+                ] = self.worldmap.get_chunks_near_position(
+                    self.characters[data["args"][0]].position
+                )
+                self.callback_client_send(
+                    connection_object, self.localmaps[data["args"][0]]
+                )
 
             if _command["command"] == "completed_character":
                 if not data["ident"] in self.characters:
-                    _character = data["args"][0]
+                    _character = Character(data["args"])
                     # this character doesn't exist in the world yet.
                     self.handle_new_character(data["ident"], _character)
                     self._log.debug(
@@ -329,21 +329,28 @@ class Server(MastermindServerTCP):
                             data["ident"], connection_object.address
                         )
                     )
+                
+            if _command["command"] == "request_character_list":
                 _tmp_list = list()
                 for root, _, files in os.walk(
-                        "./accounts/" + _command["ident"] + "/characters/"
-                    ):
-                        for file_data in files:
-                            if file_data.endswith(".character"):
-                                with open(root + file_data, 'r') as data_file:
-                                    _raw = json.load(data_file)
-                                    # client will need to decode these 
-                                    _tmp_list.append(_raw)
+                    "./accounts/" + _command["ident"] + "/characters/"
+                ):
+                    for file_data in files:
+                        if file_data.endswith(".character"):
+                            with open(root + file_data, "r") as data_file:
+                                _raw = data_file.read()
+                                # client will need to decode these
+                                _tmp_list.append(_raw)
 
-                self.callback_client_send(connection_object, _tmp_list)
+                # put that list into a json container with header
+                _container = {"character_list" : _tmp_list}
+                # pprint.pprint(_container)
+                self.callback_client_send(connection_object, json.dumps(_container))
 
             if _command["command"] == "request_localmap_update":
-                self.localmaps[data["args"][0]] = self.worldmap.get_chunks_near_position(
+                self.localmaps[
+                    data["args"][0]
+                ] = self.worldmap.get_chunks_near_position(
                     self.characters[data["args"][0]].position
                 )
                 self.callback_client_send(
@@ -820,7 +827,7 @@ class Server(MastermindServerTCP):
 
     def compute_turn(self):
         # this function handles overseeing all creature movement, attacks, and interactions
-        
+
         # init a list for all our found lights around characters.
         for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
@@ -882,7 +889,7 @@ class Server(MastermindServerTCP):
             # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
             if len(creature.command_queue) > 0:
                 self.process_creature_command_queue(creature)
-        
+
         # now that we've processed what everything wants to do we can return.
 
     def generate_and_apply_city_layout(self, city_size):

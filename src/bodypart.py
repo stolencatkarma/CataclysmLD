@@ -15,6 +15,8 @@ class Bodypart:
         # weapons should be set to wearable_location: "EQUIPABLE"
         # HAND locations will only allow 1 equipment from the group "weapon"
 
+    def asdict(self):
+        return {'ident': self.ident, 'vital_organ': self.vital_organ, 'armor': self.armor, 'slot0': self.slot1, 'slot0': self.slot1}
 
     def __str__(self):
         return str(self.ident)

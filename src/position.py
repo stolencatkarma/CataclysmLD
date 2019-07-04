@@ -13,8 +13,8 @@ class Position: # a position. to get the chunk we are in it's for example: Posit
                     return True
         return False
 
-    def __hash__(self): # so we can use it as a dict object.
-        return hash((self.x, self.y, self.z))
+    def asdict(self):
+        return {'x': self.x, 'y': self.y, 'z': self.z}
 
     def __str__(self):
         return '(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'

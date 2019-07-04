@@ -11,7 +11,7 @@ def packet_send(sock, protocol_and_udpaddress, data, compression): #E.g.: =(MM_T
     length = len(data_str)
     data_str = data_str + '\r\n'
 
-    print(data_str.encode('ascii'))
+    #print(data_str.encode('ascii'))
     sock.send(data_str.encode('ascii'))
     return True
 
@@ -20,7 +20,8 @@ def packet_send(sock, protocol_and_udpaddress, data, compression): #E.g.: =(MM_T
 def packet_recv_tcp(sock):
     
     data_str = sock.recv(MM_MAX_PAYLOAD_SIZE)
-    print(data_str)
     
+    print("RECIEVED:" + str(data_str))
     data = json.loads(data_str.decode("utf-8"))
+    
     return (data, True)
