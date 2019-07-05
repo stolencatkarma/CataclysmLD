@@ -263,6 +263,16 @@ class Worldmap:
                 return tile["creature"]
         else:
             return None
+    
+    # used in server restarts to populate Server.characters
+    def get_all_characters(self):
+        _ret_list = []
+        for tile in self.get_all_tiles():
+            if tile["creature"] is not None and isinstance(tile["creature"], Character):
+                print("found player:" + tile["creature"].name)
+                _ret_list.append(tile["creature"])
+        
+        return _ret_list
 
     def put_object_at_position(
         self, obj, position

@@ -62,7 +62,7 @@ class Server(MastermindServerTCP):
         self.calendar = Calendar(0, 0, 0, 0, 0, 0)  # all zeros is the epoch
         # self.options.save()
         # create this many chunks in x and y (z is always 1 (level 0) for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        self.worldmap = Worldmap(13)
+        self.worldmap = Worldmap(26)
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
@@ -222,6 +222,7 @@ class Server(MastermindServerTCP):
             + ".character"
         )
         import jsonpickle
+
         with open(path, "w") as fp:
             _pickled = jsonpickle.encode(character)
             pprint.pprint(_pickled)
@@ -255,17 +256,24 @@ class Server(MastermindServerTCP):
                 if os.path.isdir("./accounts/" + _command["ident"]):
                     # account exists. check the sent password against the saved one.
                     with open(str(_path + "SALT"), "r") as _salt:
-                        with open(str(_path + "HASHED_PASSWORD"), "r") as _hashed_password:
+                        with open(
+                            str(_path + "HASHED_PASSWORD"), "r"
+                        ) as _hashed_password:
                             # read the password hashed
-                            _check = hashPassword(_command['args'], _salt.read())
+                            _check = hashPassword(_command["args"], _salt.read())
                             _check2 = _hashed_password.read()
-                            if ( _check == _check2):
-                                print('password accepted for '+ str(_command['ident']))
-                                _message = {"login":"Accepted"}
-                                self.callback_client_send(connection_object, json.dumps(_message))
+                            if _check == _check2:
+                                print("password accepted for " + str(_command["ident"]))
+                                _message = {"login": "Accepted"}
+                                self.callback_client_send(
+                                    connection_object, json.dumps(_message)
+                                )
 
                             else:
-                                print('password not accepted for '+ str(_command['ident']))
+                                print(
+                                    "password not accepted for "
+                                    + str(_command["ident"])
+                                )
                                 connection_object.terminate()
                                 # this player can recieve a list of characters they own.
                                 pass
@@ -295,10 +303,10 @@ class Server(MastermindServerTCP):
                         print("Creation of the directory %s failed" % _path)
                     else:
                         print("Successfully created the directory %s " % _path)
-                    
-                    _message = {"login":"Accepted"}
+
+                    _message = {"login": "Accepted"}
                     self.callback_client_send(connection_object, json.dumps(_message))
-            
+
             if _command["command"] == "choose_character":
                 # send the current localmap to the player choosing the character
                 self.characters[data["args"][0]] = self.worldmap.get_character(
@@ -329,7 +337,7 @@ class Server(MastermindServerTCP):
                             data["ident"], connection_object.address
                         )
                     )
-                
+
             if _command["command"] == "request_character_list":
                 _tmp_list = list()
                 for root, _, files in os.walk(
@@ -343,19 +351,16 @@ class Server(MastermindServerTCP):
                                 _tmp_list.append(_raw)
 
                 # put that list into a json container with header
-                _container = {"character_list" : _tmp_list}
+                _container = {"character_list": _tmp_list}
                 # pprint.pprint(_container)
                 self.callback_client_send(connection_object, json.dumps(_container))
 
             if _command["command"] == "request_localmap_update":
-                self.localmaps[
-                    data["args"][0]
-                ] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"][0]].position
+                self.localmaps[data["args"]] = self.worldmap.get_chunks_near_position(
+                    self.characters[data["args"]].position
                 )
-                self.callback_client_send(
-                    connection_object, self.localmaps[data["args"][0]]
-                )
+                _container = {"localmap_update": self.localmaps[data["args"]]}
+                self.callback_client_send(connection_object, jsonpickle.encode(_container))
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
             if _command["command"] == "ping":
@@ -1048,6 +1053,10 @@ if __name__ == "__main__":
     log.info("time_per_turn: {}".format(time_per_turn))
     spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
     log.info("spin_delay_ms: {}".format(spin_delay_ms))
+    
+    for _character in server.worldmap.get_all_characters():
+        server.characters[_character.name] = _character
+
     log.info("Started up Cataclysm: Looming Darkness Server.")
     while dont_break:
         try:
