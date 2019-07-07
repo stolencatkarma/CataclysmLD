@@ -433,8 +433,8 @@ class Server(MastermindServerTCP):
                         str(data["ident"])
                     )
                 )
-
-                _position = Position(data.args[0], data.args[1], data.args[2])
+                pprint.pprint(data['args'])
+                _position = Position(data['args'][0], data['args'][1], data['args'][2])
                 _route = self.calculate_route(
                     self.characters[data["ident"]].position, _position
                 )  # returns a route from point 0 to point 1 as a series of Position(s)
