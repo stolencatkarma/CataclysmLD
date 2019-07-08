@@ -66,8 +66,8 @@ class Server(MastermindServerTCP):
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
-        self.ItemManager = self.worldmap.ItemManager
-        self.FurnitureManager = self.worldmap.FurnitureManager
+        self.ItemManager = ItemManager()
+        self.FurnitureManager = FurnitureManager()
 
     def get_connections(self):
         return self._mm_connections
@@ -134,12 +134,12 @@ class Server(MastermindServerTCP):
 
         self.characters[
             character.name
-        ].position = self.find_spawn_point_for_new_character()
+        ]['position'] = self.find_spawn_point_for_new_character()
         self.worldmap.put_object_at_position(
-            self.characters[character.name], self.characters[character.name].position
+            self.characters[character.name], self.characters[character.name]['position']
         )
         self.localmaps[character.name] = self.worldmap.get_chunks_near_position(
-            self.characters[character.name].position
+            self.characters[character.name]['position']
         )
 
         # give the character their starting items by referencing the ProfessionManager.
@@ -232,7 +232,7 @@ class Server(MastermindServerTCP):
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
-        self._log.debug(
+        print(
             "Server: Recieved data {} from client {}.".format(
                 data, connection_object.address
             )
@@ -241,7 +241,7 @@ class Server(MastermindServerTCP):
         try:
             _command = Command(data["ident"], data["command"], data["args"])
         except:
-            self._log.debug(
+            print(
                 "Server: invalid data {} from client {}.".format(
                     data, connection_object.address
                 )
@@ -315,7 +315,7 @@ class Server(MastermindServerTCP):
                 self.localmaps[
                     data["args"][0]
                 ] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"][0]].position
+                    self.characters[data["args"][0]]['position']
                 )
                 self.callback_client_send(
                     connection_object, self.localmaps[data["args"][0]]
@@ -326,13 +326,13 @@ class Server(MastermindServerTCP):
                     _character = Character(data["args"])
                     # this character doesn't exist in the world yet.
                     self.handle_new_character(data["ident"], _character)
-                    self._log.debug(
+                    print(
                         "Server: character created: {} From client {}.".format(
                             _character.name, connection_object.address
                         )
                     )
                 else:
-                    self._log.debug(
+                    print(
                         "Server: character NOT created. Already Exists.: {} From client {}.".format(
                             data["ident"], connection_object.address
                         )
@@ -357,7 +357,7 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "request_localmap_update":
                 self.localmaps[data["args"]] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"]].position
+                    self.characters[data["args"]]['position']
                 )
                 _container = {"localmap_update": self.localmaps[data["args"]]}
                 self.callback_client_send(connection_object, jsonpickle.encode(_container))
@@ -367,12 +367,12 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, "pong")
 
             if _command["command"] == "move":
-                self.characters[data["ident"]].command_queue.append(
+                self.characters[data["ident"]]['command_queue'].append(
                     Action(self.characters[data["ident"]], "move", [data.args[0]])
                 )
 
             if _command["command"] == "bash":
-                self.characters[data["ident"]].command_queue.append(
+                self.characters[data["ident"]]['command_queue'].append(
                     Action(self.characters[data["ident"]], "bash", [data.args[0]])
                 )
 
@@ -396,27 +396,27 @@ class Server(MastermindServerTCP):
                 position_to_create_at = None
                 if data.args[1] == "south":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position['x'],
-                        self.characters[data["ident"]].position['y'] + 1,
-                        self.characters[data["ident"]].position['z'],
+                        self.characters[data["ident"]]['position']['x'],
+                        self.characters[data["ident"]]['position']['y'] + 1,
+                        self.characters[data["ident"]]['position']['z'],
                     )
                 elif data.args[1] == "north":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position['x'],
-                        self.characters[data["ident"]].position['y'] - 1,
-                        self.characters[data["ident"]].position['z'],
+                        self.characters[data["ident"]]['position']['x'],
+                        self.characters[data["ident"]]['position']['y'] - 1,
+                        self.characters[data["ident"]]['position']['z'],
                     )
                 elif data.args[1] == "east":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position['x'] + 1,
-                        self.characters[data["ident"]].position['y'],
-                        self.characters[data["ident"]].position['z'],
+                        self.characters[data["ident"]]['position']['x'] + 1,
+                        self.characters[data["ident"]]['position']['y'],
+                        self.characters[data["ident"]]['position']['z'],
                     )
                 elif data.args[1] == "west":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position['x'] - 1,
-                        self.characters[data["ident"]].position['y'],
-                        self.characters[data["ident"]].position['z'],
+                        self.characters[data["ident"]]['position']['x'] - 1,
+                        self.characters[data["ident"]]['position']['y'],
+                        self.characters[data["ident"]]['position']['z'],
                     )
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[data.args[0]]
@@ -428,7 +428,7 @@ class Server(MastermindServerTCP):
                 )
 
             if _command["command"] == "calculated_move":
-                self._log.debug(
+                print(
                     "Recieved calculated_move action. Building a path for {}".format(
                         str(data["ident"])
                     )
@@ -436,21 +436,21 @@ class Server(MastermindServerTCP):
                 pprint.pprint(data['args'])
                 _position = Position(data['args'][0], data['args'][1], data['args'][2])
                 _route = self.calculate_route(
-                    self.characters[data["ident"]].position, _position
+                    self.characters[data["ident"]]['position'], _position
                 )  # returns a route from point 0 to point 1 as a series of Position(s)
-                self._log.debug(
+                print(
                     "Calculated route for Character {}: {}".format(
                         self.characters[data["ident"]], _route
                     )
                 )
 
                 # fill the queue with move commands to reach the tile.
-                _x = self.characters[data["ident"]].position['x']
-                _y = self.characters[data["ident"]].position['y']
-                _z = self.characters[data["ident"]].position['z']
+                _x = self.characters[data["ident"]]['position']['x']
+                _y = self.characters[data["ident"]]['position']['y']
+                _z = self.characters[data["ident"]]['position']['z']
                 action = None
                 if _route is None:
-                    self._log.debug("No _route possible.")
+                    print("No _route possible.")
                     return
                 for step in _route:
                     _next_x = step['x']
@@ -478,7 +478,7 @@ class Server(MastermindServerTCP):
                         action = Action(
                             self.characters[data["ident"]], "move", ["down"]
                         )
-                    self.characters[data["ident"]].command_queue.append(action)
+                    self.characters[data["ident"]]['command_queue'].append(action)
                     # pretend as if we are in the next position.
                     _x = _next_x
                     _y = _next_y
@@ -636,7 +636,7 @@ class Server(MastermindServerTCP):
 
     def process_creature_command_queue(self, creature):
         actions_to_take = creature.actions_per_turn
-        for action in creature.command_queue[
+        for action in creature['command_queue'][
             :
         ]:  # iterate a copy so we can remove on the fly.
             if actions_to_take == 0:
@@ -654,109 +654,109 @@ class Server(MastermindServerTCP):
                 if action.args[0] == "south":
                     if self.worldmap.move_object_from_position_to_position(
                         self.characters[creature.name],
-                        self.characters[creature.name].position,
+                        self.characters[creature.name]['position'],
                         Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'] + 1,
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'] + 1,
+                            self.characters[creature.name]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'] + 1,
-                            self.characters[creature.name].position['z'],
+                        self.characters[creature.name]['position'] = Position(
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'] + 1,
+                            self.characters[creature.name]['position']['z'],
                         )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "north":
                     if self.worldmap.move_object_from_position_to_position(
                         self.characters[creature.name],
-                        self.characters[creature.name].position,
+                        self.characters[creature.name]['position'],
                         Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'] - 1,
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'] - 1,
+                            self.characters[creature.name]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'] - 1,
-                            self.characters[creature.name].position['z'],
+                        self.characters[creature.name]['position'] = Position(
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'] - 1,
+                            self.characters[creature.name]['position']['z'],
                         )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "east":
                     if self.worldmap.move_object_from_position_to_position(
                         self.characters[creature.name],
-                        self.characters[creature.name].position,
+                        self.characters[creature.name]['position'],
                         Position(
-                            self.characters[creature.name].position['x'] + 1,
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'] + 1,
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position['x'] + 1,
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'],
+                        self.characters[creature.name]['position'] = Position(
+                            self.characters[creature.name]['position']['x'] + 1,
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'],
                         )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "west":
                     if self.worldmap.move_object_from_position_to_position(
                         self.characters[creature.name],
-                        self.characters[creature.name].position,
+                        self.characters[creature.name]['position'],
                         Position(
-                            self.characters[creature.name].position['x'] - 1,
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'] - 1,
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position['x'] - 1,
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'],
+                        self.characters[creature.name]['position'] = Position(
+                            self.characters[creature.name]['position']['x'] - 1,
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'],
                         )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "up":
                     if self.worldmap.move_object_from_position_to_position(
                         self.characters[creature.name],
-                        self.characters[creature.name].position,
+                        self.characters[creature.name]['position'],
                         Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'] + 1,
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'] + 1,
                         ),
                     ):
-                        self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'] + 1,
+                        self.characters[creature.name]['position'] = Position(
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'] + 1,
                         )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "down":
                     if self.worldmap.move_object_from_position_to_position(
                         self.characters[creature.name],
-                        self.characters[creature.name].position,
+                        self.characters[creature.name]['position'],
                         Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'] - 1,
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'] - 1,
                         ),
                     ):
-                        self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'] - 1,
+                        self.characters[creature.name]['position'] = Position(
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'] - 1,
                         )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
             elif action.action_type == "bash":
@@ -765,68 +765,68 @@ class Server(MastermindServerTCP):
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'] + 1,
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'] + 1,
+                            self.characters[creature.name]['position']['z'],
                         ),
                     )
                     self.localmaps[
                         creature.name
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name].position
+                        self.characters[creature.name]['position']
                     )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "north":
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position['x'],
-                            self.characters[creature.name].position['y'] - 1,
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'],
+                            self.characters[creature.name]['position']['y'] - 1,
+                            self.characters[creature.name]['position']['z'],
                         ),
                     )
                     self.localmaps[
                         creature.name
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name].position
+                        self.characters[creature.name]['position']
                     )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "east":
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position['x'] + 1,
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'] + 1,
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'],
                         ),
                     )
                     self.localmaps[
                         creature.name
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name].position
+                        self.characters[creature.name]['position']
                     )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
                 if action.args[0] == "west":
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position['x'] - 1,
-                            self.characters[creature.name].position['y'],
-                            self.characters[creature.name].position['z'],
+                            self.characters[creature.name]['position']['x'] - 1,
+                            self.characters[creature.name]['position']['y'],
+                            self.characters[creature.name]['position']['z'],
                         ),
                     )
                     self.localmaps[
                         creature.name
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name].position
+                        self.characters[creature.name]['position']
                     )
-                    creature.command_queue.remove(
+                    creature['command_queue'].remove(
                         action
                     )  # remove the action after we process it.
 
@@ -892,7 +892,7 @@ class Server(MastermindServerTCP):
 
         for creature in creatures_to_process:
             # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
-            if len(creature.command_queue) > 0:
+            if len(creature['command_queue']) > 0:
                 self.process_creature_command_queue(creature)
 
         # now that we've processed what everything wants to do we can return.

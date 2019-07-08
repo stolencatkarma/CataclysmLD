@@ -4,40 +4,38 @@ import pprint
 import os
 import sys
 
-class Item:
+class Item(dict):
     def __init__(self, ident, reference):
         self['ident'] = ident
-        self.reference = reference
+        self['reference'] = reference
         # you can create objects like this.
         # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
     
-    def asdict(self):
-        return {'ident': self['ident']}
 
 class Container(Item): # containers are types of Items and can do everything an item can do.
     def __init__(self, ident, reference):
         Item.__init__(self, ident, reference)
-        self.contained_items = []
-        self.opened = 'yes' # I don't like using True/False in python.
-        self.base_weight = int(self.reference['weight']) # this plus all the contained items is how much the item weighs.
-        self.max_volume = int(self.reference['volume'])
-        self.contained_weight = 0
-        self.contained_volume = 0
+        self['contained_items'] = []
+        self['opened'] = 'yes' # I don't like using True/False in python.
+        self['base_weight'] = int(self['reference']['weight']) # this plus all the contained items is how much the item weighs.
+        self['max_volume'] = int(self['reference']['volume'])
+        self['contained_weight'] = 0
+        self['contained_volume'] = 0
 
     def recalc_weight(self):
         # total weight is the weight of all contained items.
         weight = 0
-        for item in self.contained_items:
-            weight = weight + int(item.reference['weight'])
-        weight = weight + self.base_weight # add the base weight
-        self.contained_weight = weight
+        for item in self['contained_items']:
+            weight = weight + int(item['reference']['weight'])
+        weight = weight + self['base_weight'] # add the base weight
+        self['contained_weight'] = weight
 
     def add_item(self, item):
         # TODO: check right item type and container type (liquids go in liquid containers.)
 
         # check volume
-        if(int(item.reference['volume']) + self.contained_volume < self.max_volume):
-            self.contained_items.append(item)
+        if(int(item['reference']['volume']) + self['contained_volume'] < self['max_volume']):
+            self['contained_items'].append(item)
             self.recalc_weight()
             print(' - added item to container successfully.')
             return True
@@ -45,9 +43,9 @@ class Container(Item): # containers are types of Items and can do everything an 
             return False #TODO: send a message to the player that the container is full and they cannot do this.
 
     def remove_item(self, item):
-        for item_to_check in self.contained_items[:]:
+        for item_to_check in self['contained_items'][:]:
             if item_to_check == item:
-                self.contained_items.remove(item_to_check)
+                self['contained_items'].remove(item_to_check)
                 self.recalc_weight()
                 return item # if we remove it then it needs to go somewhere. better return it so we can manage it.
 

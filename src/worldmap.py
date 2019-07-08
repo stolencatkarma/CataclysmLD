@@ -20,7 +20,7 @@ from src.terrain import Terrain
 # weather = [WEATHER_CLEAR, WEATHER_RAIN, WEATHER_FOG, WEATHER_STORM, WEATHER_TORNADO]
 
 
-class Chunk:
+class Chunk(dict):
     def __init__(
         self, x, y, z, chunk_size
     ):  # x, y, z relate to it's position on the world map.
@@ -43,7 +43,7 @@ class Chunk:
                 else:
                     chunkdict["terrain"] = Terrain("t_open_air")  # make the air
                 chunkdict["creature"] = None  # Creature() # one creature per tile
-                chunkdict["items"] = []  # can be more then one item in a tile.
+                chunkdict["items"] = []  # can be zero to many items in a tile.
                 chunkdict["furniture"] = None  # single furniture per tile
                 chunkdict["vehicle"] = None  # one per tile
                 chunkdict["trap"] = None  # one per tile
@@ -61,24 +61,21 @@ class Chunk:
         # print('chunk generation took: ' + str(duration) + ' seconds.')
 
 
-class Worldmap:
+class Worldmap(dict):
     # let's make the world map and fill it with chunks!
 
     def __init__(self, WORLD_SIZE):  # size in chunks along one axis.
-        self._log = logging.getLogger("worldmap")
-        self.WORLD_SIZE = WORLD_SIZE
-        self.WORLDMAP = defaultdict(dict)  # dict of dicts for chunks
-        self.chunk_size = 13  # size of the chunk, leave it hardcoded here. (0-12)
-        self.FurnitureManager = FurnitureManager()
-        self.ItemManager = ItemManager()
+        self['WORLD_SIZE'] = WORLD_SIZE
+        self['WORLDMAP'] = defaultdict(dict)  # dict of dicts for chunks
+        self['chunk_size'] = 13  # size of the chunk, leave it hardcoded here. (0-12)
         start = time.time()
         # TODO: only need to load the chunks where there are actual Characters present in memory after generation.
-        self._log.debug("creating/loading world chunks")
+        print("creating/loading world chunks")
         count = 0
-        for i in range(self.WORLD_SIZE):
-            for j in range(self.WORLD_SIZE):
+        for i in range(self['WORLD_SIZE']):
+            for j in range(self['WORLD_SIZE']):
                 for k in range(0, 1):  # just load z0 for now. load the rest as needed.
-                    self.WORLDMAP[i][j] = dict()
+                    self['WORLDMAP'][i][j] = dict()
                     path = str(
                         "./worlds/default/"
                         + str(i)
@@ -93,28 +90,28 @@ class Worldmap:
                         path
                     ):  # if the chunk already exists on disk just load it.
                         with open(path, "rb") as fp:
-                            self.WORLDMAP[i][j][k] = pickle.load(fp)
-                            self.WORLDMAP[i][j][k].was_loaded = "yes"
-                        if count < self.WORLD_SIZE - 1:
+                            self['WORLDMAP'][i][j][k] = pickle.load(fp)
+                            self['WORLDMAP'][i][j][k].was_loaded = "yes"
+                        if count < self['WORLD_SIZE'] - 1:
                             count = count + 1
                         else:
                             count = 0
                     else:
-                        self.WORLDMAP[i][j][k] = Chunk(i, j, k, self.chunk_size)
+                        self['WORLDMAP'][i][j][k] = Chunk(i, j, k, self.chunk_size)
                         with open(path, "wb") as fp:
-                            pickle.dump(self.WORLDMAP[i][j][k], fp)
+                            pickle.dump(self['WORLDMAP'][i][j][k], fp)
 
         end = time.time()
         duration = end - start
-        self._log.debug("---------------------------------------------")
-        self._log.debug("World generation took: {} seconds".format(duration))
+        print("---------------------------------------------")
+        print("World generation took: {} seconds".format(duration))
 
     def update_chunks_on_disk(
         self
     ):  # after our map in memory changes we need to update the chunk file on disk.
-        for i in range(self.WORLD_SIZE):
-            for j in range(self.WORLD_SIZE):
-                for k, chunk in self.WORLDMAP[i][j].items():
+        for i in range(self['WORLD_SIZE']):
+            for j in range(self['WORLD_SIZE']):
+                for k, chunk in self['WORLDMAP'][i][j].items():
                     path = str(
                         "./worlds/default/"
                         + str(i)
@@ -127,8 +124,8 @@ class Worldmap:
                     if os.path.isfile(path):
                         if chunk.is_dirty:
                             with open(path, "wb") as fp:
-                                self.WORLDMAP[i][j][k].is_dirty = False
-                                pickle.dump(self.WORLDMAP[i][j][k], fp)
+                                self['WORLDMAP'][i][j][k].is_dirty = False
+                                pickle.dump(self['WORLDMAP'][i][j][k], fp)
 
     def get_chunk_by_position(self, position):
         tile = self.get_tile_by_position(
@@ -149,18 +146,18 @@ class Worldmap:
 
         z = position['z']
 
-        # self._log.debug('getting chunk {} {}'.format(x_count, y_count))
-        return self.WORLDMAP[x_count][y_count][z]
+        # print('getting chunk {} {}'.format(x_count, y_count))
+        return self['WORLDMAP'][x_count][y_count][z]
 
     def get_all_tiles(self):
         ret = []
-        self._log.debug("getting all tiles")
-        for i, dictionary_x in self.WORLDMAP.items():
+        print("getting all tiles")
+        for i, dictionary_x in self['WORLDMAP'].items():
             for j, dictionary_y in dictionary_x.items():
                 for k, chunk in dictionary_y.items():
                     for tile in chunk.tiles:
                         ret.append(tile)
-        self._log.debug("all tiles: {}".format(len(ret)))
+        print("all tiles: {}".format(len(ret)))
         return ret  # expensive function. use sparingly.
 
     def get_tile_by_position(self, position):
@@ -179,14 +176,14 @@ class Worldmap:
         z = position['z']
 
         try:
-            for tile in self.WORLDMAP[x_count][y_count][z].tiles:
+            for tile in self['WORLDMAP'][x_count][y_count][z].tiles:
                 if tile["position"] == position:
                     return tile
             #else:
             #    raise Exception("FATAL ERROR: couldn't find chunk for tile")
         except Exception:
             # if it doesn't exist yet (exception) we need to create it and return it.
-            self.WORLDMAP[x_count][y_count][z] = Chunk(
+            self['WORLDMAP'][x_count][y_count][z] = Chunk(
                 x_count, y_count, z, self.chunk_size
             )
             path = str(
@@ -199,8 +196,8 @@ class Worldmap:
                 + ".chunk"
             )
             with open(path, "wb") as fp:
-                pickle.dump(self.WORLDMAP[x_count][y_count][z], fp)
-                for tile in self.WORLDMAP[x_count][y_count][z].tiles:
+                pickle.dump(self['WORLDMAP'][x_count][y_count][z], fp)
+                for tile in self['WORLDMAP'][x_count][y_count][z].tiles:
                     if tile["position"] == position:
                         return tile
                 else:
@@ -297,7 +294,7 @@ class Worldmap:
             elif obj.type_of == "Item":
                 items = tile["items"]  # which is []
                 items.append(obj)
-                self._log.debug("added blueprint for an Item.")
+                print("added blueprint for an Item.")
                 return
             elif obj.type_of == "Furniture":
                 tile["furniture"] = obj
@@ -308,7 +305,7 @@ class Worldmap:
     def build_json_building_at_position(
         self, filename, position
     ):  # applys the json file to world coordinates. can be done over multiple chunks.
-        # self._log.debug("building: {} at {}".format(filename, position))
+        # print("building: {} at {}".format(filename, position))
         start = time.time()
         # TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
@@ -347,7 +344,7 @@ class Worldmap:
                 j = j + 1
         end = time.time()
         duration = end - start
-        self._log.debug("Building {} took: {} seconds.".format(filename, duration))
+        print("Building {} took: {} seconds.".format(filename, duration))
 
     def move_object_from_position_to_position(self, obj, from_position, to_position):
         from_tile = self.get_tile_by_position(from_position)
@@ -369,16 +366,16 @@ class Worldmap:
         self.get_chunk_by_position(from_position).is_dirty = True
         self.get_chunk_by_position(to_position).is_dirty = True
         if isinstance(obj, (Creature, Character, Monster)):
-            self._log.debug(
+            print(
                 "moving {} from {} to {}.".format(obj, from_position, to_position)
             )
             if to_tile["terrain"]['impassable']:
-                self._log.debug("tile is impassable")
+                print("tile is impassable")
                 return False
             if (
                 to_tile["creature"] is not None
             ):  # don't replace creatures in the tile if we move over them.
-                self._log.debug("creature is impassable")
+                print("creature is impassable")
                 return False
             to_tile["creature"] = obj
             from_tile["creature"] = None
@@ -404,7 +401,7 @@ class Worldmap:
             return True
         if obj is Furniture:
             if to_tile["furniture"] is not None:
-                self._log.debug("already furniture there.")
+                print("already furniture there.")
                 return False
             to_tile["furniture"] = obj
             from_tile["furniture"] = None
@@ -508,13 +505,13 @@ class Worldmap:
         num_firedept = int(size / 12)
         num_jail = int(size / 12)
 
-        self._log.debug("num_residential: " + str(num_residential))
-        self._log.debug("num_commercial: " + str(num_commercial))
-        self._log.debug("num_industrial: " + str(num_industrial))
-        self._log.debug("num_hospitals: " + str(num_hospitals))
-        self._log.debug("num_police: " + str(num_police))
-        self._log.debug("num_firedept: " + str(num_firedept))
-        self._log.debug("num_jail: " + str(num_jail))
+        print("num_residential: " + str(num_residential))
+        print("num_commercial: " + str(num_commercial))
+        print("num_industrial: " + str(num_industrial))
+        print("num_hospitals: " + str(num_hospitals))
+        print("num_police: " + str(num_police))
+        print("num_firedept: " + str(num_firedept))
+        print("num_jail: " + str(num_jail))
 
         # put road every 4th tile with houses on either side.
         for j in range(1, size - 1):
