@@ -127,11 +127,6 @@ class Worldmap:
                     if os.path.isfile(path):
                         if chunk.is_dirty:
                             with open(path, "wb") as fp:
-                                self._log.debug(
-                                    "{}_{}_{}.chunk is dirty. Saving changes to disk.".format(
-                                        i, j, k
-                                    )
-                                )
                                 self.WORLDMAP[i][j][k].is_dirty = False
                                 pickle.dump(self.WORLDMAP[i][j][k], fp)
 
@@ -140,19 +135,19 @@ class Worldmap:
             position
         )  # check and see if it exists if not create it.
         x_count = 0  #
-        x = position.x
+        x = position['x']
         while x >= self.chunk_size:
             x = x - self.chunk_size
             x_count = x_count + 1
 
         y_count = 0  #
-        y = position.y
+        y = position['y']
         # worldmap[x][y].tiles
         while y >= self.chunk_size:
             y = y - self.chunk_size
             y_count = y_count + 1
 
-        z = position.z
+        z = position['z']
 
         # self._log.debug('getting chunk {} {}'.format(x_count, y_count))
         return self.WORLDMAP[x_count][y_count][z]
@@ -170,18 +165,18 @@ class Worldmap:
 
     def get_tile_by_position(self, position):
         x_count = 0  # these two little loop gets us the right chunk FAST
-        x = position.x
+        x = position['x']
         while x >= self.chunk_size:
             x = x - self.chunk_size
             x_count = x_count + 1
 
         y_count = 0  #
-        y = position.y
+        y = position['y']
         while y >= self.chunk_size:
             y = y - self.chunk_size
             y_count = y_count + 1
 
-        z = position.z
+        z = position['z']
 
         try:
             for tile in self.WORLDMAP[x_count][y_count][z].tiles:
@@ -217,9 +212,9 @@ class Worldmap:
     def get_chunks_near_position(self, position):  # a localmap
         chunks = []
         # we should only need the 9 chunks around the chunk position
-        x = position.x
-        y = position.y
-        z = position.z
+        x = position['x']
+        y = position['y']
+        z = position['z']
 
         north_east_chunk = self.get_chunk_by_position(
             Position(x + self.chunk_size, y + self.chunk_size, z)
@@ -313,7 +308,7 @@ class Worldmap:
     def build_json_building_at_position(
         self, filename, position
     ):  # applys the json file to world coordinates. can be done over multiple chunks.
-        self._log.debug("building: {} at {}".format(filename, position))
+        # self._log.debug("building: {} at {}".format(filename, position))
         start = time.time()
         # TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
@@ -332,7 +327,7 @@ class Worldmap:
                 i = 0
                 for char in row:
                     impassable = False
-                    t_position = Position(position.x + i, position.y + j, k)
+                    t_position = Position(position['x'] + i, position['y'] + j, k)
                     self.put_object_at_position(
                         Terrain(fill_terrain, impassable), t_position
                     )  # use fill_terrain if unrecognized.
@@ -362,13 +357,13 @@ class Worldmap:
                 "tile doesn't exist. This should NEVER get called. get_tile_by_position creates a new chunk and tiles if we need it."
             )
             return False
-        if from_position.z != to_position.z:  # check for stairs.
-            if from_position.z < to_position.z:
-                if from_tile["terrain"].ident != "t_stairs_up":
+        if from_position['z'] != to_position['z']:  # check for stairs.
+            if from_position['z'] < to_position['z']:
+                if from_tile["terrain"]['ident'] != "t_stairs_up":
                     print("no up stairs there")
                     return False
-            elif from_position.z > to_position.z:
-                if from_tile["terrain"].ident != "t_stairs_down":
+            elif from_position['z'] > to_position['z']:
+                if from_tile["terrain"]['ident'] != "t_stairs_down":
                     print("no down stairs there")
                     return False
         self.get_chunk_by_position(from_position).is_dirty = True
@@ -377,7 +372,7 @@ class Worldmap:
             self._log.debug(
                 "moving {} from {} to {}.".format(obj, from_position, to_position)
             )
-            if to_tile["terrain"].impassable:
+            if to_tile["terrain"]['impassable']:
                 self._log.debug("tile is impassable")
                 return False
             if (
@@ -426,7 +421,7 @@ class Worldmap:
         # strength = creature strength.
         if tile["furniture"] is not None:
             furniture_type = self.FurnitureManager.FURNITURE_TYPES[
-                tile["furniture"].ident
+                tile["furniture"]['ident']
             ]
             for item in furniture_type["bash"]["items"]:
                 self.put_object_at_position(
@@ -476,13 +471,13 @@ class Worldmap:
     def get_tiles_near_position(self, position, radius):
         # figure out a way to get all tile positions near a position so we can get_tile_by_position on them.
         ret_tiles = []
-        for i in range(position.x - radius, position.x + radius + 1):
-            for j in range(position.y - radius, position.y + radius + 1):
-                dx = position.x - i
-                dy = position.y - j
+        for i in range(position['x'] - radius, position['x'] + radius + 1):
+            for j in range(position['y'] - radius, position['y'] + radius + 1):
+                dx = position['x'] - i
+                dy = position['y'] - j
                 distance = max(abs(dx), abs(dy))
                 ret_tiles.append(
-                    (self.get_tile_by_position(Position(i, j, position.z)), distance)
+                    (self.get_tile_by_position(Position(i, j, position['z'])), distance)
                 )
         return ret_tiles
 
@@ -587,30 +582,29 @@ class Worldmap:
 
         return city_layout
 
-    def get_adjacent_positions_non_impassable(
-        self, position
-    ):  # we use this in pathfinding.
+    # we use this in pathfinding.
+    def get_adjacent_positions_non_impassable(self, position):
         ret_tiles = []
         tile0 = self.get_tile_by_position(
-            Position(position.x + 1, position.y, position.z)
+            Position(position['x'] + 1, position['y'], position['z'])
         )
         tile1 = self.get_tile_by_position(
-            Position(position.x - 1, position.y, position.z)
+            Position(position['x'] - 1, position['y'], position['z'])
         )
         tile2 = self.get_tile_by_position(
-            Position(position.x, position.y + 1, position.z)
+            Position(position['x'], position['y'] + 1, position['z'])
         )
         tile3 = self.get_tile_by_position(
-            Position(position.x, position.y - 1, position.z)
+            Position(position['x'], position['y'] - 1, position['z'])
         )
 
-        if not tile0["terrain"].impassable:
+        if not tile0["terrain"]['impassable']:
             ret_tiles.append(tile0["position"])
-        if not tile1["terrain"].impassable:
+        if not tile1["terrain"]['impassable']:
             ret_tiles.append(tile1["position"])
-        if not tile2["terrain"].impassable:
+        if not tile2["terrain"]['impassable']:
             ret_tiles.append(tile2["position"])
-        if not tile3["terrain"].impassable:
+        if not tile3["terrain"]['impassable']:
             ret_tiles.append(tile3["position"])
 
         return ret_tiles

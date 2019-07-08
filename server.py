@@ -87,7 +87,7 @@ class Server(MastermindServerTCP):
                 path = []
                 while position != pos0:
                     path.append(position)
-                    position = position.previous
+                    position = position['previous']
                 ret_path = []
                 for step in path:
                     ret_path.insert(0, step)
@@ -101,10 +101,10 @@ class Server(MastermindServerTCP):
                 position
             )
             for adjacent in new_reachable:
-                if abs(adjacent.x - pos0.x) > 10 or abs(adjacent.y - pos0.y) > 10:
+                if abs(adjacent['x'] - pos0['x']) > 10 or abs(adjacent['y'] - pos0['y']) > 10:
                     continue
                 if adjacent not in reachable and adjacent not in explored:
-                    adjacent.previous = position  # Remember how we got there.
+                    adjacent['previous'] = position  # Remember how we got there.
                     reachable.append(adjacent)
 
         return None
@@ -114,16 +114,16 @@ class Server(MastermindServerTCP):
         random.shuffle(_tiles)  # so we all don't spawn in one corner.
         for tile in _tiles:
             if (
-                tile["position"].x < 13
-                or tile["position"].y < 13
-                or tile["position"].z != 0
+                tile["position"]['x'] < 12
+                or tile["position"]['y'] < 12
+                or tile["position"]['z'] != 0
             ):
                 continue
-            if tile["terrain"].impassable:
+            if tile["terrain"]['impassable']:
                 continue
             if tile["creature"] is not None:
                 continue
-            if tile["terrain"].ident == "t_open_air":
+            if tile["terrain"]['ident'] == "t_open_air":
                 continue
 
             return tile["position"]
@@ -150,33 +150,33 @@ class Server(MastermindServerTCP):
             if key == "equipped_items":
                 for equip_location, item_ident in value.items():
                     for bodypart in self.characters[character.name].body_parts:
-                        if bodypart.ident.split("_")[0] == equip_location:
-                            if bodypart.slot0 is None:
+                        if bodypart['ident'].split("_")[0] == equip_location:
+                            if bodypart['slot0'] is None:
                                 if (
                                     "container_type"
                                     in self.ItemManager.ITEM_TYPES[item_ident]
                                 ):
-                                    bodypart.slot0 = Container(
+                                    bodypart['slot0'] = Container(
                                         item_ident,
                                         self.ItemManager.ITEM_TYPES[item_ident],
                                     )  # need to pass the reference to load the item with data.
                                 else:
-                                    bodypart.slot0 = Item(
+                                    bodypart['slot0'] = Item(
                                         item_ident,
                                         self.ItemManager.ITEM_TYPES[item_ident],
                                     )  # need to pass the reference to load the item with data.
                                 break
-                            elif bodypart.slot1 is None:
+                            elif bodypart['slot1'] is None:
                                 if (
                                     "container_type"
                                     in self.ItemManager.ITEM_TYPES[item_ident]
                                 ):
-                                    bodypart.slot1 = Container(
+                                    bodypart['slot1'] = Container(
                                         item_ident,
                                         self.ItemManager.ITEM_TYPES[item_ident],
                                     )  # need to pass the reference to load the item with data.
                                 else:
-                                    bodypart.slot1 = Item(
+                                    bodypart['slot1'] = Item(
                                         item_ident,
                                         self.ItemManager.ITEM_TYPES[item_ident],
                                     )  # need to pass the reference to load the item with data.
@@ -191,22 +191,22 @@ class Server(MastermindServerTCP):
                 for location_ident, item_ident in value.items():
                     # first find the location_ident so we can load a new item into it.
                     for bodypart in self.characters[character.name].body_parts:
-                        if bodypart.slot0 is not None:
+                        if bodypart['slot0'] is not None:
                             if (
-                                isinstance(bodypart.slot0, Container)
-                                and bodypart.slot0.ident == location_ident
+                                isinstance(bodypart['slot0'], Container)
+                                and bodypart['slot0']['ident'] == location_ident
                             ):  # uses the first one it finds, maybe check if it's full?
-                                bodypart.slot0.add_item(
+                                bodypart['slot0'].add_item(
                                     Item(
                                         item_ident,
                                         self.ItemManager.ITEM_TYPES[item_ident],
                                     )
                                 )
                             if (
-                                isinstance(bodypart.slot1, Container)
-                                and bodypart.slot1.ident == location_ident
+                                isinstance(bodypart['slot1'], Container)
+                                and bodypart['slot1']['ident'] == location_ident
                             ):  # uses the first one it finds, maybe check if it's full?
-                                bodypart.slot1.add_item(
+                                bodypart['slot1'].add_item(
                                     Item(
                                         item_ident,
                                         self.ItemManager.ITEM_TYPES[item_ident],
@@ -225,7 +225,7 @@ class Server(MastermindServerTCP):
 
         with open(path, "w") as fp:
             _pickled = jsonpickle.encode(character)
-            pprint.pprint(_pickled)
+            # pprint.pprint(_pickled)
             fp.write(_pickled)
 
         self._log.info("New character added to world: {}".format(character.name))
@@ -396,27 +396,27 @@ class Server(MastermindServerTCP):
                 position_to_create_at = None
                 if data.args[1] == "south":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position.x,
-                        self.characters[data["ident"]].position.y + 1,
-                        self.characters[data["ident"]].position.z,
+                        self.characters[data["ident"]].position['x'],
+                        self.characters[data["ident"]].position['y'] + 1,
+                        self.characters[data["ident"]].position['z'],
                     )
                 elif data.args[1] == "north":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position.x,
-                        self.characters[data["ident"]].position.y - 1,
-                        self.characters[data["ident"]].position.z,
+                        self.characters[data["ident"]].position['x'],
+                        self.characters[data["ident"]].position['y'] - 1,
+                        self.characters[data["ident"]].position['z'],
                     )
                 elif data.args[1] == "east":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position.x + 1,
-                        self.characters[data["ident"]].position.y,
-                        self.characters[data["ident"]].position.z,
+                        self.characters[data["ident"]].position['x'] + 1,
+                        self.characters[data["ident"]].position['y'],
+                        self.characters[data["ident"]].position['z'],
                     )
                 elif data.args[1] == "west":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]].position.x - 1,
-                        self.characters[data["ident"]].position.y,
-                        self.characters[data["ident"]].position.z,
+                        self.characters[data["ident"]].position['x'] - 1,
+                        self.characters[data["ident"]].position['y'],
+                        self.characters[data["ident"]].position['z'],
                     )
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[data.args[0]]
@@ -445,17 +445,17 @@ class Server(MastermindServerTCP):
                 )
 
                 # fill the queue with move commands to reach the tile.
-                _x = self.characters[data["ident"]].position.x
-                _y = self.characters[data["ident"]].position.y
-                _z = self.characters[data["ident"]].position.z
+                _x = self.characters[data["ident"]].position['x']
+                _y = self.characters[data["ident"]].position['y']
+                _z = self.characters[data["ident"]].position['z']
                 action = None
                 if _route is None:
                     self._log.debug("No _route possible.")
                     return
                 for step in _route:
-                    _next_x = step.x
-                    _next_y = step.y
-                    _next_z = step.z
+                    _next_x = step['x']
+                    _next_y = step['y']
+                    _next_z = step['z']
                     if _x > _next_x:
                         action = Action(
                             self.characters[data["ident"]], "move", ["west"]
@@ -492,7 +492,7 @@ class Server(MastermindServerTCP):
                 _open_containers = []
                 # find the item that the character is requesting.
                 for item in self.worldmap.get_tile_by_position(_from_pos)["items"]:
-                    if item.ident == _item_ident:
+                    if item['ident'] == _item_ident:
                         # this is the item or at least the first one that matches the same ident.
                         _from_item = item  # save a reference to it to use.
                         break
@@ -504,17 +504,17 @@ class Server(MastermindServerTCP):
                 # make a list of open_containers the character has to see if they can pick it up.
                 for bodyPart in _character.body_parts:
                     if (
-                        bodyPart.slot0 is not None
-                        and isinstance(bodyPart.slot0, Container)
-                        and bodyPart.slot0.opened == "yes"
+                        bodyPart['slot0'] is not None
+                        and isinstance(bodyPart['slot0'], Container)
+                        and bodyPart['slot0'].opened == "yes"
                     ):
-                        _open_containers.append(bodyPart.slot0)
+                        _open_containers.append(bodyPart['slot0'])
                     if (
-                        bodyPart.slot1 is not None
-                        and isinstance(bodyPart.slot1, Container)
-                        and bodyPart.slot1.opened == "yes"
+                        bodyPart['slot1'] is not None
+                        and isinstance(bodyPart['slot1'], Container)
+                        and bodyPart['slot1'].opened == "yes"
                     ):
-                        _open_containers.append(bodyPart.slot1)
+                        _open_containers.append(bodyPart['slot1'])
 
                 if len(_open_containers) <= 0:
                     return  # no open containers.
@@ -529,7 +529,7 @@ class Server(MastermindServerTCP):
                         ][
                             :
                         ]:  # iterate a copy to remove properly.
-                            if item.ident == _item_ident:
+                            if item['ident'] == _item_ident:
                                 self.worldmap.get_tile_by_position(_from_pos)[
                                     "items"
                                 ].remove(item)
@@ -656,15 +656,15 @@ class Server(MastermindServerTCP):
                         self.characters[creature.name],
                         self.characters[creature.name].position,
                         Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y + 1,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'] + 1,
+                            self.characters[creature.name].position['z'],
                         ),
                     ):
                         self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y + 1,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'] + 1,
+                            self.characters[creature.name].position['z'],
                         )
                     creature.command_queue.remove(
                         action
@@ -674,15 +674,15 @@ class Server(MastermindServerTCP):
                         self.characters[creature.name],
                         self.characters[creature.name].position,
                         Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y - 1,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'] - 1,
+                            self.characters[creature.name].position['z'],
                         ),
                     ):
                         self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y - 1,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'] - 1,
+                            self.characters[creature.name].position['z'],
                         )
                     creature.command_queue.remove(
                         action
@@ -692,15 +692,15 @@ class Server(MastermindServerTCP):
                         self.characters[creature.name],
                         self.characters[creature.name].position,
                         Position(
-                            self.characters[creature.name].position.x + 1,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'] + 1,
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'],
                         ),
                     ):
                         self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position.x + 1,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'] + 1,
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'],
                         )
                     creature.command_queue.remove(
                         action
@@ -710,15 +710,15 @@ class Server(MastermindServerTCP):
                         self.characters[creature.name],
                         self.characters[creature.name].position,
                         Position(
-                            self.characters[creature.name].position.x - 1,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'] - 1,
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'],
                         ),
                     ):
                         self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position.x - 1,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'] - 1,
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'],
                         )
                     creature.command_queue.remove(
                         action
@@ -728,15 +728,15 @@ class Server(MastermindServerTCP):
                         self.characters[creature.name],
                         self.characters[creature.name].position,
                         Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z + 1,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'] + 1,
                         ),
                     ):
                         self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z + 1,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'] + 1,
                         )
                     creature.command_queue.remove(
                         action
@@ -746,15 +746,15 @@ class Server(MastermindServerTCP):
                         self.characters[creature.name],
                         self.characters[creature.name].position,
                         Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z - 1,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'] - 1,
                         ),
                     ):
                         self.characters[creature.name].position = Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z - 1,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'] - 1,
                         )
                     creature.command_queue.remove(
                         action
@@ -765,9 +765,9 @@ class Server(MastermindServerTCP):
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y + 1,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'] + 1,
+                            self.characters[creature.name].position['z'],
                         ),
                     )
                     self.localmaps[
@@ -782,9 +782,9 @@ class Server(MastermindServerTCP):
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position.x,
-                            self.characters[creature.name].position.y - 1,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'],
+                            self.characters[creature.name].position['y'] - 1,
+                            self.characters[creature.name].position['z'],
                         ),
                     )
                     self.localmaps[
@@ -799,9 +799,9 @@ class Server(MastermindServerTCP):
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position.x + 1,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'] + 1,
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'],
                         ),
                     )
                     self.localmaps[
@@ -816,9 +816,9 @@ class Server(MastermindServerTCP):
                     self.worldmap.bash(
                         self.characters[creature.name],
                         Position(
-                            self.characters[creature.name].position.x - 1,
-                            self.characters[creature.name].position.y,
-                            self.characters[creature.name].position.z,
+                            self.characters[creature.name].position['x'] - 1,
+                            self.characters[creature.name].position['y'],
+                            self.characters[creature.name].position['z'],
                         ),
                     )
                     self.localmaps[
@@ -845,7 +845,7 @@ class Server(MastermindServerTCP):
                     for item in tile["items"]:
                         if isinstance(item, Blueprint):
                             continue
-                        for flag in self.ItemManager.ITEM_TYPES[item.ident]["flags"]:
+                        for flag in self.ItemManager.ITEM_TYPES[item['ident']]["flags"]:
                             if (
                                 flag.split("_")[0] == "LIGHT"
                             ):  # this item produces light.
@@ -860,11 +860,11 @@ class Server(MastermindServerTCP):
                                     )
                     if tile["furniture"] is not None:
                         for key in self.FurnitureManager.FURNITURE_TYPES[
-                            tile["furniture"].ident
+                            tile["furniture"]['ident']
                         ]:
                             if key == "flags":
                                 for flag in self.FurnitureManager.FURNITURE_TYPES[
-                                    tile["furniture"].ident
+                                    tile["furniture"]['ident']
                                 ]["flags"]:
                                     if (
                                         flag.split("_")[0] == "LIGHT"

@@ -4,12 +4,12 @@ import pprint
 import os
 import sys
 
-class Profession:
+class Profession(dict):
     def __init__(self, ident='generic'):
-        self.ident = ident
+        self['ident'] = ident
 
     def __str__(self):
-        return self.ident
+        return self['ident']
 
 
 class ProfessionManager:

@@ -7,7 +7,7 @@ from .terrain import Terrain
 class Blueprint(): # is a physical representation of a recipe while it's being built in the world. # once built it 'turns' into the type and fills the worldmap with it.
     def __init__(self, type_of, recipe):
         valid_types = ['Terrain', 'Furniture', 'Item']
-        self.ident = 'Blueprint'
+        self['ident'] = 'Blueprint'
         self.recipe = recipe
         self.turns_worked_on = 0 # when this reaches self.recipe['time'] then we need to 'turn' it into the object.
         self.contained_items = list()
@@ -24,7 +24,7 @@ class Blueprint(): # is a physical representation of a recipe while it's being b
             self.type_of = type_of
 
     def __str__(self):
-        return str(self.type_of + ' ' + self.ident)
+        return str(self.type_of + ' ' + self['ident'])
 
     def work_on(self):
         # when a creature 'works on' this blueprint
@@ -43,7 +43,7 @@ class Blueprint(): # is a physical representation of a recipe while it's being b
             # got a list of items to add
             for item in item_or_list:
                 for component in self.recipe['components']:
-                    if(component['ident'] == item.ident):
+                    if(component['ident'] == item['ident']):
                         # this item belongs in this recipe.
                         break
                 else:
@@ -55,7 +55,7 @@ class Blueprint(): # is a physical representation of a recipe while it's being b
         else:
             # add single item.
             for component in self.recipe['components']:
-                if(component['ident'] == item_or_list.ident):
+                if(component['ident'] == item_or_list['ident']):
                     # this item belongs in this recipe.
                     break
             else:

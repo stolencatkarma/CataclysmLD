@@ -1,12 +1,11 @@
 from collections import defaultdict
 import json
 
-class Furniture: # we only need to store the furiture and the items it contains.
+class Furniture(dict): # we only need to store the furiture and the items it contains.
     def __init__(self, ident):
-        self.ident = ident
-        pass
+        self['ident'] = ident
     def __str__(self):
-        return str(self.ident)
+        return str(self['ident'])
 
 class FurnitureManager: # holds all the furniture types from furniture.json
     def __init__(self):

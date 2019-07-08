@@ -6,13 +6,13 @@ import sys
 
 class Item:
     def __init__(self, ident, reference):
-        self.ident = ident
+        self['ident'] = ident
         self.reference = reference
         # you can create objects like this.
         # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
     
     def asdict(self):
-        return {'ident': self.ident}
+        return {'ident': self['ident']}
 
 class Container(Item): # containers are types of Items and can do everything an item can do.
     def __init__(self, ident, reference):
