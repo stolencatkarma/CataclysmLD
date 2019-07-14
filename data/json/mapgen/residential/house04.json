@@ -54,6 +54,7 @@
     "S": "t_shrub",
     "L": "t_door_locked",
     "W": "t_wall",
+    "M": "t_door_o",
     "G": "t_grass",
     "I": "t_window_domestic",
     "^": "t_stairs_up",

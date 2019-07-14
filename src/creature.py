@@ -9,7 +9,6 @@ from src.bodypart import Bodypart
 class Creature(dict):
     def __init__(self):
         self['strength'] = 8
-        self['strength'] = 20
         self['dexterity'] = 8
         self['intelligence'] = 8
         self['perception'] = 8

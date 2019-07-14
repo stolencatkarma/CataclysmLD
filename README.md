@@ -29,9 +29,6 @@ Generic installation instructions
 ---
 
 * install python 3.4+
-* install pip3 - if on windows: https://pip.pypa.io/en/stable/installing/
-* open a command shell and goto the Cataclysm:LD folder you downloaded and unzipped it to.
-* `pip install pyglet glooey jsonpickle`
 
 ---
 

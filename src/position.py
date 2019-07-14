@@ -4,14 +4,14 @@ class Position(dict): # a position. to get the chunk we are in it's for example:
         self['x'] = int(x)
         self['y'] = int(y)
         self['z'] = int(z)
-        self['previous'] = None # used for pathfinding.
+        # self['previous'] = None # used for pathfinding.
 
-    #def __eq__(self, tp): # required to be hashable.
-    #    if(tp.x == self.x):
-    #        if(tp.y == self.y):
-    #            if(tp.z == self.z):
-    #                return True
-    #    return False#
+    def __eq__(self, position): # required to be hashable.
+        if(position['x'] == self['x']):
+            if(position['y'] == self['y']):
+                if(position['z'] == self['z']):
+                    return True
+        return False
 
     #def asdict(self):
     #    return {'x': self.x, 'y': self.y, 'z': self.z}

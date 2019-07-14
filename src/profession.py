@@ -24,7 +24,7 @@ class ProfessionManager:
                     for item in data:
                         try:
                             for key, value in item.items():
-                                print(key, value)
+                                # print(key, value)
                                 if(isinstance(value, list)):
                                     self.PROFESSIONS[item['ident']][key] = []
                                     for add_value in value:
@@ -35,7 +35,7 @@ class ProfessionManager:
                                         self.PROFESSIONS[item['ident']][key][add_key] = add_value
                                 else:
                                     self.PROFESSIONS[item['ident']][key] = str(value)
-                            print(self.PROFESSIONS[item['ident']])
+                            #print(self.PROFESSIONS[item['ident']])
                         except Exception:
                             print()
                             print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')

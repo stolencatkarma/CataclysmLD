@@ -24,7 +24,7 @@ tmp_dict2['tiles'] = list()
 
 for tiles in data['tiles-new']:
     for tile in tiles['tiles']:
-        print(tile)
+        # print(tile)
         var_dict = dict()
         if(not 'bg' in tile.keys()):
             print('does not contain a bg. fixing.')

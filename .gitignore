@@ -1,15 +1,14 @@
-# ignore all chunks
-*.chunk
 # ignore all pyc files
 *.pyc
 # ignore compiled files
 *.exe
 *.pyd
 *.dll
-*.pickle
 /dist/*
 /build/*
 # ignore logs
 /log/*
 # ignore accounts
 /accounts/*
+# ignore worlds
+/worlds/*

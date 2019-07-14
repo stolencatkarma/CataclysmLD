@@ -9,9 +9,6 @@ import time
 import pprint
 import configparser
 import logging.config
-import pickle
-import jsonpickle
-from collections import defaultdict
 
 from Mastermind._mm_server import MastermindServerTCP
 from src.action import Action
@@ -28,6 +25,8 @@ from src.terrain import Terrain
 from src.profession import ProfessionManager, Profession
 from src.monster import MonsterManager
 from src.worldmap import Worldmap
+from src.furniture import FurnitureManager
+from src.item import ItemManager
 from src.passhash import makeSalt, hashPassword
 
 
@@ -45,9 +44,9 @@ class Server(MastermindServerTCP):
         self._config = config
         if logger == None:
             logging.basicConfig()
-            self._log = logging.getLogger("root")
+            self._log = logging.getLogger('root')
             self._log.warn(
-                "Basic logging configuration fallback used because no logger defined."
+                'Basic logging configuration fallback used because no logger defined.'
             )
 
         else:
@@ -57,7 +56,7 @@ class Server(MastermindServerTCP):
         self.characters = dict()
 
         self.localmaps = dict()  # the localmaps for each character.
-        self.overmaps = dict()  # the dict of all overmaps by character.name
+        self.overmaps = dict()  # the dict of all overmaps by character
         # self.options = Options()
         self.calendar = Calendar(0, 0, 0, 0, 0, 0)  # all zeros is the epoch
         # self.options.save()
@@ -74,86 +73,74 @@ class Server(MastermindServerTCP):
 
     def calculate_route(self, pos0, pos1, consider_impassable=True):
         # normally we will want to consider impassable terrain in movement calculations. Creatures that can walk or break through walls don't need to though.
-        reachable = [pos0]
-        explored = []
+        path = [pos0]
+        goal = pos1
 
-        while len(reachable) > 0:
-            position = random.choice(
-                reachable
-            )  # get a random reachable position #TODO: be a little more intelligent about picking the best reachable position.
-
-            # If we just got to the goal node. return the path.
-            if position == pos1:
-                path = []
-                while position != pos0:
-                    path.append(position)
-                    position = position['previous']
-                ret_path = []
-                for step in path:
-                    ret_path.insert(0, step)
-                return ret_path
-
-            # Don't repeat ourselves.
-            reachable.remove(position)
-            explored.append(position)
-
-            new_reachable = self.worldmap.get_adjacent_positions_non_impassable(
-                position
-            )
+        while path[len(path)-1] != goal:
+            # print("loop")    
+            # get reachable positions from the last point on the map.
+            new_reachable = self.worldmap.get_adjacent_positions_non_impassable(path[len(path)-1])
+            
+            # get the tile in those that is closest to the goal.
+            next_pos = None
             for adjacent in new_reachable:
-                if abs(adjacent['x'] - pos0['x']) > 10 or abs(adjacent['y'] - pos0['y']) > 10:
+                if(next_pos is None):
+                    next_pos = adjacent
                     continue
-                if adjacent not in reachable and adjacent not in explored:
-                    adjacent['previous'] = position  # Remember how we got there.
-                    reachable.append(adjacent)
+                if (abs(adjacent['x'] - goal['x']) + abs(adjacent['y'] - goal['y'])) < (abs(next_pos['x'] - goal['x']) + abs(next_pos['y'] - goal['y'])):
+                    next_pos = adjacent
+            print(path[len(path)-1])
+            path.append(next_pos)
+            
+            if(len(path) > 9):
+                break
 
-        return None
+        return path
+
 
     def find_spawn_point_for_new_character(self):
         _tiles = self.worldmap.get_all_tiles()
         random.shuffle(_tiles)  # so we all don't spawn in one corner.
         for tile in _tiles:
             if (
-                tile["position"]['x'] < 12
-                or tile["position"]['y'] < 12
-                or tile["position"]['z'] != 0
+                tile['position']['x'] < 12
+                or tile['position']['y'] < 12
+                or tile['position']['z'] != 0
             ):
                 continue
-            if tile["terrain"]['impassable']:
+            if tile['terrain']['impassable']:
                 continue
-            if tile["creature"] is not None:
+            if tile['creature'] is not None:
                 continue
-            if tile["terrain"]['ident'] == "t_open_air":
+            if tile['terrain']['ident'] == 't_open_air':
                 continue
 
-            return tile["position"]
+            return tile['position']
 
     def handle_new_character(self, ident, character):
-        # ident is the account, character is the Character()
-        self.characters[character.name] = character
+        print(character)
+        self.characters[character] = Character(character)
 
-        self.characters[
-            character.name
-        ]['position'] = self.find_spawn_point_for_new_character()
+        self.characters[character]['position'] = self.find_spawn_point_for_new_character()
         self.worldmap.put_object_at_position(
-            self.characters[character.name], self.characters[character.name]['position']
+            self.characters[character], self.characters[character]['position']
         )
-        self.localmaps[character.name] = self.worldmap.get_chunks_near_position(
-            self.characters[character.name]['position']
+        self.localmaps[character] = self.worldmap.get_chunks_near_position(
+            self.characters[character]['position']
         )
 
         # give the character their starting items by referencing the ProfessionManager.
         for key, value in self.ProfessionManager.PROFESSIONS[
-            str(self.characters[character.name].profession)
+            str(self.characters[character]['profession'])
         ].items():
             # TODO: load the items into the character equipment slots as well as future things like CBMs and flags
-            if key == "equipped_items":
+            if key == 'equipped_items':
                 for equip_location, item_ident in value.items():
-                    for bodypart in self.characters[character.name].body_parts:
-                        if bodypart['ident'].split("_")[0] == equip_location:
+                    for bodypart in self.characters[character]['body_parts']:
+                        if bodypart['ident'].split('_')[0] == equip_location:
                             if bodypart['slot0'] is None:
                                 if (
-                                    "container_type"
+                                    'container_type'
                                     in self.ItemManager.ITEM_TYPES[item_ident]
                                 ):
                                     bodypart['slot0'] = Container(
@@ -168,7 +155,7 @@ class Server(MastermindServerTCP):
                                 break
                             elif bodypart['slot1'] is None:
                                 if (
-                                    "container_type"
+                                    'container_type'
                                     in self.ItemManager.ITEM_TYPES[item_ident]
                                 ):
                                     bodypart['slot1'] = Container(
@@ -183,14 +170,14 @@ class Server(MastermindServerTCP):
                                 break
                     else:
                         self._log.warn(
-                            "character needed an item but no free slots found"
+                            'character needed an item but no free slots found'
                         )
             elif (
-                key == "items_in_containers"
+                key == 'items_in_containers'
             ):  # load the items_in_containers into their containers we just created.
                 for location_ident, item_ident in value.items():
                     # first find the location_ident so we can load a new item into it.
-                    for bodypart in self.characters[character.name].body_parts:
+                    for bodypart in self.characters[character]['body_parts']:
                         if bodypart['slot0'] is not None:
                             if (
                                 isinstance(bodypart['slot0'], Container)
@@ -213,36 +200,34 @@ class Server(MastermindServerTCP):
                                     )
                                 )
         path = str(
-            "./accounts/"
+            './accounts/'
             + str(ident)
-            + "/"
-            + str("characters")
-            + "/"
-            + str(character.name)
-            + ".character"
+            + '/'
+            + str('characters')
+            + '/'
+            + str(character)
+            + '.character'
         )
-        import jsonpickle
 
-        with open(path, "w") as fp:
-            _pickled = jsonpickle.encode(character)
+        with open(path, 'w') as fp:
+            json.dump(self.characters[character], fp)
             # pprint.pprint(_pickled)
-            fp.write(_pickled)
-
-        self._log.info("New character added to world: {}".format(character.name))
+            
+            print('New character added to world: {}'.format(character))
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
         print(
-            "Server: Recieved data {} from client {}.".format(
+            'Server: Recieved data {} from client {}.'.format(
                 data, connection_object.address
             )
         )
 
         try:
-            _command = Command(data["ident"], data["command"], data["args"])
+            _command = Command(data['ident'], data['command'], data['args'])
         except:
             print(
-                "Server: invalid data {} from client {}.".format(
+                'Server: invalid data {} from client {}.'.format(
                     data, connection_object.address
                 )
             )
@@ -250,29 +235,29 @@ class Server(MastermindServerTCP):
 
         # we recieved a valid command. process it.
         if isinstance(_command, Command):
-            if _command["command"] == "login":
+            if _command['command'] == 'login':
                 # check whether this username has an account.
-                _path = "./accounts/" + _command["ident"] + "/"
-                if os.path.isdir("./accounts/" + _command["ident"]):
+                _path = './accounts/' + _command['ident'] + '/'
+                if os.path.isdir('./accounts/' + _command['ident']):
                     # account exists. check the sent password against the saved one.
-                    with open(str(_path + "SALT"), "r") as _salt:
+                    with open(str(_path + 'SALT'), 'r') as _salt:
                         with open(
-                            str(_path + "HASHED_PASSWORD"), "r"
+                            str(_path + 'HASHED_PASSWORD'), 'r'
                         ) as _hashed_password:
                             # read the password hashed
-                            _check = hashPassword(_command["args"], _salt.read())
+                            _check = hashPassword(_command['args'], _salt.read())
                             _check2 = _hashed_password.read()
                             if _check == _check2:
-                                print("password accepted for " + str(_command["ident"]))
-                                _message = {"login": "Accepted"}
+                                print('password accepted for ' + str(_command['ident']))
+                                _message = {'login': 'Accepted'}
                                 self.callback_client_send(
                                     connection_object, json.dumps(_message)
                                 )
 
                             else:
                                 print(
-                                    "password not accepted for "
-                                    + str(_command["ident"])
+                                    'password not accepted for '
+                                    + str(_command['ident'])
                                 )
                                 connection_object.terminate()
                                 # this player can recieve a list of characters they own.
@@ -283,110 +268,107 @@ class Server(MastermindServerTCP):
                     try:
                         os.mkdir(_path)
                     except OSError:
-                        print("Creation of the directory %s failed" % _path)
+                        print('Creation of the directory %s failed' % _path)
                     else:
-                        print("Successfully created the directory %s " % _path)
+                        print('Successfully created the directory %s ' % _path)
 
                     _salt = makeSalt()
-                    with open(str(_path + "SALT"), "w") as f:
+                    with open(str(_path + 'SALT'), 'w') as f:
                         # write the password salt
                         f.write(str(_salt))
 
-                    with open(str(_path + "HASHED_PASSWORD"), "w") as f:
+                    with open(str(_path + 'HASHED_PASSWORD'), 'w') as f:
                         # write the password hashed
-                        f.write(str(hashPassword(_command["args"], _salt)))
+                        f.write(str(hashPassword(_command['args'], _salt)))
 
-                    _path = "./accounts/" + _command["ident"] + "/characters/"
+                    _path = './accounts/' + _command['ident'] + '/characters/'
                     try:
                         os.mkdir(_path)
                     except OSError:
-                        print("Creation of the directory %s failed" % _path)
+                        print('Creation of the directory %s failed' % _path)
                     else:
-                        print("Successfully created the directory %s " % _path)
+                        print('Successfully created the directory %s ' % _path)
 
-                    _message = {"login": "Accepted"}
+                    _message = {'login': 'Accepted'}
                     self.callback_client_send(connection_object, json.dumps(_message))
 
-            if _command["command"] == "choose_character":
+            if _command['command'] == 'choose_character':
                 # send the current localmap to the player choosing the character
-                self.characters[data["args"][0]] = self.worldmap.get_character(
-                    data["args"][0]
+                self.characters[data['args'][0]] = self.worldmap.get_character(
+                    data['args'][0]
                 )
                 self.localmaps[
-                    data["args"][0]
+                    data['args'][0]
                 ] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"][0]]['position']
+                    self.characters[data['args'][0]]['position']
                 )
-                self.callback_client_send(
-                    connection_object, self.localmaps[data["args"][0]]
-                )
+                self.callback_client_send(connection_object, self.localmaps[data['args'][0]])
 
-            if _command["command"] == "completed_character":
-                if not data["ident"] in self.characters:
-                    _character = Character(data["args"])
+            if _command['command'] == 'completed_character':
+                if not data['ident'] in self.characters:
                     # this character doesn't exist in the world yet.
-                    self.handle_new_character(data["ident"], _character)
+                    self.handle_new_character(data['ident'], data['args'])
                     print(
-                        "Server: character created: {} From client {}.".format(
-                            _character.name, connection_object.address
+                        'Server: character created: {} From client {}.'.format(
+                            data['args'], connection_object.address
                         )
                     )
                 else:
                     print(
-                        "Server: character NOT created. Already Exists.: {} From client {}.".format(
-                            data["ident"], connection_object.address
+                        'Server: character NOT created. Already Exists.: {} From client {}.'.format(
+                            data['ident'], connection_object.address
                         )
                     )
 
-            if _command["command"] == "request_character_list":
+            if _command['command'] == 'request_character_list':
                 _tmp_list = list()
                 for root, _, files in os.walk(
-                    "./accounts/" + _command["ident"] + "/characters/"
+                    './accounts/' + _command['ident'] + '/characters/'
                 ):
                     for file_data in files:
-                        if file_data.endswith(".character"):
-                            with open(root + file_data, "r") as data_file:
+                        if file_data.endswith('.character'):
+                            with open(root + file_data, 'r') as data_file:
                                 _raw = data_file.read()
                                 # client will need to decode these
                                 _tmp_list.append(_raw)
 
                 # put that list into a json container with header
-                _container = {"character_list": _tmp_list}
+                _container = {'character_list': _tmp_list}
                 # pprint.pprint(_container)
                 self.callback_client_send(connection_object, json.dumps(_container))
 
-            if _command["command"] == "request_localmap_update":
-                self.localmaps[data["args"]] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"]]['position']
+            if _command['command'] == 'request_localmap_update':
+                self.localmaps[data['args']] = self.worldmap.get_chunks_near_position(
+                    self.characters[data['args']]['position']
                 )
-                _container = {"localmap_update": self.localmaps[data["args"]]}
-                self.callback_client_send(connection_object, jsonpickle.encode(_container))
+                _container = {'localmap_update': self.localmaps[data['args']]}
+                self.callback_client_send(connection_object, json.dumps(_container))
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
-            if _command["command"] == "ping":
-                self.callback_client_send(connection_object, "pong")
+            if _command['command'] == 'ping':
+                self.callback_client_send(connection_object, 'pong')
 
-            if _command["command"] == "move":
-                self.characters[data["ident"]]['command_queue'].append(
-                    Action(self.characters[data["ident"]], "move", [data.args[0]])
+            if _command['command'] == 'move':
+                self.characters[data['ident']]['command_queue'].append(
+                    Action(self.characters[data['ident']], 'move', [data['args'][0]])
                 )
 
-            if _command["command"] == "bash":
-                self.characters[data["ident"]]['command_queue'].append(
-                    Action(self.characters[data["ident"]], "bash", [data.args[0]])
+            if _command['command'] == 'bash':
+                self.characters[data['ident']]['command_queue'].append(
+                    Action(self.characters[data['ident']], 'bash', [data['args'][0]])
                 )
 
-            if _command["command"] == "create_blueprint":  # [result, direction])
+            if _command['command'] == 'create_blueprint':  # [result, direction])
                 # args 0 is ident args 1 is direction.
                 print(
-                    "creating blueprint "
-                    + str(data.args[0])
-                    + " for character "
-                    + str(self.characters[data["ident"]])
+                    'creating blueprint '
+                    + str(data['args'][0])
+                    + ' for character '
+                    + str(self.characters[data['ident']])
                 )
-                self._log.info(
-                    "creating blueprint {} for character {}".format(
-                        str(data.args[0]), str(self.characters[data["ident"]])
+                print(
+                    'creating blueprint {} for character {}'.format(
+                        str(data['args'][0]), str(self.characters[data['ident']])
                     )
                 )
                 # blueprint rules
@@ -394,104 +376,104 @@ class Server(MastermindServerTCP):
                 # * they act as placeholders and then 'transform' into the type they are once completed.
                 # Blueprint(type, recipe)
                 position_to_create_at = None
-                if data.args[1] == "south":
+                if data['args'][1] == 'south':
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]['position']['x'],
-                        self.characters[data["ident"]]['position']['y'] + 1,
-                        self.characters[data["ident"]]['position']['z'],
+                        self.characters[data['ident']]['position']['x'],
+                        self.characters[data['ident']]['position']['y'] + 1,
+                        self.characters[data['ident']]['position']['z'],
                     )
-                elif data.args[1] == "north":
+                elif data['args'][1] == 'north':
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]['position']['x'],
-                        self.characters[data["ident"]]['position']['y'] - 1,
-                        self.characters[data["ident"]]['position']['z'],
+                        self.characters[data['ident']]['position']['x'],
+                        self.characters[data['ident']]['position']['y'] - 1,
+                        self.characters[data['ident']]['position']['z'],
                     )
-                elif data.args[1] == "east":
+                elif data['args'][1] == 'east':
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]['position']['x'] + 1,
-                        self.characters[data["ident"]]['position']['y'],
-                        self.characters[data["ident"]]['position']['z'],
+                        self.characters[data['ident']]['position']['x'] + 1,
+                        self.characters[data['ident']]['position']['y'],
+                        self.characters[data['ident']]['position']['z'],
                     )
-                elif data.args[1] == "west":
+                elif data['args'][1] == 'west':
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]['position']['x'] - 1,
-                        self.characters[data["ident"]]['position']['y'],
-                        self.characters[data["ident"]]['position']['z'],
+                        self.characters[data['ident']]['position']['x'] - 1,
+                        self.characters[data['ident']]['position']['y'],
+                        self.characters[data['ident']]['position']['z'],
                     )
 
-                _recipe = server.RecipeManager.RECIPE_TYPES[data.args[0]]
-                type_of = _recipe["type_of"]
+                _recipe = server.RecipeManager.RECIPE_TYPES[data['args'][0]]
+                type_of = _recipe['type_of']
                 bp_to_create = Blueprint(type_of, _recipe)
 
                 self.worldmap.put_object_at_position(
                     bp_to_create, position_to_create_at
                 )
 
-            if _command["command"] == "calculated_move":
+            if _command['command'] == 'calculated_move':
                 print(
-                    "Recieved calculated_move action. Building a path for {}".format(
-                        str(data["ident"])
+                    'Recieved calculated_move action. Building a path for {}'.format(
+                        str(data['ident'])
                     )
                 )
-                pprint.pprint(data['args'])
+                # pprint.pprint(data['args'])
                 _position = Position(data['args'][0], data['args'][1], data['args'][2])
                 _route = self.calculate_route(
-                    self.characters[data["ident"]]['position'], _position
+                    self.characters[data['ident']]['position'], _position
                 )  # returns a route from point 0 to point 1 as a series of Position(s)
                 print(
-                    "Calculated route for Character {}: {}".format(
-                        self.characters[data["ident"]], _route
+                    'Calculated route for Character {}: {}'.format(
+                        self.characters[data['ident']]['name'], _route
                     )
                 )
 
                 # fill the queue with move commands to reach the tile.
-                _x = self.characters[data["ident"]]['position']['x']
-                _y = self.characters[data["ident"]]['position']['y']
-                _z = self.characters[data["ident"]]['position']['z']
+                # pprint.pprint(self.characters[data['ident']])
+                _x = self.characters[data['ident']]['position']['x']
+                _y = self.characters[data['ident']]['position']['y']
+                _z = self.characters[data['ident']]['position']['z']
                 action = None
                 if _route is None:
-                    print("No _route possible.")
+                    print('No _route possible.')
                     return
                 for step in _route:
                     _next_x = step['x']
                     _next_y = step['y']
                     _next_z = step['z']
+                    #print(_x, _y, _z)
+                    #print(_next_x, _next_y, _next_z)
                     if _x > _next_x:
-                        action = Action(
-                            self.characters[data["ident"]], "move", ["west"]
-                        )
+                        action = Action(self.characters[data['ident']]['name'], 'move', ['west'])
                     elif _x < _next_x:
-                        action = Action(
-                            self.characters[data["ident"]], "move", ["east"]
-                        )
+                        action = Action(self.characters[data['ident']]['name'], 'move', ['east'])
                     elif _y > _next_y:
-                        action = Action(
-                            self.characters[data["ident"]], "move", ["north"]
-                        )
+                        action = Action(self.characters[data['ident']]['name'], 'move', ['north'])
                     elif _y < _next_y:
-                        action = Action(
-                            self.characters[data["ident"]], "move", ["south"]
-                        )
+                        action = Action(self.characters[data['ident']]['name'], 'move', ['south'])
                     elif _z < _next_z:
-                        action = Action(self.characters[data["ident"]], "move", ["up"])
+                        action = Action(self.characters[data['ident']]['name'], 'move', ['up'])
                     elif _z > _next_z:
-                        action = Action(
-                            self.characters[data["ident"]], "move", ["down"]
-                        )
-                    self.characters[data["ident"]]['command_queue'].append(action)
+                        action = Action(self.characters[data['ident']]['name'], 'move', ['down'])
+                    else:
+                        _x = _next_x
+                        _y = _next_y
+                        _z = _next_z
+                        continue # we are at the same position as the character
+                    self.characters[data['ident']]['command_queue'].append(action)
+                    print(action)
                     # pretend as if we are in the next position.
                     _x = _next_x
                     _y = _next_y
                     _z = _next_z
+                    
 
-            if _command["command"] == "move_item_to_character_storage":
-                _character = self.characters[data["ident"]]
-                _from_pos = Position(data.args[0], data.args[1], data.args[2])
-                _item_ident = data.args[3]
+            if _command['command'] == 'move_item_to_character_storage':
+                _character = self.characters[data['ident']['name']]
+                _from_pos = Position(data['args'][0], data['args'][1], data['args'][2])
+                _item_ident = data['args'][3]
                 _from_item = None
                 _open_containers = []
                 # find the item that the character is requesting.
-                for item in self.worldmap.get_tile_by_position(_from_pos)["items"]:
+                for item in self.worldmap.get_tile_by_position(_from_pos)['items']:
                     if item['ident'] == _item_ident:
                         # this is the item or at least the first one that matches the same ident.
                         _from_item = item  # save a reference to it to use.
@@ -502,17 +484,17 @@ class Server(MastermindServerTCP):
                     return
 
                 # make a list of open_containers the character has to see if they can pick it up.
-                for bodyPart in _character.body_parts:
+                for bodyPart in _character['body_parts']:
                     if (
                         bodyPart['slot0'] is not None
                         and isinstance(bodyPart['slot0'], Container)
-                        and bodyPart['slot0'].opened == "yes"
+                        and bodyPart['slot0'].opened == 'yes'
                     ):
                         _open_containers.append(bodyPart['slot0'])
                     if (
                         bodyPart['slot1'] is not None
                         and isinstance(bodyPart['slot1'], Container)
-                        and bodyPart['slot1'].opened == "yes"
+                        and bodyPart['slot1'].opened == 'yes'
                     ):
                         _open_containers.append(bodyPart['slot1'])
 
@@ -525,40 +507,40 @@ class Server(MastermindServerTCP):
                     if container.add_item(item):  # if it added it sucessfully.
                         # remove it from the world.
                         for item in self.worldmap.get_tile_by_position(_from_pos)[
-                            "items"
+                            'items'
                         ][
                             :
                         ]:  # iterate a copy to remove properly.
                             if item['ident'] == _item_ident:
                                 self.worldmap.get_tile_by_position(_from_pos)[
-                                    "items"
+                                    'items'
                                 ].remove(item)
                                 break
                         return
                     else:
-                        print("could not add item to character inventory.")
+                        print('could not add item to character inventory.')
                     # then send the character the updated version of themselves so they can refresh.
 
-            if _command["command"] == "move_item":
+            if _command['command'] == 'move_item':
                 # client sends 'hey server. can you move this item from this to that?'
-                _character_requesting = self.characters[data["ident"]]
-                _item = data.args[0]  # the item we are moving.
-                _from_type = data.args[
+                _character_requesting = self.characters[data['ident']]
+                _item = data['args'][0]  # the item we are moving.
+                _from_type = data['args'][
                     1
                 ]  # creature.held_item, creature.held_item.container, bodypart.equipped, bodypart.equipped.container, position, blueprint
                 _from_list = (
                     []
                 )  # the object list that contains the item. parse the type and fill this properly.
-                _to_list = data.args[
+                _to_list = data['args'][
                     2
                 ]  # the list the item will end up. passed from command.
                 _position = Position(
-                    data.args[3], data.args[4], data.args[5]
+                    data['args'][3], data['args'][4], data['args'][5]
                 )  # pass the position even if we may not need it.
 
                 # need to parse where it's coming from and where it's going.
-                if _from_type == "bodypart.equipped":
-                    for bodypart in _character_requesting.body_parts[
+                if _from_type == 'bodypart.equipped':
+                    for bodypart in _character_requesting['body_parts'][
                         :
                     ]:  # iterate a copy to remove properly.
                         if _item in bodypart.equipped:
@@ -566,8 +548,8 @@ class Server(MastermindServerTCP):
                             _from_list.remove(_item)
                             _to_list.append(_item)
                             return
-                elif _from_type == "bodypart.equipped.container":
-                    for bodypart in _character_requesting.body_parts[
+                elif _from_type == 'bodypart.equipped.container':
+                    for bodypart in _character_requesting['body_parts'][
                         :
                     ]:  # iterate a copy to remove properly.
                         for item in bodypart.equipped:  # could be a container or not.
@@ -581,16 +563,16 @@ class Server(MastermindServerTCP):
                                         _from_list.remove(_item)
                                         _to_list.append(_item)
                                         return
-                elif _from_type == "position":
-                    _from_list = self.worldmap.get_tile_by_position(_position)["items"]
+                elif _from_type == 'position':
+                    _from_list = self.worldmap.get_tile_by_position(_position)['items']
                     if _item in _from_list:
                         _from_list.remove(_item)
                         _to_list.append(_item)
                         return
                 elif (
-                    _from_type == "blueprint"
+                    _from_type == 'blueprint'
                 ):  # a blueprint is a type of container but can't be moved from it's world position.
-                    for item in self.worldmap.get_tile_by_position(_position)["items"]:
+                    for item in self.worldmap.get_tile_by_position(_position)['items']:
                         if (
                             isinstance(item) == Blueprint
                         ):  # only one blueprint allowed per space.
@@ -623,212 +605,191 @@ class Server(MastermindServerTCP):
         )
 
     def callback_connect_client(self, connection_object):
-        self._log.info(
-            "Server: Client from {} connected.".format(connection_object.address)
+        print(
+            'Server: Client from {} connected.'.format(connection_object.address)
         )
         return super(Server, self).callback_connect_client(connection_object)
 
     def callback_disconnect_client(self, connection_object):
-        self._log.info(
-            "Server: Client from {} disconnected.".format(connection_object.address)
+        print(
+            'Server: Client from {} disconnected.'.format(connection_object.address)
         )
         return super(Server, self).callback_disconnect_client(connection_object)
 
     def process_creature_command_queue(self, creature):
-        actions_to_take = creature.actions_per_turn
-        for action in creature['command_queue'][
-            :
-        ]:  # iterate a copy so we can remove on the fly.
+        actions_to_take = creature['actions_per_turn']
+        # iterate a copy so we can remove on the fly.
+        for action in creature['command_queue'][:]:  
             if actions_to_take == 0:
                 return  # this creature is out of action points.
 
-            if (
-                creature.next_action_available > 0
-            ):  # this creature can't act until x turns from now.
-                creature.next_action_available = creature.next_action_available - 1
+            # this creature can't act until x turns from now.
+            if (creature['next_action_available'] > 0):  
+                creature['next_action_available'] = creature['next_action_available'] - 1
                 return
-
+            #pprint.pprint(action)
             # if we get here we can process a single action
-            if action.action_type == "move":
+            if action['action_type'] == 'move':
+                #print("moving character " + str(creature['name']))
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
-                if action.args[0] == "south":
-                    if self.worldmap.move_object_from_position_to_position(
-                        self.characters[creature.name],
-                        self.characters[creature.name]['position'],
+                if action['args'][0] == 'south':
+                    if self.worldmap.move_creature_from_position_to_position(
+                        self.characters[creature['name']],
+                        self.characters[creature['name']]['position'],
                         Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'] + 1,
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'] + 1,
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name]['position'] = Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'] + 1,
-                            self.characters[creature.name]['position']['z'],
+                        self.characters[creature['name']]['position'] = Position(
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'] + 1,
+                            self.characters[creature['name']]['position']['z'],
                         )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "north":
-                    if self.worldmap.move_object_from_position_to_position(
-                        self.characters[creature.name],
-                        self.characters[creature.name]['position'],
+                    creature['command_queue'].remove(action) 
+                if action['args'][0] == 'north':
+                    if self.worldmap.move_creature_from_position_to_position(
+                        self.characters[creature['name']],
+                        self.characters[creature['name']]['position'],
                         Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'] - 1,
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'] - 1,
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name]['position'] = Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'] - 1,
-                            self.characters[creature.name]['position']['z'],
+                        self.characters[creature['name']]['position'] = Position(
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'] - 1,
+                            self.characters[creature['name']]['position']['z'],
                         )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "east":
-                    if self.worldmap.move_object_from_position_to_position(
-                        self.characters[creature.name],
-                        self.characters[creature.name]['position'],
+                    creature['command_queue'].remove(action) 
+                if action['args'][0] == 'east':
+                    if self.worldmap.move_creature_from_position_to_position(
+                        self.characters[creature['name']],
+                        self.characters[creature['name']]['position'],
                         Position(
-                            self.characters[creature.name]['position']['x'] + 1,
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'] + 1,
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name]['position'] = Position(
-                            self.characters[creature.name]['position']['x'] + 1,
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'],
+                        self.characters[creature['name']]['position'] = Position(
+                            self.characters[creature['name']]['position']['x'] + 1,
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'],
                         )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "west":
-                    if self.worldmap.move_object_from_position_to_position(
-                        self.characters[creature.name],
-                        self.characters[creature.name]['position'],
+                    creature['command_queue'].remove(action) 
+                if action['args'][0] == 'west':
+                    if self.worldmap.move_creature_from_position_to_position(
+                        self.characters[creature['name']],
+                        self.characters[creature['name']]['position'],
                         Position(
-                            self.characters[creature.name]['position']['x'] - 1,
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'] - 1,
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     ):
-                        self.characters[creature.name]['position'] = Position(
-                            self.characters[creature.name]['position']['x'] - 1,
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'],
+                        self.characters[creature['name']]['position'] = Position(
+                            self.characters[creature['name']]['position']['x'] - 1,
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'],
                         )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "up":
-                    if self.worldmap.move_object_from_position_to_position(
-                        self.characters[creature.name],
-                        self.characters[creature.name]['position'],
+                    creature['command_queue'].remove(action) 
+                if action['args'][0] == 'up':
+                    if self.worldmap.move_creature_from_position_to_position(
+                        self.characters[creature['name']],
+                        self.characters[creature['name']]['position'],
                         Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'] + 1,
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'] + 1,
                         ),
                     ):
-                        self.characters[creature.name]['position'] = Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'] + 1,
+                        self.characters[creature['name']]['position'] = Position(
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'] + 1,
                         )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "down":
-                    if self.worldmap.move_object_from_position_to_position(
-                        self.characters[creature.name],
-                        self.characters[creature.name]['position'],
+                    creature['command_queue'].remove(action)
+                if action['args'][0] == 'down':
+                    if self.worldmap.move_creature_from_position_to_position(
+                        self.characters[creature['name']],
+                        self.characters[creature['name']]['position'],
                         Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'] - 1,
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'] - 1,
                         ),
                     ):
-                        self.characters[creature.name]['position'] = Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'] - 1,
+                        self.characters[creature['name']]['position'] = Position(
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'] - 1,
                         )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-            elif action.action_type == "bash":
+                    creature['command_queue'].remove(action)
+            elif action['action_type'] == 'bash':
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
-                if action.args[0] == "south":
+                if action['args'][0] == 'south':
                     self.worldmap.bash(
-                        self.characters[creature.name],
+                        self.characters[creature['name']],
                         Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'] + 1,
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'] + 1,
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     )
                     self.localmaps[
-                        creature.name
+                        creature['name']
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name]['position']
+                        self.characters[creature['name']]['position']
                     )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "north":
+                    creature['command_queue'].remove(action)
+                if action['args'][0] == 'north':
                     self.worldmap.bash(
-                        self.characters[creature.name],
+                        self.characters[creature['name']],
                         Position(
-                            self.characters[creature.name]['position']['x'],
-                            self.characters[creature.name]['position']['y'] - 1,
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'],
+                            self.characters[creature['name']]['position']['y'] - 1,
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     )
                     self.localmaps[
-                        creature.name
+                        creature['name']
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name]['position']
+                        self.characters[creature['name']]['position']
                     )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "east":
+                    creature['command_queue'].remove(action)
+                if action['args'][0] == 'east':
                     self.worldmap.bash(
-                        self.characters[creature.name],
+                        self.characters[creature['name']],
                         Position(
-                            self.characters[creature.name]['position']['x'] + 1,
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'] + 1,
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     )
                     self.localmaps[
-                        creature.name
+                        creature['name']
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name]['position']
+                        self.characters[creature['name']]['position']
                     )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
-                if action.args[0] == "west":
+                    creature['command_queue'].remove(action)
+                if action['args'][0] == 'west':
                     self.worldmap.bash(
-                        self.characters[creature.name],
+                        self.characters[creature['name']],
                         Position(
-                            self.characters[creature.name]['position']['x'] - 1,
-                            self.characters[creature.name]['position']['y'],
-                            self.characters[creature.name]['position']['z'],
+                            self.characters[creature['name']]['position']['x'] - 1,
+                            self.characters[creature['name']]['position']['y'],
+                            self.characters[creature['name']]['position']['z'],
                         ),
                     )
                     self.localmaps[
-                        creature.name
+                        creature['name']
                     ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature.name]['position']
+                        self.characters[creature['name']]['position']
                     )
-                    creature['command_queue'].remove(
-                        action
-                    )  # remove the action after we process it.
+                    creature['command_queue'].remove(action)
 
     def compute_turn(self):
         # this function handles overseeing all creature movement, attacks, and interactions
@@ -836,59 +797,59 @@ class Server(MastermindServerTCP):
         # init a list for all our found lights around characters.
         for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
-                for tile in chunk.tiles:
-                    tile["lumens"] = 0  # reset light levels.
+                for tile in chunk['tiles']:
+                    tile['lumens'] = 0  # reset light levels.
 
         for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
-                for tile in chunk.tiles:
-                    for item in tile["items"]:
+                for tile in chunk['tiles']:
+                    for item in tile['items']:
                         if isinstance(item, Blueprint):
                             continue
-                        for flag in self.ItemManager.ITEM_TYPES[item['ident']]["flags"]:
+                        for flag in self.ItemManager.ITEM_TYPES[item['ident']]['flags']:
                             if (
-                                flag.split("_")[0] == "LIGHT"
+                                flag.split('_')[0] == 'LIGHT'
                             ):  # this item produces light.
                                 for (
                                     tile,
                                     distance,
                                 ) in self.worldmap.get_tiles_near_position(
-                                    tile["position"], int(flag.split("_")[1])
+                                    tile['position'], int(flag.split('_')[1])
                                 ):
-                                    tile["lumens"] = tile["lumens"] + int(
-                                        int(flag.split("_")[1]) - distance
+                                    tile['lumens'] = tile['lumens'] + int(
+                                        int(flag.split('_')[1]) - distance
                                     )
-                    if tile["furniture"] is not None:
+                    if tile['furniture'] is not None:
                         for key in self.FurnitureManager.FURNITURE_TYPES[
-                            tile["furniture"]['ident']
+                            tile['furniture']['ident']
                         ]:
-                            if key == "flags":
+                            if key == 'flags':
                                 for flag in self.FurnitureManager.FURNITURE_TYPES[
-                                    tile["furniture"]['ident']
-                                ]["flags"]:
+                                    tile['furniture']['ident']
+                                ]['flags']:
                                     if (
-                                        flag.split("_")[0] == "LIGHT"
+                                        flag.split('_')[0] == 'LIGHT'
                                     ):  # this furniture produces light.
                                         for (
                                             tile,
                                             distance,
                                         ) in self.worldmap.get_tiles_near_position(
-                                            tile["position"], int(flag.split("_")[1])
+                                            tile['position'], int(flag.split('_')[1])
                                         ):
-                                            tile["lumens"] = tile["lumens"] + int(
-                                                int(flag.split("_")[1]) - distance
+                                            tile['lumens'] = tile['lumens'] + int(
+                                                int(flag.split('_')[1]) - distance
                                             )
                                         break
         # we want a list that contains all the non-duplicate creatures on all localmaps around characters.
         creatures_to_process = list()
         for _, chunks in self.localmaps.items():
             for chunk in chunks:  # characters typically get 9 chunks
-                for tile in chunk.tiles:
+                for tile in chunk['tiles']:
                     if (
-                        tile["creature"] is not None
-                        and tile["creature"] not in creatures_to_process
+                        tile['creature'] is not None
+                        and tile['creature'] not in creatures_to_process
                     ):
-                        creatures_to_process.append(tile["creature"])
+                        creatures_to_process.append(tile['creature'])
 
         for creature in creatures_to_process:
             # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
@@ -906,100 +867,100 @@ class Server(MastermindServerTCP):
                 if (
                     server.worldmap.get_chunk_by_position(
                         Position(
-                            i * server.worldmap.chunk_size + 1,
-                            j * server.worldmap.chunk_size + 1,
+                            i * server.worldmap['chunk_size'] + 1,
+                            j * server.worldmap['chunk_size'] + 1,
                             0,
                         )
-                    ).was_loaded
-                    == "no"
+                    )['was_loaded']
+                    is False
                 ):
-                    if city_layout[i][j] == "r":
+                    if city_layout[i][j] == 'r':
                         json_file = random.choice(
-                            os.listdir("./data/json/mapgen/residential/")
+                            os.listdir('./data/json/mapgen/residential/')
                         )
 
                         server.worldmap.build_json_building_at_position(
-                            "./data/json/mapgen/residential/" + json_file,
+                            './data/json/mapgen/residential/' + json_file,
                             Position(
-                                i * server.worldmap.chunk_size + 1,
-                                j * server.worldmap.chunk_size + 1,
+                                i * server.worldmap['chunk_size'] + 1,
+                                j * server.worldmap['chunk_size'] + 1,
                                 0,
                             ),
                         )
-                    elif city_layout[i][j] == "c":
+                    elif city_layout[i][j] == 'c':
                         json_file = random.choice(
-                            os.listdir("./data/json/mapgen/commercial/")
+                            os.listdir('./data/json/mapgen/commercial/')
                         )
                         server.worldmap.build_json_building_at_position(
-                            "./data/json/mapgen/commercial/" + json_file,
+                            './data/json/mapgen/commercial/' + json_file,
                             Position(
-                                i * server.worldmap.chunk_size + 1,
-                                j * server.worldmap.chunk_size + 1,
+                                i * server.worldmap['chunk_size'] + 1,
+                                j * server.worldmap['chunk_size'] + 1,
                                 0,
                             ),
                         )
-                    elif city_layout[i][j] == "i":
+                    elif city_layout[i][j] == 'i':
                         json_file = random.choice(
-                            os.listdir("./data/json/mapgen/industrial/")
+                            os.listdir('./data/json/mapgen/industrial/')
                         )
                         server.worldmap.build_json_building_at_position(
-                            "./data/json/mapgen/industrial/" + json_file,
+                            './data/json/mapgen/industrial/' + json_file,
                             Position(
-                                i * server.worldmap.chunk_size + 1,
-                                j * server.worldmap.chunk_size + 1,
+                                i * server.worldmap['chunk_size'] + 1,
+                                j * server.worldmap['chunk_size'] + 1,
                                 0,
                             ),
                         )
                     elif (
-                        city_layout[i][j] == "R"
+                        city_layout[i][j] == 'R'
                     ):  # complex enough to choose the right rotation.
                         attached_roads = 0
                         try:
-                            if city_layout[int(i - 1)][int(j)] == "R":
+                            if city_layout[int(i - 1)][int(j)] == 'R':
                                 attached_roads = attached_roads + 1
-                            if city_layout[int(i + 1)][int(j)] == "R":
+                            if city_layout[int(i + 1)][int(j)] == 'R':
                                 attached_roads = attached_roads + 1
-                            if city_layout[int(i)][int(j - 1)] == "R":
+                            if city_layout[int(i)][int(j - 1)] == 'R':
                                 attached_roads = attached_roads + 1
-                            if city_layout[int(i)][int(j + 1)] == "R":
+                            if city_layout[int(i)][int(j + 1)] == 'R':
                                 attached_roads = attached_roads + 1
                             if attached_roads == 4:
                                 json_file = (
-                                    "./data/json/mapgen/road/city_road_4_way.json"
+                                    './data/json/mapgen/road/city_road_4_way.json'
                                 )
                             elif (
                                 attached_roads == 3
                             ):  # TODO: make sure the roads line up right.
-                                if city_layout[int(i + 1)][int(j)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_s0.json"
-                                elif city_layout[int(i - 1)][int(j)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_p0.json"
-                                elif city_layout[int(i)][int(j + 1)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_d0.json"
-                                elif city_layout[int(i)][int(j - 1)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_u0.json"
+                                if city_layout[int(i + 1)][int(j)] != 'R':
+                                    json_file = './data/json/mapgen/road/city_road_3_way_s0.json'
+                                elif city_layout[int(i - 1)][int(j)] != 'R':
+                                    json_file = './data/json/mapgen/road/city_road_3_way_p0.json'
+                                elif city_layout[int(i)][int(j + 1)] != 'R':
+                                    json_file = './data/json/mapgen/road/city_road_3_way_d0.json'
+                                elif city_layout[int(i)][int(j - 1)] != 'R':
+                                    json_file = './data/json/mapgen/road/city_road_3_way_u0.json'
                             elif attached_roads <= 2:
-                                if city_layout[int(i + 1)][int(j)] == "R":
+                                if city_layout[int(i + 1)][int(j)] == 'R':
                                     json_file = (
-                                        "./data/json/mapgen/road/city_road_h.json"
+                                        './data/json/mapgen/road/city_road_h.json'
                                     )
-                                elif city_layout[int(i - 1)][int(j)] == "R":
+                                elif city_layout[int(i - 1)][int(j)] == 'R':
                                     json_file = (
-                                        "./data/json/mapgen/road/city_road_h.json"
+                                        './data/json/mapgen/road/city_road_h.json'
                                     )
-                                elif city_layout[int(i)][int(j + 1)] == "R":
+                                elif city_layout[int(i)][int(j + 1)] == 'R':
                                     json_file = (
-                                        "./data/json/mapgen/road/city_road_v.json"
+                                        './data/json/mapgen/road/city_road_v.json'
                                     )
-                                elif city_layout[int(i)][int(j - 1)] == "R":
+                                elif city_layout[int(i)][int(j - 1)] == 'R':
                                     json_file = (
-                                        "./data/json/mapgen/road/city_road_v.json"
+                                        './data/json/mapgen/road/city_road_v.json'
                                     )
                             server.worldmap.build_json_building_at_position(
                                 json_file,
                                 Position(
-                                    i * server.worldmap.chunk_size + 1,
-                                    j * server.worldmap.chunk_size + 1,
+                                    i * server.worldmap['chunk_size'] + 1,
+                                    j * server.worldmap['chunk_size'] + 1,
                                     0,
                                 ),
                             )
@@ -1009,15 +970,15 @@ class Server(MastermindServerTCP):
 
 
 # do this if the server was started up directly.
-if __name__ == "__main__":
+if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description="Cataclysm LD Server")
-    parser.add_argument("--host", metavar="Host", help="Server host", default="0.0.0.0")
+    parser = argparse.ArgumentParser(description='Cataclysm LD Server')
+    parser.add_argument('--host', metavar='Host', help='Server host', default='0.0.0.0')
     parser.add_argument(
-        "--port", metavar="Port", type=int, help="Server port", default=6317
+        '--port', metavar='Port', type=int, help='Server port', default=6317
     )
     parser.add_argument(
-        "--config", metavar="Config", help="Configuration file", default="server.cfg"
+        '--config', metavar='Config', help='Configuration file', default='server.cfg'
     )
     args = parser.parse_args()
 
@@ -1027,14 +988,14 @@ if __name__ == "__main__":
 
     # Grab the values within the configuration file's DEFAULT scope and
     # make them available as configuration values
-    defaultConfig = configParser["DEFAULT"]
-    ip = defaultConfig.get("listen_address", args.host)
-    port = int(defaultConfig.get("listen_port", args.port))
+    defaultConfig = configParser['DEFAULT']
+    ip = defaultConfig.get('listen_address', args.host)
+    port = int(defaultConfig.get('listen_port', args.port))
 
     # Enable logging - It uses its own configparser for the same file
     logging.config.fileConfig(args.config)
-    log = logging.getLogger("root")
-    log.info("Server is start at {}:{}".format(ip, port))
+    log = logging.getLogger('root')
+    print('Server is start at {}:{}'.format(ip, port))
 
     server = Server(logger=log, config=defaultConfig)
     server.connect(ip, port)
@@ -1042,22 +1003,22 @@ if __name__ == "__main__":
 
     dont_break = True
     time_offset = float(
-        defaultConfig.get("time_offset", 1.0)
+        defaultConfig.get('time_offset', 1.0)
     )  # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
-    citySize = int(defaultConfig.get("city_size", 1))
-    log.info("City size: {}".format(citySize))
+    citySize = int(defaultConfig.get('city_size', 1))
+    print('City size: {}'.format(citySize))
     server.generate_and_apply_city_layout(citySize)
 
-    time_per_turn = int(defaultConfig.get("time_per_turn", 1))
-    log.info("time_per_turn: {}".format(time_per_turn))
-    spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
-    log.info("spin_delay_ms: {}".format(spin_delay_ms))
+    time_per_turn = int(defaultConfig.get('time_per_turn', 1))
+    print('time_per_turn: {}'.format(time_per_turn))
+    spin_delay_ms = float(defaultConfig.get('time_per_turn', 0.001))
+    print('spin_delay_ms: {}'.format(spin_delay_ms))
     
     for _character in server.worldmap.get_all_characters():
-        server.characters[_character.name] = _character
+        server.characters[_character['name']] = _character
 
-    log.info("Started up Cataclysm: Looming Darkness Server.")
+    print('Started Cataclysm: Looming Darkness Server Successfully.')
     while dont_break:
         try:
             while (
@@ -1074,18 +1035,18 @@ if __name__ == "__main__":
             # TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
             last_turn_time = time.time()  # based off of system clock.
         except KeyboardInterrupt:
-            log.info("cleaning up before exiting.")
+            print('cleaning up before exiting.')
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
             # if the worldmap in memory changed update it on the hard drive.
             server.worldmap.update_chunks_on_disk()
             dont_break = False
-            log.info("done cleaning up.")
-        """except Exception as e:
+            print('done cleaning up.')
+        except Exception as e:
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
             server.worldmap.update_chunks_on_disk() # if the worldmap in memory changed update it on the hard drive.
             dont_break = False
-            sys.exit()"""
+            sys.exit()
