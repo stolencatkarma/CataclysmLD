@@ -23,6 +23,10 @@ config/icon="res://icon.png"
 
 manager_connection="*res://manager_connection.gd"
 
+[debug]
+
+settings/stdout/verbose_stdout=true
+
 [display]
 
 window/size/width=854

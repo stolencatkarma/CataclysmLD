@@ -6,6 +6,7 @@ var client = StreamPeerTCP.new()
 var username = "q"
 var password = "q"
 var list_characters = Array()
+var localmap_chunks = Array()
 
 func connect_to_server():
 	client.connect_to_host(HOST, PORT)
@@ -17,16 +18,20 @@ func connect_to_server():
 	client.put_data(to_send)
 
 func _process(delta): # where we check for new data recieved from server.
-	if client.get_available_bytes() > 0:
-		var _recieved_data = client.get_data(client.get_available_bytes())
-		var _recieved_string = _recieved_data[1].get_string_from_utf8()
-		#print("Received: " + _recieved_string)
+	if client.is_connected_to_host() and client.get_available_bytes() > 0:
+		var _recieved_string = ""
+		while client.get_available_bytes() > 0:
+			print("available bytes: " + str(client.get_available_bytes()))
+			var _recieved_data = client.get_data(client.get_available_bytes())
+			_recieved_string = _recieved_string + _recieved_data[1].get_string_from_utf8()
+			# print("Received: " + _recieved_string)
 		
-		var _parsed = parse_json(_recieved_string)
-		var _parsed2 = JSON.parse(_parsed) # not sure why we need to do it twice to get a real Dictionary() but so be it.
+		var _parsed = JSON.parse(_recieved_string) # parse container.
+		var _parsed2 = JSON.parse(_parsed.result) # parse data
 		
 		var _result = _parsed2.result
 		for k in _result.keys():
+			# print(k)
 			if k == "login":
 				if _result[k] == "Accepted":
 					print("logged in.") # login was successfully accepted.
@@ -44,4 +49,9 @@ func _process(delta): # where we check for new data recieved from server.
 					print(character["name"] + " found.")
 					list_characters.append(character)
 				get_tree().change_scene("res://window_character_select.tscn")
+			if k == "localmap":
+				manager_connection.localmap_chunks.clear()
+				for chunk in _result[k]:
+					manager_connection.localmap_chunks.append(chunk)
+				get_tree().change_scene("res://window_main.tscn")
 		

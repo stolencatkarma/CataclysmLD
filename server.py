@@ -293,16 +293,21 @@ class Server(MastermindServerTCP):
                     self.callback_client_send(connection_object, json.dumps(_message))
 
             if _command['command'] == 'choose_character':
+                print(data['args'])
                 # send the current localmap to the player choosing the character
-                self.characters[data['args'][0]] = self.worldmap.get_character(
-                    data['args'][0]
+                self.characters[data['args']] = self.worldmap.get_character(
+                    data['args']
                 )
                 self.localmaps[
-                    data['args'][0]
+                    data['args']
                 ] = self.worldmap.get_chunks_near_position(
-                    self.characters[data['args'][0]]['position']
+                    self.characters[data['args']]['position']
                 )
-                self.callback_client_send(connection_object, self.localmaps[data['args'][0]])
+                
+                _container = {'localmap': self.localmaps[data['args']]}
+                # pprint.pprint(_container)
+                # print(len(json.dumps(_container)))
+                self.callback_client_send(connection_object, json.dumps(_container))
 
             if _command['command'] == 'completed_character':
                 if not data['ident'] in self.characters:
