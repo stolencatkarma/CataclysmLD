@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://ui_connect.png" type="Texture" id=1]
+[ext_resource path="res://button_ui_connect.gd" type="Script" id=2]
+
+[sub_resource type="StreamTexture" id=1]
+flags = 4
+load_path = "res://.import/background_login.png-a0811e4fb8b5a3e6bc55fe14ae43bf2d.stex"
+
+[node name="Node2D" type="Node2D"]
+
+[node name="e35f3bc7-5006-4255-90b0-f5029b8d0559" type="Sprite" parent="."]
+position = Vector2( 427, 240 )
+texture = SubResource( 1 )
+
+[node name="ConnectButton" type="Button" parent="e35f3bc7-5006-4255-90b0-f5029b8d0559"]
+margin_left = 125.359
+margin_top = 49.1095
+margin_right = 201.359
+margin_bottom = 87.1095
+icon = ExtResource( 1 )
+flat = true
+script = ExtResource( 2 )

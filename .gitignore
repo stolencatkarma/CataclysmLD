@@ -12,3 +12,5 @@
 /accounts/*
 # ignore worlds
 /worlds/*
+# ignore godot optional import settings.
+/GodotClient/.import/*

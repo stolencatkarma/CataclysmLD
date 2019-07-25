@@ -345,9 +345,6 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, json.dumps(_container))
 
             # all the commands that are actions need to be put into the command_queue then we will loop through the queue each turn and process the actions.
-            if _command['command'] == 'ping':
-                self.callback_client_send(connection_object, 'pong')
-
             if _command['command'] == 'move':
                 self.characters[data['ident']]['command_queue'].append(
                     Action(self.characters[data['ident']], 'move', [data['args'][0]])
@@ -465,7 +462,6 @@ class Server(MastermindServerTCP):
                     _y = _next_y
                     _z = _next_z
                     
-
             if _command['command'] == 'move_item_to_character_storage':
                 _character = self.characters[data['ident']['name']]
                 _from_pos = Position(data['args'][0], data['args'][1], data['args'][2])
@@ -995,7 +991,7 @@ if __name__ == '__main__':
     # Enable logging - It uses its own configparser for the same file
     logging.config.fileConfig(args.config)
     log = logging.getLogger('root')
-    print('Server is start at {}:{}'.format(ip, port))
+    print('Server is listening at {}:{}'.format(ip, port))
 
     server = Server(logger=log, config=defaultConfig)
     server.connect(ip, port)
@@ -1007,18 +1003,18 @@ if __name__ == '__main__':
     )  # 0.5 is twice as fast, 2.0 is twice as slow
     last_turn_time = time.time()
     citySize = int(defaultConfig.get('city_size', 1))
-    print('City size: {}'.format(citySize))
+    # print('City size: {}'.format(citySize))
     server.generate_and_apply_city_layout(citySize)
 
     time_per_turn = int(defaultConfig.get('time_per_turn', 1))
-    print('time_per_turn: {}'.format(time_per_turn))
+    # print('time_per_turn: {}'.format(time_per_turn))
     spin_delay_ms = float(defaultConfig.get('time_per_turn', 0.001))
-    print('spin_delay_ms: {}'.format(spin_delay_ms))
+    # print('spin_delay_ms: {}'.format(spin_delay_ms))
     
     for _character in server.worldmap.get_all_characters():
         server.characters[_character['name']] = _character
 
-    print('Started Cataclysm: Looming Darkness Server Successfully.')
+    print('Started Cataclysm: Looming Darkness. Clients may now connect.')
     while dont_break:
         try:
             while (

@@ -24,6 +24,9 @@ def packet_recv_tcp(sock):
     
     data_str = data_str.decode("utf-8")
     #data_str = str(data_str).rstrip('\x00')
+    #data_str = str(data_str).rstrip('\r')
+    #data_str = str(data_str).rstrip('<')
+    #print(data_str)
     data = json.loads(data_str)
     
     return (data, True)
