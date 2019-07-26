@@ -9,7 +9,7 @@ var list_characters = Array()
 var localmap_chunks = Array()
 
 func connect_to_server():
-	client.connect_to_host(HOST, PORT)
+	client.connect_to_host(str(HOST), int(PORT))
 	var login_request = Dictionary()
 	login_request["ident"] = username
 	login_request["command"] = "login"
