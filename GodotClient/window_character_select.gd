@@ -4,7 +4,7 @@ const start_y = 200
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# load characters into the character list.
-	var count = 2 # 3 is max, either shows a character or a button to create one.
+	var count = 2 # 3 characters max, either shows a character or a button to create one.
 	for character in manager_connection.list_characters:
 		# create button for each character
 		var _character_button = Button.new()

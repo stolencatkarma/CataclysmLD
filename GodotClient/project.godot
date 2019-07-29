@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="LoomingDarkness"
-run/main_scene="res://Login.tscn"
+run/main_scene="res://window_login.tscn"
 config/icon="res://icon.png"
 
 [autoload]

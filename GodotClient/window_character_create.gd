@@ -11,7 +11,6 @@ func _ready():
 
 func submit_character():
 	character_name = get_node("background_blank/txt_character_name").text
-	
 	var character_submit = Dictionary()
 	character_submit["ident"] = manager_connection.username
 	character_submit["command"] = "completed_character"
