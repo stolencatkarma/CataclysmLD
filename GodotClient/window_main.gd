@@ -1,16 +1,11 @@
 extends Node2D
+var _dt = preload("res://DynamicTile.tscn")
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if manager_connection.should_update_localmap:
+		var dynamic_tiles = get_tree().get_nodes_in_group("DynamicTiles")
+		for dt in dynamic_tiles:
+	    	dt.queue_free()
 		var draw_x = null
 		var draw_y = null
 		# loop through the chunks finding smallest x and y for our origin draw point
@@ -27,7 +22,11 @@ func _process(delta):
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:
 				# draw a dynamic tile at that position and fill it with the data from the dictionary. 
-				pass
+				var _instance = _dt.instance()
+				add_child(_instance)
+				_instance.position.x = (tile['position']['x'] - draw_x) * 32
+				_instance.position.y = (tile['position']['y'] - draw_y) * 32
+				_instance.add_to_group("DynamicTiles")
 				
 		# finally set back to false until we recieve a new localmap from the server
 		manager_connection.should_update_localmap = false
