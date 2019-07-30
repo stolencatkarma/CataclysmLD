@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://window_main.gd" type="Script" id=1]
 [ext_resource path="res://terrain/terrain_tileset.tres" type="TileSet" id=2]
+[ext_resource path="res://Player.tscn" type="PackedScene" id=3]
 
 [node name="node_window_main" type="Node2D"]
 script = ExtResource( 1 )
@@ -10,3 +11,12 @@ script = ExtResource( 1 )
 tile_set = ExtResource( 2 )
 cell_size = Vector2( 32, 32 )
 format = 1
+tile_data = PoolIntArray( -393227, 42, 0 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+drag_margin_h_enabled = false
+drag_margin_v_enabled = false
+
+[node name="Player" parent="." instance=ExtResource( 3 )]
+position = Vector2( 300, 300 )
