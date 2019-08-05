@@ -1,5 +1,4 @@
 extends Node2D
-var _dt = preload("res://DynamicTile.tscn")
 var player_node = preload( "res://Player.tscn")
 onready var camera = $Camera2D
 
