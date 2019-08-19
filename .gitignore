@@ -14,3 +14,4 @@
 /worlds/*
 # ignore godot optional import settings.
 /GodotClient/.import/*
+CataclysmLD.code-workspace
