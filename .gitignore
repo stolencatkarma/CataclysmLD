@@ -4,6 +4,7 @@
 *.exe
 *.pyd
 *.dll
+*.import
 /dist/*
 /build/*
 # ignore logs
