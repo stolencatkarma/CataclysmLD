@@ -1,0 +1,48 @@
+{
+	"textures": [
+		{
+			"image": "players.png",
+			"size": {
+				"w": 64,
+				"h": 32
+			},
+			"sprites": [
+				{
+					"filename": "player_female.png",
+					"region": {
+						"x": 0,
+						"y": 0,
+						"w": 32,
+						"h": 32
+					},
+					"margin": {
+						"x": 0,
+						"y": 0,
+						"w": 0,
+						"h": 0
+					}
+				},
+				{
+					"filename": "player_male.png",
+					"region": {
+						"x": 32,
+						"y": 0,
+						"w": 32,
+						"h": 32
+					},
+					"margin": {
+						"x": 0,
+						"y": 0,
+						"w": 0,
+						"h": 0
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "1.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:02e4c14d21d5909a966fbab2ece15416:3ed28f0a05fca3bbe16ae0bbe755921c:14c7404e15c53e302304c446b6961e3d$"
+	}
+}

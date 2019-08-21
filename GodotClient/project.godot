@@ -32,6 +32,10 @@ settings/stdout/verbose_stdout=true
 window/size/width=854
 window/size/height=480
 
+[editor_plugins]
+
+enabled=PoolStringArray( "codeandweb.texturepacker" )
+
 [input]
 
 zoom_in={

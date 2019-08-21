@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://window_main.gd" type="Script" id=1]
-[ext_resource path="res://terrain/terrain_tileset.tres" type="TileSet" id=2]
+[ext_resource path="res://tilesets/Chesthole32/terrain.res" type="TileSet" id=2]
 [ext_resource path="res://Camera2D.gd" type="Script" id=3]
 [ext_resource path="res://Player.tscn" type="PackedScene" id=4]
 [ext_resource path="res://highlight.gd" type="Script" id=5]
