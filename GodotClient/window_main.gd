@@ -1,25 +1,10 @@
 extends Node2D
 var player_node = preload( "res://Player.tscn")
 onready var camera = $Camera2D
+var cell_size = Vector2( 32, 32 )
 
 func _ready():
 	camera.position = $Player.position
-
-func _input(event):
-	if event.is_action("zoom_in") and event.is_pressed() and not event.is_echo():
-		camera.zoom = Vector2(camera.zoom.x / 1.5, camera.zoom.y / 1.5)
-	if event.is_action("zoom_out") and event.is_pressed() and not event.is_echo():
-		camera.zoom = Vector2(camera.zoom.x * 1.5, camera.zoom.y * 1.5)
-
-func _physics_process(delta):
-	if Input.is_action_pressed("ui_left"):
-		camera.position.x = camera.position.x - 100 * delta
-	if Input.is_action_pressed("ui_right"):
-		camera.position.x = camera.position.x + 100 * delta
-	if Input.is_action_pressed("ui_down"):
-		camera.position.y = camera.position.y + 100 * delta
-	if Input.is_action_pressed("ui_up"):
-		camera.position.y = camera.position.y - 100 * delta
 
 func _process(delta):
 	if manager_connection.should_update_localmap:

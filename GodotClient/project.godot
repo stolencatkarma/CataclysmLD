@@ -31,8 +31,6 @@ settings/stdout/verbose_stdout=true
 
 window/size/width=854
 window/size/height=480
-window/stretch/mode="2d"
-window/stretch/aspect="keep"
 
 [input]
 
@@ -44,6 +42,11 @@ zoom_in={
 zoom_out={
 "deadzone": 0.5,
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":true,"control":false,"meta":false,"command":false,"pressed":false,"scancode":95,"unicode":0,"echo":false,"script":null)
+ ]
+}
+view_pan_mouse={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":3,"pressed":false,"doubleclick":false,"script":null)
  ]
 }
 
