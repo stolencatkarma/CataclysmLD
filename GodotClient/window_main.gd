@@ -24,9 +24,27 @@ func _process(delta):
 		# now we have a draw_x, and draw_y origin. loop through again and draw the tiles.
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:
-				var tile_index = $terrain_tileset.get_tileset().find_tile_by_name(tile["terrain"]["ident"])
 				var xy = Vector2( (tile['position']['x'] - draw_x), (tile['position']['y'] - draw_y) )
-				$terrain_tileset.set_cellv( xy, tile_index )
+				
+				var terrain_index = $terrain_tileset.get_tileset().find_tile_by_name(tile["terrain"]["ident"])
+				$terrain_tileset.set_cellv( xy, terrain_index )
+				print(tile)
+				
+				if tile["furniture"]:
+					var furniture_index = $furniture_tileset.get_tileset().find_tile_by_name(tile["furniture"]["ident"])
+					$furniture_tileset.set_cellv( xy, furniture_index )
+				
+				if tile["creature"]:
+					var creature_index = 0
+					if tile["creature"]['tile_ident']: # this is a player
+						creature_index = $players_tileset.get_tileset().find_tile_by_name(tile["creature"]["tile_ident"])
+					else:
+						creature_index = $creature_tileset.get_tileset().find_tile_by_name(tile["creature"]["ident"])
+					
+					$creature_tileset.set_cellv( xy, creature_index )
+				
+				
+				
 				
 		# finally set back to false until we recieve a new localmap from the server
 		manager_connection.should_update_localmap = false
