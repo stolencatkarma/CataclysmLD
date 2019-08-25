@@ -28,7 +28,6 @@ func _process(delta):
 				
 				var terrain_index = $terrain_tileset.get_tileset().find_tile_by_name(tile["terrain"]["ident"])
 				$terrain_tileset.set_cellv( xy, terrain_index )
-				print(tile)
 				
 				if tile["furniture"]:
 					var furniture_index = $furniture_tileset.get_tileset().find_tile_by_name(tile["furniture"]["ident"])
@@ -42,8 +41,6 @@ func _process(delta):
 						creature_index = $creature_tileset.get_tileset().find_tile_by_name(tile["creature"]["ident"])
 					
 					$creature_tileset.set_cellv( xy, creature_index )
-				
-				
 				
 				
 		# finally set back to false until we recieve a new localmap from the server

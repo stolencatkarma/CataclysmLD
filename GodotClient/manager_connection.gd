@@ -8,6 +8,7 @@ var password = "q"
 var list_characters = Array()
 var localmap_chunks = Array()
 var should_update_localmap = false
+var character_name = "" # this is set when a created character is chosen. 
 
 func connect_to_server():
 	client.connect_to_host(str(HOST), int(PORT))
@@ -56,4 +57,8 @@ func _process(delta): # where we check for new data recieved from server.
 					manager_connection.localmap_chunks.append(chunk)
 				manager_connection.should_update_localmap = true
 				get_tree().change_scene("res://window_main.tscn")
-		
+			if k == "localmap_update":
+				manager_connection.localmap_chunks.clear()
+				for chunk in _result[k]:
+					manager_connection.localmap_chunks.append(chunk)
+				manager_connection.should_update_localmap = true

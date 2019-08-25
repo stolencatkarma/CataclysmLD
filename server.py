@@ -293,7 +293,6 @@ class Server(MastermindServerTCP):
                     self.callback_client_send(connection_object, json.dumps(_message))
 
             if _command['command'] == 'choose_character':
-                print(data['args'])
                 # send the current localmap to the player choosing the character
                 self.characters[data['args']] = self.worldmap.get_character(
                     data['args']
@@ -343,9 +342,12 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, json.dumps(_container))
 
             if _command['command'] == 'request_localmap_update':
-                self.localmaps[data['args']] = self.worldmap.get_chunks_near_position(
+                self.localmaps[
+                    data['args']
+                ] = self.worldmap.get_chunks_near_position(
                     self.characters[data['args']]['position']
                 )
+                
                 _container = {'localmap_update': self.localmaps[data['args']]}
                 self.callback_client_send(connection_object, json.dumps(_container))
 
@@ -427,7 +429,7 @@ class Server(MastermindServerTCP):
                         self.characters[data['ident']]['name'], _route
                     )
                 )
-
+                self.characters[data['ident']]['command_queue'].clear()
                 # fill the queue with move commands to reach the tile.
                 # pprint.pprint(self.characters[data['ident']])
                 _x = self.characters[data['ident']]['position']['x']
@@ -631,7 +633,7 @@ class Server(MastermindServerTCP):
             #pprint.pprint(action)
             # if we get here we can process a single action
             if action['action_type'] == 'move':
-                #print("moving character " + str(creature['name']))
+                print("moving character " + str(creature['name']))
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
                 if action['args'][0] == 'south':
                     if self.worldmap.move_creature_from_position_to_position(

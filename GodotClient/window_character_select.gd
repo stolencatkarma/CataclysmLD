@@ -30,6 +30,7 @@ func button_pressed0():
 	characters_select["args"] = manager_connection.list_characters[2]['name']
 	var to_send = JSON.print(characters_select).to_utf8()
 	manager_connection.client.put_data(to_send)
+	manager_connection.character_name = manager_connection.list_characters[2]['name']
 
 func button_pressed1():
 	print("pressed " + manager_connection.list_characters[1]['name'])
@@ -39,6 +40,7 @@ func button_pressed1():
 	characters_select["args"] = manager_connection.list_characters[1]['name']
 	var to_send = JSON.print(characters_select).to_utf8()
 	manager_connection.client.put_data(to_send)
+	manager_connection.character_name = manager_connection.list_characters[1]['name']
 	
 func button_pressed2():
 	print("pressed " + manager_connection.list_characters[0]['name'])
@@ -48,6 +50,7 @@ func button_pressed2():
 	characters_select["args"] = manager_connection.list_characters[0]['name']
 	var to_send = JSON.print(characters_select).to_utf8()
 	manager_connection.client.put_data(to_send)
+	manager_connection.character_name = manager_connection.list_characters[0]['name']
 	
 func create_new_character_pressed():
 	get_tree().change_scene("res://window_character_create.tscn")

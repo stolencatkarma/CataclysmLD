@@ -20,7 +20,7 @@ def packet_send(sock, protocol_and_udpaddress, data, compression): #E.g.: =(MM_T
 def packet_recv_tcp(sock):
     
     data_str = sock.recv(MM_MAX_PAYLOAD_SIZE)
-    print("RECIEVED:" + str(data_str))
+    #print("RECIEVED:" + str(data_str))
     
     data_str = data_str.decode("utf-8")
     #data_str = str(data_str).rstrip('\x00')

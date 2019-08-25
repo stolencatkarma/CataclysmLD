@@ -362,7 +362,7 @@ class Worldmap(dict):
         if (to_tile["creature"] is not None):
             print("creature is impassable")
             return False
-        #print("moving checks passed")
+        # print("moving checks passed")
         to_tile["creature"] = obj
         from_tile["creature"] = None
         return True
