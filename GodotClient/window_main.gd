@@ -8,7 +8,10 @@ func _ready():
 
 func _process(delta):
 	if manager_connection.should_update_localmap:
-		$terrain_tileset.clear()
+		$terrain_tilemap.clear()
+		$furniture_tilemap.clear()
+		$creature_tilemap.clear()
+		$players_tilemap.clear()
 		var draw_x = null
 		var draw_y = null
 		# loop through the chunks finding smallest x and y for our origin draw point
@@ -26,21 +29,22 @@ func _process(delta):
 			for tile in chunk['tiles']:
 				var xy = Vector2( (tile['position']['x'] - draw_x), (tile['position']['y'] - draw_y) )
 				
-				var terrain_index = $terrain_tileset.get_tileset().find_tile_by_name(tile["terrain"]["ident"])
-				$terrain_tileset.set_cellv( xy, terrain_index )
+				var terrain_index = $terrain_tilemap.get_tileset().find_tile_by_name(tile["terrain"]["ident"])
+				$terrain_tilemap.set_cellv( xy, terrain_index )
 				
 				if tile["furniture"]:
-					var furniture_index = $furniture_tileset.get_tileset().find_tile_by_name(tile["furniture"]["ident"])
-					$furniture_tileset.set_cellv( xy, furniture_index )
+					var furniture_index = $furniture_tilemap.get_tileset().find_tile_by_name(tile["furniture"]["ident"])
+					$furniture_tilemap.set_cellv( xy, furniture_index )
 				
 				if tile["creature"]:
 					var creature_index = 0
 					if tile["creature"]['tile_ident']: # this is a player
-						creature_index = $players_tileset.get_tileset().find_tile_by_name(tile["creature"]["tile_ident"])
+						creature_index = $players_tilemap.get_tileset().find_tile_by_name(tile["creature"]["tile_ident"])
+						$players_tilemap.set_cellv( xy, creature_index )
 					else:
-						creature_index = $creature_tileset.get_tileset().find_tile_by_name(tile["creature"]["ident"])
+						creature_index = $creature_tilemap.get_tileset().find_tile_by_name(tile["creature"]["ident"])
+						$creature_tilemap.set_cellv( xy, creature_index )
 					
-					$creature_tileset.set_cellv( xy, creature_index )
 				
 				
 		# finally set back to false until we recieve a new localmap from the server

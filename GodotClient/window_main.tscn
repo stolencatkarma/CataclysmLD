@@ -32,24 +32,24 @@ render_target_update_mode = 3
 [node name="node_window_main" type="Node2D" parent="ViewportContainer/Viewport"]
 script = ExtResource( 1 )
 
-[node name="terrain_tileset" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
+[node name="terrain_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
 tile_set = ExtResource( 2 )
 cell_size = Vector2( 32, 32 )
 format = 1
 tile_data = PoolIntArray( -393227, 42, 0 )
 
-[node name="furniture_tileset" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
+[node name="furniture_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
 tile_set = ExtResource( 3 )
 cell_size = Vector2( 32, 32 )
 format = 1
-tile_data = PoolIntArray( -393227, 42, 0 )
+tile_data = PoolIntArray( -393227, 42, 0, -131072, 0, 0 )
 
-[node name="creature_tileset" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
+[node name="creature_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
 tile_set = ExtResource( 4 )
 cell_size = Vector2( 32, 32 )
 format = 1
 
-[node name="players_tileset" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
+[node name="players_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1

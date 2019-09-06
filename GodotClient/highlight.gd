@@ -8,7 +8,7 @@ onready var color = Color(0.4, 0.9, 0.4)
 func _input(event):
 	if event is InputEventMouseMotion:
 		var mousepos = get_global_mouse_position()
-		var coordpos = get_parent().get_node("terrain_tileset").world_to_map( mousepos )
+		var coordpos = get_parent().get_node("terrain_tilemap").world_to_map( mousepos )
 		highlighted_coord = coordpos
 		
 	if event is InputEventMouseButton:
