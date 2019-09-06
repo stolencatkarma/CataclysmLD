@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://window_main.gd" type="Script" id=1]
 [ext_resource path="res://tilesets/Chesthole32/terrain.res" type="TileSet" id=2]
@@ -6,9 +6,8 @@
 [ext_resource path="res://tilesets/Chesthole32/creatures.res" type="TileSet" id=4]
 [ext_resource path="res://tilesets/Chesthole32/players.res" type="TileSet" id=5]
 [ext_resource path="res://Camera2D.gd" type="Script" id=6]
-[ext_resource path="res://Player.tscn" type="PackedScene" id=7]
-[ext_resource path="res://highlight.gd" type="Script" id=8]
-[ext_resource path="res://timer_localmap_request.gd" type="Script" id=9]
+[ext_resource path="res://highlight.gd" type="Script" id=7]
+[ext_resource path="res://timer_localmap_request.gd" type="Script" id=8]
 
 [sub_resource type="Gradient" id=1]
 offsets = PoolRealArray( 0.348387, 0.554839, 0.63871, 0.870968, 1 )
@@ -60,15 +59,12 @@ drag_margin_h_enabled = false
 drag_margin_v_enabled = false
 script = ExtResource( 6 )
 
-[node name="Player" parent="ViewportContainer/Viewport/node_window_main" instance=ExtResource( 7 )]
-position = Vector2( 300, 300 )
-
 [node name="highlight" type="Node2D" parent="ViewportContainer/Viewport/node_window_main"]
-script = ExtResource( 8 )
+script = ExtResource( 7 )
 
 [node name="Timer" type="Timer" parent="ViewportContainer/Viewport/node_window_main"]
 autostart = true
-script = ExtResource( 9 )
+script = ExtResource( 8 )
 
 [node name="GUI" type="Node2D" parent="."]
 position = Vector2( 654, 0 )

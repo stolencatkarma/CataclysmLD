@@ -8,7 +8,8 @@ func _ready():
 	for character in manager_connection.list_characters:
 		# create button for each character
 		var _character_button = Button.new()
-		_character_button.icon = load("res://characters/" + character["tile_ident"] + ".png")
+		var creature_index = $players_tilemap.get_tileset().find_tile_by_name(character["tile_ident"])
+		_character_button.icon = $players_tilemap.get_tileset().tile_get_texture(creature_index)
 		_character_button.text = character["name"]
 		.add_child(_character_button)
 		_character_button.set_position(Vector2(start_x+150*count,start_y))
