@@ -1,13 +1,17 @@
 extends Node2D
-var player_node = preload( "res://Player.tscn")
+# var player_node = preload( "res://Player.tscn")
 onready var camera = $Camera2D
 var cell_size = Vector2( 32, 32 )
+var player_position = Vector2()
+
 
 func _ready():
-	camera.position = $Player.position
+	camera.position = player_position
 
 func _process(delta):
 	if manager_connection.should_update_localmap:
+		# camera.position = lerp(camera.position, player_position, delta)
+		# ideas for the camera to lock to the player? i'm stumped as the best way to go about this.
 		$terrain_tilemap.clear()
 		$furniture_tilemap.clear()
 		$creature_tilemap.clear()
@@ -39,6 +43,8 @@ func _process(delta):
 				if tile["creature"]:
 					var creature_index = 0
 					if tile["creature"]['tile_ident']: # this is a player
+						if tile["creature"]["name"] == manager_connection.character_name:
+							player_position = Vector2(xy.x*32, xy.y*32) # this is the client's character. save the position for the camera.
 						creature_index = $players_tilemap.get_tileset().find_tile_by_name(tile["creature"]["tile_ident"])
 						$players_tilemap.set_cellv( xy, creature_index )
 					else:
@@ -49,3 +55,4 @@ func _process(delta):
 				
 		# finally set back to false until we recieve a new localmap from the server
 		manager_connection.should_update_localmap = false
+		

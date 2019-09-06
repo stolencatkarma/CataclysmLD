@@ -33,7 +33,7 @@ func _process(delta): # where we check for new data recieved from server.
 		
 		var _result = _parsed2.result
 		for k in _result.keys():
-			# print(k)
+			# the 'header' of the data recieved.
 			if k == "login":
 				if _result[k] == "Accepted":
 					print("logged in.") # login was successfully accepted.

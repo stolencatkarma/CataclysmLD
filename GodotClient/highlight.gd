@@ -1,9 +1,8 @@
 extends Node2D
 
 var highlighted_coord = Vector2()
-onready var tilemap_rect = get_viewport().get_visible_rect()
 onready var tilemap_cell_size = get_parent().cell_size
-onready var color = Color(0.4, 0.9, 0.4)
+onready var color = Color(1.0, 0.5, 0.0)
 
 func _input(event):
 	if event is InputEventMouseMotion:
