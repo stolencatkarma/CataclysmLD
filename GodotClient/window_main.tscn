@@ -70,7 +70,6 @@ script = ExtResource( 8 )
 position = Vector2( 654, 0 )
 
 [node name="TextureRect" type="TextureRect" parent="GUI"]
-margin_top = -1.0
 margin_right = 200.0
 margin_bottom = 480.0
 texture = SubResource( 2 )
