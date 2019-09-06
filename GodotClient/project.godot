@@ -61,6 +61,4 @@ quality/2d/use_pixel_snap=true
 quality/shading/force_vertex_shading=true
 quality/shading/force_lambert_over_burley=true
 quality/shading/force_blinn_over_ggx=true
-quality/filters/use_nearest_mipmap_filter=true
-quality/filters/msaa=4
 environment/default_environment="res://default_env.tres"
