@@ -1,7 +1,6 @@
 extends Node2D
 # var player_node = preload( "res://Player.tscn")
 onready var camera = $Camera2D
-var cell_size = Vector2( 32, 32 )
 var player_position = Vector2()
 
 
@@ -9,15 +8,16 @@ func _ready():
 	camera.position = player_position
 
 func _process(delta):
+	var draw_x = null
+	var draw_y = null
+	# camera.position = lerp(camera.position, player_position, delta)
+	# ideas for the camera to lock to the player? i'm stumped as the best way to go about this.
 	if manager_connection.should_update_localmap:
-		# camera.position = lerp(camera.position, player_position, delta)
-		# ideas for the camera to lock to the player? i'm stumped as the best way to go about this.
 		$terrain_tilemap.clear()
 		$furniture_tilemap.clear()
 		$creature_tilemap.clear()
 		$players_tilemap.clear()
-		var draw_x = null
-		var draw_y = null
+		
 		# loop through the chunks finding smallest x and y for our origin draw point
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:

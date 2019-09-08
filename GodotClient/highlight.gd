@@ -1,7 +1,7 @@
 extends Node2D
 
 var highlighted_coord = Vector2()
-onready var tilemap_cell_size = get_parent().cell_size
+onready var tilemap_cell_size = Vector2( 32, 32 )
 onready var color = Color(1.0, 0.5, 0.0)
 
 func _input(event):
@@ -38,7 +38,9 @@ func _input(event):
 				manager_connection.client.put_data(to_send)
 			
 			if event.button_index == 2: # right click
-				print("Tile clicked at: ", highlighted_coord)
+				print("Tile right clicked at: ", highlighted_coord)
+				# create super-menu with available options what can be done to the clicked tile.
+				
 
 func _process(delta):
     update()
