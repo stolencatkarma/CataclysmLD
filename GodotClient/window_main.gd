@@ -1,21 +1,27 @@
 extends Node2D
-# var player_node = preload( "res://Player.tscn")
 onready var camera = $Camera2D
 var player_position = Vector2()
+
+var light_scene = preload( "res://light.tscn")
+onready var lights = $lights
 
 
 func _ready():
 	camera.position = player_position
 
-func _process(delta):
+func _physics_process(delta):
 	if not camera.mouse_captured:
-		camera.position = lerp(camera.position, player_position, delta*2)
+		camera.position = player_position
 	# TODO: add a keypress to switch between locked and free camera. 
 	if manager_connection.should_update_localmap:
+
+		for light in lights.get_children():
+			light.queue_free()
 		$terrain_tilemap.clear()
 		$furniture_tilemap.clear()
 		$creature_tilemap.clear()
 		$players_tilemap.clear()
+		
 		
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:
@@ -38,9 +44,12 @@ func _process(delta):
 					else:
 						creature_index = $creature_tilemap.get_tileset().find_tile_by_name(tile["creature"]["ident"])
 						$creature_tilemap.set_cellv( xy, creature_index )
-					
+				if(tile['lumens']>0):
+					var light = light_scene.instance()
+					light.position = Vector2(xy.x*32, xy.y*32)
+					light.get_node("Light2D").energy = tile['lumens']/10
+					lights.add_child(light)
 				
 				
 		# finally set back to false until we recieve a new localmap from the server
 		manager_connection.should_update_localmap = false
-		
