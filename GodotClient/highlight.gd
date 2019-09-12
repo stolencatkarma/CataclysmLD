@@ -13,8 +13,6 @@ func _input(event):
 	if event is InputEventMouseButton:
 		if event.is_pressed(): # button pressed.
 			if event.button_index == 1: # left click
-				# get tile position from highlighted_coord
-
 				var draw_z = 0 #TODO: set this to z of where the player is looking.
 				
 				var calulated_move = Dictionary()
