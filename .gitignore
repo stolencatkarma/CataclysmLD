@@ -16,3 +16,4 @@
 # ignore godot optional import settings.
 /GodotClient/.import/*
 CataclysmLD.code-workspace
+GodotClient/debug.log
