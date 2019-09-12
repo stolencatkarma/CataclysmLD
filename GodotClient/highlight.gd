@@ -14,25 +14,13 @@ func _input(event):
 		if event.button_mask == 0: # button released
 			if event.button_index == 1: # left click
 				# get tile position from highlighted_coord
-				var draw_x = null
-				var draw_y = null
-				var draw_z = null
-				
-				for chunk in manager_connection.localmap_chunks:
-					for tile in chunk['tiles']:
-						if draw_x == null: # first tile. set both because we need both.
-							draw_x = tile['position']['x']
-							draw_y = tile['position']['y']
-							draw_z = tile['position']['z']
-						if(tile['position']['x'] < draw_x):
-							draw_x = tile['position']['x']
-						if(tile['position']['y'] < draw_y):
-							draw_y = tile['position']['y']
+
+				var draw_z = 0 #TODO: set this to z of where the player is looking.
 				
 				var calulated_move = Dictionary()
 				calulated_move["ident"] = manager_connection.character_name
 				calulated_move["command"] = "calculated_move"
-				calulated_move["args"] = [highlighted_coord[0]+draw_x, highlighted_coord[1]+draw_y, draw_z] 
+				calulated_move["args"] = [highlighted_coord[0], highlighted_coord[1], draw_z] 
 				print("Tile clicked at: ", calulated_move["args"])
 				var to_send = JSON.print(calulated_move).to_utf8()
 				manager_connection.client.put_data(to_send)

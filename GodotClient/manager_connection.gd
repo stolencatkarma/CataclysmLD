@@ -22,8 +22,8 @@ func connect_to_server():
 func _process(delta): # where we check for new data recieved from server.
 	if client.is_connected_to_host() and client.get_available_bytes() > 0:
 		var _recieved_string = ""
-		while client.get_available_bytes() > 0:
-			print("available bytes: " + str(client.get_available_bytes()))
+		while client.get_available_bytes() > 0: # must be taken 64kb at a time so this loop is required
+			# print("available bytes: " + str(client.get_available_bytes()))
 			var _recieved_data = client.get_data(client.get_available_bytes())
 			_recieved_string = _recieved_string + _recieved_data[1].get_string_from_utf8()
 			# print("Received: " + _recieved_string)

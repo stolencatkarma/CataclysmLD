@@ -556,13 +556,13 @@ class Worldmap(dict):
             Position(position["x"], position["y"] - 1, position["z"])
         )
 
-        if not tile0["terrain"]["impassable"]:
+        if tile0 is not None and not tile0["terrain"]["impassable"]:
             ret_tiles.append(tile0["position"])
-        if not tile1["terrain"]["impassable"]:
+        if tile1 is not None and not tile1["terrain"]["impassable"]:
             ret_tiles.append(tile1["position"])
-        if not tile2["terrain"]["impassable"]:
+        if tile2 is not None and not tile2["terrain"]["impassable"]:
             ret_tiles.append(tile2["position"])
-        if not tile3["terrain"]["impassable"]:
+        if tile3 is not None and not tile3["terrain"]["impassable"]:
             ret_tiles.append(tile3["position"])
 
         return ret_tiles

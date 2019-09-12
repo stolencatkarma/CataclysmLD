@@ -8,30 +8,18 @@ func _ready():
 	camera.position = player_position
 
 func _process(delta):
-	var draw_x = null
-	var draw_y = null
-	# camera.position = lerp(camera.position, player_position, delta)
-	# ideas for the camera to lock to the player? i'm stumped as the best way to go about this.
+	if not camera.mouse_captured:
+		camera.position = lerp(camera.position, player_position, delta*2)
+	# TODO: add a keypress to switch between locked and free camera. 
 	if manager_connection.should_update_localmap:
 		$terrain_tilemap.clear()
 		$furniture_tilemap.clear()
 		$creature_tilemap.clear()
 		$players_tilemap.clear()
 		
-		# loop through the chunks finding smallest x and y for our origin draw point
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:
-				if draw_x == null: # first tile. set both because we need both.
-					draw_x = tile['position']['x']
-					draw_y = tile['position']['y']
-				if(tile['position']['x'] < draw_x):
-					draw_x = tile['position']['x']
-				if(tile['position']['y'] < draw_y):
-					draw_y = tile['position']['y']
-		# now we have a draw_x, and draw_y origin. loop through again and draw the tiles.
-		for chunk in manager_connection.localmap_chunks:
-			for tile in chunk['tiles']:
-				var xy = Vector2( (tile['position']['x'] - draw_x), (tile['position']['y'] - draw_y) )
+				var xy = Vector2( (tile['position']['x']), (tile['position']['y']) )
 				
 				var terrain_index = $terrain_tilemap.get_tileset().find_tile_by_name(tile["terrain"]["ident"])
 				$terrain_tilemap.set_cellv( xy, terrain_index )
