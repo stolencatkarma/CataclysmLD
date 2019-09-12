@@ -11,7 +11,7 @@ func _input(event):
 		highlighted_coord = coordpos
 		
 	if event is InputEventMouseButton:
-		if event.button_mask == 0: # button released
+		if event.is_pressed(): # button pressed.
 			if event.button_index == 1: # left click
 				# get tile position from highlighted_coord
 
