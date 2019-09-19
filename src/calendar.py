@@ -1,80 +1,88 @@
 
-class Calendar(): # controls the time in game. to advance time in game we do it with this.
-    def __init__(self, SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS):
-        self.SECONDS = SECONDS
-        self.MINUTES = MINUTES
-        self.HOURS = HOURS
-        self.DAYS = DAYS
-        self.MONTHS = MONTHS
-        self.YEARS = YEARS
-        self.SEASON = 'Spring' # 'Summer', 'Winter', 'Fall'
-        self.SECONDS_PER_MINUTE = 60
-        self.MINUTES_PER_HOUR = 60
-        self.HOURS_PER_DAY = 24
-        self.DAYS_PER_MONTH = 28
-        self.MONTHS_PER_YEAR = 12
-        self.TURN = self.SECONDS + int(self.MINUTES * self.SECONDS_PER_MINUTE) + int(self.HOURS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR) + int(self.DAYS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY) + int(self.MONTHS  * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH) + int(self.YEARS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH * self.MONTHS_PER_YEAR)
+WEEKDAY_NAMES = ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')
+SEASON_NAMES = ('Spring', 'Summer', 'Winter', 'Fall')
+DAYS_IN_WEEK = 7
+MONTHS_PER_YEAR = 12
+DAYS_PER_MONTH = 28
+HOURS_PER_DAY = 24
+MINUTES_PER_HOUR = 60
+SECONDS_PER_MINUTE = 60
 
-    def do_events(self): # if we need to do something every so often we should set it up here.
+MONTHS_PER_QUARTER = 4
+DAYS_PER_QUARTER = DAYS_PER_MONTH * MONTHS_PER_QUARTER
+SECONDS_PER_HOUR = SECONDS_PER_MINUTE*MINUTES_PER_HOUR
+SECONDS_PER_DAY = SECONDS_PER_HOUR*HOURS_PER_DAY
+SECONDS_PER_MONTH = SECONDS_PER_DAY*DAYS_PER_MONTH
+SECONDS_PER_YEAR = SECONDS_PER_MONTH*MONTHS_PER_YEAR
+
+
+class Calendar:  # controls the time in game. to advance time in game we do it with this.
+    def __init__(self, seconds, minutes, hours, days, months, years):
+        self.seconds = seconds
+        self.minutes = minutes
+        self.hours = hours
+        self.days = days
+        self.months = months
+        self.years = years
+
+    def do_events(self):  # if we need to do something every so often we should set it up here.
         return
 
     def advance_time_by_x_seconds(self, amount):
         for x in range(amount):
-            self.SECONDS = self.SECONDS + 1
-            self.do_events() # if anything needs doing this will do it.
-            if(self.SECONDS >= self.SECONDS_PER_MINUTE):
-                self.SECONDS = 0
-                self.MINUTES = self.MINUTES + 1
+            self.seconds += 1
+            self.do_events()  # if anything needs doing this will do it.
+            if self.seconds >= SECONDS_PER_MINUTE:
+                self.seconds = 0
+                self.minutes += 1
 
-            if(self.MINUTES >= self.MINUTES_PER_HOUR):
-                self.MINUTES = 0
-                self.HOURS = self.HOURS + 1
+            if self.minutes >= MINUTES_PER_HOUR:
+                self.minutes = 0
+                self.hours += 1
 
-            if(self.HOURS >= self.HOURS_PER_DAY):
-                self.HOURS = 0
-                self.DAYS = self.DAYS + 1
+            if self.hours >= HOURS_PER_DAY:
+                self.hours = 0
+                self.days += 1
 
-            if(self.DAYS >= self.DAYS_PER_MONTH):
-                self.DAYS = 0
-                self.MONTHS = self.MONTHS + 1
+            if self.days >= DAYS_PER_MONTH:
+                self.days = 0
+                self.months += 1
 
-            if(self.MONTHS >= self.MONTHS_PER_YEAR):
-                self.MONTHS = 0
-                self.YEARS = self.YEARS + 1
+            if self.months >= MONTHS_PER_YEAR:
+                self.months = 0
+                self.years += 1
 
-    def get_turn(self):
-        self.TURN = self.SECONDS + int(self.MINUTES * self.SECONDS_PER_MINUTE) + int(self.HOURS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR) + int(self.DAYS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY) + int(self.MONTHS  * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH) + int(self.YEARS   * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY * self.DAYS_PER_MONTH * self.MONTHS_PER_YEAR)
+    @property
+    def turn(self):
+        return self.seconds + \
+               self.minutes * SECONDS_PER_MINUTE + \
+               self.hours * SECONDS_PER_HOUR + \
+               self.days * SECONDS_PER_DAY + \
+               self.months * SECONDS_PER_MONTH + \
+               self.years * SECONDS_PER_YEAR
 
-        return self.TURN
-
-    def moon_phase(self): # moon phases are 1/4 month roughly
+    def moon_phase(self):  # moon phases are 1/4 month roughly
         # 28 days / 4 phases.
         # First Quarter, Full Moon, Third Quarter, New Moon
-        if self.DAYS < self.DAYS_PER_MONTH * 0.25:
+        if self.days < DAYS_PER_QUARTER:
             return 'First Quarter'
-        elif self.DAYS < self.DAYS_PER_MONTH * 0.5:
+        elif self.days < DAYS_PER_QUARTER * 2:
             return 'Full Moon'
-        elif self.DAYS < self.DAYS_PER_MONTH * 0.75:
+        elif self.days < DAYS_PER_QUARTER * 3:
             return 'Third Quarter'
         else:
             return 'New Moon'
 
-    def get_season(self):
-        self.season_names = []
-        self.season_names.insert(len(self.season_names), 'Spring') # 0
-        self.season_names.insert(len(self.season_names), 'Summer') # 1
-        self.season_names.insert(len(self.season_names), 'Winter') # 2, etc..
-        self.season_names.insert(len(self.season_names), 'Fall')
-        if self.MONTHS < self.MONTHS_PER_YEAR * 0.25:
-            self.SEASON = self.season_names[0]
-        elif self.MONTHS < self.MONTHS_PER_YEAR * 0.5:
-            self.SEASON = self.season_names[1]
-        elif self.MONTHS < self.MONTHS_PER_YEAR * 0.75:
-            self.SEASON = self.season_names[2]
+    @property
+    def season(self):
+        if self.months < MONTHS_PER_QUARTER:
+            return SEASON_NAMES[0]
+        elif self.months < MONTHS_PER_QUARTER * 2:
+            return SEASON_NAMES[1]
+        elif self.months < MONTHS_PER_QUARTER * 3:
+            return SEASON_NAMES[2]
         else:
-            self.SEASON = self.season_names[3]
-
-        return self.SEASON
+            return SEASON_NAMES[3]
 
     def sunrise(self):
         return
@@ -89,16 +97,5 @@ class Calendar(): # controls the time in game. to advance time in game we do it 
         return
 
     def day_of_week(self):
-        self.weekday_names = []
-        self.weekday_names.insert(len(self.weekday_names), 'Sunday') # 0
-        self.weekday_names.insert(len(self.weekday_names), 'Monday') # 1
-        self.weekday_names.insert(len(self.weekday_names), 'Tuesday') # 2, etc..
-        self.weekday_names.insert(len(self.weekday_names), 'Wednesday')
-        self.weekday_names.insert(len(self.weekday_names), 'Thursday')
-        self.weekday_names.insert(len(self.weekday_names), 'Friday')
-        self.weekday_names.insert(len(self.weekday_names), 'Saturday')
-        days = self.DAYS # How many days have passed this month.
-        while(days >= len(self.weekday_names)): # loop until we get a number 0-6
-            days = days - len(self.weekday_names)
-
-        return self.weekday_names[days] # what's left over is the day of the week.
+        days = self.days % DAYS_IN_WEEK
+        return WEEKDAY_NAMES[days]
