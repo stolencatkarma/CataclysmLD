@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://interface/statblock.png" type="Texture" id=1]
+[ext_resource path="res://interface/statblock.gd" type="Script" id=2]
+
+[node name="statblock" type="NinePatchRect"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -64.0
+margin_right = 64.0
+margin_bottom = 32.0
+texture = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="strength" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -53.1946
+margin_top = -0.852844
+margin_right = -43.1946
+margin_bottom = 13.1472
+text = "4"
+
+[node name="dexterity" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -20.6147
+margin_top = -0.545486
+margin_right = -10.6147
+margin_bottom = 13.4545
+text = "3"
+
+[node name="intelligence" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 12.2725
+margin_top = -0.545486
+margin_right = 22.2725
+margin_bottom = 13.4545
+text = "2"
+
+[node name="perception" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 44.8524
+margin_top = -1.46755
+margin_right = 54.8524
+margin_bottom = 12.5324
+text = "1"

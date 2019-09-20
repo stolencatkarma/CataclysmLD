@@ -1,14 +1,14 @@
 [gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://window_main.gd" type="Script" id=1]
-[ext_resource path="res://tilesets/Chesthole32/terrain.res" type="TileSet" id=2]
-[ext_resource path="res://tilesets/Chesthole32/furniture.res" type="TileSet" id=3]
-[ext_resource path="res://tilesets/Chesthole32/creatures.res" type="TileSet" id=4]
-[ext_resource path="res://tilesets/Chesthole32/players.res" type="TileSet" id=5]
-[ext_resource path="res://Camera2D.gd" type="Script" id=6]
-[ext_resource path="res://highlight.gd" type="Script" id=7]
-[ext_resource path="res://timer_localmap_request.gd" type="Script" id=8]
-[ext_resource path="res://window_main_UI_background.png" type="Texture" id=9]
+[ext_resource path="res://Interface.tscn" type="PackedScene" id=1]
+[ext_resource path="res://window_main.gd" type="Script" id=2]
+[ext_resource path="res://tilesets/Chesthole32/terrain.res" type="TileSet" id=3]
+[ext_resource path="res://tilesets/Chesthole32/furniture.res" type="TileSet" id=4]
+[ext_resource path="res://tilesets/Chesthole32/creatures.res" type="TileSet" id=5]
+[ext_resource path="res://tilesets/Chesthole32/players.res" type="TileSet" id=6]
+[ext_resource path="res://Camera2D.gd" type="Script" id=7]
+[ext_resource path="res://highlight.gd" type="Script" id=8]
+[ext_resource path="res://timer_localmap_request.gd" type="Script" id=9]
 
 [node name="base" type="Node2D"]
 
@@ -17,36 +17,38 @@ margin_right = 854.0
 margin_bottom = 480.0
 stretch = true
 
+[node name="Interface" parent="ViewportContainer" instance=ExtResource( 1 )]
+
 [node name="Viewport" type="Viewport" parent="ViewportContainer"]
 size = Vector2( 854, 480 )
 handle_input_locally = false
 render_target_update_mode = 3
 
 [node name="node_window_main" type="Node2D" parent="ViewportContainer/Viewport"]
-script = ExtResource( 1 )
+script = ExtResource( 2 )
 
 [node name="CanvasModulate" type="CanvasModulate" parent="ViewportContainer/Viewport/node_window_main"]
 color = Color( 0.0196078, 0.0196078, 0.0196078, 1 )
 
 [node name="terrain_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
-tile_set = ExtResource( 2 )
+tile_set = ExtResource( 3 )
 cell_size = Vector2( 32, 32 )
 format = 1
 tile_data = PoolIntArray( -393227, 42, 0 )
 
 [node name="furniture_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
-tile_set = ExtResource( 3 )
+tile_set = ExtResource( 4 )
 cell_size = Vector2( 32, 32 )
 format = 1
 tile_data = PoolIntArray( -393227, 42, 0, -131072, 0, 0 )
 
 [node name="creature_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
-tile_set = ExtResource( 4 )
+tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
 
 [node name="players_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
-tile_set = ExtResource( 5 )
+tile_set = ExtResource( 6 )
 cell_size = Vector2( 32, 32 )
 format = 1
 
@@ -54,24 +56,13 @@ format = 1
 current = true
 drag_margin_h_enabled = false
 drag_margin_v_enabled = false
-script = ExtResource( 6 )
+script = ExtResource( 7 )
 
 [node name="highlight" type="Node2D" parent="ViewportContainer/Viewport/node_window_main"]
-script = ExtResource( 7 )
+script = ExtResource( 8 )
 
 [node name="Timer" type="Timer" parent="ViewportContainer/Viewport/node_window_main"]
 autostart = true
-script = ExtResource( 8 )
+script = ExtResource( 9 )
 
 [node name="lights" type="Node2D" parent="ViewportContainer/Viewport/node_window_main"]
-
-[node name="GUI" type="Node2D" parent="."]
-
-[node name="TextureRect" type="TextureRect" parent="GUI"]
-visible = false
-margin_left = 614.0
-margin_right = 854.0
-margin_bottom = 320.0
-texture = ExtResource( 9 )
-expand = true
-stretch_mode = 3

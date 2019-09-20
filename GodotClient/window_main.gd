@@ -3,6 +3,7 @@ onready var camera = $Camera2D
 var player_position = Vector2()
 
 var light_scene = preload( "res://light.tscn")
+
 onready var lights = $lights
 
 
@@ -39,11 +40,14 @@ func _physics_process(delta):
 					if tile["creature"]['tile_ident']: # this is a player
 						if tile["creature"]["name"] == manager_connection.character_name:
 							player_position = Vector2(xy.x*32, xy.y*32) # this is the client's character. save the position for the camera.
+							.get_node("/root/manager_connection").controlled_character = tile['creature']
+							self.get_parent().get_parent().get_node("Interface/statblock").should_update = true
 						creature_index = $players_tilemap.get_tileset().find_tile_by_name(tile["creature"]["tile_ident"])
 						$players_tilemap.set_cellv( xy, creature_index )
 					else:
 						creature_index = $creature_tilemap.get_tileset().find_tile_by_name(tile["creature"]["ident"])
 						$creature_tilemap.set_cellv( xy, creature_index )
+				# basic lighting engine
 				if(tile['lumens']>0):
 					var light = light_scene.instance()
 					light.position = Vector2(xy.x*32, xy.y*32)

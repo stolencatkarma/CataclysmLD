@@ -8,7 +8,8 @@ var password = "q"
 var list_characters = Array()
 var localmap_chunks = Array()
 var should_update_localmap = false
-var character_name = "" # this is set when a created character is chosen. 
+var character_name = null # this is set when a created character is chosen.
+var controlled_character = null # as dictionary data for updating the Interface (stats, injuries, etc)
 
 func connect_to_server():
 	client.connect_to_host(str(HOST), int(PORT))
@@ -45,10 +46,10 @@ func _process(delta): # where we check for new data recieved from server.
 					var to_send = JSON.print(characters_request).to_utf8()
 					client.put_data(to_send)
 			if k == "character_list":
-				print(typeof(_result[k])) # _result[k] is an json array of characters.
+				# print(typeof(_result[k])) # _result[k] is an json array of characters.
 				for character in _result[k]:
 					character = parse_json(character) # convert character json string to dictionary.
-					print(character["name"] + " found.")
+					# print(character["name"] + " found.")
 					list_characters.append(character)
 				get_tree().change_scene("res://window_character_select.tscn")
 			if k == "localmap":
