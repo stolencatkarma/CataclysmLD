@@ -26,7 +26,7 @@ func _input(event):
 			if event.button_index == 2: # right click
 				print("Tile right clicked at: ", highlighted_coord)
 				# create super-menu with available options what can be done to the clicked tile.
-				
+				get_parent().get_parent().get_parent().get_node("Interface/SuperMenu").visible = true
 
 func _process(delta):
     update()

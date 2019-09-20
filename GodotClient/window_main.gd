@@ -48,11 +48,11 @@ func _physics_process(delta):
 						creature_index = $creature_tilemap.get_tileset().find_tile_by_name(tile["creature"]["ident"])
 						$creature_tilemap.set_cellv( xy, creature_index )
 				# basic lighting engine
-				if(tile['lumens']>0):
+				if(tile['lumens'] > 0):
 					var light = light_scene.instance()
 					light.position = Vector2(xy.x*32, xy.y*32)
-					light.get_node("Light2D").energy = tile['lumens']/10
-					lights.add_child(light)
+					light.get_node("Light2D").energy = tile['lumens']/10 + 0.1 
+					lights.add_child(light) 
 				
 				
 		# finally set back to false until we recieve a new localmap from the server

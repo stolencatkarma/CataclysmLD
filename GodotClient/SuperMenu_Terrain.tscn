@@ -1,0 +1,18 @@
+[gd_scene format=2]
+
+[node name="SuperMenu_Terrain" type="Control"]
+margin_right = 48.0
+margin_bottom = 45.0
+
+[node name="GridContainer" type="GridContainer" parent="."]
+
+[node name="Move" type="Button" parent="GridContainer"]
+margin_right = 47.0
+margin_bottom = 20.0
+text = "Move"
+
+[node name="Build" type="Button" parent="GridContainer"]
+margin_top = 24.0
+margin_right = 47.0
+margin_bottom = 44.0
+text = "Build"
