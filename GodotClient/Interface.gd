@@ -45,7 +45,14 @@ func _input(event):
 					manager_connection.client.put_data(to_send)
 				
 			if event.button_index == 2: # right click
-				print("Tile right clicked at: ", highlighted_coord)
+				print("Tile right clicked at: ", coordpos)
+				for chunk in manager_connection.localmap_chunks:
+					for tile in chunk['tiles']:
+						if tile['position']['x'] == coordpos.x:
+							if tile['position']['y'] == coordpos.y:
+								clicked_tile = tile
+								print(clicked_tile)
+								break
 				# create super-menu with available options what can be done to the clicked tile.
 				self.get_node("SuperMenu").visible = true
 				self.get_node("SuperMenu").is_open = true

@@ -32,7 +32,6 @@ render_target_update_mode = 3
 script = ExtResource( 2 )
 
 [node name="CanvasModulate" type="CanvasModulate" parent="ViewportContainer/Viewport/node_window_main"]
-visible = false
 color = Color( 0.0196078, 0.0196078, 0.0196078, 1 )
 
 [node name="terrain_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]

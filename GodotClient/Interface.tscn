@@ -55,3 +55,7 @@ margin_bottom = 249.267
 
 [node name="SuperMenu" parent="." instance=ExtResource( 8 )]
 visible = false
+margin_left = 408.114
+margin_top = 199.045
+margin_right = 478.114
+margin_bottom = 315.045
