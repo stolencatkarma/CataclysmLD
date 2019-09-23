@@ -5,4 +5,4 @@ func _ready():
 
 func move_pressed():
 	self.visible = false
-	get_parent().is_open = false
+	get_parent().get_node("SuperMenu").is_open = false
