@@ -25,28 +25,30 @@ func terrain_pressed():
 
 func _input(event):
 	if event is InputEventMouseMotion:
-		var mousepos = get_global_mouse_position()
-		var coordpos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").world_to_map( mousepos )
-		highlighted_coord = coordpos
-		print(highlighted_coord)
+		var mousepos = get_parent().get_global_mouse_position()
+		highlighted_coord = Vector2(int(mousepos.x/32), int(mousepos.y/32))
 		
 	if event is InputEventMouseButton:
+		var mousepos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").get_global_mouse_position()
+		var coordpos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").world_to_map( mousepos )
 		if event.is_pressed(): # button pressed.
 			if event.button_index == 1: # left click
-				var draw_z = 0 #TODO: set this to z of where the player is looking.
+				if self.get_node("SuperMenu").is_open == false:
+					var draw_z = 0 #TODO: set this to z of where the player is looking.
+					
+					var calulated_move = Dictionary()
+					calulated_move["ident"] = manager_connection.character_name
+					calulated_move["command"] = "calculated_move"
+					calulated_move["args"] = [coordpos[0], coordpos[1], draw_z] 
+					print("Tile clicked at: ", calulated_move["args"])
+					var to_send = JSON.print(calulated_move).to_utf8()
+					manager_connection.client.put_data(to_send)
 				
-				var calulated_move = Dictionary()
-				calulated_move["ident"] = manager_connection.character_name
-				calulated_move["command"] = "calculated_move"
-				calulated_move["args"] = [highlighted_coord[0], highlighted_coord[1], draw_z] 
-				print("Tile clicked at: ", calulated_move["args"])
-				var to_send = JSON.print(calulated_move).to_utf8()
-				# manager_connection.client.put_data(to_send)
-			
 			if event.button_index == 2: # right click
 				print("Tile right clicked at: ", highlighted_coord)
 				# create super-menu with available options what can be done to the clicked tile.
 				self.get_node("SuperMenu").visible = true
+				self.get_node("SuperMenu").is_open = true
 
 func _process(delta):
     update()
@@ -54,8 +56,8 @@ func _process(delta):
 func _draw():
 		var sizex = tilemap_cell_size.x
 		var sizey = tilemap_cell_size.y
-		var x = highlighted_coord.x * sizex
-		var y = highlighted_coord.y * sizey
+		var x = highlighted_coord.x * sizex + 12
+		var y = highlighted_coord.y * sizey + 16
 		# first horizontal line
 		draw_line( Vector2( x, y ), Vector2( x + sizex, y ), color )
 		# second horizontal line
