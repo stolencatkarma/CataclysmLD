@@ -36,12 +36,12 @@ func _input(event):
 				if self.get_node("SuperMenu").is_open == false:
 					var draw_z = 0 #TODO: set this to z of where the player is looking.
 					
-					var calulated_move = Dictionary()
-					calulated_move["ident"] = manager_connection.character_name
-					calulated_move["command"] = "calculated_move"
-					calulated_move["args"] = [coordpos[0], coordpos[1], draw_z] 
-					print("Tile clicked at: ", calulated_move["args"])
-					var to_send = JSON.print(calulated_move).to_utf8()
+					var calculated_move = Dictionary()
+					calculated_move["ident"] = manager_connection.character_name
+					calculated_move["command"] = "calculated_move"
+					calculated_move["args"] = [coordpos[0], coordpos[1], draw_z] 
+					print("Tile clicked at: ", calculated_move["args"])
+					var to_send = JSON.print(calculated_move).to_utf8()
 					manager_connection.client.put_data(to_send)
 				
 			if event.button_index == 2: # right click
