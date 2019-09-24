@@ -1,0 +1,58 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/background_login.png" type="Texture" id=1]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/ui_connect.png" type="Texture" id=2]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/Scripts/button_ui_connect.gd" type="Script" id=3]
+
+
+
+
+
+
+[node name="Node2D" type="Node2D"]
+
+[node name="background_login" type="Sprite" parent="."]
+position = Vector2( 425, 240 )
+texture = ExtResource( 1 )
+
+[node name="ConnectButton" type="Button" parent="background_login"]
+margin_left = 126.536
+margin_top = 47.7166
+margin_right = 202.536
+margin_bottom = 85.7166
+icon = ExtResource( 2 )
+script = ExtResource( 3 )
+
+[node name="txt_username" type="TextEdit" parent="background_login"]
+margin_left = -75.8128
+margin_top = -114.302
+margin_right = 67.1872
+margin_bottom = -80.3024
+text = "q"
+
+[node name="txt_password" type="TextEdit" parent="background_login"]
+margin_left = -79.3119
+margin_top = -50.1531
+margin_right = 63.6881
+margin_bottom = -16.1531
+text = "q"
+
+[node name="txt_IP" type="TextEdit" parent="background_login"]
+margin_left = -147.0
+margin_top = 16.0
+margin_right = -68.0
+margin_bottom = 41.0
+text = "127.0.0.1"
+
+[node name="txt_PORT" type="TextEdit" parent="background_login"]
+margin_left = -49.0266
+margin_top = 14.8336
+margin_right = 29.9734
+margin_bottom = 39.8336
+text = "6317"
+
+[node name="checkbox_save_password" type="CheckBox" parent="background_login"]
+margin_left = -127.132
+margin_top = -16.3289
+margin_right = -103.132
+margin_bottom = 7.67108

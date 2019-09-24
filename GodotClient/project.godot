@@ -16,12 +16,12 @@ _global_script_class_icons={
 [application]
 
 config/name="LoomingDarkness"
-run/main_scene="res://window_login.tscn"
+run/main_scene="res://Scenes/Game_Menus/Login_Menu/window_login.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-manager_connection="*res://manager_connection.gd"
+manager_connection="*res://Scenes/Game_Main/Scripts/manager_connection.gd"
 
 [debug]
 
