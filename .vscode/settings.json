@@ -5,5 +5,5 @@
     "python.linting.pep8Enabled": false,
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": false,
-    "python.pythonPath": "C:\\Users\\enjia\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
+    "python.pythonPath": "C:\\Users\\enjia\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
 }

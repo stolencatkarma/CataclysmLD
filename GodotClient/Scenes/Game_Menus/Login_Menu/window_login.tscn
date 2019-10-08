@@ -4,11 +4,6 @@
 [ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/ui_connect.png" type="Texture" id=2]
 [ext_resource path="res://Scenes/Game_Menus/Login_Menu/Scripts/button_ui_connect.gd" type="Script" id=3]
 
-
-
-
-
-
 [node name="Node2D" type="Node2D"]
 
 [node name="background_login" type="Sprite" parent="."]
