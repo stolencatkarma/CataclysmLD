@@ -54,8 +54,8 @@ class Chunk(dict):
 class Worldmap(dict):
     # let's make the world map and fill it with chunks!
 
-    def __init__(self, WORLD_SIZE):  # size in chunks along one axis.
-        self["WORLD_SIZE"] = WORLD_SIZE
+    def __init__(self, size):  # size in chunks along one axis.
+        self["WORLD_SIZE"] = size
         self["WORLDMAP"] = dict()  # dict of dicts for chunks
         self["chunk_size"] = 13  # size of the chunk, leave it hardcoded here. (0-12)
         start = time.time()

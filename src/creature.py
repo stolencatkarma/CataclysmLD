@@ -1,8 +1,4 @@
 # defines base creature in the base. all monsters, Characters, npcs, and critters derive from this.
-import sys
-import os
-import json
-
 from src.bodypart import Bodypart
 
 
