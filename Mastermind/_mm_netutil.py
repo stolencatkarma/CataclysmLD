@@ -26,7 +26,7 @@ def packet_recv_tcp(sock):
     #data_str = str(data_str).rstrip('\x00')
     #data_str = str(data_str).rstrip('\r')
     #data_str = str(data_str).rstrip('<')
-    # print('###' + data_str)
+    print('###' + data_str)
     if(len(data_str) < 1):
         return ('disconnect', True)
     data = json.loads(data_str)

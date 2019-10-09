@@ -16,10 +16,16 @@ func _ready():
 	# if vehicle -> enter, ride on top, other (to be implemented chapter 2)
 	# if trap -> disarm, trigger,
 	$SuperMenu.get_node("Terrain").connect("button_down", self, "terrain_pressed") 
+	$SuperMenu.get_node("Furniture").connect("button_down", self, "furniture_pressed") 
 
 func terrain_pressed():
 	# create instance of SuperMenu_Terrain and give it what it needs.
 	$SuperMenu_Terrain.visible = true
+	$SuperMenu.visible = false
+	
+func furniture_pressed():
+	# create instance of SuperMenu_Terrain and give it what it needs.
+	$SuperMenu_Furniture.visible = true
 	$SuperMenu.visible = false
 
 

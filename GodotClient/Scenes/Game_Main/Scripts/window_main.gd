@@ -35,6 +35,10 @@ func _physics_process(delta):
 					var furniture_index = $furniture_tilemap.get_tileset().find_tile_by_name(tile["furniture"]["ident"])
 					$furniture_tilemap.set_cellv( xy, furniture_index )
 				
+				if len(tile["items"]) > 0:
+					var items_index = $items_tilemap.get_tileset().find_tile_by_name(tile["items"][0]["ident"])
+					$items_tilemap.set_cellv( xy, items_index )
+					
 				if tile["creature"]:
 					var creature_index = 0
 					if tile["creature"]['tile_ident']: # this is a player
@@ -48,7 +52,7 @@ func _physics_process(delta):
 						creature_index = $creature_tilemap.get_tileset().find_tile_by_name(tile["creature"]["ident"])
 						$creature_tilemap.set_cellv( xy, creature_index )
 				# basic lighting engine
-				if(tile['lumens'] > 0):
+				if(tile['lumens'] > 100):
 					var light = light_scene.instance()
 					light.position = Vector2(xy.x*32, xy.y*32)
 					light.get_node("Light2D").energy = tile['lumens']/10 + 0.1 

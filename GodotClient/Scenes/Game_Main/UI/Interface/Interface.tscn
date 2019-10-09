@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Scenes/Game_Main/UI/Interface/Scripts/Interface.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Game_Main/UI/Interface/minimap.tscn" type="PackedScene" id=2]
@@ -8,15 +8,7 @@
 [ext_resource path="res://Scenes/Game_Main/UI/Interface/misc.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Scenes/Game_Main/UI/Super_Menu/SuperMenu_Terrain.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Game_Main/UI/Super_Menu/SuperMenu.tscn" type="PackedScene" id=8]
-
-
-
-
-
-
-
-
-
+[ext_resource path="res://Scenes/Game_Main/UI/Super_Menu/SuperMenu_Furniture.tscn" type="PackedScene" id=9]
 
 [node name="Interface" type="Node2D"]
 script = ExtResource( 1 )
@@ -68,3 +60,10 @@ margin_left = 408.114
 margin_top = 199.045
 margin_right = 478.114
 margin_bottom = 315.045
+
+[node name="SuperMenu_Furniture" parent="." instance=ExtResource( 9 )]
+visible = false
+margin_left = 480.212
+margin_top = 197.254
+margin_right = 480.212
+margin_bottom = 197.254

@@ -42,7 +42,7 @@ class Server(MastermindServerTCP):
     def __init__(self, config, logger=None):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
         self._config = config
-        if logger == None:
+        if logger is None:
             logging.basicConfig()
             self._log = logging.getLogger("root")
             self._log.warn(
@@ -227,9 +227,11 @@ class Server(MastermindServerTCP):
                 data, connection_object.address
             )
         )
-        if(data == 'disconnect'):
+        if data == "disconnect":
+            print('got disconnect signal')
             connection_object.terminate()
             return
+
         try:
             _command = Command(data["ident"], data["command"], data["args"])
         except:
@@ -361,9 +363,13 @@ class Server(MastermindServerTCP):
                 )
 
             if _command["command"] == "bash":
-                self.characters[data["ident"]]["command_queue"].append(
-                    Action(self.characters[data["ident"]], "bash", [data["args"][0]])
-                )
+                _position = Position(data["args"][0], data["args"][1], data["args"][2])
+                _action = Action('bash', _position)
+                self.characters[data["ident"]]["command_queue"].append(_action)
+                
+                _container = {"ping": 'pong'}
+                self.callback_client_send(connection_object, json.dumps(_container))
+                
 
             if _command["command"] == "create_blueprint":  # [result, direction])
                 # args 0 is ident args 1 is direction.
@@ -449,29 +455,17 @@ class Server(MastermindServerTCP):
                     # print(_x, _y, _z)
                     # print(_next_x, _next_y, _next_z)
                     if _x > _next_x:
-                        action = Action(
-                            self.characters[data["ident"]]["name"], "move", ["west"]
-                        )
+                        action = Action("move", ["west"])
                     elif _x < _next_x:
-                        action = Action(
-                            self.characters[data["ident"]]["name"], "move", ["east"]
-                        )
+                        action = Action("move", ["east"])
                     elif _y > _next_y:
-                        action = Action(
-                            self.characters[data["ident"]]["name"], "move", ["north"]
-                        )
+                        action = Action("move", ["north"])
                     elif _y < _next_y:
-                        action = Action(
-                            self.characters[data["ident"]]["name"], "move", ["south"]
-                        )
+                        action = Action("move", ["south"])
                     elif _z < _next_z:
-                        action = Action(
-                            self.characters[data["ident"]]["name"], "move", ["up"]
-                        )
+                        action = Action("move", ["up"])
                     elif _z > _next_z:
-                        action = Action(
-                            self.characters[data["ident"]]["name"], "move", ["down"]
-                        )
+                        action = Action("move", ["down"])
                     else:
                         _x = _next_x
                         _y = _next_y
@@ -498,7 +492,7 @@ class Server(MastermindServerTCP):
                         break
 
                 # we didn't find one, character sent bad information (possible hack?)
-                if _from_item == None:
+                if _from_item is None:
                     return
 
                 # make a list of open_containers the character has to see if they can pick it up.
@@ -590,7 +584,7 @@ class Server(MastermindServerTCP):
                             _to_list.append(_item)
                             return
 
-                ### possible move types ###
+                # ## possible move types ##
                 # creature(held) to creature(held) (give to another character)
                 # creature(held) to position(ground) (drop)
                 # creature(held) to bodypart (equip)
@@ -735,67 +729,42 @@ class Server(MastermindServerTCP):
                         )
                     creature["command_queue"].remove(action)
             elif action["action_type"] == "bash":
+                pprint.pprint(action)
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
-                if action["args"][0] == "south":
-                    self.worldmap.bash(
-                        self.characters[creature["name"]],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"] + 1,
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    )
-                    self.localmaps[
-                        creature["name"]
-                    ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature["name"]]["position"]
-                    )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "north":
-                    self.worldmap.bash(
-                        self.characters[creature["name"]],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"] - 1,
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    )
-                    self.localmaps[
-                        creature["name"]
-                    ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature["name"]]["position"]
-                    )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "east":
-                    self.worldmap.bash(
-                        self.characters[creature["name"]],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"] + 1,
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    )
-                    self.localmaps[
-                        creature["name"]
-                    ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature["name"]]["position"]
-                    )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "west":
-                    self.worldmap.bash(
-                        self.characters[creature["name"]],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"] - 1,
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    )
-                    self.localmaps[
-                        creature["name"]
-                    ] = self.worldmap.get_chunks_near_position(
-                        self.characters[creature["name"]]["position"]
-                    )
-                    creature["command_queue"].remove(action)
+                self.bash(
+                    self.characters[creature["name"]],
+                    Position(
+                        action["args"]['x'],
+                        action["args"]['y'],
+                        action["args"]['z']
+                    ),
+                )
+                self.localmaps[
+                    creature["name"]
+                ] = self.worldmap.get_chunks_near_position(
+                    self.characters[creature["name"]]["position"]
+                )
+                creature["command_queue"].remove(action)
+
+    # catch-all for bash/smash
+    # since we bash in a direction we need to check what's in the tile.
+    def bash(self, creature, position):
+        tile = self.worldmap.get_tile_by_position(position)
+        # strength = creature strength.
+        if tile["furniture"] is not None:
+            furniture_type = self.FurnitureManager.FURNITURE_TYPES[
+                tile["furniture"]["ident"]
+            ]
+            for item in furniture_type["bash"]["items"]:
+                self.worldmap.put_object_at_position(
+                    Item(
+                        self.ItemManager.ITEM_TYPES[str(item["item"])]["ident"],
+                        self.ItemManager.ITEM_TYPES[str(item["item"])],
+                    ),
+                    position,
+                )  # need to pass the reference to load the item with data.
+            tile["furniture"] = None
+        return                
 
     def compute_turn(self):
         # this function handles overseeing all creature movement, attacks, and interactions
@@ -813,17 +782,18 @@ class Server(MastermindServerTCP):
                         if isinstance(item, Blueprint):
                             continue
                         # this item produces light.
-                        for flag in self.ItemManager.ITEM_TYPES[item["ident"]]["flags"]:
-                            if flag.split("_")[0] == "LIGHT":
-                                for (
-                                    tile,
-                                    distance,
-                                ) in self.worldmap.get_tiles_near_position(
-                                    tile["position"], int(flag.split("_")[1])
-                                ):
-                                    tile["lumens"] = tile["lumens"] + int(
-                                        int(flag.split("_")[1]) - distance
-                                    )
+                        if("flags" in self.ItemManager.ITEM_TYPES[item["ident"]]):
+                            for flag in self.ItemManager.ITEM_TYPES[item["ident"]]["flags"]:
+                                if flag.split("_")[0] == "LIGHT":
+                                    for (
+                                        tile,
+                                        distance,
+                                    ) in self.worldmap.get_tiles_near_position(
+                                        tile["position"], int(flag.split("_")[1])
+                                    ):
+                                        tile["lumens"] = tile["lumens"] + int(
+                                            int(flag.split("_")[1]) - distance
+                                        )
                     if tile["furniture"] is not None:
                         for key in self.FurnitureManager.FURNITURE_TYPES[
                             tile["furniture"]["ident"]
@@ -1025,32 +995,29 @@ if __name__ == "__main__":
     print("Started Cataclysm: Looming Darkness. Clients may now connect.")
     while dont_break:
         try:
-            while (
-                time.time() - last_turn_time < time_offset
-            ):  # try to keep up with the time offset but never go faster than it.
-                time.sleep(spin_delay_ms)
-            server.calendar.advance_time_by_x_seconds(
-                time_per_turn
-            )  # a turn is one second.
-            # where all queued creature actions get taken care of, as well as physics engine stuff.
-            server.compute_turn()
-            # if the worldmap in memory changed update it on the hard drive.
-            server.worldmap.update_chunks_on_disk()
-            # TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
-            last_turn_time = time.time()  # based off of system clock.
-        except KeyboardInterrupt:
-            print("cleaning up before exiting.")
+            # keep up with the time offset but never go faster than it.
+            if (time.time() - last_turn_time < time_offset):  
+                pass
+            else:
+                # a turn is normally one second.
+                server.calendar.advance_time_by_x_seconds(time_per_turn)
+                
+                # where all queued creature actions get taken care of, as well as physics engine stuff.
+                server.compute_turn()
+                
+                # if the worldmap in memory changed update it on the hard drive.
+                server.worldmap.update_chunks_on_disk()
+                
+                # TODO: unload from memory chunks that have no updates required. (such as no monsters, Characters, or fires)
+                last_turn_time = time.time()  # based off of system clock.
+
+        except (KeyboardInterrupt):
+            print("Cleaning up before exiting.")
             server.accepting_disallow()
             server.disconnect_clients()
             server.disconnect()
             # if the worldmap in memory changed update it on the hard drive.
             server.worldmap.update_chunks_on_disk()
             dont_break = False
-            print("done cleaning up.")
-        except Exception as e:
-            server.accepting_disallow()
-            server.disconnect_clients()
-            server.disconnect()
-            server.worldmap.update_chunks_on_disk()  # if the worldmap in memory changed update it on the hard drive.
-            dont_break = False
-            sys.exit()
+            print("Done cleaning up.")
+        

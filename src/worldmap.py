@@ -82,7 +82,7 @@ class Worldmap(dict):
                     ):  # if the chunk already exists on disk just load it.
                         with open(path, "r") as fp:
                             self["WORLDMAP"][i][j][k] = json.loads(fp.read())
-                            self["WORLDMAP"][i][j][k]['was_loaded'] = "yes"
+                            self["WORLDMAP"][i][j][k]["was_loaded"] = "yes"
                         if count < self["WORLD_SIZE"] - 1:
                             count = count + 1
                         else:
@@ -241,8 +241,8 @@ class Worldmap(dict):
 
     def get_character(self, ident):
         for tile in self.get_all_tiles():
-            if tile["creature"] is not None and tile["creature"]['name'] == ident:
-                print("found player:" + tile["creature"]['name'])
+            if tile["creature"] is not None and tile["creature"]["name"] == ident:
+                print("found player:" + tile["creature"]["name"])
                 return tile["creature"]
         else:
             return None
@@ -251,8 +251,8 @@ class Worldmap(dict):
     def get_all_characters(self):
         _ret_list = []
         for tile in self.get_all_tiles():
-            if tile["creature"] is not None and tile["creature"]['name'] is not None:
-                print("found player:" + tile["creature"]['name'])
+            if tile["creature"] is not None and tile["creature"]["name"] is not None:
+                print("found player:" + tile["creature"]["name"])
                 _ret_list.append(tile["creature"])
 
         return _ret_list
@@ -354,12 +354,12 @@ class Worldmap(dict):
                     return False
         self.get_chunk_by_position(from_position)["is_dirty"] = True
         self.get_chunk_by_position(to_position)["is_dirty"] = True
-    
+
         if to_tile["terrain"]["impassable"]:
             print("tile is impassable")
             return False
         # don't replace creatures in the tile if we move over them.
-        if (to_tile["creature"] is not None):
+        if to_tile["creature"] is not None:
             print("creature is impassable")
             return False
         # print("moving checks passed")
@@ -367,41 +367,7 @@ class Worldmap(dict):
         from_tile["creature"] = None
         return True
 
-
-    def bash(
-        self, object, position
-    ):  # catch-all for bash/smash (can probably use this for vehicle collisions aswell) object is object that is doing the bashing
-        # since we bash in a direction we need to check what's in the tile and go from there.
-        # both furniture and terrain can be bashed but we should assume that the player wants to bash the furniture first then terrain we will go in that order.
-        tile = self.get_tile_by_position(position)
-        terrain = tile["terrain"]
-        # strength = creature strength.
-        if tile["furniture"] is not None:
-            furniture_type = self.FurnitureManager.FURNITURE_TYPES[
-                tile["furniture"]["ident"]
-            ]
-            for item in furniture_type["bash"]["items"]:
-                self.put_object_at_position(
-                    Item(
-                        self.ItemManager.ITEM_TYPES[str(item["item"])]["ident"],
-                        self.ItemManager.ITEM_TYPES[str(item["item"])],
-                    ),
-                    position,
-                )  # need to pass the reference to load the item with data.
-            tile["furniture"] = None
-            # get the 'bash' dict for this object from furniture.json
-            # get 'str_min'
-            # if player can break it then delete the furniture and add the bash items from it to the tile.
-            return
-        if terrain is not None:
-            # get the 'bash' dict for this object from terrain.json if any
-            # if dict is not None:
-            # get 'str_min'
-            # if player can break it then delete the terrain and add the bash terrain from it to the tile.
-            return
-        return
-
-    def furniture_open(self, object, position):  # the object doing the opening.
+    def furniture_open(self, object, position):  # the object doing the opening
         tile = self.get_tile_by_position(position)
         furniture = tile["furniture"]
         if furniture is not None:
@@ -466,13 +432,13 @@ class Worldmap(dict):
         num_firedept = int(size / 12)
         num_jail = int(size / 12)
 
-        #print("num_residential: " + str(num_residential))
-        #print("num_commercial: " + str(num_commercial))
-        #print("num_industrial: " + str(num_industrial))
-        #print("num_hospitals: " + str(num_hospitals))
-        #print("num_police: " + str(num_police))
-        #print("num_firedept: " + str(num_firedept))
-        #print("num_jail: " + str(num_jail))
+        # print("num_residential: " + str(num_residential))
+        # print("num_commercial: " + str(num_commercial))
+        # print("num_industrial: " + str(num_industrial))
+        # print("num_hospitals: " + str(num_hospitals))
+        # print("num_police: " + str(num_police))
+        # print("num_firedept: " + str(num_firedept))
+        # print("num_jail: " + str(num_jail))
 
         # put road every 4th tile with houses on either side.
         for j in range(1, size - 1):

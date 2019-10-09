@@ -1,6 +1,5 @@
 
 class Action(dict):
-    def __init__(self, owner, action_type, args=[]):
-        self['owner'] = owner
+    def __init__(self, action_type, args=[]):
         self['action_type'] = action_type
         self['args'] = args
