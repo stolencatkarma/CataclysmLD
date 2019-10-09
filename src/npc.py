@@ -17,4 +17,3 @@ class Npc(Creature):
         self.marked_for_death = False
         self.dead = False
         self.mission = None
-

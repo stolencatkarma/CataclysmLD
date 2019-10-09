@@ -1,15 +1,16 @@
 import sys
 
-from .furniture import Furniture
-from .terrain import Terrain
+# is a physical representation of a recipe while it's being built in the world.
+# # once built it 'turns' into the type and fills the worldmap with it.
 
 
-class Blueprint(): # is a physical representation of a recipe while it's being built in the world. # once built it 'turns' into the type and fills the worldmap with it.
+class Blueprint():
     def __init__(self, type_of, recipe):
         valid_types = ['Terrain', 'Furniture', 'Item']
         self['ident'] = 'Blueprint'
         self.recipe = recipe
-        self.turns_worked_on = 0 # when this reaches self.recipe['time'] then we need to 'turn' it into the object.
+        # when this reaches self.recipe['time'] then we need to 'turn' it into the object.
+        self.turns_worked_on = 0
         self.contained_items = list()
 
         if(str(type_of) not in valid_types):
@@ -29,15 +30,17 @@ class Blueprint(): # is a physical representation of a recipe while it's being b
     def work_on(self):
         # when a creature 'works on' this blueprint
         # first check if the required materials are present.
-        # do we have a threshold for removing materials or create a list from the materials once we start and remove 1 every so often?
-        #  e.g. recipe has 5 materials and takes 10 turns, remove 1 material every 2 turns. (self.turns_worked_on / int(self.recipe['time']))
+        # do we have a threshold for removing materials or create a list from the materials once
+        # we start and remove 1 every so often?
+        #  e.g. recipe has 5 materials and takes 10 turns, remove 1 material every 2 turns.
+        # (self.turns_worked_on / int(self.recipe['time']))
 
         # recipes have OR and AND components. how do we handle that?
         pass
-    
+
     def add_item(self, item_or_list):
         print('Trying to add item to contained_items')
-       
+
         # if item not in recipe items return False else return True
         if(isinstance(item_or_list, list)):
             # got a list of items to add
@@ -47,7 +50,8 @@ class Blueprint(): # is a physical representation of a recipe while it's being b
                         # this item belongs in this recipe.
                         break
                 else:
-                    return False # item passed doesn't belong in to this recipe.
+                    # item passed doesn't belong in to this recipe.
+                    return False
             # if we made it this far then every item in the list belongs to the recipe.
             for item in item_or_list:
                 self.contained_items.append(item)
@@ -59,10 +63,8 @@ class Blueprint(): # is a physical representation of a recipe while it's being b
                     # this item belongs in this recipe.
                     break
             else:
-                return False # item passed doesn't belong in to this recipe.
+                return False  # item passed doesn't belong in to this recipe.
             # if we made it this far then every item in the list belongs to the recipe.
             for item in item_or_list:
                 self.contained_items.append(item)
             return True
-
-

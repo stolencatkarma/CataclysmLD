@@ -1,8 +1,8 @@
 from collections import defaultdict
 import json
-import pprint
 import os
 import sys
+
 
 class Profession(dict):
     def __init__(self, ident='generic'):
@@ -19,7 +19,7 @@ class ProfessionManager:
         for root, _, files in os.walk('./data/json/professions/'):
             for file_data in files:
                 if file_data.endswith('.json'):
-                    with open(root+'/'+file_data, encoding='utf-8') as data_file: 
+                    with open(root+'/'+file_data, encoding='utf-8') as data_file:
                         data = json.load(data_file)
                     for item in data:
                         try:
@@ -28,17 +28,21 @@ class ProfessionManager:
                                 if(isinstance(value, list)):
                                     self.PROFESSIONS[item['ident']][key] = []
                                     for add_value in value:
-                                        self.PROFESSIONS[item['ident']][key].append(str(add_value))
+                                        self.PROFESSIONS[item['ident']][key].append(
+                                            str(add_value))
                                 elif(isinstance(value, dict)):
                                     self.PROFESSIONS[item['ident']][key] = {}
                                     for add_key, add_value in value.items():
-                                        self.PROFESSIONS[item['ident']][key][add_key] = add_value
+                                        self.PROFESSIONS[item['ident']
+                                                         ][key][add_key] = add_value
                                 else:
-                                    self.PROFESSIONS[item['ident']][key] = str(value)
-                            #print(self.PROFESSIONS[item['ident']])
+                                    self.PROFESSIONS[item['ident']][key] = str(
+                                        value)
+                            # print(self.PROFESSIONS[item['ident']])
                         except Exception:
                             print()
-                            print('!! couldn\'t parse: ' + str(item) + ' -- likely missing ident.')
+                            print('!! couldn\'t parse: ' + str(item) +
+                                  ' -- likely missing ident.')
                             print()
                             sys.exit()
 

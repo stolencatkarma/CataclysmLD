@@ -1,6 +1,7 @@
 from src.profession import Profession
 from src.creature import Creature
 
+
 class Character(Creature):
     def __init__(self, name="John Doe"):
         Creature.__init__(self)
@@ -10,4 +11,3 @@ class Character(Creature):
 
     def __str__(self):
         return self['name'] + " the " + str(self['profession'])
-

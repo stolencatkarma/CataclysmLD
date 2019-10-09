@@ -1,15 +1,12 @@
 import json
 import os
-import pprint
 import random
 import time
-import logging
 
 from src.blueprint import Blueprint
 from src.creature import Creature
 from src.furniture import Furniture
 from src.item import Item
-from src.lighting import Lighting
 from src.monster import Monster
 from src.character import Character
 from src.position import Position
@@ -24,7 +21,8 @@ class Chunk(dict):
     ):  # x, y, z relate to it's position on the world map.
         self["tiles"] = list()
         self["weather"] = "WEATHER_NONE"  # weather is per chunk.
-        self["overmap_tile"] = "open_air"  # the tile represented on the over map
+        # the tile represented on the over map
+        self["overmap_tile"] = "open_air"
         # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
         self["is_dirty"] = True
         self["was_loaded"] = False
@@ -32,14 +30,16 @@ class Chunk(dict):
         for i in range(chunk_size):  # 0-13
             for j in range(chunk_size):  # 0-13
                 chunkdict = {}
+                # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
                 chunkdict["position"] = Position(
-                    i + int(x * chunk_size), j + int(y * chunk_size), z
-                )  # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
+                    i + int(x * chunk_size), j + int(y * chunk_size), z)
                 if int(z) <= 0:
                     chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
                 else:
-                    chunkdict["terrain"] = Terrain("t_open_air")  # make the air
-                chunkdict["creature"] = None  # Creature() # one creature per tile
+                    chunkdict["terrain"] = Terrain(
+                        "t_open_air")  # make the air
+                # Creature() # one creature per tile
+                chunkdict["creature"] = None
                 chunkdict["items"] = []  # can be zero to many items in a tile.
                 chunkdict["furniture"] = None  # single furniture per tile
                 chunkdict["vehicle"] = None  # one per tile
@@ -57,7 +57,8 @@ class Worldmap(dict):
     def __init__(self, size):  # size in chunks along one axis.
         self["WORLD_SIZE"] = size
         self["WORLDMAP"] = dict()  # dict of dicts for chunks
-        self["chunk_size"] = 13  # size of the chunk, leave it hardcoded here. (0-12)
+        # size of the chunk, leave it hardcoded here. (0-12)
+        self["chunk_size"] = 13
         start = time.time()
         # TODO: only need to load the chunks where there are actual Characters present in memory after generation.
         print("creating/loading world chunks")
@@ -65,7 +66,8 @@ class Worldmap(dict):
         for i in range(self["WORLD_SIZE"]):
             self["WORLDMAP"][i] = dict()
             for j in range(self["WORLD_SIZE"]):
-                for k in range(0, 1):  # just load z0 for now. load the rest as needed.
+                # just load z0 for now. load the rest as needed.
+                for k in range(0, 1):
                     self["WORLDMAP"][i][j] = dict()
                     path = str(
                         "./worlds/default/"
@@ -88,7 +90,8 @@ class Worldmap(dict):
                         else:
                             count = 0
                     else:
-                        self["WORLDMAP"][i][j][k] = Chunk(i, j, k, self["chunk_size"])
+                        self["WORLDMAP"][i][j][k] = Chunk(
+                            i, j, k, self["chunk_size"])
                         with open(path, "w") as fp:
                             json.dump(self["WORLDMAP"][i][j][k], fp)
 
@@ -119,10 +122,9 @@ class Worldmap(dict):
                                 json.dump(chunk, fp)
 
     def get_chunk_by_position(self, position):
-        tile = self.get_tile_by_position(
-            position
-        )  # check and see if it exists if not create it.
-        x_count = 0  #
+        # check and see if it exists if not create it.
+        tile = self.get_tile_by_position(position)
+        x_count = 0
         x = position["x"]
         while x >= self["chunk_size"]:
             x = x - self["chunk_size"]
@@ -208,23 +210,27 @@ class Worldmap(dict):
             Position(x + self["chunk_size"], y + self["chunk_size"], z)
         )
         chunks.append(north_east_chunk)
-        north_chunk = self.get_chunk_by_position(Position(x + self["chunk_size"], y, z))
+        north_chunk = self.get_chunk_by_position(
+            Position(x + self["chunk_size"], y, z))
         chunks.append(north_chunk)
         north_west_chunk = self.get_chunk_by_position(
             Position(x + self["chunk_size"], y - self["chunk_size"], z)
         )
         chunks.append(north_west_chunk)
-        west_chunk = self.get_chunk_by_position(Position(x, y - self["chunk_size"], z))
+        west_chunk = self.get_chunk_by_position(
+            Position(x, y - self["chunk_size"], z))
         chunks.append(west_chunk)
         mid_chunk = self.get_chunk_by_position(Position(x, y, z))
         chunks.append(mid_chunk)
-        east_chunk = self.get_chunk_by_position(Position(x, y + self["chunk_size"], z))
+        east_chunk = self.get_chunk_by_position(
+            Position(x, y + self["chunk_size"], z))
         chunks.append(east_chunk)
         south_west_chunk = self.get_chunk_by_position(
             Position(x - self["chunk_size"], y - self["chunk_size"], z)
         )
         chunks.append(south_west_chunk)
-        south_chunk = self.get_chunk_by_position(Position(x - self["chunk_size"], y, z))
+        south_chunk = self.get_chunk_by_position(
+            Position(x - self["chunk_size"], y, z))
         chunks.append(south_chunk)
         south_east_chunk = self.get_chunk_by_position(
             Position(x - self["chunk_size"], y + self["chunk_size"], z)
@@ -276,9 +282,9 @@ class Worldmap(dict):
         elif isinstance(obj, Furniture):
             tile["furniture"] = obj
             return
-        elif isinstance(
-            obj, Blueprint
-        ):  # a blueprint takes up the slot that the final object is. e.g Terrain blueprint takes up the Terrain slot in the world map.
+        # a blueprint takes up the slot that the final object is.
+        # e.g Terrain blueprint takes up the Terrain slot in the world map.
+        elif isinstance(obj, Blueprint):
             if obj.type_of == "Terrain":
                 tile["terrain"] = obj
                 return
@@ -315,7 +321,8 @@ class Worldmap(dict):
                 i = 0
                 for char in row:
                     impassable = False
-                    t_position = Position(position["x"] + i, position["y"] + j, k)
+                    t_position = Position(
+                        position["x"] + i, position["y"] + j, k)
                     self.put_object_at_position(
                         Terrain(fill_terrain, impassable), t_position
                     )  # use fill_terrain if unrecognized.
@@ -379,7 +386,8 @@ class Worldmap(dict):
             return False
         return
 
-    def furniture_close(self, object, position):  # the object doing the opening.
+    # the object doing the opening.
+    def furniture_close(self, object, position):
         tile = self.get_tile_by_position(position)
         furniture = tile["furniture"]
         if furniture is not None:
@@ -400,7 +408,8 @@ class Worldmap(dict):
                 dy = position["y"] - j
                 distance = max(abs(dx), abs(dy))
                 ret_tiles.append(
-                    (self.get_tile_by_position(Position(i, j, position["z"])), distance)
+                    (self.get_tile_by_position(
+                        Position(i, j, position["z"])), distance)
                 )
         return ret_tiles
 
@@ -452,7 +461,8 @@ class Worldmap(dict):
                     city_layout[i][j] = "R"
                 else:
                     if random.randrange(0, 10) == 0:
-                        city_layout[i][j] = "R"  # rarely build a road between roads.
+                        # rarely build a road between roads.
+                        city_layout[i][j] = "R"
                         continue
                     city_layout[i][j] = "B"  # else build a building.
 

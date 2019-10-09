@@ -1,53 +1,68 @@
 import json
 from collections import defaultdict
 
-class TileManager: # holds all the tile types from tile_config.json as well as terrain.json information because terrain can have a fg and bg
+
+# holds all the tile types from tile_config.json as well as terrain.json information
+# because terrain can have a fg and bg
+class TileManager:
     def __init__(self, tileset='Chesthole32'):
         self.tilemapPx = 32
         self.tilemapPy = 32
-        self.TILE_TYPES = defaultdict(dict) # the dict of tiles loaded from the tile_config.json
-        with open('./data/json/terrain.json') as data_file: # load terrain data as well.
+        # the dict of tiles loaded from the tile_config.json
+        self.TILE_TYPES = defaultdict(dict)
+        # load terrain data as well.
+        with open('./data/json/terrain.json') as data_file:
             data = json.load(data_file)
         for terrain in data:
-            #pprint(terrain)
-            if(not 'name' in terrain.keys()):
+            # pprint(terrain)
+            if('name' not in terrain.keys()):
                 terrain['name'] = None
             self.TILE_TYPES[terrain['ident']]['name'] = terrain['name']
-            if(not 'group' in terrain.keys()):
+            if('group' not in terrain.keys()):
                 terrain['group'] = None
             self.TILE_TYPES[terrain['ident']]['group'] = terrain['group']
-            if(not 'move_cost' in terrain.keys()):
+            if('move_cost' not in terrain.keys()):
                 terrain['move_cost'] = 0
-            self.TILE_TYPES[terrain['ident']]['move_cost'] = terrain['move_cost']
-            if(not 'open' in terrain.keys()):
+            self.TILE_TYPES[terrain['ident']
+                            ]['move_cost'] = terrain['move_cost']
+            if('open' not in terrain.keys()):
                 terrain['open'] = None
             self.TILE_TYPES[terrain['ident']]['open'] = terrain['open']
-            if(not 'close' in terrain.keys()):
+            if('close' not in terrain.keys()):
                 terrain['close'] = None
             self.TILE_TYPES[terrain['ident']]['close'] = terrain['close']
-            if(not 'description' in terrain.keys()):
+            if('description' not in terrain.keys()):
                 terrain['description'] = ''
-            self.TILE_TYPES[terrain['ident']]['description'] = terrain['description']
-            if(not 'flags' in terrain.keys()):
+            self.TILE_TYPES[terrain['ident']
+                            ]['description'] = terrain['description']
+            if('flags' not in terrain.keys()):
                 terrain['flags'] = None
             self.TILE_TYPES[terrain['ident']]['flags'] = terrain['flags']
-            if(not 'bash' in terrain.keys()):
+            if('bash' not in terrain.keys()):
                 terrain['bash'] = None
             self.TILE_TYPES[terrain['ident']]['bash'] = terrain['bash']
-            if(not 'transforms_into' in terrain.keys()):
+            if('transforms_into' not in terrain.keys()):
                 terrain['transforms_into'] = None
-            self.TILE_TYPES[terrain['ident']]['transforms_into'] = terrain['transforms_into']
-            if(not 'roof' in terrain.keys()):
+            self.TILE_TYPES[terrain['ident']
+                            ]['transforms_into'] = terrain['transforms_into']
+            if('roof' not in terrain.keys()):
                 terrain['roof'] = None
             self.TILE_TYPES[terrain['ident']]['roof'] = terrain['roof']
-            if(not 'harvest_season' in terrain.keys()):
+            if('harvest_season' not in terrain.keys()):
                 terrain['harvest_season'] = 'Summer'
-            self.TILE_TYPES[terrain['ident']]['harvest_season'] = terrain['harvest_season']
-            if(not 'deconstruct' in terrain.keys()):
+            self.TILE_TYPES[terrain['ident']
+                            ]['harvest_season'] = terrain['harvest_season']
+            if('deconstruct' not in terrain.keys()):
                 terrain['deconstruct'] = None
-            self.TILE_TYPES[terrain['ident']]['deconstruct'] = terrain['deconstruct']
+            self.TILE_TYPES[terrain['ident']
+                            ]['deconstruct'] = terrain['deconstruct']
 
-        # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
-        # keys_we_care_about = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'move_cost', 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close', 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
+        # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost',
+        # 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close',
+        # 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
+
+        # keys_we_care_about = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'move_cost',
+        # 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close',
+        # 'deconstruct', 'max_volume', 'transforms_into', 'harvest_by_season', 'description', 'harvest_season']
 
         print('total TILE_TYPES loaded: ' + str(len(self.TILE_TYPES)))
