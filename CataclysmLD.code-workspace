@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"editor.formatOnSave": false
+		"editor.formatOnSave": false,
+		"git.ignoreLimitWarning": true
 	}
 }
