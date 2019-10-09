@@ -1,5 +1,5 @@
 # defines base creature in the base. all monsters, Characters, npcs, and critters derive from this.
-from src.bodypart import Bodypart
+from .bodypart import Bodypart
 
 
 class Creature(dict):
@@ -17,13 +17,13 @@ class Creature(dict):
         self['command_queue'] = list()
         self['gender'] = 'male'
         self['radiation'] = 0  # radiation level. hurts some helps others.
-        
+
         # name is optional here. characters and most NPCs would have a name.
         self['name'] = None
-        
+
         self['in_vehicle'] = False  # other wise have a reference to the vehicle it's in.
         self['controlling_vehicle'] = False
-        
+
         # what is this creature able to do?
         self['possible_actions'] = [
             'move',

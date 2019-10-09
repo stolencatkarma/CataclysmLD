@@ -1,9 +1,12 @@
 {
     "git.ignoreLimitWarning": true,
-    "python.formatting.provider": "black",
     "python.linting.pylintEnabled": false,
     "python.linting.pycodestyleEnabled": false,
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=120"
+    ],
     "python.pythonPath": "C:\\Users\\enjia\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
+    
 }
