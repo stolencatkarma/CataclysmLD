@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Scenes/Game_Main/Interface/Scripts/Interface.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Game_Main/Interface/minimap.tscn" type="PackedScene" id=2]
@@ -9,6 +9,7 @@
 [ext_resource path="res://Scenes/Game_Main/Super_Menu/SuperMenu_Terrain.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Scenes/Game_Main/Super_Menu/SuperMenu.tscn" type="PackedScene" id=8]
 [ext_resource path="res://Scenes/Game_Main/Super_Menu/SuperMenu_Furniture.tscn" type="PackedScene" id=9]
+[ext_resource path="res://Scenes/Game_Main/Interface/Inventory.tscn" type="PackedScene" id=10]
 
 [node name="Interface" type="Node2D"]
 script = ExtResource( 1 )
@@ -67,3 +68,5 @@ margin_left = 480.212
 margin_top = 197.254
 margin_right = 480.212
 margin_bottom = 197.254
+
+[node name="Inventory" parent="." instance=ExtResource( 10 )]

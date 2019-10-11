@@ -15,15 +15,14 @@ func _physics_process(delta):
 		camera.position = player_position
 	# TODO: add a keypress to switch between locked and free camera. 
 	if manager_connection.should_update_localmap:
-
 		for light in lights.get_children():
 			light.queue_free()
 		$terrain_tilemap.clear()
 		$furniture_tilemap.clear()
 		$creature_tilemap.clear()
 		$players_tilemap.clear()
-		
-		
+		$items_tilemap.clear()
+
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:
 				var xy = Vector2( (tile['position']['x']), (tile['position']['y']) )
@@ -52,7 +51,7 @@ func _physics_process(delta):
 						creature_index = $creature_tilemap.get_tileset().find_tile_by_name(tile["creature"]["ident"])
 						$creature_tilemap.set_cellv( xy, creature_index )
 				# basic lighting engine
-				if(tile['lumens'] > 100):
+				if(tile['lumens'] > 10):
 					var light = light_scene.instance()
 					light.position = Vector2(xy.x*32, xy.y*32)
 					light.get_node("Light2D").energy = tile['lumens']/10 + 0.1 

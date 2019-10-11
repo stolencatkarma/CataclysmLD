@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Scenes/Game_Main/gfx/equipment_item_background.png" type="Texture" id=1]
+
+[node name="equipment_slot" type="Node2D"]
+
+[node name="TextureButton" type="TextureButton" parent="."]
+texture_normal = ExtResource( 1 )

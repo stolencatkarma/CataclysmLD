@@ -1012,12 +1012,13 @@ if __name__ == "__main__":
     server.accepting_allow()
 
     dont_break = True
-    time_offset = float(
-        defaultConfig.get("time_offset", 1.0)
-    )  # 0.5 is twice as fast, 2.0 is twice as slow
+    # 0.5 is twice as fast, 2.0 is twice as slow
+    time_offset = float(defaultConfig.get("time_offset", 1.0))
     last_turn_time = time.time()
     citySize = int(defaultConfig.get("city_size", 1))
     # print('City size: {}'.format(citySize))
+
+    # TODO: add variable to make it at world position.
     server.generate_and_apply_city_layout(citySize)
 
     time_per_turn = int(defaultConfig.get("time_per_turn", 1))
