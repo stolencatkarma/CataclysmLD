@@ -3,7 +3,6 @@
 [ext_resource path="res://Scenes/Game_Main/Interface/Scripts/equipment_slot.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Game_Main/gfx/equipment_item_background.png" type="Texture" id=2]
 
-
 [node name="equipment_slot" type="Node2D"]
 script = ExtResource( 1 )
 
@@ -11,5 +10,3 @@ script = ExtResource( 1 )
 margin_right = 32.0
 margin_bottom = 32.0
 texture = ExtResource( 2 )
-
-[node name="texture" type="TextureButton" parent="."]

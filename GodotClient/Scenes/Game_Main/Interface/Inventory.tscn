@@ -1,22 +1,114 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scenes/Game_Main/Interface/Scripts/Inventory.gd" type="Script" id=1]
 [ext_resource path="res://Scenes/Game_Main/gfx/equipment_overlay.png" type="Texture" id=2]
-[ext_resource path="res://Scenes/Game_Main/Interface/body_part.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Scenes/Game_Main/Interface/equipment_slot.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Game_Main/gfx/tilesets/Chesthole32/other.res" type="TileSet" id=3]
+[ext_resource path="res://Scenes/Game_Main/Interface/body_part.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Game_Main/Interface/equipment_slot.tscn" type="PackedScene" id=5]
 
 [node name="Inventory" type="Node2D"]
 script = ExtResource( 1 )
 
 [node name="background" type="TextureRect" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
+margin_right = 384.0
+margin_bottom = 480.0
 texture = ExtResource( 2 )
 
-[node name="body_part" parent="." instance=ExtResource( 3 )]
+[node name="inventory_tilemap" type="TileMap" parent="."]
+tile_set = ExtResource( 3 )
+cell_size = Vector2( 32, 32 )
+cell_quadrant_size = 32
+format = 1
 
-[node name="slot0" parent="body_part" instance=ExtResource( 4 )]
-position = Vector2( 141.828, 4.43213 )
+[node name="HEAD" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
 
-[node name="slot1" parent="body_part" instance=ExtResource( 4 )]
-position = Vector2( 222.714, 4.43213 )
+[node name="slot0" parent="HEAD" instance=ExtResource( 5 )]
+position = Vector2( 128, 0 )
+
+[node name="slot1" parent="HEAD" instance=ExtResource( 5 )]
+position = Vector2( 192, 0 )
+
+[node name="TORSO" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="TORSO" instance=ExtResource( 5 )]
+position = Vector2( 160, 64 )
+
+[node name="slot1" parent="TORSO" instance=ExtResource( 5 )]
+position = Vector2( 160, 96 )
+
+[node name="ARM_LEFT" parent="." instance=ExtResource( 4 )]
+
+[node name="slot0" parent="ARM_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 223.308, 60.9853 )
+
+[node name="slot1" parent="ARM_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 262.499, 64.3459 )
+
+[node name="HAND_LEFT" parent="." instance=ExtResource( 4 )]
+
+[node name="grabbed" parent="HAND_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 334.851, 121.625 )
+
+[node name="slot0" parent="HAND_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 224.816, 116.757 )
+
+[node name="slot1" parent="HAND_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 264.006, 120.117 )
+
+[node name="HAND_RIGHT" parent="." instance=ExtResource( 4 )]
+
+[node name="grabbed" parent="HAND_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 12.2807, 130.669 )
+
+[node name="slot0" parent="HAND_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 59.0081, 116.757 )
+
+[node name="slot1" parent="HAND_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 98.199, 120.117 )
+
+[node name="ARM_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="ARM_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 95.1844, 59.478 )
+
+[node name="slot1" parent="ARM_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 57.5009, 58.3165 )
+
+[node name="LEG_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="LEG_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 129.853, 175.543 )
+
+[node name="slot1" parent="LEG_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 131.361, 216.587 )
+
+[node name="LEG_LEFT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="LEG_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 178.088, 172.528 )
+
+[node name="slot1" parent="LEG_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 179.595, 213.573 )
+
+[node name="FOOT_LEFT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="FOOT_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 264.006, 234.329 )
+
+[node name="slot1" parent="FOOT_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 224.816, 233.168 )
+
+[node name="FOOT_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="FOOT_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 86.1404, 232.822 )
+
+[node name="slot1" parent="FOOT_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 46.9495, 231.661 )
