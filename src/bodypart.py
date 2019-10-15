@@ -5,12 +5,12 @@ class Bodypart(dict):
         self['ident'] = ident
         # will the creature die without this body part?
         self['vital_organ'] = vital_organ
-        self['slot0'] = None  # Item(container or armor)
+        self['slot0'] = None  # (container or armor)
         self['slot1'] = None
         # recaculate this when we wear or remove armor. the total armor value of worn items.
         self['armor'] = 0
         if(self['ident'].split('_')[0] == 'HAND'):
-            # hands have an extra slot for gripped items.
+            # hands have an extra slot for grabbed items.
             self['slot_equipped'] = None
 
         # Body parts can hold a maximum of two items. 2 equipment or 2 container or one of each.

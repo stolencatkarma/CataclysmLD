@@ -8,6 +8,7 @@ var password = "q"
 var list_characters = Array()
 var localmap_chunks = Array()
 var should_update_localmap = false
+var should_update_inventory = false
 var character_name = null # this is set when a created character is chosen.
 var controlled_character = null # as dictionary data for updating the Interface (stats, injuries, etc)
 
@@ -63,3 +64,4 @@ func _process(delta): # where we check for new data recieved from server.
 				for chunk in _result[k]:
 					manager_connection.localmap_chunks.append(chunk)
 				manager_connection.should_update_localmap = true
+				manager_connection.should_update_inventory = true

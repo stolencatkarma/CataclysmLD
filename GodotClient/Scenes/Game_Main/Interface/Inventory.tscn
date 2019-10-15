@@ -1,155 +1,22 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://Scenes/Game_Main/gfx/equipment_overlay.png" type="Texture" id=1]
-[ext_resource path="res://Scenes/Game_Main/gfx/equipment_item_background.png" type="Texture" id=2]
-[ext_resource path="res://Scenes/Game_Main/Interface/equipment_slot.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Game_Main/Interface/Scripts/Inventory.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Game_Main/gfx/equipment_overlay.png" type="Texture" id=2]
+[ext_resource path="res://Scenes/Game_Main/Interface/body_part.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scenes/Game_Main/Interface/equipment_slot.tscn" type="PackedScene" id=4]
 
 [node name="Inventory" type="Node2D"]
+script = ExtResource( 1 )
 
 [node name="background" type="TextureRect" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-texture = ExtResource( 1 )
-
-[node name="ARM_RIGHT_SLOT0" type="TextureRect" parent="."]
-margin_left = 99.5131
-margin_top = 51.0
-margin_right = 131.513
-margin_bottom = 81.7565
 texture = ExtResource( 2 )
 
-[node name="ARM_RIGHT_SLOT1" type="TextureRect" parent="."]
-margin_left = 61.0347
-margin_top = 51.0
-margin_right = 93.0347
-margin_bottom = 81.7565
-texture = ExtResource( 2 )
+[node name="body_part" parent="." instance=ExtResource( 3 )]
 
-[node name="HAND_RIGHT_SLOT0" type="TextureRect" parent="."]
-margin_left = 61.7698
-margin_top = 101.0
-margin_right = 93.7698
-margin_bottom = 124.037
-texture = ExtResource( 2 )
-
-[node name="HAND_RIGHT_SLOT1" type="TextureRect" parent="."]
-margin_left = 98.0429
-margin_top = 101.0
-margin_right = 130.043
-margin_bottom = 122.567
-texture = ExtResource( 2 )
-
-[node name="TORSO_SLOT0" type="TextureRect" parent="."]
-margin_left = 181.777
-margin_top = 57.7176
-margin_right = 213.777
-margin_bottom = 89.7176
-texture = ExtResource( 2 )
-
-[node name="TORSO_SLOT1" type="TextureRect" parent="."]
-margin_left = 180.45
-margin_top = 100.84
-margin_right = 212.45
-margin_bottom = 132.84
-texture = ExtResource( 2 )
-
-[node name="ARM_LEFT_SLOT0" type="TextureRect" parent="."]
-margin_left = 260.061
-margin_top = 51.0
-margin_right = 292.061
-margin_bottom = 77.131
-texture = ExtResource( 2 )
-
-[node name="ARM_LEFT_SLOT1" type="TextureRect" parent="."]
-margin_left = 297.069
-margin_top = 51.0
-margin_right = 329.069
-margin_bottom = 77.8661
-texture = ExtResource( 2 )
-
-[node name="HAND_LEFT_SLOT0" type="TextureRect" parent="."]
-margin_left = 261.388
-margin_top = 101.0
-margin_right = 293.388
-margin_bottom = 115.144
-texture = ExtResource( 2 )
-
-[node name="HAND_LEFT_SLOT1" type="TextureRect" parent="."]
-margin_left = 297.732
-margin_top = 101.0
-margin_right = 329.732
-margin_bottom = 116.758
-texture = ExtResource( 2 )
-
-[node name="LEG_LEFT_SLOT0" type="TextureRect" parent="."]
-margin_left = 228.967
-margin_top = 161.298
-margin_right = 260.967
-margin_bottom = 193.298
-texture = ExtResource( 2 )
-
-[node name="LEG_LEFT_SLOT1" type="TextureRect" parent="."]
-margin_left = 264.792
-margin_top = 160.485
-margin_right = 296.792
-margin_bottom = 192.485
-texture = ExtResource( 2 )
-
-[node name="LEG_RIGHT_SLOT0" type="TextureRect" parent="."]
-margin_left = 95.4981
-margin_top = 160.271
-margin_right = 127.498
-margin_bottom = 192.271
-texture = ExtResource( 2 )
-
-[node name="LEG_RIGHT_SLOT1" type="TextureRect" parent="."]
-margin_left = 131.836
-margin_top = 159.971
-margin_right = 163.836
-margin_bottom = 191.971
-texture = ExtResource( 2 )
-
-[node name="FOOT_LEFT_SLOT0" type="TextureRect" parent="."]
-margin_left = 232.197
-margin_top = 216.938
-margin_right = 264.197
-margin_bottom = 248.938
-texture = ExtResource( 2 )
-
-[node name="FOOT_LEFT_SLOT1" type="TextureRect" parent="."]
-margin_left = 266.119
-margin_top = 216.125
-margin_right = 298.119
-margin_bottom = 248.125
-texture = ExtResource( 2 )
-
-[node name="FOOT_RIGHT_SLOT0" type="TextureRect" parent="."]
-margin_left = 127.516
-margin_top = 216.125
-margin_right = 159.516
-margin_bottom = 248.125
-texture = ExtResource( 2 )
-
-[node name="FOOT_RIGHT_SLOT1" type="TextureRect" parent="."]
-margin_left = 89.7796
-margin_top = 216.203
-margin_right = 121.78
-margin_bottom = 248.203
-texture = ExtResource( 2 )
-
-[node name="GRABBED_SLOT0" type="TextureRect" parent="."]
-margin_left = 349.267
-margin_top = 78.0
-margin_right = 381.267
-margin_bottom = 94.5692
-texture = ExtResource( 2 )
-
-[node name="GRABBED_SLOT1" type="TextureRect" parent="."]
-margin_left = 12.595
-margin_top = 78.0
-margin_right = 44.595
-margin_bottom = 100.45
-texture = ExtResource( 2 )
-
-[node name="HEAD_SLOT0" parent="." instance=ExtResource( 3 )]
+[node name="slot0" parent="body_part" instance=ExtResource( 4 )]
 position = Vector2( 141.828, 4.43213 )
+
+[node name="slot1" parent="body_part" instance=ExtResource( 4 )]
+position = Vector2( 222.714, 4.43213 )
