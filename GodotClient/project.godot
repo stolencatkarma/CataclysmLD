@@ -23,10 +23,6 @@ config/icon="res://icon.png"
 
 manager_connection="*res://Scenes/Game_Main/Scripts/manager_connection.gd"
 
-[debug]
-
-settings/stdout/verbose_stdout=true
-
 [display]
 
 window/size/width=854

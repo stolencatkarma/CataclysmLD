@@ -6,7 +6,7 @@ func _ready():
 	_submit_character_button.icon = load("res://Scenes/Game_Menus/Character_Menus/gfx/ui_button_submit.png")
 	.add_child(_submit_character_button)
 	_submit_character_button.set_position(Vector2(450,350))
-	_submit_character_button.connect("button_down", self, "submit_character")
+	_submit_character_button.connect("button_up", self, "submit_character")
 
 
 func submit_character():

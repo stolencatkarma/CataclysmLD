@@ -493,8 +493,7 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "move_item_to_character_storage":
                 _character = self.characters[data["ident"]["name"]]
-                _from_pos = Position(
-                    data["args"][0], data["args"][1], data["args"][2])
+                _from_pos = Position(data["args"][0], data["args"][1], data["args"][2])
                 _item_ident = data["args"][3]
                 _from_item = None
                 _open_containers = []
@@ -560,8 +559,7 @@ class Server(MastermindServerTCP):
                 _to_list = data["args"][2]
 
                 # pass the position even if we may not need it.
-                _position = Position(
-                    data["args"][3], data["args"][4], data["args"][5])
+                _position = Position(data["args"][3], data["args"][4], data["args"][5])
 
                 # need to parse where it's coming from and where it's going.
                 if _from_type == "bodypart.equipped":
@@ -576,17 +574,15 @@ class Server(MastermindServerTCP):
                         for item in bodypart.equipped:  # could be a container or not.
                             # if it's a container.
                             if isinstance(item, Container):
-                                for item2 in item.contained_items[
-                                    :
-                                ]:  # check every item in the container.
+                                # check every item in the container.
+                                for item2 in item.contained_items[:]:
                                     if item2 is _item:
                                         _from_list = item.contained_items
                                         _from_list.remove(_item)
                                         _to_list.append(_item)
                                         return
                 elif _from_type == "position":
-                    _from_list = self.worldmap.get_tile_by_position(_position)[
-                        "items"]
+                    _from_list = self.worldmap.get_tile_by_position(_position)["items"]
                     if _item in _from_list:
                         _from_list.remove(_item)
                         _to_list.append(_item)
@@ -1030,8 +1026,8 @@ if __name__ == "__main__":
         server.characters[_character["name"]] = _character
 
     print("Started Cataclysm: Looming Darkness. Clients may now connect.")
-    while dont_break:
-        try:
+    try:
+        while dont_break:
             # keep up with the time offset but never go faster than it.
             if (time.time() - last_turn_time < time_offset):
                 pass
@@ -1049,12 +1045,12 @@ if __name__ == "__main__":
                 # (such as no monsters, Characters, or fires)
                 last_turn_time = time.time()  # based off of system clock.
 
-        except (KeyboardInterrupt):
-            print("Cleaning up before exiting.")
-            server.accepting_disallow()
-            server.disconnect_clients()
-            server.disconnect()
-            # if the worldmap in memory changed update it on the hard drive.
-            server.worldmap.update_chunks_on_disk()
-            dont_break = False
-            print("Done cleaning up.")
+    except (KeyboardInterrupt):
+        print("Cleaning up before exiting.")
+        server.accepting_disallow()
+        server.disconnect_clients()
+        server.disconnect()
+        # if the worldmap in memory changed update it on the hard drive.
+        server.worldmap.update_chunks_on_disk()
+        dont_break = False
+        print("Done cleaning up.")
