@@ -1,0 +1,567 @@
+{
+    "ALIGN_STAIRS": {
+        "HINT": "Align up and down stairs",
+        "HINTLONG": "If True, will be placed directly above upstairs, if self results in uglier maps.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "ANIMATIONS": {
+        "HINT": "Enable Animations",
+        "HINTLONG": "If True, display enabled animations.",
+        "TYPE": "graphics",
+        "VALUE": true
+    },
+    "AUTOSAFEMODE": {
+        "HINT": "Auto-safe mode",
+        "HINTLONG": "If True, safemode automatically back on after it being disabled beforehand.  See option 'Turns to re-enable safe mode'",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTOSAFEMODETURNS": {
+        "HINT": "Turns to re-enable safe mode",
+        "HINTLONG": "Number of turns after safe mode is re-enabled if no hostiles are in 'Safe Mode proximity distance'.",
+        "TYPE": "general",
+        "VALUE": 10
+    },
+    "AUTOSAVE": {
+        "HINT": "Periodically autosave",
+        "HINTLONG": "If True, will periodically save the map.  Autosaves occur based on in-game turns or real-time minutes, is larger.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTOSAVE_MINUTES": {
+        "HINT": "Real minutes between autosaves",
+        "HINTLONG": "Number of real time minutes between autosaves",
+        "TYPE": "general",
+        "VALUE": 60
+    },
+    "AUTOSAVE_TURNS": {
+        "HINT": "Game turns between autosaves",
+        "HINTLONG": "Number of game turns between autosaves",
+        "TYPE": "general",
+        "VALUE": 60
+    },
+    "AUTO_INV_ASSIGN": {
+        "HINT": "Auto inventory letters",
+        "HINTLONG": "If False, inventory items will only get letters assigned if they had one before.",
+        "TYPE": "interface",
+        "VALUE": true
+    },
+    "AUTO_NOTES": {
+        "HINT": "Auto notes",
+        "HINTLONG": "If True, sets notes on places that have stairs that go up or down",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTO_PICKUP": {
+        "HINT": "Auto pickup enabled",
+        "HINTLONG": "Enable item auto pickup.  Change pickup rules with the Auto Pickup Manager in the Help Menu ?3",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTO_PICKUP_ADJACENT": {
+        "HINT": "Auto pickup adjacent",
+        "HINTLONG": "If True, enable to pickup items one tile around to the player.  You can assign No Auto Pickup zones with the Zones Manager 'Y' key for eg.  your homebase.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTO_PICKUP_SAFEMODE": {
+        "HINT": "Auto pickup safe mode",
+        "HINTLONG": "Auto pickup is disabled as long as you can see monsters nearby.  This is affected by 'Safe Mode proximity distance'.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTO_PICKUP_VOL_LIMIT": {
+        "HINT": "Auto pickup small volume items",
+        "HINTLONG": "Auto pickup items with volume less than or equal to [option] * 50 milliliters.  You must also set the light items option.  '0' disables self option",
+        "TYPE": "general",
+        "VALUE": 50
+    },
+    "AUTO_PICKUP_WEIGHT_LIMIT": {
+        "HINT": "Auto pickup light items",
+        "HINTLONG": "Auto pickup items with weight less than or equal to [option] * 50 grams.  You must also set the small items option.  '0' disables self option",
+        "TYPE": "general",
+        "VALUE": 20
+    },
+    "AUTO_PULP_BUTCHER": {
+        "HINT": "Auto pulp or butcher",
+        "HINTLONG": "If True, auto pulping resurrecting corpses or auto butchering any corpse.  Never pulps acidic corpses.  Disabled as long as any enemy monster is seen.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "AUTO_PULP_BUTCHER_ACTION": {
+        "HINT": "Auto pulp or butcher action",
+        "HINTLONG": "If True, auto pulping resurrecting corpses or auto butchering any corpse.  Never pulps acidic corpses.  Disabled as long as any enemy monster is seen.",
+        "TYPE": "general",
+        "VALUE": "butcher",
+        "VALUES": [
+            "butcher",
+            "pulp",
+            "pulp_adjacent"
+        ]
+    },
+    "CHARACTER_POINT_POOLS": {
+        "HINT": "Character point pools",
+        "HINTLONG": "Allowed point pools for character generation.",
+        "TYPE": "world_default",
+        "VALUE": "any",
+        "VALUES": [
+            "any",
+            "multi_pool",
+            "no_freeform"
+        ]
+    },
+    "CIRCLEDIST": {
+        "HINT": "Circular distances",
+        "HINTLONG": "If True, game will calculate range in a realistic way: light sources will be circles, movement will cover more ground and take longer.  If disabled, is square: moving to the northwest corner of a building takes as long as moving to the north wall.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "CITY_SIZE": {
+        "HINT": "Size of cities",
+        "HINTLONG": "A number determining how large cities are.  0 disables cities, and any scenario requiring a city start.",
+        "TYPE": "world_default",
+        "VALUE": 5
+    },
+    "CLASSIC_ZOMBIES": {
+        "HINT": "Classic zombies",
+        "HINTLONG": "Only spawn classic zombies and natural wildlife.  Requires a reset of save folder to take effect.  This disables certain buildings.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "CLOSE_ADV_INV": {
+        "HINT": "Close advanced inventory on move all",
+        "HINTLONG": "If True, close the advanced inventory when the move all items command is used.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "CONSTRUCTION_SCALING": {
+        "HINT": "Construction scaling",
+        "HINTLONG": "Sets the time of construction in percents.  '2.0' is two times faster than default, '0.5' is two times longer.  '0' automatically scales construction time to match the world's season length.",
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "CORE_VERSION": {
+        "HINT": "Core version data",
+        "HINTLONG": "Controls what migrations are applied for legacy worlds",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "DANGEROUS_PICKUPS": {
+        "HINT": "Dangerous pickups",
+        "HINTLONG": "If False, cause player to drop items that cause them to exceed the weight limit.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "DEATHCAM": {
+        "HINT": "DeathCam",
+        "HINTLONG": "Always: Always start deathcam.  Ask: Query upon death.  Never: Never show deathcam.",
+        "TYPE": "general",
+        "VALUE": false,
+        "VALUES": [
+            "Always",
+            "Ask",
+            "Never"
+        ]
+    },
+    "DEFAULT_REGION": {
+        "HINT": "Default region type",
+        "HINTLONG": "( WIP feature ) Determines terrain, shops, plants, more.",
+        "TYPE": "world_default",
+        "VALUE": "default"
+    },
+    "DEF_CHAR_NAME": {
+        "HINT": "Default character name",
+        "HINTLONG": "Set a default character name that will be used instead of a random name on character creation.",
+        "TYPE": "general",
+        "VALUE": "default"
+    },
+    "DELETE_WORLD": {
+        "HINT": "Delete world",
+        "HINTLONG": "Delete the world when the last active character dies.",
+        "TYPE": "world_default",
+        "VALUE": false,
+        "VALUES": [
+            "yes",
+            "no",
+            "query"
+        ]
+    },
+    "DISABLE_VITAMINS": {
+        "HINT": "Disables tracking vitamins in food items.",
+        "HINTLONG": "If True, vitamin tracking and vitamin disorders.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "DISTANCE_INITIAL_VISIBILITY": {
+        "HINT": "Distance initial visibility",
+        "HINTLONG": "Determines the scope, is known in the beginning of the game.",
+        "TYPE": "debug",
+        "VALUE": 15
+    },
+    "DRIVING_VIEW_OFFSET": {
+        "HINT": "Auto-shift the view while driving",
+        "HINTLONG": "If True, will automatically shift towards the driving direction",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "DROP_EMPTY": {
+        "HINT": "Drop empty containers",
+        "HINTLONG": "Set to drop empty containers after use.  No: Don't drop any. - Watertight: All except watertight containers. - All: Drop all containers.",
+        "TYPE": "general",
+        "VALUE": false,
+        "VALUES": [
+            "no",
+            "watertight",
+            "all"
+        ]
+    },
+    "ENABLE_JOYSTICK": {
+        "HINT": "Enable Joystick",
+        "HINTLONG": "Enable input from joystick.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "FILTHY_MORALE": {
+        "HINT": "Morale penalty for filthy clothing.",
+        "HINTLONG": "If True, filthy clothing will cause morale penalties.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "FILTHY_WOUNDS": {
+        "HINT": "Infected wounds from filthy clothing.",
+        "HINTLONG": "If True, hit in a body part covered in filthy clothing may cause infections.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "FORCE_CAPITAL_YN": {
+        "HINT": "Force Y/N in prompts",
+        "HINTLONG": "If True, Y/N prompts are case-sensitive and y and n are not accepted.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "FULLSCREEN": {
+        "HINT": "Fullscreen",
+        "HINTLONG": "Use Fullscreen.",
+        "TYPE": "graphics",
+        "VALUE": false
+    },
+    "HIDE_CURSOR": {
+        "HINT": "Hide mouse cursor",
+        "HINTLONG": "Show: Cursor is always shown.  Hide: Cursor is hidden.  HideKB: Cursor is hidden on keyboard input and unhidden on mouse movement.",
+        "TYPE": "interface",
+        "VALUE": false,
+        "VALUES": [
+            "show",
+            "hide",
+            "hidekb"
+        ]
+    },
+    "INITIAL_SEASON": {
+        "HINT": "Initial season",
+        "HINTLONG": "Season the player starts in.  Options other than the default delay spawn of the character, food decay and monster spawns will have advanced.",
+        "TYPE": "world_default",
+        "VALUE": "spring",
+        "VALUES": [
+            "spring",
+            "summer",
+            "autumn",
+            "winter"
+        ]
+    },
+    "INITIAL_SKILL_POINTS": {
+        "HINT": "Initial skill points",
+        "HINTLONG": "Initial points available to spend on skills on character generation.",
+        "TYPE": "debug",
+        "VALUE": 6
+    },
+    "INITIAL_STAT_POINTS": {
+        "HINT": "Initial stat points",
+        "HINTLONG": "Initial points available to spend on stats on character generation.",
+        "TYPE": "debug",
+        "VALUE": 2
+    },
+    "INITIAL_TIME": {
+        "HINT": "Initial time",
+        "HINTLONG": "Initial starting time of day on character generation.",
+        "TYPE": "world_default",
+        "VALUE": 8,
+        "VALUES": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+        ]
+    },
+    "INITIAL_TRAIT_POINTS": {
+        "HINT": "Initial trait points",
+        "HINTLONG": "Initial points available to spend on traits on character generation.",
+        "TYPE": "debug",
+        "VALUE": 6
+    },
+    "INV_USE_ACTION_NAMES": {
+        "HINT": "Display actions in Use Item menu",
+        "HINTLONG": [
+            "If True, actions ( like 'Read', 'Smoke', 'Wrap tighter' ) will be displayed next to the corresponding items."
+        ],
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "ITEM_SPAWNRATE": {
+        "HINT": "Item spawn scaling factor",
+        "HINTLONG": "A scaling factor that determines density of item spawns.",
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "ITEM_SYMBOLS": {
+        "HINT": "Show item symbols",
+        "HINTLONG": "If True, item symbols in inventory and pick up menu.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "MAX_TRAIT_POINTS": {
+        "HINT": "Maximum trait points",
+        "HINTLONG": "Maximum trait points available for character generation.",
+        "TYPE": "debug",
+        "VALUE": 100
+    },
+    "MONSTER_RESILIENCE": {
+        "HINT": "Monster resilience",
+        "HINTLONG": "Determines how much damage monsters can take.  A higher value makes monsters more resilient and a lower makes them more flimsy.",
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "MONSTER_SPEED": {
+        "HINT": "Monster speed",
+        "HINTLONG": "Determines the movement rate of monsters.  A higher value increases monster speed and a lower reduces it.",
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "MONSTER_UPGRADE_FACTOR": {
+        "HINT": "Monster evolution scaling factor",
+        "HINTLONG": [
+            "A scaling factor that determines the time between monster upgrades.  A higher number means slower evolution.  Set to 0.00 to turn off monster upgrades."
+        ],
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "NO_FAULTS": {
+        "HINT": "Disables vehicle part faults.",
+        "HINTLONG": "If True, vehicle part faults, parts will be totally reliable unless destroyed, can only be repaired via replacement.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "NPCS_NEED_FOOD": {
+        "HINT": "Disables tracking food, and ( partially ) fatigue for NPCs.",
+        "HINTLONG": "If True, won't need to eat or drink and will only get tired enough to sleep, to get penalties.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "NPC_DENSITY": {
+        "HINT": "NPC spawn rate scaling factor",
+        "HINTLONG": "A scaling factor that determines density of dynamic NPC spawns.",
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "OPEN_DEFAULT_ADV_INV": {
+        "HINT": "Open default advanced inventory layout",
+        "HINTLONG": "Open default advanced inventory layout instead of last opened layout",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "QUERY_DISASSEMBLE": {
+        "HINT": "Query on disassembly",
+        "HINTLONG": "If True, query before disassembling items.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "QUERY_KEYBIND_REMOVAL": {
+        "HINT": "Query on keybinding removal",
+        "HINTLONG": "If True, query before removing a keybinding from a hotkey.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "RAD_MUTATION": {
+        "HINT": "Mutations by radiation",
+        "HINTLONG": "If True, causes the player to mutate.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "RANDOM_NPC": {
+        "HINT": "Random npcs",
+        "HINTLONG": "If True, game will randomly spawn NPC during gameplay.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "SAFEMODE": {
+        "HINT": "Safe Mode",
+        "HINTLONG": "If True, hold the game and display a warning if a hostile monster/npc is approaching.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "SAFEMODEPROXIMITY": {
+        "HINT": "Safe Mode proximity distance",
+        "HINTLONG": "If safe mode is enabled, to hostiles at which safe mode should show a warning.  0 = Max player view distance.",
+        "TYPE": "general",
+        "VALUE": 15
+    },
+    "SAFEMODEVEH": {
+        "HINT": "Safe Mode when driving",
+        "HINTLONG": "When True, mode will alert you of hostiles while you are driving a vehicle.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "SAVE_SLEEP": {
+        "HINT": "Ask to save before sleeping",
+        "HINTLONG": "If True, will ask to save the map before sleeping.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "SEASON_LENGTH": {
+        "HINT": "Season length",
+        "HINTLONG": "Season length, days.",
+        "TYPE": "world_default",
+        "VALUE": 90
+    },
+    "SIDEBAR_POSITION": {
+        "HINT": "Sidebar position",
+        "HINTLONG": "Switch between sidebar on the left or on the right side.  Requires restart.",
+        "TYPE": "interface",
+        "VALUE": false,
+        "VALUES": [
+            "left",
+            "right"
+        ]
+    },
+    "SKILL_RUST": {
+        "HINT": "Skill rust",
+        "HINTLONG": "Set the level of skill rust.  Vanilla: Vanilla Cataclysm - Capped: Capped at skill levels 2 - Int: Intelligence dependent - IntCap: Intelligence dependent, capped - Off: None at all.",
+        "TYPE": "debug",
+        "VALUE": "vanilla",
+        "VALUES": [
+            "vanilla",
+            "capped",
+            "int",
+            "intcap",
+            "off"
+        ]
+    },
+    "SKILL_TRAINING_SPEED": {
+        "HINT": "Skill training speed",
+        "HINTLONG": "Scales experience gained from practicing skills and reading books.  0.5 is half as fast as default, 2.0 is twice as fast, 0.0 disables skill training except for NPC training.",
+        "TYPE": "debug",
+        "VALUE": 1.0
+    },
+    "SNAP_TO_TARGET": {
+        "HINT": "Snap to target",
+        "HINTLONG": "If True, follow the crosshair when firing/throwing.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "SPAWN_DENSITY": {
+        "HINT": "Spawn rate scaling factor",
+        "HINTLONG": "A scaling factor that determines density of monster spawns.",
+        "TYPE": "world_default",
+        "VALUE": 1.0
+    },
+    "STATIC_NPC": {
+        "HINT": "Static npcs",
+        "HINTLONG": "If True, game will spawn static NPC at the start of the game, world reset.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "SURROUND_START": {
+        "HINT": "Surrounded start",
+        "HINTLONG": "If True, zombies at shelters.  Makes the starting game a lot harder.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "TILESET": {
+        "HINT": "Choose tileset",
+        "HINTLONG": "Choose the tileset you want to use.",
+        "TYPE": "graphics",
+        "VALUE": false,
+        "VALUES": [
+            "ChestHole"
+        ]
+    },
+    "TURN_DURATION": {
+        "HINT": "Realtime turn progression",
+        "HINTLONG": "If enabled, will take periodic gameplay turns.  This value is the delay between each turn, seconds.  Works best with Safe Mode disabled.  0 = disabled.",
+        "TYPE": "general",
+        "VALUE": false
+    },
+    "USE_24_HOUR": {
+        "HINT": "Time format",
+        "HINTLONG": "12h: AM/PM, 7:31 AM - Military: 24h Military, 0731 - 24h: Normal 24h, 7:31",
+        "TYPE": "interface",
+        "VALUE": true
+    },
+    "USE_CELSIUS": {
+        "HINT": "Temperature units",
+        "HINTLONG": "Switch between Celsius and Fahrenheit.",
+        "TYPE": "interface",
+        "VALUE": true
+    },
+    "USE_LANG": {
+        "HINT": "Language",
+        "HINTLONG": "Switch Language.",
+        "TYPE": "interface",
+        "VALUE": "en",
+        "VALUES": [
+            "en",
+            "fr",
+            "de"
+        ]
+    },
+    "USE_METRIC": {
+        "HINT": "Use metric units",
+        "HINTLONG": "Switch between metric and Imperial.",
+        "TYPE": "interface",
+        "VALUE": true
+    },
+    "VEHICLE_ARMOR_COLOR": {
+        "HINT": "Vehicle plating changes part color",
+        "HINTLONG": "If True, parts will change color if they are armor plated",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "VEHICLE_DIR_INDICATOR": {
+        "HINT": "Draw vehicle facing indicator",
+        "HINTLONG": "If True, controlling a vehicle, white 'X' ( in curses version ) or a crosshair ( in tiles version ) at distance 10 from the center will display its current facing.",
+        "TYPE": "interface",
+        "VALUE": false
+    },
+    "WANDER_SPAWNS": {
+        "HINT": "Wander spawns",
+        "HINTLONG": "Emulation of zombie hordes.  Zombie spawn points wander around cities and may go to noise.  Must reset world directory after changing for it to take effect.",
+        "TYPE": "world_default",
+        "VALUE": false
+    },
+    "ZLEVELS": {
+        "HINT": "Experimental z-levels",
+        "HINTLONG": "If True, z-level maps will be enabled.  This feature is not finished yet and turning it on will only slow the game down.",
+        "TYPE": "world_default",
+        "VALUE": false
+    }
+}

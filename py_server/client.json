@@ -1,0 +1,9 @@
+{
+    "username": "",
+    "password": "",
+    "savePassword": true,
+    "serverList": [
+        "localhost:6317",
+        "162.211.66.247:6317"
+    ]
+}

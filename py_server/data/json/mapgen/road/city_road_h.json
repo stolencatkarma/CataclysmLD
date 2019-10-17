@@ -1,0 +1,30 @@
+{
+  "group": "road",
+  "overmap_terrain": "city_road",
+  "fill_terrain": "t_pavement",
+  "comment": "13x13 city road with sidewalks",
+  "floors": {
+    "0": [
+      "SSSSSSSSSSSSS",
+      "SSSSSSSSSSSSS",
+      "RRRRRRRRRRRRR",
+      "RRRRRRRRRRRRR",
+      "RRRRRRRRRRRRR",
+      "RRRRRRRRRRRRR",
+      "CCCCCCCCCCCCC",
+      "RRRRRRRRRRRRR",
+      "RRRRRRRRRRRRR",
+      "RRRRRRRRRRRRR",
+      "RRRRRRRRRRRRR",
+      "SSSSSSSSSSSSS",
+      "SSSSSSSSSSSSS"
+    ]
+  },
+  "terrain": {
+    "S": "t_sidewalk",
+    "R": "t_pavement",
+    "C": "t_pavement_y"
+  },
+    "furniture": {
+  }
+}

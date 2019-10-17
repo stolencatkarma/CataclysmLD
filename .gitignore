@@ -1,18 +1,22 @@
 # ignore all pyc files
 *.pyc
+# ignore all python IDE files
+*/venv/
 # ignore compiled files
 *.exe
 *.pyd
 *.dll
 *.import
+*.idea
 /dist/*
 /build/*
 # ignore logs
-/log/*
+py_server/log/*
+!py_server/log/.gitkeep
 # ignore accounts
-/accounts/*
+py_server/accounts/*
 # ignore worlds
-/worlds/*
+py_server/worlds/*
 # ignore godot optional import settings.
 /GodotClient/.import/*
 CataclysmLD.code-workspace
