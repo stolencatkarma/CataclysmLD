@@ -11,12 +11,12 @@
 /dist/*
 /build/*
 # ignore logs
-py_server/log/*
-!py_server/log/.gitkeep
+server/log/*
+!server/log/.gitkeep
 # ignore accounts
-py_server/accounts/*
+server/accounts/*
 # ignore worlds
-py_server/worlds/*
+server/worlds/*
 # ignore godot optional import settings.
 /GodotClient/.import/*
 CataclysmLD.code-workspace
