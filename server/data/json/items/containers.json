@@ -1,0 +1,28 @@
+[
+  {
+    "ident": "canteen",
+    "name": "10oz Canteen",
+    "description": "A plastic water canteen, with a 10oz capacity and carrying strap.",
+    "weight": 1,
+    "container_type": "liquid",
+    "volume": 10,
+    "price": 10,
+    "material": "plastic",
+    "has_cap": true,
+    "watertight": true,
+    "wearable_location": "TORSO"
+  },
+  {
+    "ident": "backpack",
+    "name": "Backpack",
+    "description": "A backpack you can wear and is able to hold various items.",
+    "weight": 4,
+    "container_type": "solid",
+    "volume": 1024,
+    "price": 50,
+    "material": "leather",
+    "has_cap": true,
+    "watertight": false,
+    "wearable_location": "TORSO"
+  }
+]

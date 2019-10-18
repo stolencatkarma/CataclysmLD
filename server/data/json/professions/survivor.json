@@ -1,0 +1,20 @@
+[
+  {
+    "ident": "survivor",
+    "_comment": "A basic as it comes. I'll use this for the default profession.",
+    "name": "Survivor",
+    "description": "Some would say that there's nothing particularly notable about you. But you survived. That's more than most can say right now.",
+    "skills": {
+      "survival": 1
+    },
+    "points": 0,
+    "equipped_items": {
+      "TORSO": "backpack"
+    },
+    "items_in_containers": {
+      "backpack": "cell_phone"
+    },
+    "flags": [],
+    "CBMs": []
+  }
+]
