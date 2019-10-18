@@ -18,6 +18,6 @@ server/accounts/*
 # ignore worlds
 server/worlds/*
 # ignore godot optional import settings.
-/GodotClient/.import/*
+/client/.import/*
 CataclysmLD.code-workspace
-GodotClient/debug.log
+client/debug.log
