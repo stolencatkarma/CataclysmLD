@@ -4,15 +4,6 @@
 [ext_resource path="res://Scenes/Game_Menus/Character_Menus/gfx/background_blank.png" type="Texture" id=2]
 [ext_resource path="res://Scenes/Game_Main/gfx/tilesets/Chesthole32/players.res" type="TileSet" id=3]
 
-
-
-
-
-
-
-
-
-
 [node name="Node2D" type="Node2D"]
 script = ExtResource( 1 )
 

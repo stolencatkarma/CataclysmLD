@@ -9,7 +9,11 @@ func _ready():
 		# create button for each character
 		var _character_button = Button.new()
 		var creature_index = $players_tilemap.get_tileset().find_tile_by_name(character["tile_ident"])
-		_character_button.icon = $players_tilemap.get_tileset().tile_get_texture(creature_index)
+		var region = $players_tilemap.get_tileset().tile_get_region ( creature_index )
+		var at = AtlasTexture.new()
+		at.set_atlas($players_tilemap.get_tileset().tile_get_texture(creature_index))
+		at.set_region(region)
+		_character_button.icon = at
 		_character_button.text = character["name"]
 		.add_child(_character_button)
 		_character_button.set_position(Vector2(start_x+150*count,start_y))
