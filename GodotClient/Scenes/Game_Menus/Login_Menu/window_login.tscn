@@ -1,0 +1,237 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/background_login_icon.png" type="Texture" id=1]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/username_login_icon.png" type="Texture" id=2]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/password_icon_login_.png" type="Texture" id=3]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/password_check_icon_login.png" type="Texture" id=4]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/server_icon.png" type="Texture" id=5]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/gfx/ui_connect.png" type="Texture" id=6]
+[ext_resource path="res://Scenes/Game_Menus/Login_Menu/Scripts/button_ui_connect.gd" type="Script" id=7]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Background" type="ColorRect" parent="."]
+margin_right = 916.0
+margin_bottom = 537.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0, 0, 0, 1 )
+
+[node name="Menu_Margin" type="MarginContainer" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_right = 854.0
+margin_bottom = 480.0
+
+[node name="Menu_Container" type="VBoxContainer" parent="Menu_Margin"]
+margin_right = 854.0
+margin_bottom = 480.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Logo" type="TextureRect" parent="Menu_Margin/Menu_Container"]
+margin_right = 854.0
+margin_bottom = 53.0
+texture = ExtResource( 1 )
+stretch_mode = 4
+
+[node name="spacer_box2" type="VBoxContainer" parent="Menu_Margin/Menu_Container"]
+margin_top = 57.0
+margin_right = 854.0
+margin_bottom = 113.0
+size_flags_horizontal = 15
+size_flags_vertical = 15
+size_flags_stretch_ratio = 0.6
+
+[node name="name_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
+editor/display_folded = true
+margin_top = 117.0
+margin_right = 854.0
+margin_bottom = 153.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Menu_Margin/Menu_Container/name_container"]
+margin_right = 201.0
+margin_bottom = 36.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.43
+
+[node name="name_texture" type="TextureRect" parent="Menu_Margin/Menu_Container/name_container"]
+margin_left = 205.0
+margin_right = 292.0
+margin_bottom = 36.0
+texture = ExtResource( 2 )
+
+[node name="txt_username" type="TextEdit" parent="Menu_Margin/Menu_Container/name_container"]
+margin_left = 296.0
+margin_right = 500.0
+margin_bottom = 36.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "q"
+
+[node name="MarginContainer2" type="MarginContainer" parent="Menu_Margin/Menu_Container/name_container"]
+margin_left = 768.0
+margin_right = 854.0
+margin_bottom = 36.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.18
+
+[node name="spacer_box3" type="VBoxContainer" parent="Menu_Margin/Menu_Container"]
+margin_top = 157.0
+margin_right = 854.0
+margin_bottom = 175.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="password_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
+editor/display_folded = true
+margin_top = 179.0
+margin_right = 854.0
+margin_bottom = 217.0
+
+[node name="Spacer_I" type="MarginContainer" parent="Menu_Margin/Menu_Container/password_container"]
+margin_right = 138.0
+margin_bottom = 38.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+
+[node name="password_texture" type="TextureRect" parent="Menu_Margin/Menu_Container/password_container"]
+margin_left = 142.0
+margin_right = 292.0
+margin_bottom = 38.0
+texture = ExtResource( 3 )
+
+[node name="txt_password" type="TextEdit" parent="Menu_Margin/Menu_Container/password_container"]
+margin_left = 296.0
+margin_right = 500.0
+margin_bottom = 38.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "q"
+
+[node name="Spacer_II" type="MarginContainer" parent="Menu_Margin/Menu_Container/password_container"]
+margin_left = 761.0
+margin_right = 854.0
+margin_bottom = 38.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="password_check_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
+editor/display_folded = true
+margin_top = 221.0
+margin_right = 854.0
+margin_bottom = 245.0
+
+[node name="Spacer_I" type="MarginContainer" parent="Menu_Margin/Menu_Container/password_check_container"]
+margin_right = 141.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.2
+
+[node name="TextureRect" type="TextureRect" parent="Menu_Margin/Menu_Container/password_check_container"]
+margin_left = 145.0
+margin_right = 254.0
+margin_bottom = 24.0
+texture = ExtResource( 4 )
+
+[node name="checkbox_save_password" type="CheckBox" parent="Menu_Margin/Menu_Container/password_check_container"]
+margin_left = 258.0
+margin_right = 282.0
+margin_bottom = 24.0
+
+[node name="Spacer_II" type="MarginContainer" parent="Menu_Margin/Menu_Container/password_check_container"]
+margin_left = 286.0
+margin_right = 854.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.8
+
+[node name="server_container" type="VBoxContainer" parent="Menu_Margin/Menu_Container"]
+editor/display_folded = true
+margin_top = 249.0
+margin_right = 854.0
+margin_bottom = 281.0
+
+[node name="ip-port_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container/server_container"]
+margin_right = 854.0
+margin_bottom = 32.0
+
+[node name="Spacer_I" type="MarginContainer" parent="Menu_Margin/Menu_Container/server_container/ip-port_container"]
+margin_right = 114.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+
+[node name="server_box" type="VBoxContainer" parent="Menu_Margin/Menu_Container/server_container/ip-port_container"]
+margin_left = 118.0
+margin_right = 234.0
+margin_bottom = 32.0
+
+[node name="TextureRect" type="TextureRect" parent="Menu_Margin/Menu_Container/server_container/ip-port_container/server_box"]
+margin_right = 116.0
+margin_bottom = 32.0
+texture = ExtResource( 5 )
+
+[node name="txt_IP" type="TextEdit" parent="Menu_Margin/Menu_Container/server_container/ip-port_container"]
+margin_left = 238.0
+margin_right = 314.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+text = "127.0.0.1"
+
+[node name="txt_PORT" type="TextEdit" parent="Menu_Margin/Menu_Container/server_container/ip-port_container"]
+margin_left = 318.0
+margin_right = 394.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+text = "6317"
+
+[node name="Spacer_II" type="MarginContainer" parent="Menu_Margin/Menu_Container/server_container/ip-port_container"]
+margin_left = 398.0
+margin_right = 854.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 6.0
+
+[node name="connect_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
+editor/display_folded = true
+margin_top = 285.0
+margin_right = 854.0
+margin_bottom = 379.0
+size_flags_horizontal = 7
+size_flags_vertical = 7
+
+[node name="Spacer_I" type="MarginContainer" parent="Menu_Margin/Menu_Container/connect_container"]
+margin_right = 616.0
+margin_bottom = 94.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 4.0
+
+[node name="ConnectButton" type="Button" parent="Menu_Margin/Menu_Container/connect_container"]
+margin_left = 620.0
+margin_right = 696.0
+margin_bottom = 94.0
+icon = ExtResource( 6 )
+flat = true
+align = 2
+script = ExtResource( 7 )
+
+[node name="Spacer_II" type="MarginContainer" parent="Menu_Margin/Menu_Container/connect_container"]
+margin_left = 700.0
+margin_right = 854.0
+margin_bottom = 94.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="spacer_box" type="VBoxContainer" parent="Menu_Margin/Menu_Container"]
+margin_top = 383.0
+margin_right = 854.0
+margin_bottom = 480.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
