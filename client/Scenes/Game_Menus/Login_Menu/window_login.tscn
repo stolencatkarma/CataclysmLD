@@ -44,37 +44,36 @@ size_flags_vertical = 15
 size_flags_stretch_ratio = 0.6
 
 [node name="name_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
-editor/display_folded = true
 margin_top = 117.0
 margin_right = 854.0
 margin_bottom = 153.0
 
 [node name="MarginContainer" type="MarginContainer" parent="Menu_Margin/Menu_Container/name_container"]
-margin_right = 201.0
+margin_right = 200.0
 margin_bottom = 36.0
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.43
+size_flags_stretch_ratio = 0.65
 
 [node name="name_texture" type="TextureRect" parent="Menu_Margin/Menu_Container/name_container"]
-margin_left = 205.0
-margin_right = 292.0
+margin_left = 204.0
+margin_right = 291.0
 margin_bottom = 36.0
 texture = ExtResource( 2 )
 
 [node name="txt_username" type="TextEdit" parent="Menu_Margin/Menu_Container/name_container"]
-margin_left = 296.0
-margin_right = 500.0
+margin_left = 295.0
+margin_right = 603.0
 margin_bottom = 36.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "q"
 
 [node name="MarginContainer2" type="MarginContainer" parent="Menu_Margin/Menu_Container/name_container"]
-margin_left = 768.0
+margin_left = 607.0
 margin_right = 854.0
 margin_bottom = 36.0
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.18
+size_flags_stretch_ratio = 0.8
 
 [node name="spacer_box3" type="VBoxContainer" parent="Menu_Margin/Menu_Container"]
 margin_top = 157.0
@@ -85,7 +84,6 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 
 [node name="password_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
-editor/display_folded = true
 margin_top = 179.0
 margin_right = 854.0
 margin_bottom = 217.0
@@ -94,7 +92,7 @@ margin_bottom = 217.0
 margin_right = 138.0
 margin_bottom = 38.0
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.3
+size_flags_stretch_ratio = 0.45
 
 [node name="password_texture" type="TextureRect" parent="Menu_Margin/Menu_Container/password_container"]
 margin_left = 142.0
@@ -104,21 +102,20 @@ texture = ExtResource( 3 )
 
 [node name="txt_password" type="TextEdit" parent="Menu_Margin/Menu_Container/password_container"]
 margin_left = 296.0
-margin_right = 500.0
+margin_right = 603.0
 margin_bottom = 38.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "q"
 
 [node name="Spacer_II" type="MarginContainer" parent="Menu_Margin/Menu_Container/password_container"]
-margin_left = 761.0
+margin_left = 607.0
 margin_right = 854.0
 margin_bottom = 38.0
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.2
+size_flags_stretch_ratio = 0.8
 
 [node name="password_check_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
-editor/display_folded = true
 margin_top = 221.0
 margin_right = 854.0
 margin_bottom = 245.0
@@ -150,7 +147,6 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 0.8
 
 [node name="server_container" type="VBoxContainer" parent="Menu_Margin/Menu_Container"]
-editor/display_folded = true
 margin_top = 249.0
 margin_right = 854.0
 margin_bottom = 281.0
@@ -199,7 +195,6 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 6.0
 
 [node name="connect_container" type="HBoxContainer" parent="Menu_Margin/Menu_Container"]
-editor/display_folded = true
 margin_top = 285.0
 margin_right = 854.0
 margin_bottom = 379.0
