@@ -1,7 +1,6 @@
 from collections import defaultdict
 import json
 import os
-import sys
 
 
 class Profession(dict):
@@ -19,31 +18,27 @@ class ProfessionManager:
         for root, _, files in os.walk('./data/json/professions/'):
             for file_data in files:
                 if file_data.endswith('.json'):
-                    with open(root+'/'+file_data, encoding='utf-8') as data_file:
+                    with open(f"{root}/{file_data}", encoding='utf-8') as data_file:
                         data = json.load(data_file)
                     for item in data:
                         try:
                             for key, value in item.items():
                                 # print(key, value)
-                                if(isinstance(value, list)):
+                                if isinstance(value, list):
                                     self.PROFESSIONS[item['ident']][key] = []
                                     for add_value in value:
-                                        self.PROFESSIONS[item['ident']][key].append(
-                                            str(add_value))
-                                elif(isinstance(value, dict)):
+                                        self.PROFESSIONS[item['ident']][key].append(str(add_value))
+                                elif isinstance(value, dict):
                                     self.PROFESSIONS[item['ident']][key] = {}
                                     for add_key, add_value in value.items():
-                                        self.PROFESSIONS[item['ident']
-                                                         ][key][add_key] = add_value
+                                        self.PROFESSIONS[item['ident']][key][add_key] = add_value
                                 else:
-                                    self.PROFESSIONS[item['ident']][key] = str(
-                                        value)
-                            # print(self.PROFESSIONS[item['ident']])
+                                    self.PROFESSIONS[item['ident']][key] = str(value)
+                            #  print(self.PROFESSIONS[item['ident']])
                         except Exception:
-                            print()
-                            print('!! couldn\'t parse: ' + str(item) +
-                                  ' -- likely missing ident.')
-                            print()
-                            sys.exit()
+                            raise Exception(f"!! couldn't parse: {item}.")
 
-        print('total PROFESSIONS loaded: ' + str(len(self.PROFESSIONS)))
+        print(f"Total PROFESSIONS loaded: {len(self.PROFESSIONS)}")
+
+    def get_profession(self, profession_name):
+        return self.PROFESSIONS[profession_name]

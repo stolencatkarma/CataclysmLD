@@ -16,9 +16,7 @@ from src.terrain import Terrain
 
 
 class Chunk(dict):
-    def __init__(
-        self, x, y, z, chunk_size
-    ):  # x, y, z relate to it's position on the world map.
+    def __init__(self, x, y, z, chunk_size):
         self["tiles"] = list()
         self["weather"] = "WEATHER_NONE"  # weather is per chunk.
         # the tile represented on the over map
@@ -31,18 +29,21 @@ class Chunk(dict):
             for j in range(chunk_size):  # 0-13
                 chunkdict = {}
                 # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
-                chunkdict["position"] = Position(
-                    i + int(x * chunk_size), j + int(y * chunk_size), z)
+                chunkdict["position"] = Position(i + int(x * chunk_size), j + int(y * chunk_size), z)
                 if int(z) <= 0:
-                    chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
+                    # make the earth
+                    chunkdict["terrain"] = Terrain("t_dirt")
                 else:
-                    chunkdict["terrain"] = Terrain(
-                        "t_open_air")  # make the air
-                # Creature() # one creature per tile
+                    # make the air
+                    chunkdict["terrain"] = Terrain("t_open_air")
+                # one creature per tile
                 chunkdict["creature"] = None
-                chunkdict["items"] = []  # can be zero to many items in a tile.
-                chunkdict["furniture"] = None  # single furniture per tile
-                chunkdict["vehicle"] = None  # one per tile
+                # can be zero to many items in a tile.
+                chunkdict["items"] = []
+                # single furniture per tile
+                chunkdict["furniture"] = None
+                # one per tile
+                chunkdict["vehicle"] = None
                 # used in lightmap calculations, use 1 for base so we never have total darkness.
                 chunkdict["lumens"] = 1
                 self["tiles"].append(chunkdict)
@@ -52,69 +53,59 @@ class Chunk(dict):
 
 
 class Worldmap(dict):
-    # let's make the world map and fill it with chunks!
+    DEFAULT_WORLD_PATH = "./worlds/default"
+    # let's make the worlds map and fill it with chunks!
 
     def __init__(self, size):  # size in chunks along one axis.
         self["WORLD_SIZE"] = size
         self["WORLDMAP"] = dict()  # dict of dicts for chunks
-        # size of the chunk, leave it hardcoded here. (0-12)
-        self["chunk_size"] = 13
+        self["chunk_size"] = 13  # size of the chunk, leave it hardcoded here. (0-12)
+        self.x_max = self.y_max = self["WORLD_SIZE"] * self["chunk_size"]
         start = time.time()
         # TODO: only need to load the chunks where there are actual Characters present in memory after generation.
-        print("creating/loading world chunks")
+        print("creating/loading worlds chunks")
+        os.makedirs(self.DEFAULT_WORLD_PATH, exist_ok=True)
         count = 0
+
         for i in range(self["WORLD_SIZE"]):
             self["WORLDMAP"][i] = dict()
             for j in range(self["WORLD_SIZE"]):
                 # just load z0 for now. load the rest as needed.
                 for k in range(0, 1):
                     self["WORLDMAP"][i][j] = dict()
-                    path = str(
-                        "./worlds/default/"
-                        + str(i)
-                        + "_"
-                        + str(j)
-                        + "_"
-                        + str(k)
-                        + ".chunk"
-                    )
+                    path = self.get_chunk_path(i, j, k)
 
-                    if os.path.isfile(
-                        path
-                    ):  # if the chunk already exists on disk just load it.
+                    # if the chunk already exists on disk just load it.
+                    if os.path.isfile(path):
                         with open(path, "r") as fp:
                             self["WORLDMAP"][i][j][k] = json.loads(fp.read())
-                            self["WORLDMAP"][i][j][k]["was_loaded"] = "yes"
+                            self["WORLDMAP"][i][j][k]["was_loaded"] = True
                         if count < self["WORLD_SIZE"] - 1:
                             count = count + 1
                         else:
                             count = 0
                     else:
-                        self["WORLDMAP"][i][j][k] = Chunk(
-                            i, j, k, self["chunk_size"])
-                        with open(path, "w") as fp:
-                            json.dump(self["WORLDMAP"][i][j][k], fp)
+                        self.create_chunk(i, j, k)
 
         end = time.time()
         duration = end - start
         print("---------------------------------------------")
         print("World generation took: {} seconds".format(duration))
 
-    def update_chunks_on_disk(
-        self
-    ):  # after our map in memory changes we need to update the chunk file on disk.
+    def get_chunk_path(self, x, y, z):
+        return f"{self.DEFAULT_WORLD_PATH}/{x}_{y}_{z}.chunk"
+
+    def create_chunk(self, x, y, z):
+        self["WORLDMAP"][x][y][z] = Chunk(x, y, z, self["chunk_size"])
+        with open(self.get_chunk_path(x, y, z), "w") as fp:
+            json.dump(self["WORLDMAP"][x][y][z], fp)
+
+    def update_chunks_on_disk(self):
+        """After our map in memory changes we need to update the chunk file on disk."""
         for i in range(self["WORLD_SIZE"]):
             for j in range(self["WORLD_SIZE"]):
                 for k, chunk in self["WORLDMAP"][i][j].items():
-                    path = str(
-                        "./worlds/default/"
-                        + str(i)
-                        + "_"
-                        + str(j)
-                        + "_"
-                        + str(k)
-                        + ".chunk"
-                    )
+                    path = self.get_chunk_path(i, j, k)
                     if os.path.isfile(path):
                         if chunk["is_dirty"]:
                             with open(path, "w") as fp:
@@ -122,25 +113,13 @@ class Worldmap(dict):
                                 json.dump(chunk, fp)
 
     def get_chunk_by_position(self, position):
-        # check and see if it exists if not create it.
-        tile = self.get_tile_by_position(position)
-        x_count = 0
-        x = position["x"]
-        while x >= self["chunk_size"]:
-            x = x - self["chunk_size"]
-            x_count = x_count + 1
+        chunk_x = int(position["x"] / self["chunk_size"])
+        chunk_y = int(position["y"] / self["chunk_size"])
 
-        y_count = 0  #
-        y = position["y"]
-        # worldmap[x][y]['tiles']
-        while y >= self["chunk_size"]:
-            y = y - self["chunk_size"]
-            y_count = y_count + 1
-
-        z = position["z"]
-
-        # print('getting chunk {} {}'.format(x_count, y_count))
-        return self["WORLDMAP"][x_count][y_count][z]
+        if position["z"] not in self["WORLDMAP"][chunk_x][chunk_y]:
+            # if the z-level at this chunk doesn't exist yet, we need to create it and return it.
+            self.create_chunk(chunk_x, chunk_y, position["z"])
+        return self["WORLDMAP"][chunk_x][chunk_y][position["z"]]
 
     def get_all_tiles(self):
         ret = []
@@ -154,50 +133,11 @@ class Worldmap(dict):
         return ret  # expensive function. use sparingly.
 
     def get_tile_by_position(self, position):
-        x_count = 0  # these two little loop gets us the right chunk FAST
-        x = position["x"]
-        while x >= self["chunk_size"]:
-            x = x - self["chunk_size"]
-            x_count = x_count + 1
-
-        y_count = 0  #
-        y = position["y"]
-        while y >= self["chunk_size"]:
-            y = y - self["chunk_size"]
-            y_count = y_count + 1
-
-        z = position["z"]
-
-        try:
-            for tile in self["WORLDMAP"][x_count][y_count][z]["tiles"]:
-                if tile["position"] == position:
-                    return tile
-            # else:
-            #    raise Exception("FATAL ERROR: couldn't find chunk for tile")
-        except Exception:
-            # if it doesn't exist yet (exception) we need to create it and return it.
-            self["WORLDMAP"][x_count][y_count][z] = Chunk(
-                x_count, y_count, z, self["chunk_size"]
-            )
-            path = str(
-                "./worlds/default/"
-                + str(x_count)
-                + "_"
-                + str(y_count)
-                + "_"
-                + str(z)
-                + ".chunk"
-            )
-            with open(path, "w") as fp:
-                fp = json.dumps(self["WORLDMAP"][x_count][y_count][z])
-                for tile in self["WORLDMAP"][x_count][y_count][z]["tiles"]:
-                    if tile["position"] == position:
-                        return tile
-                else:
-                    print("position we couldnt find", str(position))
-                    raise Exception(
-                        "ERROR: Could not find tile or create it. (this should never happen)"
-                    )
+        chunk = self.get_chunk_by_position(position)
+        local_x = position["x"] % self["chunk_size"]
+        local_y = position["y"] % self["chunk_size"]
+        index = (local_x * self["chunk_size"]) + local_y
+        return chunk["tiles"][index]
 
     def get_chunks_near_position(self, position):  # a localmap
         chunks = []
@@ -210,27 +150,23 @@ class Worldmap(dict):
             Position(x + self["chunk_size"], y + self["chunk_size"], z)
         )
         chunks.append(north_east_chunk)
-        north_chunk = self.get_chunk_by_position(
-            Position(x + self["chunk_size"], y, z))
+        north_chunk = self.get_chunk_by_position(Position(x + self["chunk_size"], y, z))
         chunks.append(north_chunk)
         north_west_chunk = self.get_chunk_by_position(
             Position(x + self["chunk_size"], y - self["chunk_size"], z)
         )
         chunks.append(north_west_chunk)
-        west_chunk = self.get_chunk_by_position(
-            Position(x, y - self["chunk_size"], z))
+        west_chunk = self.get_chunk_by_position(Position(x, y - self["chunk_size"], z))
         chunks.append(west_chunk)
         mid_chunk = self.get_chunk_by_position(Position(x, y, z))
         chunks.append(mid_chunk)
-        east_chunk = self.get_chunk_by_position(
-            Position(x, y + self["chunk_size"], z))
+        east_chunk = self.get_chunk_by_position(Position(x, y + self["chunk_size"], z))
         chunks.append(east_chunk)
         south_west_chunk = self.get_chunk_by_position(
             Position(x - self["chunk_size"], y - self["chunk_size"], z)
         )
         chunks.append(south_west_chunk)
-        south_chunk = self.get_chunk_by_position(
-            Position(x - self["chunk_size"], y, z))
+        south_chunk = self.get_chunk_by_position(Position(x - self["chunk_size"], y, z))
         chunks.append(south_chunk)
         south_east_chunk = self.get_chunk_by_position(
             Position(x - self["chunk_size"], y + self["chunk_size"], z)
@@ -263,9 +199,8 @@ class Worldmap(dict):
 
         return _ret_list
 
-    def put_object_at_position(
-        self, obj, position
-    ):  # attempts to take any object (creature, item, furniture) and put it in the right spot in the WORLDMAP
+    def put_object_at_position(self, obj, position):
+        # attempts to take any object (creature, item, furniture) and put it in the right spot in the WORLDMAP
         # TODO: check if something is already there. right now it just replaces it
         tile = self.get_tile_by_position(position)
         self.get_chunk_by_position(position)["is_dirty"] = True
@@ -282,8 +217,7 @@ class Worldmap(dict):
         elif isinstance(obj, Furniture):
             tile["furniture"] = obj
             return
-        # a blueprint takes up the slot that the final object is.
-        # e.g Terrain blueprint takes up the Terrain slot in the world map.
+        # a blueprint takes up the slot that the final object is. e.g Terrain blueprint takes up the Terrain slot in the worlds map.
         elif isinstance(obj, Blueprint):
             if obj.type_of == "Terrain":
                 tile["terrain"] = obj
@@ -299,16 +233,15 @@ class Worldmap(dict):
 
         # TODO: the rest of the types.
 
-    def build_json_building_at_position(
-        self, filename, position
-    ):  # applys the json file to world coordinates. can be done over multiple chunks.
+    def build_json_building_at_position(self, filename, position):
+        """Applies the json file to worlds coordinates. can be done over multiple chunks."""
         # print("building: {} at {}".format(filename, position))
         start = time.time()
         # TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
             data = json.load(json_file)
-        # group = data['group']
-        # overmap_terrain = data['overmap_terrain']
+        # group = data["group"]
+        # overmap_terrain = data["overmap_terrain"]
         floors = data["floors"]
         terrain = data["terrain"]  # list
         furniture = data["furniture"]  # list
@@ -321,8 +254,7 @@ class Worldmap(dict):
                 i = 0
                 for char in row:
                     impassable = False
-                    t_position = Position(
-                        position["x"] + i, position["y"] + j, k)
+                    t_position = Position(position["x"] + i, position["y"] + j, k)
                     self.put_object_at_position(
                         Terrain(fill_terrain, impassable), t_position
                     )  # use fill_terrain if unrecognized.
@@ -374,30 +306,78 @@ class Worldmap(dict):
         from_tile["creature"] = None
         return True
 
-    def furniture_open(self, object, position):  # the object doing the opening
+    def find_spawn_point_for_new_character(self):
+        _tiles = self.get_all_tiles()
+        random.shuffle(_tiles)  # so we all don"t spawn in one corner.
+        for tile in _tiles:
+            if (
+                tile["position"]["x"] < 12
+                or tile["position"]["y"] < 12
+                or tile["position"]["z"] != 0
+            ):
+                continue
+            if tile["terrain"]["impassable"]:
+                continue
+            if tile["creature"] is not None:
+                continue
+            if tile["terrain"]["ident"] == "t_open_air":
+                continue
+
+            return tile["position"]
+
+    def bash(self, object, position):
+        """Catch-all for bash/smash (can probably use this for vehicle collisions as well) object is object that is doing the bashing
+        since we bash in a direction we need to check what's in the tile and go from there.
+        both furniture and terrain can be bashed but we should assume that the player wants to bash the furniture first then terrain we will go in that order."""
         tile = self.get_tile_by_position(position)
-        furniture = tile["furniture"]
-        if furniture is not None:
-            if "open" in furniture:  #
-                # replace this furniture with the open version.
-                # make sure to copy any items in it to the new one.
-                pass
-        else:
-            return False
+        terrain = tile["terrain"]
+        # strength = creature strength.
+        if tile["furniture"] is not None:
+            furniture_type = self.FurnitureManager.FURNITURE_TYPES[
+                tile["furniture"]["ident"]
+            ]
+            for item in furniture_type["bash"]["items"]:
+                self.put_object_at_position(
+                    Item(
+                        self.ItemManager.ITEM_TYPES[str(item["item"])]["ident"],
+                        self.ItemManager.ITEM_TYPES[str(item["item"])],
+                    ),
+                    position,
+                )  # need to pass the reference to load the item with data.
+            tile["furniture"] = None
+            # get the "bash" dict for this object from furniture.json
+            # get "str_min"
+            # if player can break it then delete the furniture and add the bash items from it to the tile.
+            return
+        if terrain is not None:
+            # get the "bash" dict for this object from terrain.json if any
+            # if dict is not None:
+            # get "str_min"
+            # if player can break it then delete the terrain and add the bash terrain from it to the tile.
+            return
         return
 
-    # the object doing the opening.
-    def furniture_close(self, object, position):
+    def furniture_open(self, object, position):  # the object doing the opening.
         tile = self.get_tile_by_position(position)
         furniture = tile["furniture"]
         if furniture is not None:
-            if "close" in furniture:  #
-                # replace this furniture with the closed version.
+            if "open" in furniture:
+                # replace this furniture with the open version.
                 # make sure to copy any items in it to the new one.
-                pass
+                return
         else:
             return False
-        return
+
+    def furniture_close(self, object, position):  # the object doing the opening.
+        tile = self.get_tile_by_position(position)
+        furniture = tile["furniture"]
+        if furniture is not None:
+            if "close" in furniture:
+                # replace this furniture with the closed version.
+                # make sure to copy any items in it to the new one.
+                return
+        else:
+            return False
 
     def get_tiles_near_position(self, position, radius):
         # figure out a way to get all tile positions near a position so we can get_tile_by_position on them.
@@ -408,8 +388,7 @@ class Worldmap(dict):
                 dy = position["y"] - j
                 distance = max(abs(dx), abs(dy))
                 ret_tiles.append(
-                    (self.get_tile_by_position(
-                        Position(i, j, position["z"])), distance)
+                    (self.get_tile_by_position(Position(i, j, position["z"])), distance)
                 )
         return ret_tiles
 
@@ -421,7 +400,8 @@ class Worldmap(dict):
         for i in range(size):
             city_layout[i] = dict()
             for j in range(size):
-                city_layout[i][j] = "."  # . is grass or nothing
+                # . is grass or nothing
+                city_layout[i][j] = "."
 
         # first place roads along the center lines of the city
         for tile in range(size):
@@ -441,13 +421,13 @@ class Worldmap(dict):
         num_firedept = int(size / 12)
         num_jail = int(size / 12)
 
-        # print("num_residential: " + str(num_residential))
-        # print("num_commercial: " + str(num_commercial))
-        # print("num_industrial: " + str(num_industrial))
-        # print("num_hospitals: " + str(num_hospitals))
-        # print("num_police: " + str(num_police))
-        # print("num_firedept: " + str(num_firedept))
-        # print("num_jail: " + str(num_jail))
+        #print("num_residential: " + str(num_residential))
+        #print("num_commercial: " + str(num_commercial))
+        #print("num_industrial: " + str(num_industrial))
+        #print("num_hospitals: " + str(num_hospitals))
+        #print("num_police: " + str(num_police))
+        #print("num_firedept: " + str(num_firedept))
+        #print("num_jail: " + str(num_jail))
 
         # put road every 4th tile with houses on either side.
         for j in range(1, size - 1):
@@ -509,36 +489,28 @@ class Worldmap(dict):
                     city_layout[i][j] = "H"
                     num_hospitals = num_hospitals - 1
 
-        for j in range(size):
-            for i in range(size):
+        # for j in range(size):
+        #     for i in range(size):
                 # print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
-                pass
 
         return city_layout
 
-    # we use this in pathfinding.
-    def get_adjacent_positions_non_impassable(self, position):
-        ret_tiles = []
-        tile0 = self.get_tile_by_position(
-            Position(position["x"] + 1, position["y"], position["z"])
-        )
-        tile1 = self.get_tile_by_position(
-            Position(position["x"] - 1, position["y"], position["z"])
-        )
-        tile2 = self.get_tile_by_position(
-            Position(position["x"], position["y"] + 1, position["z"])
-        )
-        tile3 = self.get_tile_by_position(
-            Position(position["x"], position["y"] - 1, position["z"])
-        )
+    def get_adjacent_positions(self, position):
+        adjacencies = []
+        for offset in [-1, 1]:
+            if 0 <= position["x"] + offset < self.x_max:
+                adjacencies.append(
+                    Position(position["x"] + offset, position["y"], position["z"])
+                )
+            if 0 <= position["y"] + offset < self.y_max:
+                adjacencies.append(
+                    Position(position["x"], position["y"] + offset, position["z"])
+                )
+        return adjacencies
 
-        if tile0 is not None and not tile0["terrain"]["impassable"]:
-            ret_tiles.append(tile0["position"])
-        if tile1 is not None and not tile1["terrain"]["impassable"]:
-            ret_tiles.append(tile1["position"])
-        if tile2 is not None and not tile2["terrain"]["impassable"]:
-            ret_tiles.append(tile2["position"])
-        if tile3 is not None and not tile3["terrain"]["impassable"]:
-            ret_tiles.append(tile3["position"])
+    def get_adjacent_tiles(self, position):
+        return [self.get_tile_by_position(adjacent_pos) for adjacent_pos in self.get_adjacent_positions(position)]
 
-        return ret_tiles
+    def get_adjacent_tiles_non_impassable(self, position):
+        # we use this in pathfinding.
+        return [adjacency for adjacency in self.get_adjacent_tiles(position) if not adjacency["terrain"]["impassable"]]

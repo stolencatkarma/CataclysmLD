@@ -1,2 +1,2 @@
-class Faction():
+class Faction:
     pass

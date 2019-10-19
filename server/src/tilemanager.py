@@ -15,44 +15,44 @@ class TileManager:
             data = json.load(data_file)
         for terrain in data:
             # pprint(terrain)
-            if('name' not in terrain.keys()):
+            if 'name' not in terrain.keys():
                 terrain['name'] = None
             self.TILE_TYPES[terrain['ident']]['name'] = terrain['name']
-            if('group' not in terrain.keys()):
+            if 'group' not in terrain.keys():
                 terrain['group'] = None
             self.TILE_TYPES[terrain['ident']]['group'] = terrain['group']
-            if('move_cost' not in terrain.keys()):
+            if 'move_cost' not in terrain.keys():
                 terrain['move_cost'] = 0
             self.TILE_TYPES[terrain['ident']
                             ]['move_cost'] = terrain['move_cost']
-            if('open' not in terrain.keys()):
+            if 'open' not in terrain.keys():
                 terrain['open'] = None
             self.TILE_TYPES[terrain['ident']]['open'] = terrain['open']
-            if('close' not in terrain.keys()):
+            if 'close' not in terrain.keys():
                 terrain['close'] = None
             self.TILE_TYPES[terrain['ident']]['close'] = terrain['close']
-            if('description' not in terrain.keys()):
+            if 'description' not in terrain.keys():
                 terrain['description'] = ''
             self.TILE_TYPES[terrain['ident']
                             ]['description'] = terrain['description']
-            if('flags' not in terrain.keys()):
+            if 'flags' not in terrain.keys():
                 terrain['flags'] = None
             self.TILE_TYPES[terrain['ident']]['flags'] = terrain['flags']
-            if('bash' not in terrain.keys()):
+            if 'bash' not in terrain.keys():
                 terrain['bash'] = None
             self.TILE_TYPES[terrain['ident']]['bash'] = terrain['bash']
-            if('transforms_into' not in terrain.keys()):
+            if 'transforms_into' not in terrain.keys():
                 terrain['transforms_into'] = None
             self.TILE_TYPES[terrain['ident']
                             ]['transforms_into'] = terrain['transforms_into']
-            if('roof' not in terrain.keys()):
+            if 'roof' not in terrain.keys():
                 terrain['roof'] = None
             self.TILE_TYPES[terrain['ident']]['roof'] = terrain['roof']
-            if('harvest_season' not in terrain.keys()):
+            if 'harvest_season' not in terrain.keys():
                 terrain['harvest_season'] = 'Summer'
             self.TILE_TYPES[terrain['ident']
                             ]['harvest_season'] = terrain['harvest_season']
-            if('deconstruct' not in terrain.keys()):
+            if 'deconstruct' not in terrain.keys():
                 terrain['deconstruct'] = None
             self.TILE_TYPES[terrain['ident']
                             ]['deconstruct'] = terrain['deconstruct']

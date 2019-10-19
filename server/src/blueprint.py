@@ -4,7 +4,7 @@ import sys
 # # once built it 'turns' into the type and fills the worldmap with it.
 
 
-class Blueprint():
+class Blueprint:
     def __init__(self, type_of, recipe):
         valid_types = ['Terrain', 'Furniture', 'Item']
         self['ident'] = 'Blueprint'
@@ -13,7 +13,7 @@ class Blueprint():
         self.turns_worked_on = 0
         self.contained_items = list()
 
-        if(str(type_of) not in valid_types):
+        if str(type_of) not in valid_types:
             self.type_of = None
             print()
             print('!!! COULDN\'T set type. Invalid')
@@ -42,11 +42,11 @@ class Blueprint():
         print('Trying to add item to contained_items')
 
         # if item not in recipe items return False else return True
-        if(isinstance(item_or_list, list)):
+        if isinstance(item_or_list, list):
             # got a list of items to add
             for item in item_or_list:
                 for component in self.recipe['components']:
-                    if(component['ident'] == item['ident']):
+                    if component['ident'] == item['ident']:
                         # this item belongs in this recipe.
                         break
                 else:
@@ -59,7 +59,7 @@ class Blueprint():
         else:
             # add single item.
             for component in self.recipe['components']:
-                if(component['ident'] == item_or_list['ident']):
+                if component['ident'] == item_or_list['ident']:
                     # this item belongs in this recipe.
                     break
             else:

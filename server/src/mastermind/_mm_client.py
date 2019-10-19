@@ -108,13 +108,7 @@ class MastermindClientTCP(MastermindClientBase):
             self._mm_socket.connect((ip, port))
         except:
             self._mm_socket.close()
-            raise MastermindErrorSocket(
-                'A TCP connection to "'
-                + ip
-                + '" on port '
-                + str(port)
-                + " could not be established."
-            )
+            raise MastermindErrorSocket(f"A TCP connection to {ip} on port {port} could not be established.")
 
     def _mm_receive_func(self):
         data, status = netutil.packet_recv_tcp(self._mm_socket)

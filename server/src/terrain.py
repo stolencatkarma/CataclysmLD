@@ -1,4 +1,3 @@
-
 class Terrain(dict):
     def __init__(self, ident, impassable=False):
         self['ident'] = ident

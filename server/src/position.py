@@ -1,10 +1,20 @@
+from enum import Enum, auto
 
 
-# a position. to get the chunk we are in it's for example: Position(162, 164, 0)
-# it returns the modulous of the chunk size so 162 % is worldmap[10][10] remainder
-# 2 and 4 or (worldmap[10][10].pos.x + 2 and .pos.y + 4)
+class Direction(Enum):
+    NORTH = auto()
+    EAST = auto()
+    SOUTH = auto()
+    WEST = auto()
+    UP = auto()
+    DOWN = auto()
+
+
 class Position(dict):
-    # that way Positions are related to worldmap and not individual chunks.
+    """A position in a regular 3D Cartesian grid.
+    To get the position within chunk we are in, take the modulus of the (x, y) component of the position by the (x, y) dimensions of chunk size.
+    For example if the position is (162, 164, 0) and the chunk size so (10, 10), then the position within the chunk is (162 % 10, 164 % 10) = (2, 4)"""
+
     def __init__(self, x, y, z):
         self['x'] = int(x)
         self['y'] = int(y)
@@ -12,14 +22,10 @@ class Position(dict):
         # self['previous'] = None # used for pathfinding.
 
     def __eq__(self, position):  # required to be hashable.
-        if(position['x'] == self['x']):
-            if(position['y'] == self['y']):
-                if(position['z'] == self['z']):
-                    return True
-        return False
+        return isinstance(position, Position) \
+               and position['x'] == self['x'] \
+               and position['y'] == self['y'] \
+               and position['z'] == self['z']
 
-    # def asdict(self):
-    #    return {'x': self.x, 'y': self.y, 'z': self.z}
-
-    # def __str__(self):
-    #    return '(' + str(self.x) + ', ' + str(self.y) + ', ' + str(self.z) + ')'
+    def __str__(self):
+        return f"({self['x']}, {self['y']}, {self['z']})"

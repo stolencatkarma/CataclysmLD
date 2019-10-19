@@ -1,5 +1,5 @@
 
-class Calendar():  # controls the time in game. to advance time in game we do it with this.
+class Calendar:  # controls the time in game. to advance time in game we do it with this.
     def __init__(self, seconds, minutes, hours, days, months, years):
         self.SECONDS = seconds
         self.MINUTES = minutes
@@ -24,23 +24,23 @@ class Calendar():  # controls the time in game. to advance time in game we do it
         for x in range(amount):
             self.SECONDS = self.SECONDS + 1
             self.do_events()  # if anything needs doing this will do it.
-            if(self.SECONDS >= self.SECONDS_PER_MINUTE):
+            if self.SECONDS >= self.SECONDS_PER_MINUTE:
                 self.SECONDS = 0
                 self.MINUTES = self.MINUTES + 1
 
-            if(self.MINUTES >= self.MINUTES_PER_HOUR):
+            if self.MINUTES >= self.MINUTES_PER_HOUR:
                 self.MINUTES = 0
                 self.HOURS = self.HOURS + 1
 
-            if(self.HOURS >= self.HOURS_PER_DAY):
+            if self.HOURS >= self.HOURS_PER_DAY:
                 self.HOURS = 0
                 self.DAYS = self.DAYS + 1
 
-            if(self.DAYS >= self.DAYS_PER_MONTH):
+            if self.DAYS >= self.DAYS_PER_MONTH:
                 self.DAYS = 0
                 self.MONTHS = self.MONTHS + 1
 
-            if(self.MONTHS >= self.MONTHS_PER_YEAR):
+            if self.MONTHS >= self.MONTHS_PER_YEAR:
                 self.MONTHS = 0
                 self.YEARS = self.YEARS + 1
 
@@ -102,7 +102,7 @@ class Calendar():  # controls the time in game. to advance time in game we do it
         self.weekday_names.insert(len(self.weekday_names), 'Friday')
         self.weekday_names.insert(len(self.weekday_names), 'Saturday')
         days = self.DAYS  # How many days have passed this month.
-        while(days >= len(self.weekday_names)):  # loop until we get a number 0-6
+        while days >= len(self.weekday_names):  # loop until we get a number 0-6
             days = days - len(self.weekday_names)
 
         # what's left over is the day of the week.

@@ -52,7 +52,6 @@ tile_data = PoolIntArray( -393227, 42, 0, -131072, 0, 0 )
 tile_set = ExtResource( 5 )
 cell_size = Vector2( 32, 32 )
 format = 1
-tile_data = PoolIntArray( 4259843, 107, 0 )
 
 [node name="creature_tilemap" type="TileMap" parent="ViewportContainer/Viewport/node_window_main"]
 tile_set = ExtResource( 6 )

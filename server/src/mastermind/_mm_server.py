@@ -1,6 +1,5 @@
 import select
 import socket
-import time
 import threading
 
 import src.mastermind._mm_netutil as netutil
@@ -281,7 +280,7 @@ class MastermindServerTCP(MastermindServerBase):
             input_ready, output_ready, except_ready = select.select(
                 [self._mm_unconnected_socket], [], [], self._mm_time_server_refresh
             )
-            if input_ready == []:
+            if not input_ready:
                 continue
 
             connected_socket, address = self._mm_unconnected_socket.accept()
@@ -312,21 +311,21 @@ class MastermindConnectionThreadTCP(MastermindConnectionThread):
         MastermindConnectionThread.__init__(self, server, socket, address)
 
     def run_forever(self):
-        self.server.callback_connect_client(self)
+        # self.server.callback_connect_client(self)
 
         self.handling = True
         while self.handling:
             input_ready, output_ready, except_ready = select.select(
                 [self.socket], [], [], self.server._mm_time_connection_refresh
             )
-            if input_ready == []:
+            if not input_ready:
                 self.amount_waiting += self.server._mm_time_connection_refresh
                 if self.amount_waiting > self.server._mm_time_connection_timeout:
                     break
                 continue
 
             data, status = self.server.callback_client_receive(self)
-            if status == False:
+            if status is False:
                 break
 
             self.server.callback_client_handle(self, data)

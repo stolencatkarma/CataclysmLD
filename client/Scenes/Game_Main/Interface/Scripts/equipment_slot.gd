@@ -11,4 +11,4 @@ func _ready():
 func slot_clicked():
 	# if this contains a item it will have an 'ident'
 	if 'ident' in contained:
-		print('clicked ' + contained['ident'])
+		print('clicked: %s' % contained['ident'])

@@ -34,7 +34,7 @@ func _process(delta):
 				get_node(body_part['ident']).get_node('slot0').button.icon = at
 				
 				if('opened' in body_part['slot0']):
-					if(body_part['slot0']['opened'] == 'yes'):
+					if(body_part['slot0']['opened']):
 						for item in body_part['slot0']['contained_items']:
 							var _slot = container_slot.instance() 
 							var _contained_in = item.duplicate()
@@ -52,7 +52,3 @@ func _process(delta):
 							startx = startx + 32
 							
 							_slot.position = Vector2(startx, starty)
-							
-
-			
-			

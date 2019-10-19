@@ -1,4 +1,4 @@
-# defines base creature in the base. all monsters, Characters, npcs, and critters derive from this.
+"""Defines base creature in the base. all monsters, Characters, npcs, and critters derive from this."""
 from .bodypart import Bodypart
 
 

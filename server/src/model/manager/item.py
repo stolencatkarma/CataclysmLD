@@ -10,14 +10,14 @@ class Item(dict):
         self['reference'] = reference
         # you can create objects like this.
         # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
+    
 
-
-# containers are types of Items and can do everything an item can do.
 class Container(Item):
+    """Containers are types of Items and can do everything an item can do."""
     def __init__(self, ident, reference):
         Item.__init__(self, ident, reference)
         self['contained_items'] = []
-        self['opened'] = 'yes'  # I don't like using True/False in python.
+        self['opened'] = True
         # this plus all the contained items is how much the item weighs.
         self['base_weight'] = int(self['reference']['weight'])
         self['max_volume'] = int(self['reference']['volume'])
@@ -29,14 +29,14 @@ class Container(Item):
         weight = 0
         for item in self['contained_items']:
             weight = weight + int(item['reference']['weight'])
-        weight = weight + self['base_weight']  # add the base weight
+        weight = weight + self['base_weight'] # add the base weight
         self['contained_weight'] = weight
 
     def add_item(self, item):
         # TODO: check right item type and container type (liquids go in liquid containers.)
 
         # check volume
-        if(int(item['reference']['volume']) + self['contained_volume'] < self['max_volume']):
+        if int(item['reference']['volume']) + self['contained_volume'] < self['max_volume']:
             self['contained_items'].append(item)
             self.recalc_weight()
             print(' - added item to container successfully.')
@@ -50,8 +50,7 @@ class Container(Item):
             if item_to_check == item:
                 self['contained_items'].remove(item_to_check)
                 self.recalc_weight()
-                # if we remove it then it needs to go somewhere. better return it so we can manage it.
-                return item
+                return item # if we remove it then it needs to go somewhere. better return it so we can manage it.
 
 
 class ItemManager:
@@ -65,18 +64,21 @@ class ItemManager:
                     for item in data:
                         try:
                             for key, value in item.items():
-                                if(isinstance(value, list)):
+                                if isinstance(value, list):
                                     self.ITEM_TYPES[item['ident']][key] = []
                                     for add_value in value:
-                                        self.ITEM_TYPES[item['ident']][key].append(
-                                            str(add_value))
+                                        self.ITEM_TYPES[item['ident']][key].append(str(add_value))
                                 else:
-                                    self.ITEM_TYPES[item['ident']][key] = str(
-                                        value)
+                                    self.ITEM_TYPES[item['ident']][key] = str(value)
                         except Exception:
-                            print()
-                            print('!! couldn\'t parse: ' + str(item) +
-                                  ' -- likely missing ident.')
-                            print()
-                            sys.exit()
-        print('total ITEM_TYPES loaded: ' + str(len(self.ITEM_TYPES)))
+                            raise Exception(f"!! couldn't parse: {item}.")
+        print(f"Total ITEM_TYPES loaded: {len(self.ITEM_TYPES)}")
+
+    def get_item(self, ident):
+        return self.ITEM_TYPES[ident]
+
+    def create_item(self, ident):
+        if 'container_type' in self.ITEM_TYPES[ident]:
+            return Container(ident, self.ITEM_TYPES[ident])
+        else:
+            return Item(ident, self.ITEM_TYPES[ident])
