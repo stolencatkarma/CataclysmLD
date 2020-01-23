@@ -225,7 +225,7 @@ class Server(MastermindServerTCP):
 
 	# quit on disconnect signal.
         if data == "disconnect":
-            print('got disconnect signal')
+            # print('got disconnect signal')
             connection_object.terminate()
             return
 
@@ -234,11 +234,11 @@ class Server(MastermindServerTCP):
             # this will be the client's username.
             connection_object.state = "LOGIN2"
             connection_object.username = data
-            self.callback_client_send(connection_object, "Password? >")
+            self.callback_client_send(connection_object, "Password? > ")
             return
 
         if connection_object.state == "LOGIN2":
-            print(connection_object.username + " entered LOGIN2")
+            # print(connection_object.username + " entered LOGIN2")
             # this is the client's password.
             connection_object.password = data
 
@@ -290,7 +290,6 @@ class Server(MastermindServerTCP):
             self.callback_client_send(connection_object, _message)
 
 
-
         if connection_object.state == "CHOOSE_CHARACTER":
             # first option is always create new character
             idx = 2
@@ -340,11 +339,14 @@ class Server(MastermindServerTCP):
             return
 
 
+        ########################################################
+        ## Main Loop After a Client connects with a Character. #
+        ########################################################
         # Once players have chosen a character they are CONNECTED and can start sending commands as a player and recieve map updates.
         if connection_object.state == "CONNECTED":
             # player sent an empty command.
             if len(data) < 1:
-                _localmap = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]['position'])
+                self.localmaps[connection_object.character] = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]['position'])
                 cx = self.characters[connection_object.character]['position']['x']
                 cy = self.characters[connection_object.character]['position']['y']
                 cz = self.characters[connection_object.character]['position']['z']
@@ -356,7 +358,7 @@ class Server(MastermindServerTCP):
 
                 min_x = None
                 min_y = None
-                for chunk in _localmap:
+                for chunk in self.localmaps[connection_object.character]:
                     for tile in chunk['tiles']:
                         x = tile['position']['x']
                         y = tile['position']['y']
@@ -371,7 +373,9 @@ class Server(MastermindServerTCP):
                             min_y = y
 
 
-                for chunk in _localmap:
+                pre_color = "\u001b[38;5;"
+                post_color = "\u001b[0m"
+                for chunk in self.localmaps[connection_object.character]:
                     for tile in chunk['tiles']:
                         # translate localmap to a terminal friendly map and send it to the client.
                         # order the tiles by x, y, ignore z levels not on current level.
@@ -381,28 +385,40 @@ class Server(MastermindServerTCP):
                         z = tile['position']['z']
                         if cz != z:
                             continue
+
+                        t_id = self.TileManager.TILE_TYPES[tile['terrain']['ident']]
+                        send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id['symbol'] + post_color # concat color and symbol
+                        # print(pre_color + t_id['color'] + t_id['symbol'] + post_color)
+
+                        if tile['furniture'] is not None:
+                            f_id = self.FurnitureManager.FURNITURE_TYPES[tile['furniture']['ident']]
+                            send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id['symbol'] + post_color.lower()
                         if tile['creature'] is not None:
                             send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
-                        else:
-                            send_map[x - min_x][y - min_y] = self.TileManager.TILE_TYPES[tile['terrain']['ident']]['symbol']
                         # print(tile['terrain'])
 
                 next_line = ''
                 for i in range(39):
                     for j in range(39):
-                        next_line = next_line + send_map[i][j]
+                        next_line = next_line + send_map[j][i]
                     self.callback_client_send(connection_object, next_line + '\r\n')
                     next_line = ''
                 return
 
+            # try to parse the data sent for arguments.
+            data_list = data.split(" ")
+            _command = dict()
+            _command["args"] = list()
+            _command["command"] = data_list.pop(0)
+            for item in data_list:
+                _command["args"].append(item)
 
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
             if _command["command"] == "move":
-                self.characters[data["ident"]]["command_queue"].append(
-                    Action(self.characters[data["ident"]],
-                           "move", [data["args"][0]])
-                )
+                self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, "move", _command["args"]))
+                self.callback_client_send(connection_object, "You move " + _command['args'][0] + ".")
+                return
 
             if _command["command"] == "bash":
                 _position = Position(
@@ -414,7 +430,7 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(
                     connection_object, json.dumps(_container))
 
-            if _command["command"] == "create_blueprint":  # [result, direction])
+            if _command["command"] == "create_blueprint":  # [result, direction]
                 # args 0 is ident args 1 is direction.
                 print(
                     "creating blueprint "
@@ -473,7 +489,6 @@ class Server(MastermindServerTCP):
                         str(data["ident"])
                     )
                 )
-                # pprint.pprint(data['args'])
                 _position = Position(
                     data["args"][0], data["args"][1], data["args"][2])
                 _route = self.calculate_route(
@@ -658,7 +673,7 @@ class Server(MastermindServerTCP):
         # send the user a login prompt
         connection_object.state = "LOGIN"
         # return super(Server, self).callback_connect_client(connection_object)
-        self.callback_client_send(connection_object, "Username? >")
+        self.callback_client_send(connection_object, "Username? > ")
         return
 
     def callback_disconnect_client(self, connection_object):
@@ -680,10 +695,10 @@ class Server(MastermindServerTCP):
                 )
                 return
             # if we get here we can process a single action
-            if action["action_type"] == "move":
-                print("moving character " + str(creature["name"]))
+            if action.type == "move":
+                pprint.pprint(action.args)
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
-                if action["args"][0] == "south":
+                if action.args[0] == "south":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -701,7 +716,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action["args"][0] == "north":
+                if action.args[0] == "north":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -719,7 +734,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action["args"][0] == "east":
+                if action.args[0] == "east":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -737,7 +752,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action["args"][0] == "west":
+                if action.args[0] == "west":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -755,7 +770,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action["args"][0] == "up":
+                if action.args[0] == "up":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -773,7 +788,7 @@ class Server(MastermindServerTCP):
                                             ]["position"]["z"] + 1,
                         )
                     creature["command_queue"].remove(action)
-                if action["args"][0] == "down":
+                if action.args[0] == "down":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -791,7 +806,7 @@ class Server(MastermindServerTCP):
                                             ]["position"]["z"] - 1,
                         )
                     creature["command_queue"].remove(action)
-            elif action["action_type"] == "bash":
+            elif action.type == "bash":
                 pprint.pprint(action)
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
                 self.bash(

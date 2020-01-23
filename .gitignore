@@ -10,6 +10,8 @@
 *.idea
 /dist/*
 /build/*
+# py files open in nano sessions.
+*.py.swp
 # ignore logs
 server/log/*
 !server/log/.gitkeep

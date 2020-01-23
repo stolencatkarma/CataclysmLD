@@ -57,6 +57,9 @@ class TileManager:
             if('symbol' not in terrain.keys()):
                 terrain['symbol'] = ' '
             self.TILE_TYPES[terrain['ident']]['symbol'] = terrain['symbol']
+            if('color' not in terrain.keys()):
+                terrain['color'] = '200'
+            self.TILE_TYPES[terrain['ident']]['color'] = terrain['color']
 
         # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost',
         # 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close',

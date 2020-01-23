@@ -3,7 +3,7 @@
         "ident" : "t_hole",
         "name": "empty space",
         "symbol": " ",
-        "color": "black",
+        "color": "0",
         "move_cost": 2,
         "trap": "tr_ledge",
         "flags": ["TRANSPARENT", "NOITEM"]
@@ -11,7 +11,7 @@
         "ident" : "t_open_air_rooved",
         "name": "open air",
         "symbol": " ",
-        "color": "i_cyan",
+        "color": "6",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "trap": "tr_ledge",
@@ -21,7 +21,7 @@
         "ident" : "t_brick_wall_halfway",
         "name": "half-built brick wall",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 5,
         "flags": ["TRANSPARENT", "NOITEM", "MOUNTABLE", "REDUCE_SCENT"],
         "bash": {
@@ -36,7 +36,7 @@
         "ident" : "t_brick_wall",
         "name": "brick wall",
         "symbol": "X",
-        "color": "brown",
+        "color": "124",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -54,7 +54,7 @@
         "ident" : "t_scrap_wall",
         "name": "simple metal wall",
         "symbol": "O",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -72,7 +72,7 @@
         "ident" : "t_scrap_wall_halfway",
         "name": "half-built simple metal wall",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 4,
         "flags": ["NOITEM", "TRANSPARENT", "MOUNTABLE", "REDUCE_SCENT"],
         "bash": {
@@ -89,7 +89,7 @@
         "ident" : "t_sconc_wall",
         "name": "simple concrete wall",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -107,7 +107,7 @@
         "ident" : "t_sconc_wall_halfway",
         "name": "half-built simple concrete wall",
         "symbol": "*",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 4,
         "flags": ["NOITEM", "TRANSPARENT", "MOUNTABLE", "REDUCE_SCENT"],
         "connects_to": "WALL",
@@ -125,7 +125,7 @@
         "ident" : "t_strconc_wall",
         "name": "reinforced concrete wall",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -143,7 +143,7 @@
         "ident" : "t_strconc_wall_halfway",
         "name": "half-built reinforced concrete wall",
         "symbol": "*",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 5,
         "flags": ["TRANSPARENT", "NOITEM", "MOUNTABLE", "REDUCE_SCENT"],
         "connects_to": "WALL",
@@ -161,7 +161,7 @@
         "ident" : "t_reb_cage",
         "name": "rebar cage",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE"],
         "connects_to": "WALL",
@@ -180,7 +180,7 @@
         "ident" : "t_thconc_floor",
         "name": "concrete floor",
         "symbol": ".",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT"
@@ -202,7 +202,7 @@
         "ident" : "t_ov_smreb_cage",
         "name": "small rebar roof cage",
         "symbol": ".",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 4,
         "flags": [
             "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "FLAT"
@@ -223,7 +223,7 @@
         "ident" : "t_strconc_floor",
         "name": "reinforced concrete floor",
         "symbol": ".",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT"
@@ -245,7 +245,7 @@
         "ident" : "t_ov_reb_cage",
         "name": "rebar roof cage",
         "symbol": ".",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 4,
         "flags": [
                 "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "FLAT"
@@ -266,7 +266,7 @@
         "ident" : "t_strconc_floor_halfway",
         "name": "half-built reinforced concrete floor",
         "symbol": ".",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "flags": [
                 "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT"
@@ -288,7 +288,7 @@
         "ident" : "t_dirt",
         "name": "dirt",
         "symbol": ".",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "DIGGABLE", "FLAT"],
         "bash": {
@@ -304,7 +304,7 @@
         "ident" : "t_sand",
         "name": "sand",
         "symbol": ".",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "DIGGABLE", "FLAT"],
         "bash": {
@@ -320,7 +320,7 @@
         "ident" : "t_clay",
         "name": "clay",
         "symbol": ".",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "DIGGABLE", "FLAT"],
         "bash": {
@@ -336,7 +336,7 @@
         "ident" : "t_dirtmound",
         "name": "mound of dirt",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "DIGGABLE", "MOUNTABLE"],
         "bash": {
@@ -353,7 +353,7 @@
         "ident" : "t_dirtmoundfloor",
         "name": "mound of dirt",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "DIGGABLE", "MOUNTABLE", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS"],
         "bash": {
@@ -374,7 +374,7 @@
         "ident" : "t_pit_shallow",
         "name": "shallow pit",
         "symbol": "0",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 8,
         "flags": ["TRANSPARENT", "DIGGABLE"],
         "bash": {
@@ -390,7 +390,7 @@
         "ident" : "t_pit",
         "name": "pit",
         "symbol": "0",
-        "color": "brown",
+        "color": "166",
         "move_cost": 10,
         "trap": "tr_pit",
         "flags": ["TRANSPARENT"],
@@ -408,7 +408,7 @@
         "ident" : "t_pit_corpsed",
         "name": "corpse filled pit",
         "symbol": "|",
-        "color": "green",
+        "color": "82",
         "move_cost": 5,
         "flags": ["TRANSPARENT", "DIGGABLE"],
         "bash": {
@@ -425,7 +425,7 @@
         "ident" : "t_pit_covered",
         "name": "covered pit",
         "symbol": "#",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "ROAD"],
         "bash": {
@@ -442,7 +442,7 @@
         "ident" : "t_pit_spiked",
         "name": "spiked pit",
         "symbol": "0",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 10,
         "trap": "tr_spike_pit",
         "flags": ["TRANSPARENT"],
@@ -460,7 +460,7 @@
         "ident" : "t_pit_spiked_covered",
         "name": "covered spiked pit",
         "symbol": "#",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "ROAD"],
         "bash": {
@@ -477,7 +477,7 @@
         "ident" : "t_pit_glass",
         "name": "glass pit",
         "symbol": "0",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 10,
         "trap": "tr_glass_pit",
         "flags": ["TRANSPARENT"],
@@ -495,7 +495,7 @@
         "ident" : "t_pit_glass_covered",
         "name": "covered glass pit",
         "symbol": "#",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "ROAD"],
         "bash": {
@@ -512,7 +512,7 @@
         "ident" : "t_rock_floor",
         "name": "rock floor",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "INDOORS", "FLAT", "ROAD"],
@@ -528,7 +528,7 @@
         "ident" : "t_grass",
         "name": "grass",
         "symbol": ".",
-        "color": "green",
+        "color": "82",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "DIGGABLE", "FLAT"],
         "bash": {
@@ -544,7 +544,7 @@
         "ident" : "t_grass_white",
         "name": "white grass",
         "symbol": ".",
-        "color": "white",
+        "color": "231",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "DIGGABLE", "FLAT"],
         "bash": {
@@ -560,7 +560,7 @@
         "ident" : "t_metal_floor",
         "name": "metal floor",
         "symbol": ".",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "INDOORS", "FLAT", "ROAD"],
         "bash": {
@@ -574,8 +574,8 @@
 
         "ident" : "t_pavement",
         "name": "pavement",
-        "symbol": ".",
-        "color": "dark_gray",
+        "symbol": "'",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -593,8 +593,8 @@
 
         "ident" : "t_pavement_y",
         "name": "yellow pavement",
-        "symbol": ".",
-        "color": "yellow",
+        "symbol": "o",
+        "color": "11",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -613,7 +613,7 @@
         "ident" : "t_sidewalk",
         "name": "sidewalk",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -631,7 +631,7 @@
         "ident" : "t_concrete",
         "name": "concrete",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -650,7 +650,7 @@
         "ident" : "t_floor",
         "name": "floor",
         "symbol": ".",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -673,7 +673,7 @@
         "ident" : "t_scrap_floor",
         "name": "simple metal floor",
         "symbol": ".",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -694,7 +694,7 @@
         "ident" : "t_floor_waxed",
         "name": "waxed floor",
         "symbol": ".",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_HARD", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT"
@@ -715,7 +715,7 @@
         "ident" : "t_dirtfloor",
         "name": "dirt floor",
         "symbol": ".",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "DIGGABLE", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT"
@@ -737,7 +737,7 @@
         "ident" : "t_grate",
         "name": "metal grate",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT"]
     },{
@@ -745,7 +745,7 @@
         "ident" : "t_slime",
         "name": "slime",
         "symbol": "~",
-        "color": "green",
+        "color": "82",
         "move_cost": 6,
         "flags": ["TRANSPARENT", "CONTAINER", "FLAMMABLE_ASH", "PLACE_ITEM"]
     },{
@@ -753,7 +753,7 @@
         "ident" : "t_bridge",
         "name": "walkway",
         "symbol": "#",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
@@ -761,7 +761,7 @@
         "ident" : "t_utility_light",
         "name": "Utility Light",
         "symbol": ".",
-        "color": "white",
+        "color": "231",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_HARD", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "ROAD"
@@ -783,7 +783,7 @@
         "ident" : "t_wall_log_half",
         "name": "half-built log wall",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "REDUCE_SCENT", "MOUNTABLE"],
         "connects_to": "WALL",
@@ -801,7 +801,7 @@
         "ident" : "t_wall_log",
         "name": "log wall",
         "symbol": "O",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -819,7 +819,7 @@
         "ident" : "t_wall_log_chipped",
         "name": "chipped log wall",
         "symbol": "O",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -837,7 +837,7 @@
         "ident" : "t_wall_log_broken",
         "name": "broken log wall",
         "symbol": "W",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "REDUCE_SCENT", "PERMEABLE", "CONNECT_TO_WALL"
@@ -856,7 +856,7 @@
         "ident" : "t_palisade",
         "name": "palisade wall",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "REDUCE_SCENT", "CONNECT_TO_WALL", "WALL"
@@ -875,7 +875,7 @@
         "ident" : "t_palisade_gate",
         "name": "palisade gate",
         "symbol": "+",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "DOOR", "CONNECT_TO_WALL", "WALL"
@@ -895,7 +895,7 @@
         "name": "dirt",
         "comment": "Open palisade gate",
         "symbol": ".",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAMMABLE", "FLAT", "CONNECT_TO_WALL"],
         "bash": {
@@ -912,7 +912,7 @@
         "ident" : "t_wall_half",
         "name": "half-built wall",
         "symbol": "#",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "REDUCE_SCENT", "MOUNTABLE"],
         "connects_to": "WALL",
@@ -932,7 +932,7 @@
         "ident" : "t_wall_wood",
         "name": "wooden wall",
         "symbol": "O",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -952,7 +952,7 @@
         "ident" : "t_wall_wood_chipped",
         "name": "chipped wood wall",
         "symbol": "O",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -972,7 +972,7 @@
         "ident" : "t_wall_wood_broken",
         "name": "broken wood wall",
         "symbol": ".",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "REDUCE_SCENT", "PERMEABLE", "CONNECT_TO_WALL"
@@ -997,7 +997,7 @@
         ],
         "name": "wall",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -1017,7 +1017,7 @@
         ],
         "name": "concrete wall",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "roof": "t_rock_floor",
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -1040,7 +1040,7 @@
         ],
         "name": "metal wall",
         "symbol": "#",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_metal_floor",
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -1064,7 +1064,7 @@
         ],
         "name": "glass wall",
         "symbol": "O",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -1087,7 +1087,7 @@
         ],
         "name": "glass wall",
         "symbol": "O",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "ALARMED", "NOITEM", "WALL", "AUTO_WALL_SYMBOL"],
@@ -1111,7 +1111,7 @@
         ],
         "name": "reinforced glass",
         "symbol": "O",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -1131,7 +1131,7 @@
         "ident" : "t_reinforced_glass_shutter",
         "name": "reinforced glass with closed shutters",
         "symbol": "O",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL", "AUTO_WALL_SYMBOL", "OPENCLOSE_INSIDE"],
         "open": "t_reinforced_glass_shutter_open",
@@ -1153,7 +1153,7 @@
         "ident" : "t_reinforced_glass_shutter_open",
         "name": "reinforced glass with open shutters",
         "symbol": "O",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "AUTO_WALL_SYMBOL", "OPENCLOSE_INSIDE"],
         "close": "t_reinforced_glass_shutter",
@@ -1175,7 +1175,7 @@
         "ident" : "t_reinforced_door_glass_c",
         "name": "closed reinforced glass door",
         "symbol": "+",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1200,7 +1200,7 @@
         "ident" : "t_reinforced_door_glass_o",
         "name": "open reinforced  glass door",
         "symbol": "U",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -1224,7 +1224,7 @@
         "name": "metal bars",
         "examine_action": "bars",
         "symbol": "(",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE", "CONNECT_TO_WALL"],
         "bash": {
@@ -1243,7 +1243,7 @@
         "ident" : "t_door_c",
         "name": "closed wood door",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1273,7 +1273,7 @@
         "ident" : "t_door_c_peep",
         "name": "closed wood door with peephole",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1306,7 +1306,7 @@
         "ident" : "t_door_b",
         "name": "damaged wood door",
         "symbol": "U",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1330,7 +1330,7 @@
         "name": "damaged wood door with peephole",
         "comment": "There's no need for a use-peephole, because the door is transparent",
         "symbol": "o",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1354,7 +1354,7 @@
         "ident" : "t_door_o",
         "name": "open wood door",
         "symbol": "O",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -1386,7 +1386,7 @@
         "ident" : "t_door_o_peep",
         "name": "open wood door with peephole",
         "symbol": "'",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -1419,7 +1419,7 @@
         "ident" : "t_rdoor_c",
         "name": "closed reinforced wood door",
         "symbol": "+",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1449,7 +1449,7 @@
         "ident" : "t_rdoor_b",
         "name": "damaged reinforced wood door",
         "symbol": "X",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1473,7 +1473,7 @@
         "ident" : "t_rdoor_o",
         "name": "open reinforced wood door",
         "symbol": "'",
-        "color": "red",
+        "color": "124",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -1503,7 +1503,7 @@
         "ident" : "t_door_locked_interior",
         "name": "closed wood door",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["FLAMMABLE_ASH", "NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL", "BARRICADABLE_DOOR", "LOCKED"],
@@ -1524,7 +1524,7 @@
         "ident" : "t_door_locked",
         "name": "closed wood door",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1547,7 +1547,7 @@
         "ident" : "t_door_locked_peep",
         "name": "closed wood door",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1571,7 +1571,7 @@
         "ident" : "t_door_locked_alarm",
         "name": "closed wood door",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1593,7 +1593,7 @@
         "ident" : "t_door_curtain_c",
         "name": "closed door curtain",
         "symbol": "+",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1627,7 +1627,7 @@
         "ident" : "t_door_makeshift_c",
         "name": "closed makeshift door",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -1658,7 +1658,7 @@
         "ident" : "t_door_curtain_o",
         "name": "open door curtain",
         "symbol": "'",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -1694,7 +1694,7 @@
         "ident" : "t_door_makeshift_o",
         "name": "open makeshift door",
         "symbol": "'",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": [
@@ -1727,7 +1727,7 @@
         "ident" : "t_door_frame",
         "name": "empty door frame",
         "symbol": ".",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -1754,7 +1754,7 @@
         "ident" : "t_mdoor_frame",
         "name": "empty metal door frame",
         "symbol": ".",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -1773,7 +1773,7 @@
         "ident" : "t_m_frame",
         "name": "empty metal window frame",
         "symbol": ".",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -1792,7 +1792,7 @@
         "ident" : "t_chaingate_l",
         "name": "locked wire gate",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "PERMEABLE", "LOCKED"],
         "connects_to": "CHAINFENCE",
@@ -1811,7 +1811,7 @@
         "ident" : "t_fencegate_c",
         "name": "closed wooden gate",
         "symbol": "+",
-        "color": "brown",
+        "color": "166",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "DOOR", "MOUNTABLE"],
         "connects_to": "WOODFENCE",
@@ -1832,7 +1832,7 @@
         "ident" : "t_fencegate_o",
         "name": "open wooden gate",
         "symbol": ".",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_ASH", "FLAT", "ROAD"
@@ -1855,7 +1855,7 @@
         "ident" : "t_chaingate_c",
         "name": "closed wire gate",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "DOOR", "PERMEABLE"],
         "connects_to": "CHAINFENCE",
@@ -1876,7 +1876,7 @@
         "ident" : "t_chaingate_o",
         "name": "open wire gate",
         "symbol": ".",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "connects_to": "CHAINFENCE",
@@ -1897,7 +1897,7 @@
         "ident" : "t_door_boarded",
         "name": "boarded up door",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["FLAMMABLE_ASH", "NOITEM", "WALL"],
@@ -1917,7 +1917,7 @@
         "ident" : "t_door_boarded_damaged",
         "name": "boarded up damaged door",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["FLAMMABLE_ASH", "NOITEM", "WALL"],
@@ -1937,7 +1937,7 @@
         "ident" : "t_door_boarded_peep",
         "name": "boarded up door with peephole",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "examine_action": "door_peephole",
@@ -1958,7 +1958,7 @@
         "ident" : "t_rdoor_boarded",
         "name": "boarded up reinforced door",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["FLAMMABLE_ASH", "NOITEM", "WALL"],
@@ -1978,7 +1978,7 @@
         "ident" : "t_rdoor_boarded_damaged",
         "name": "boarded up damaged reinforced door",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["FLAMMABLE_ASH", "NOITEM", "WALL"],
@@ -1998,7 +1998,7 @@
         "ident" : "t_door_boarded_damaged_peep",
         "name": "boarded up damaged door with peephole",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "examine_action": "door_peephole",
@@ -2020,7 +2020,7 @@
         "ident" : "t_door_metal_c",
         "name": "closed metal door",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["NOITEM", "DOOR", "CONNECT_TO_WALL"],
@@ -2040,7 +2040,7 @@
         "ident" : "t_door_metal_o",
         "name": "open metal door",
         "symbol": "'",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -2060,7 +2060,7 @@
         "ident" : "t_door_metal_c_peep",
         "name": "closed metal door with peephole",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["NOITEM", "DOOR", "CONNECT_TO_WALL"],
@@ -2082,7 +2082,7 @@
         "ident" : "t_door_metal_o_peep",
         "name": "open metal door with peephole",
         "symbol": "'",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -2104,7 +2104,7 @@
         "name": "closed metal door",
         "comment": "Actually locked",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL", "LOCKED"],
@@ -2124,7 +2124,7 @@
         "name": "closed metal door",
         "comment": "Actually pickable, but locked",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["NOITEM", "REDUCE_SCENT", "OPENCLOSE_INSIDE", "CONNECT_TO_WALL", "LOCKED"],
@@ -2146,7 +2146,7 @@
         "name": "closed bar door",
         "comment": "Unlocked, only created at map gen",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE", "CONNECT_TO_WALL"],
@@ -2167,7 +2167,7 @@
         "ident" : "t_door_bar_o",
         "name": "open bar door",
         "symbol": "'",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -2188,7 +2188,7 @@
         "name": "closed bar door",
         "comment": "Locked",
         "symbol": "+",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE", "CONNECT_TO_WALL", "LOCKED"],
@@ -2207,7 +2207,7 @@
         "ident" : "t_door_glass_c",
         "name": "closed glass door",
         "symbol": "+",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "roof": "t_flat_roof",
         "flags": [
@@ -2236,7 +2236,7 @@
         "ident" : "t_door_glass_o",
         "name": "open glass door",
         "symbol": "'",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "FLAT", "CONNECT_TO_WALL", "ROAD"],
@@ -2263,7 +2263,7 @@
         "ident" : "t_portcullis",
         "name": "makeshift portcullis",
         "symbol": "",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE", "CONNECT_TO_WALL"],
         "bash": {
@@ -2281,7 +2281,7 @@
         "ident" : "t_recycler",
         "name": "steel compactor",
         "symbol": "R",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "max_volume": 8000,
         "flags": ["TRANSPARENT", "REDUCE_SCENT", "PERMEABLE"],
@@ -2302,7 +2302,7 @@
         "ident" : "t_window",
         "name": "window",
         "symbol": "W",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "FLAMMABLE", "NOITEM",
@@ -2330,7 +2330,7 @@
         "ident" : "t_window_taped",
         "name": "taped window",
         "symbol": "W",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "WALL", "CONNECT_TO_WALL"
@@ -2351,7 +2351,7 @@
         "ident" : "t_window_domestic",
         "name": "window with curtains",
         "symbol": "w",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "FLAMMABLE", "NOITEM", "OPENCLOSE_INSIDE",
@@ -2389,7 +2389,7 @@
         "ident" : "t_window_no_curtains",
         "name": "window without curtains",
         "symbol": "w",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "FLAMMABLE", "NOITEM", "OPENCLOSE_INSIDE",
@@ -2419,7 +2419,7 @@
         "ident" : "t_window_no_curtains_open",
         "name": "open window without curtains",
         "symbol": "'",
-        "color": "white",
+        "color": "231",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "OPENCLOSE_INSIDE", "MOUNTABLE", "CONNECT_TO_WALL" ],
         "close": "t_window_no_curtains",
@@ -2440,7 +2440,7 @@
         "name": "taped window",
         "comment": "Taped window without curtains",
         "symbol": "w",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "WALL"
@@ -2462,7 +2462,7 @@
         "name": "taped window",
         "comment": "Taped window with curtains",
         "symbol": "w",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "WALL"
@@ -2486,7 +2486,7 @@
         "ident" : "t_window_open",
         "name": "open window with curtains",
         "symbol": "'",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "OPENCLOSE_INSIDE", "MOUNTABLE", "CONNECT_TO_WALL" ],
         "close": "t_window_domestic",
@@ -2509,7 +2509,7 @@
         "ident" : "t_curtains",
         "name": "window with closed curtains",
         "symbol": "w",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "OPENCLOSE_INSIDE", "REDUCE_SCENT",
@@ -2545,7 +2545,7 @@
         "ident" : "t_window_alarm",
         "name": "window",
         "symbol": "w",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "FLAMMABLE", "ALARMED", "NOITEM",
@@ -2564,7 +2564,7 @@
         "ident" : "t_window_alarm_taped",
         "name": "taped window",
         "symbol": "w",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": [
             "FLAMMABLE", "NOITEM", "ALARMED", "WALL", "BARRICADABLE_WINDOW"
@@ -2585,7 +2585,7 @@
         "ident" : "t_window_empty",
         "name": "empty window",
         "symbol": "0",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 4,
         "roof": "t_flat_roof",
         "flags": [
@@ -2607,7 +2607,7 @@
         "ident" : "t_window_frame",
         "name": "window frame",
         "symbol": "0",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 8,
         "bash": {
             "str_min": 1, "str_max": 1,
@@ -2628,7 +2628,7 @@
         "ident" : "t_window_boarded",
         "name": "boarded up window",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL"],
         "bash": {
@@ -2648,7 +2648,7 @@
         "ident" : "t_window_boarded_noglass",
         "name": "boarded up window",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL"],
         "bash": {
@@ -2667,7 +2667,7 @@
         "ident" : "t_window_reinforced",
         "name": "reinforced boarded up window",
         "symbol": "#",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL"],
         "bash": {
@@ -2684,7 +2684,7 @@
         "ident" : "t_window_reinforced_noglass",
         "name": "reinforced boarded up window",
         "symbol": "#",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL"],
         "bash": {
@@ -2701,7 +2701,7 @@
         "ident" : "t_window_enhanced",
         "name": "armored boarded up window",
         "symbol": "#",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL"],
         "bash": {
@@ -2719,7 +2719,7 @@
         "ident" : "t_window_enhanced_noglass",
         "name": "armored boarded up window",
         "symbol": "#",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["NOITEM", "REDUCE_SCENT", "CONNECT_TO_WALL"],
         "bash": {
@@ -2737,7 +2737,7 @@
         "ident" : "t_window_bars",
         "name": "window frame with metal bars",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "CONNECT_TO_WALL"],
         "bash": {
@@ -2757,7 +2757,7 @@
         "ident" : "t_window_bars_alarm",
         "name": "window with metal bars",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "REDUCE_SCENT", "ALARMED", "CONNECT_TO_WALL"],
         "bash": {
@@ -2794,7 +2794,7 @@
         "ident" : "t_window_stained_red",
         "name": "high stained glass window",
         "symbol": "w",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 0,
         "roof": "t_rock_floor",
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "BARRICADABLE_WINDOW", "CONNECT_TO_WALL"],
@@ -2830,7 +2830,7 @@
         "ident" : "t_rock",
         "name": "solid rock",
         "symbol": "r",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL"],
         "roof": "t_rock_floor",
@@ -2851,7 +2851,7 @@
         "ident" : "t_rock_smooth",
         "name": "smoothed rock",
         "symbol": "r",   "comment": "use pillars, 't_column', as a compliment.",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL", "CONNECT_TO_WALL"],
         "roof": "t_rock_floor",
@@ -2881,7 +2881,7 @@
         "ident" : "t_paper",
         "name": "paper wall",
         "symbol": "#",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "WALL"],
         "bash": {
@@ -2897,7 +2897,7 @@
         "ident" : "t_tree",
         "name": "oak tree",
         "symbol": "T",
-        "color": [ "green", "green", "green", "brown" ], "comment": "barren in winter",
+        "color": [ "82" ], "comment": "barren in winter",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "bash": {
@@ -2915,7 +2915,7 @@
         "ident" : "t_tree_dead",
         "name": "dead tree",
         "symbol": "T",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "bash": {
@@ -2933,7 +2933,7 @@
         "ident" : "t_tree_young",
         "name": "young tree",
         "symbol": "t",
-        "color": [ "green", "green", "green", "brown" ], "comment": "barren in winter",
+        "color": [ "82", "82", "82", "brown" ], "comment": "barren in winter",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "YOUNG", "REDUCE_SCENT"],
         "bash": {
@@ -3208,7 +3208,7 @@
         "ident" : "t_tree_pine",
         "name": "pine tree",
         "symbol": "T",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "transforms_into": "t_tree_deadpine",
@@ -3231,7 +3231,7 @@
         "ident" : "t_tree_deadpine",
         "name": "dead pine tree",
         "symbol": "T",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "bash": {
@@ -3272,7 +3272,7 @@
         "ident" : "t_tree_birch_harvested",
         "name": "birch tree",
         "symbol": "T",
-        "color": "green", "comment": "dead, not harvestable",
+        "color": "82", "comment": "dead, not harvestable",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "bash": {
@@ -3331,7 +3331,7 @@
         "ident" : "t_tree_maple",
         "name": "maple tree",
         "symbol": "T",
-        "color": [ "red", "light_green", "light_green", "red" ],
+        "color": [ "124", "light_green", "light_green", "124" ],
         "move_cost": 0,
         "flags": [ "FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT" ],
         "examine_action": "tree_maple",
@@ -3350,7 +3350,7 @@
         "ident" : "t_tree_maple_tapped",
         "name": "maple tree",
         "symbol": "T",
-        "color": [ "red", "light_green", "light_green", "red" ],
+        "color": [ "124", "light_green", "light_green", "124" ],
         "move_cost": 0,
         "flags": [ "FLAMMABLE_ASH", "SEALED", "PLACE_ITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "LIQUIDCONT" ],
         "examine_action": "tree_maple_tapped",
@@ -3412,7 +3412,7 @@
         "ident" : "t_tree_hickory_dead",
         "name": "dead hickory tree",
         "symbol": "7",
-        "color": "green", "comment": "dead, not usable at all",
+        "color": "82", "comment": "dead, not usable at all",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "bash": {
@@ -3452,7 +3452,7 @@
         "ident" : "t_underbrush_harvested_spring",
         "name": "underbrush",
         "symbol": "#",
-        "color": "green",
+        "color": "82",
         "move_cost": 6,
         "flags": ["TRANSPARENT", "DIGGABLE", "CONTAINER", "FLAMMABLE_ASH", "THIN_OBSTACLE", "PLACE_ITEM", "SHRUB", "SHORT", "HARVESTED"],
         "harvest_season": "SPRING",
@@ -3471,7 +3471,7 @@
         "ident" : "t_underbrush_harvested_summer",
         "name": "underbrush",
         "symbol": "#",
-        "color": "green",
+        "color": "82",
         "move_cost": 6,
         "flags": ["TRANSPARENT", "DIGGABLE", "CONTAINER", "FLAMMABLE_ASH", "THIN_OBSTACLE", "PLACE_ITEM", "SHRUB", "SHORT", "HARVESTED"],
         "harvest_season": "SUMMER",
@@ -3490,7 +3490,7 @@
         "ident" : "t_underbrush_harvested_autumn",
         "name": "underbrush",
         "symbol": "#",
-        "color": "green",
+        "color": "82",
         "move_cost": 6,
         "flags": ["TRANSPARENT", "DIGGABLE", "CONTAINER", "FLAMMABLE_ASH", "THIN_OBSTACLE", "PLACE_ITEM", "SHRUB", "SHORT", "HARVESTED"],
         "harvest_season": "AUTUMN",
@@ -3509,7 +3509,7 @@
         "ident" : "t_underbrush_harvested_winter",
         "name": "underbrush",
         "symbol": "#",
-        "color": "green",
+        "color": "82",
         "move_cost": 6,
         "flags": ["TRANSPARENT", "DIGGABLE", "CONTAINER", "FLAMMABLE_ASH", "THIN_OBSTACLE", "PLACE_ITEM", "SHRUB", "SHORT", "HARVESTED"],
         "harvest_season": "WINTER",
@@ -3528,7 +3528,7 @@
         "ident" : "t_shrub",
         "name": "shrub",
         "symbol": "#",
-        "color": "green",
+        "color": "82",
         "move_cost": 8,
         "flags": [
             "TRANSPARENT", "CONTAINER", "FLAMMABLE_ASH", "THIN_OBSTACLE", "PLACE_ITEM",
@@ -3630,7 +3630,7 @@
         "ident" : "t_trunk",
         "name": "tree trunk",
         "symbol": "1",
-        "color": "brown",
+        "color": "166",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "DIGGABLE", "REDUCE_SCENT", "MOUNTABLE", "SHORT"],
         "bash": {
@@ -3647,7 +3647,7 @@
         "ident" : "t_root_wall",
         "name": "root wall",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "roof": "t_dirt",
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL"],
@@ -3665,7 +3665,7 @@
         "ident" : "t_wax",
         "name": "wax wall",
         "symbol": "#",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 0,
         "roof": "t_floor_wax",
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "PLACE_ITEM", "WALL"],
@@ -3683,7 +3683,7 @@
         "ident" : "t_floor_wax",
         "name": "wax floor",
         "symbol": ".",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAMMABLE_HARD", "INDOORS", "FLAT"]
     },{
@@ -3691,7 +3691,7 @@
         "ident" : "t_fence_v",
         "name": "picket fence",
         "symbol": "LINE_OXOX",
-        "color": "brown",
+        "color": "166",
         "move_cost": 3,
         "flags": [
             "TRANSPARENT", "DIGGABLE", "FLAMMABLE_ASH", "NOITEM", "THIN_OBSTACLE", "REDUCE_SCENT",
@@ -3713,7 +3713,7 @@
         "ident" : "t_fence_h",
         "name": "picket fence",
         "symbol": "LINE_OXOX",
-        "color": "brown",
+        "color": "166",
         "move_cost": 3,
         "flags": [
             "TRANSPARENT", "DIGGABLE", "FLAMMABLE_ASH", "NOITEM", "THIN_OBSTACLE", "REDUCE_SCENT",
@@ -3735,7 +3735,7 @@
         "ident" : "t_chainfence_v",
         "name": "chain link fence",
         "symbol": "LINE_OXOX",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "NOITEM", "THIN_OBSTACLE", "SUPPORTS_ROOF", "PERMEABLE", "UNSTABLE", "CLIMBABLE", "AUTO_WALL_SYMBOL" ],
@@ -3755,7 +3755,7 @@
         "ident" : "t_chainfence_h",
         "name": "chain link fence",
         "symbol": "LINE_OXOX",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": [
             "TRANSPARENT", "NOITEM", "THIN_OBSTACLE", "SUPPORTS_ROOF", "PERMEABLE", "UNSTABLE", "CLIMBABLE", "AUTO_WALL_SYMBOL" ],
@@ -3775,7 +3775,7 @@
         "ident" : "t_chainfence_posts",
         "name": "metal post",
         "symbol": "#",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "THIN_OBSTACLE"],
         "bash": {
@@ -3793,7 +3793,7 @@
         "ident" : "t_fence_post",
         "name": "fence post",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "THIN_OBSTACLE", "SHORT"],
         "bash": {
@@ -3858,7 +3858,7 @@
         "ident" : "t_fence_rope",
         "name": "rope fence",
         "symbol": "$",
-        "color": "brown",
+        "color": "166",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "THIN_OBSTACLE", "EASY_DECONSTRUCT"],
         "deconstruct": {
@@ -3883,7 +3883,7 @@
         "ident" : "t_railing_v",
         "name": "railing",
         "symbol": "LINE_OXOX",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "NOITEM", "THIN_OBSTACLE", "MOUNTABLE", "SHORT", "AUTO_WALL_SYMBOL" ],
         "connects_to": "RAILING",
@@ -3904,7 +3904,7 @@
         "ident" : "t_railing_h",
         "name": "railing",
         "symbol": "LINE_OXOX",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "NOITEM", "THIN_OBSTACLE", "MOUNTABLE", "SHORT", "AUTO_WALL_SYMBOL" ],
         "connects_to": "RAILING",
@@ -3925,7 +3925,7 @@
         "ident" : "t_marloss",
         "name": "marloss bush",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 8,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "FUNGUS", "SHRUB", "SHORT"],
         "examine_action": "shrub_marloss",
@@ -3940,7 +3940,7 @@
         "ident" : "t_fungus",
         "name": "fungal bed",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "DIGGABLE", "FUNGUS", "NOCOLLIDE"],
         "bash": {
@@ -3956,7 +3956,7 @@
         "name": "fungal floor",
         "comment": "roofed",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_ASH", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "FUNGUS"
@@ -3974,7 +3974,7 @@
         "name": "fungal floor",
         "comment": "supports",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "SUPPORTS_ROOF", "FLAT", "FUNGUS"],
         "bash": {
@@ -3990,7 +3990,7 @@
         "name": "fungal floor",
         "comment": "outside",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "FLAT", "FUNGUS"],
         "bash": {
@@ -4009,7 +4009,7 @@
         ],
         "name": "fungal wall",
         "symbol": "O",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "FUNGUS", "WALL"],
         "bash": {
@@ -4023,7 +4023,7 @@
         "ident" : "t_fungus_wall_transformed",
         "name": "fungal wall",
         "symbol": "LINE_OXOX",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "FUNGUS", "WALL", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -4037,7 +4037,7 @@
         "ident" : "t_fungus_mound",
         "name": "fungal mound",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "THIN_OBSTACLE", "FLAMMABLE_ASH", "FUNGUS", "MOUNTABLE"],
         "bash": {
@@ -4051,7 +4051,7 @@
         "ident" : "t_shrub_fungal",
         "name": "fungal shrub",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 8,
         "flags": [
             "TRANSPARENT", "CONTAINER", "FLAMMABLE_ASH", "THIN_OBSTACLE", "PLACE_ITEM", "SHRUB",
@@ -4068,7 +4068,7 @@
         "ident" : "t_tree_fungal",
         "name": "fungal tree",
         "symbol": "7",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "FUNGUS", "TREE", "REDUCE_SCENT"],
         "bash": {
@@ -4082,7 +4082,7 @@
         "ident" : "t_tree_fungal_young",
         "name": "young fungal tree",
         "symbol": "1",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "FUNGUS", "YOUNG", "REDUCE_SCENT"],
         "bash": {
@@ -4096,7 +4096,7 @@
         "ident" : "t_marloss_tree",
         "name": "marloss tree",
         "symbol": "7",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "FUNGUS", "TREE", "REDUCE_SCENT"],
         "examine_action": "tree_marloss",
@@ -4169,7 +4169,7 @@
         "ident" : "t_lava",
         "name": "lava",
         "symbol": "~",
-        "color": "red",
+        "color": "124",
         "move_cost": 4,
         "trap": "tr_lava",
         "flags": ["TRANSPARENT", "LIQUID", "DESTROY_ITEM"]
@@ -4178,7 +4178,7 @@
         "ident" : "t_sandbox",
         "name": "sandbox",
         "symbol": "#",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 3,
         "deconstruct": {
             "ter_set": "t_dirt",
@@ -4206,7 +4206,7 @@
         "ident" : "t_slide",
         "name": "slide",
         "symbol": "#",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 4,
         "deconstruct": {
             "ter_set": "t_grass",
@@ -4231,7 +4231,7 @@
         "ident" : "t_monkey_bars",
         "name": "monkey bars",
         "symbol": "#",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 4,
         "deconstruct": {
             "ter_set": "t_grass",
@@ -4255,7 +4255,7 @@
         "ident" : "t_backboard",
         "name": "backboard",
         "symbol": "7",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "deconstruct": {
             "ter_set": "t_pavement",
@@ -4281,7 +4281,7 @@
         "ident" : "t_gas_pump",
         "name": "gasoline pump",
         "symbol": "",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "SEALED", "CONTAINER", "REDUCE_SCENT", "PERMEABLE"],
         "examine_action": "gaspump",
@@ -4307,7 +4307,7 @@
         "ident" : "t_little_column",
         "name": "little column",
         "symbol": "1",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["WALL", "TRANSPARENT"]
     },{
@@ -4325,7 +4325,7 @@
         "ident" : "t_gas_pump_smashed",
         "name": "smashed gas pump",
         "symbol": "",
-        "color": "light_red",
+        "color": "196",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "REDUCE_SCENT", "PERMEABLE"],
         "bash": {
@@ -4345,7 +4345,7 @@
         "ident" : "t_diesel_pump",
         "name": "diesel pump",
         "symbol": "",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "SEALED", "CONTAINER", "REDUCE_SCENT", "PERMEABLE"],
         "examine_action": "gaspump",
@@ -4403,7 +4403,7 @@
         "ident" : "t_generator_broken",
         "name": "broken generator",
         "symbol": "",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "REDUCE_SCENT", "MOUNTABLE", "PERMEABLE"],
         "bash": {
@@ -4441,7 +4441,7 @@
         "ident" : "t_missile_exploded",
         "name": "blown-out missile",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM"],
         "bash": {
@@ -4460,7 +4460,7 @@
         "ident" : "t_radio_tower",
         "name": "radio tower",
         "symbol": "",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE"],
         "bash": {
@@ -4479,7 +4479,7 @@
         "ident" : "t_radio_controls",
         "name": "radio controls",
         "symbol": "6",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE"],
         "deconstruct": {
@@ -4520,7 +4520,7 @@
         "ident" : "t_console_broken",
         "name": "broken console",
         "symbol": "6",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "INDOORS", "SHORT", "PERMEABLE"],
         "deconstruct": {
@@ -4659,7 +4659,7 @@
         "ident" : "t_gates_control_metal",
         "name": "control lever",
         "symbol": "6",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "COLLAPSES"],
         "examine_action": "controls_gate",
@@ -4678,7 +4678,7 @@
         "ident" : "t_barndoor",
         "name": "rope and pulley",
         "symbol": "|",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "INDOORS", "PERMEABLE"],
         "examine_action": "controls_gate",
@@ -4705,7 +4705,7 @@
         "ident" : "t_palisade_pulley",
         "name": "rope and pulley",
         "symbol": "|",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "SHORT", "PERMEABLE", "EASY_DECONSTRUCT"],
         "examine_action": "controls_gate",
@@ -4732,7 +4732,7 @@
         "ident" : "t_sewage_pipe",
         "name": "sewage pipe",
         "symbol": "1",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "MOUNTABLE", "PERMEABLE"],
         "bash": {
@@ -4750,7 +4750,7 @@
         "ident" : "t_sewage_pump",
         "name": "sewage pump",
         "symbol": "",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "REDUCE_SCENT", "MOUNTABLE"],
         "bash": {
@@ -4791,7 +4791,7 @@
         "ident" : "t_cvdbody",
         "name": "CVD machine",
         "symbol": "%",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL"],
         "bash": {
@@ -4810,7 +4810,7 @@
         "ident" : "t_cvdmachine",
         "name": "CVD control panel",
         "symbol": "",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE"],
         "examine_action": "cvdmachine",
@@ -4837,7 +4837,7 @@
         "ident" : "t_column",
         "name": "column",
         "symbol": "1",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "WALL"],
         "bash": {
@@ -4855,7 +4855,7 @@
         "ident" : "t_vat",
         "name": "cloning vat",
         "symbol": "0",
-        "color": "light_cyan",
+        "color": "87",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "SEALED", "PLACE_ITEM", "WALL"],
         "bash": {
@@ -4875,7 +4875,7 @@
         "ident": "t_stairs_down",
         "name": "stairs",
         "symbol": ">",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "roof": "t_flat_roof",
         "flags": ["TRANSPARENT", "GOES_DOWN", "INDOORS", "PLACE_ITEM"]
@@ -4884,7 +4884,7 @@
         "ident": "t_stairs_up",
         "name": "stairs",
         "symbol": "<",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP", "INDOORS", "PLACE_ITEM"]
     },{
@@ -4892,7 +4892,7 @@
         "ident" : "t_manhole",
         "name": "manhole",
         "symbol": ">",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_DOWN", "PLACE_ITEM"]
     },{
@@ -4900,7 +4900,7 @@
         "ident" : "t_ladder_up",
         "name": "ladder",
         "symbol": "<",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP", "PLACE_ITEM"]
     },{
@@ -4908,7 +4908,7 @@
         "ident" : "t_ladder_down",
         "name": "ladder",
         "symbol": ">",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_DOWN", "PLACE_ITEM"]
     },{
@@ -4916,7 +4916,7 @@
         "ident" : "t_slope_down",
         "name": "downward slope",
         "symbol": ">",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_DOWN", "PLACE_ITEM"]
     },{
@@ -4924,7 +4924,7 @@
         "ident" : "t_slope_up",
         "name": "upward slope",
         "symbol": "<",
-        "color": "brown",
+        "color": "166",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP", "PLACE_ITEM"]
     },{
@@ -4932,7 +4932,7 @@
         "ident" : "t_rope_up",
         "name": "rope leading up",
         "symbol": "<",
-        "color": "white",
+        "color": "231",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "GOES_UP"]
     },{
@@ -4940,7 +4940,7 @@
         "ident" : "t_manhole_cover",
         "name": "manhole cover",
         "symbol": "0",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT"]
     },{
@@ -4988,7 +4988,7 @@
         "ident" : "t_card_reader_broken",
         "name": "broken card reader",
         "symbol": "6",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "CONNECT_TO_WALL"],
         "bash": {
@@ -5012,7 +5012,7 @@
         "ident" : "t_slot_machine",
         "name": "slot machine",
         "symbol": "6",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "flags": ["NOITEM", "INDOORS"],
         "examine_action": "slot_machine",
@@ -5066,7 +5066,7 @@
         "ident" : "t_elevator_control_off",
         "name": "powerless controls",
         "symbol": "6",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "INDOORS"],
         "bash": {
@@ -5100,7 +5100,7 @@
         "ident" : "t_pedestal_wyrm",
         "name": "dark pedestal",
         "symbol": "",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "MOUNTABLE", "PERMEABLE"],
         "examine_action": "pedestal_wyrm",
@@ -5118,7 +5118,7 @@
         "ident" : "t_pedestal_temple",
         "name": "light pedestal",
         "symbol": "",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "MOUNTABLE", "PERMEABLE"],
         "examine_action": "pedestal_temple",
@@ -5136,7 +5136,7 @@
         "ident" : "t_rock_red",
         "name": "red stone",
         "symbol": "#",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "bash": {
             "str_min": 100, "str_max": 400,
@@ -5152,7 +5152,7 @@
         "ident" : "t_rock_green",
         "name": "green stone",
         "symbol": "#",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "bash": {
             "str_min": 100, "str_max": 400,
@@ -5184,7 +5184,7 @@
         "ident" : "t_floor_red",
         "name": "red floor",
         "symbol": ".",
-        "color": "red",
+        "color": "124",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
@@ -5192,7 +5192,7 @@
         "ident" : "t_floor_green",
         "name": "green floor",
         "symbol": ".",
-        "color": "green",
+        "color": "82",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"]
     },{
@@ -5208,7 +5208,7 @@
         "ident" : "t_switch_rg",
         "name": "yellow switch",
         "symbol": "6",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
@@ -5217,7 +5217,7 @@
         "ident" : "t_switch_gb",
         "name": "cyan switch",
         "symbol": "6",
-        "color": "cyan",
+        "color": "14",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
@@ -5235,7 +5235,7 @@
         "ident" : "t_switch_even",
         "name": "checkered switch",
         "symbol": "6",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "PERMEABLE"],
         "examine_action": "fswitch"
@@ -5244,7 +5244,7 @@
         "ident" : "t_carpet_red",
         "name": "red carpet",
         "symbol": ".",
-        "color": "red",
+        "color": "124",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_HARD", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "RUG"],
@@ -5264,7 +5264,7 @@
         "ident" : "t_carpet_yellow",
         "name": "yellow carpet",
         "symbol": ".",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_HARD", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "RUG"],
@@ -5284,7 +5284,7 @@
         "ident" : "t_carpet_green",
         "name": "green carpet",
         "symbol": ".",
-        "color": "green",
+        "color": "82",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "FLAMMABLE_HARD", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "RUG"],
@@ -5324,7 +5324,7 @@
         "ident" : "t_linoleum_white",
         "name": "linoleum tile",
         "symbol": ".",
-        "color": "white",
+        "color": "231",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "ROAD"
@@ -5345,7 +5345,7 @@
         "ident" : "t_linoleum_gray",
         "name": "linoleum tile",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": [
             "TRANSPARENT", "SUPPORTS_ROOF", "COLLAPSES", "INDOORS", "FLAT", "ROAD"
@@ -5370,7 +5370,7 @@
         ],
         "name": "red wall",
         "symbol": "LINE_OXOX",
-        "color": "red",
+        "color": "124",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "CHIP", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -5389,7 +5389,7 @@
         ],
         "name": "white wall",
         "symbol": "LINE_OXOX",
-        "color": "white",
+        "color": "231",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "CHIP", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -5427,7 +5427,7 @@
         ],
         "name": "green wall",
         "symbol": "LINE_OXOX",
-        "color": "green",
+        "color": "82",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "CHIP", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -5446,7 +5446,7 @@
         ],
         "name": "yellow wall",
         "symbol": "LINE_OXOX",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "CHIP", "AUTO_WALL_SYMBOL"],
         "bash": {
@@ -5480,7 +5480,7 @@
         "ident" : "t_rock_wall",
         "name": "stone wall",
         "symbol": "LINE_OXOX",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
         "connects_to": "WALL",
@@ -5498,7 +5498,7 @@
         "ident" : "t_rock_wall_half",
         "name": "half-built stone wall",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "NOITEM", "REDUCE_SCENT", "MOUNTABLE"],
         "connects_to": "WALL",
@@ -5516,7 +5516,7 @@
         "ident" : "t_covered_well",
         "name": "covered well",
         "symbol": "#",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"],
         "bash": {
@@ -5536,7 +5536,7 @@
         "ident" : "t_water_pump",
         "name": "water pump",
         "symbol": "",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 6,
         "flags": ["TRANSPARENT"],
         "deconstruct": {
@@ -5583,7 +5583,7 @@
         "ident" : "t_open_air",
         "name": "open air",
         "symbol": " ",
-        "color": "i_cyan",
+        "color": "6",
         "move_cost": 2,
         "trap": "tr_ledge",
         "flags": ["TRANSPARENT", "NO_FLOOR"]
@@ -5592,7 +5592,7 @@
         "ident" : "t_flat_roof",
         "name": "flat roof",
         "symbol": ".",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT"],
         "bash": {
@@ -5643,7 +5643,7 @@
         "ident" : "t_sai_box",
         "name": "telecom cabinet",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL"],
         "bash": {
@@ -5671,7 +5671,7 @@
         "ident" : "t_sai_box_damaged",
         "name": "damaged telecom cabinet",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL"],
         "bash": {
@@ -5705,7 +5705,7 @@
         "ident" : "t_support_l",
         "name": "large metal support",
         "symbol": "T",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL", "SUPPORTS_ROOF"],
         "bash": {
@@ -5733,7 +5733,7 @@
         "ident" : "t_support_s",
         "name": "small metal support",
         "symbol": "l",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL", "SUPPORTS_ROOF"],
         "bash": {
@@ -5761,7 +5761,7 @@
         "ident" : "t_oil_circ_brkr_l",
         "name": "HV oil circuit breaker",
         "symbol": "B",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "WALL", "PERMEABLE"],
         "bash": {
@@ -5793,7 +5793,7 @@
         "ident" : "t_oil_circ_brkr_s",
         "name": "small HV oil circuit breaker",
         "symbol": "b",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "FLAMMABLE", "NOITEM", "WALL", "PERMEABLE"],
         "bash": {
@@ -5927,7 +5927,7 @@
         "ident" : "t_station_disc",
         "name": "disconnect switch",
         "symbol": "h",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "PERMEABLE"],
         "bash": {
@@ -5965,7 +5965,7 @@
         "ident" : "t_current_trans",
         "name": "current transformer",
         "symbol": "{",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "PERMEABLE"],
         "bash": {
@@ -6031,7 +6031,7 @@
         "ident" : "t_dock",
         "name": "dock",
         "symbol": "8",
-        "color": "brown",
+        "color": "166",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAT"],
         "deconstruct": {
@@ -6056,7 +6056,7 @@
         "ident" : "t_pontoon_dp",
         "name": "pontoon bridge",
         "symbol": "8",
-        "color": "brown",
+        "color": "166",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAT"],
         "deconstruct": {
@@ -6081,7 +6081,7 @@
         "ident" : "t_pavement_bg_dp",
         "name": "bridge pavement",
         "symbol": ".",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -6099,7 +6099,7 @@
         "ident" : "t_pavement_y_bg_dp",
         "name": "bridge yellow pavement",
         "symbol": ".",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -6117,7 +6117,7 @@
         "ident" : "t_sidewalk_bg_dp",
         "name": "bridge sidewalk",
         "symbol": ".",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 2,
         "flags": ["TRANSPARENT", "FLAT", "ROAD"],
         "bash": {
@@ -6135,7 +6135,7 @@
         "ident" : "t_guardrail_bg_dp",
         "name": "guard rail",
         "symbol": "#",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 3,
         "flags": ["TRANSPARENT", "NOITEM", "REDUCE_SCENT", "MOUNTABLE", "SHORT", "THIN_OBSTACLE", "ROAD"],
         "bash": {
@@ -6152,7 +6152,7 @@
         "ident" : "t_tree_blackjack",
         "name": "blackjack oak",
         "symbol": "7",
-        "color": "brown",
+        "color": "166",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
         "examine_action": "harvest_ter",
@@ -6175,7 +6175,7 @@
         "ident" : "t_claymound",
         "name": "mound of clay",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 5,
         "flags": ["TRANSPARENT"],
         "bash": {
@@ -6192,7 +6192,7 @@
         "ident" : "t_sandmound",
         "name": "mound of sand",
         "symbol": "#",
-        "color": "brown",
+        "color": "166",
         "move_cost": 5,
         "flags": ["TRANSPARENT"],
         "bash": {
@@ -6209,7 +6209,7 @@
         "ident" : "t_conveyor",
         "name": "conveyor belt",
         "symbol": "=",
-        "color": "brown",
+        "color": "166",
         "move_cost": 6,
         "flags": ["TRANSPARENT", "BASHABLE", "PLACE_ITEM"],
         "deconstruct": {
@@ -6238,7 +6238,7 @@
         "ident" : "t_machinery_light",
         "name": "light machinery",
         "symbol": "$",
-        "color": "dark_gray",
+        "color": "238",
         "move_cost": 10,
         "flags": ["TRANSPARENT", "BASHABLE", "CONTAINER", "FLAMMABLE", "PLACE_ITEM"],
         "deconstruct": {
@@ -6278,7 +6278,7 @@
         "ident" : "t_machinery_heavy",
         "name": "heavy machinery",
         "symbol": "%",
-        "color": "light_gray",
+        "color": "250",
         "move_cost": 0,
         "flags": ["BASHABLE", "CONTAINER", "SEALED", "PLACE_ITEM"],
         "deconstruct": {
@@ -6324,7 +6324,7 @@
         "ident" : "t_machinery_old",
         "name": "old machinery",
         "symbol": "",
-        "color": "brown",
+        "color": "166",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "BASHABLE", "CONTAINER", "FLAMMABLE", "PLACE_ITEM"],
         "deconstruct": {
@@ -6368,7 +6368,7 @@
         "ident" : "t_machinery_electronic",
         "name": "electronic machinery",
         "symbol": "$",
-        "color": "yellow",
+        "color": "11",
         "move_cost": 8,
         "flags": ["TRANSPARENT", "BASHABLE", "CONTAINER", "SEALED", "FLAMMABLE", "PLACE_ITEM"],
         "deconstruct": {
@@ -6458,7 +6458,7 @@
 
     "name": "milking machine",
     "symbol": "%",
-    "color": [ "light_gray" ],
+    "color": [ "250" ],
     "move_cost": 1,
     "bash": {
       "str_min": 10,
@@ -6487,7 +6487,7 @@
 
     "name": "bulk tank",
     "symbol": "O",
-    "color": [ "light_gray" ],
+    "color": [ "250" ],
     "move_cost": 0,
     "bash": {
       "str_min": 20,
@@ -6519,7 +6519,7 @@
     "ident": "t_railroad_rubble",
     "name": "railroad rubble",
     "symbol": "^",
-    "color": [ "brown" ],
+    "color": [ "166" ],
     "move_cost": 2,
     "flags": [ "TRANSPARENT" ]
   },
@@ -6527,7 +6527,7 @@
     "ident": "t_railroad_track",
     "name": "railroad track",
     "symbol": "X",
-    "color": [ "cyan" ],
+    "color": [ "14" ],
     "move_cost": 2,
     "flags": [ "TRANSPARENT" ]
   },
@@ -6535,7 +6535,7 @@
     "ident": "t_railroad_track_on_tie",
     "name": "railroad track",
     "symbol": "x",
-    "color": [ "cyan" ],
+    "color": [ "14" ],
     "move_cost": 2,
     "flags": [ "TRANSPARENT" ]
   },
@@ -6551,7 +6551,7 @@
     "ident": "t_floor_waxed",
     "name": "waxed floor",
     "symbol": ".",
-    "color": [ "light_red" ],
+    "color": [ "196" ],
     "move_cost": 2,
     "roof": "t_flat_roof",
     "bash": {
@@ -6570,7 +6570,7 @@
 
     "name": "painted waxed floor",
     "symbol": ".",
-    "color": [ "yellow" ],
+    "color": [ "11" ],
     "move_cost": 2,
     "roof": "t_flat_roof",
     "bash": {
@@ -6588,7 +6588,7 @@
     "ident": "t_backboard_in",
     "name": "backboard",
     "symbol": "7",
-    "color": [ "red" ],
+    "color": [ "124" ],
     "move_cost": 0,
     "roof": "t_flat_roof",
     "bash": {
@@ -6616,7 +6616,7 @@
     "ident": "t_open_air_rooved",
     "name": "open air",
     "symbol": " ",
-    "color": [ "i_cyan" ],
+    "color": [ "6" ],
     "move_cost": 2,
     "trap": "tr_ledge",
     "roof": "t_flat_roof",

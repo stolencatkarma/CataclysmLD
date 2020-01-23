@@ -36,6 +36,9 @@ class FurnitureManager:  # holds all the furniture types from furniture.json
                 furniture['bg'] = None
             if('flags' not in furniture.keys()):
                 furniture['flags'] = None
+            if('color' not in furniture.keys()):
+                furniture['flags'] = "200"
+
             try:
                 # ex, TILE_TYPES['ident']]['fg'] is a integer of the foreground of that ident
                 self.FURNITURE_TYPES[furniture['ident']
@@ -48,8 +51,8 @@ class FurnitureManager:  # holds all the furniture types from furniture.json
                                      ]['required_str'] = furniture['required_str']
                 self.FURNITURE_TYPES[furniture['ident']
                                      ]['description'] = furniture['description']
-                self.FURNITURE_TYPES[furniture['ident']
-                                     ]['bash'] = furniture['bash']
+                self.FURNITURE_TYPES[furniture['ident']]['bash'] = furniture['bash']
+                self.FURNITURE_TYPES[furniture['ident']]['color'] = furniture['color']
                 self.FURNITURE_TYPES[furniture['ident']]['flags'] = list()
                 for flag in furniture['flags']:
                     self.FURNITURE_TYPES[furniture['ident']
