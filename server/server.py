@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#/usr/bin/env python3
 
 import argparse
 import json
@@ -23,6 +23,7 @@ from src.model.manager.profession import ProfessionManager
 from src.model.manager.monster import MonsterManager
 from src.worldmap import Worldmap
 from src.model.manager.item import ItemManager
+from src.tilemanager import TileManager
 from src.passhash import makeSalt, hashPassword
 
 
@@ -59,12 +60,13 @@ class Server(MastermindServerTCP):
         # self.options.save()
         # create this many chunks in x and y (z is always 1 (level 0)
         # for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        self.worldmap = Worldmap(26)
+        self.worldmap = Worldmap(13)
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
         self.ItemManager = ItemManager()
         self.FurnitureManager = FurnitureManager()
+        self.TileManager = TileManager()
 
     def get_connections(self):
         return self._mm_connections
@@ -121,23 +123,16 @@ class Server(MastermindServerTCP):
             return tile["position"]
 
     def handle_new_character(self, ident, character):
-        print(character)
+        # print(character)
         self.characters[character] = Character(character)
 
-        self.characters[character][
-            "position"
-        ] = self.find_spawn_point_for_new_character()
-        self.worldmap.put_object_at_position(
-            self.characters[character], self.characters[character]["position"]
-        )
-        self.localmaps[character] = self.worldmap.get_chunks_near_position(
-            self.characters[character]["position"]
-        )
+        # find a spot for them to spawn and fill their server side settings.
+        self.characters[character]["position"] = self.find_spawn_point_for_new_character()
+        self.worldmap.put_object_at_position(self.characters[character], self.characters[character]["position"])
+        self.localmaps[character] = self.worldmap.get_chunks_near_position(self.characters[character]["position"])
 
         # give the character their starting items by referencing the ProfessionManager.
-        for key, value in self.ProfessionManager.PROFESSIONS[
-            str(self.characters[character]["profession"])
-        ].items():
+        for key, value in self.ProfessionManager.PROFESSIONS[str(self.characters[character]["profession"])].items():
             # TODO: load the items into the character equipment slots as well as future things like CBMs and flags
             if key == "equipped_items":
                 for equip_location, item_ident in value.items():
@@ -227,140 +222,179 @@ class Server(MastermindServerTCP):
                 data, connection_object.address
             )
         )
+
+	# quit on disconnect signal.
         if data == "disconnect":
             print('got disconnect signal')
             connection_object.terminate()
             return
 
-        try:
-            _command = Command(data["ident"], data["command"], data["args"])
-        except Exception:
-            print(
-                "Server: invalid data {} from client {}.".format(
-                    data, connection_object.address
-                )
-            )
+        # LOGIN is the default state when a new connection is established.
+        if connection_object.state == "LOGIN":
+            # this will be the client's username.
+            connection_object.state = "LOGIN2"
+            connection_object.username = data
+            self.callback_client_send(connection_object, "Password? >")
             return
 
-        # we recieved a valid command. process it.
-        if isinstance(_command, Command):
-            if _command["command"] == "login":
-                # check whether this username has an account.
-                _path = "./accounts/" + _command["ident"] + "/"
-                if os.path.isdir("./accounts/" + _command["ident"]):
-                    # account exists. check the sent password against the saved one.
-                    with open(str(_path + "SALT"), "r") as _salt:
-                        with open(
-                            str(_path + "HASHED_PASSWORD"), "r"
-                        ) as _hashed_password:
-                            # read the password hashed
-                            _check = hashPassword(
-                                _command["args"], _salt.read())
-                            _check2 = _hashed_password.read()
-                            if _check == _check2:
-                                print("password accepted for " +
-                                      str(_command["ident"]))
-                                _message = {"login": "Accepted"}
-                                self.callback_client_send(
-                                    connection_object, json.dumps(_message)
-                                )
+        if connection_object.state == "LOGIN2":
+            print(connection_object.username + " entered LOGIN2")
+            # this is the client's password.
+            connection_object.password = data
 
-                            else:
-                                print(
-                                    "password not accepted for "
-                                    + str(_command["ident"])
-                                )
-                                connection_object.terminate()
-                                # this player can recieve a list of characters they own.
-                                pass
+            # check whether this username has an account.
+            _path = "./accounts/" + connection_object.username + "/"
+            if os.path.isdir("./accounts/" + connection_object.username):
+                # account exists. check the sent password against the saved one.
+                with open(str(_path + "SALT"), "r") as _salt:
+                    with open(str(_path + "HASHED_PASSWORD"), "r") as _hashed_password:
+                        # read the password hashed
+                        _check = hashPassword(connection_object.password, _salt.read())
+                        _check2 = _hashed_password.read()
+                        if _check == _check2:
+                            print("password accepted for " + connection_object.username)
 
+                        else:
+                            print("password not accepted for " + connection_object.username)
+                            connection_object.terminate()
+                            return
+
+            else:
+                # account doesn't exist. create a directory for them.
+                try:
+                    os.mkdir(_path)
+                except OSError:
+                    print("Creation of the directory %s failed" % _path)
                 else:
-                    # account doesn't exist. create a directory for them.
-                    try:
-                        os.mkdir(_path)
-                    except OSError:
-                        print("Creation of the directory %s failed" % _path)
-                    else:
-                        print("Successfully created the directory %s " % _path)
+                    print("Successfully created the directory %s " % _path)
 
-                    _salt = makeSalt()
-                    with open(str(_path + "SALT"), "w") as f:
-                        # write the password salt
-                        f.write(str(_salt))
+                _salt = makeSalt()
+                with open(str(_path + "SALT"), "w") as f:
+                    # write the password salt
+                    f.write(str(_salt))
 
-                    with open(str(_path + "HASHED_PASSWORD"), "w") as f:
-                        # write the password hashed
-                        f.write(str(hashPassword(_command["args"], _salt)))
+                with open(str(_path + "HASHED_PASSWORD"), "w") as f:
+                    # write the password hashed
+                    f.write(str(hashPassword(connection_object.password, _salt)))
 
-                    _path = "./accounts/" + _command["ident"] + "/characters/"
-                    try:
-                        os.mkdir(_path)
-                    except OSError:
-                        print("Creation of the directory %s failed" % _path)
-                    else:
-                        print("Successfully created the directory %s " % _path)
+                _path = "./accounts/" + connection_object.username + "/characters/"
+                try:
+                    os.mkdir(_path)
+                except OSError:
+                    print("Creation of the directory %s failed" % _path)
+                else:
+                    print("Successfully created the directory %s " % _path)
 
-                    _message = {"login": "Accepted"}
-                    self.callback_client_send(
-                        connection_object, json.dumps(_message))
+            _message = "Login Accepted! Moving us to Character Select.\r\n"
+            connection_object.state = "CHOOSE_CHARACTER"
+            self.callback_client_send(connection_object, _message)
 
-            if _command["command"] == "choose_character":
+
+
+        if connection_object.state == "CHOOSE_CHARACTER":
+            # first option is always create new character
+            idx = 2
+            self.callback_client_send(connection_object, '1.) Create New >\r\n')
+            for root, _, files in os.walk("./accounts/" + connection_object.username + "/characters/"):
+                for file_data in files:
+                    if file_data.endswith(".character"):
+                        self.callback_client_send(connection_object, str(idx) + '.) ' + file_data.split(".")[0] + '\r\n')
+
+            self.callback_client_send(connection_object, 'Choice? >')
+            connection_object.state = "CHOOSING_CHARACTER"
+            return
+
+
+        if connection_object.state == "CHOOSING_CHARACTER":
+            # the client has been shown the list of characters. they now select to make a new one or choose a existing one.
+            if data == "1":
+                # client has chosen to create a new character.
+                connection_object.state = "CREATE_CHARACTER1"
+                self.callback_client_send(connection_object, "Name? > ")
+                return
+            else:
+                idx = 2
                 # send the current localmap to the player choosing the character
-                self.characters[data["args"]] = self.worldmap.get_character(
-                    data["args"]
-                )
-                self.localmaps[data["args"]] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"]]["position"]
-                )
-
-                _container = {"localmap": self.localmaps[data["args"]]}
-                # pprint.pprint(_container)
-                # print(len(json.dumps(_container)))
-                self.callback_client_send(
-                    connection_object, json.dumps(_container))
-
-            if _command["command"] == "completed_character":
-                if not data["ident"] in self.characters:
-                    # this character doesn't exist in the world yet.
-                    self.handle_new_character(data["ident"], data["args"])
-                    print(
-                        "Server: character created: {} From client {}.".format(
-                            data["args"], connection_object.address
-                        )
-                    )
-                else:
-                    print(
-                        "Server: character NOT created. Already Exists.: {} From client {}.".format(
-                            data["ident"], connection_object.address
-                        )
-                    )
-
-            if _command["command"] == "request_character_list":
-                _tmp_list = list()
-                for root, _, files in os.walk(
-                    "./accounts/" + _command["ident"] + "/characters/"
-                ):
+                for root, _, files in os.walk("./accounts/" + connection_object.username + "/characters/"):
                     for file_data in files:
                         if file_data.endswith(".character"):
-                            with open(root + file_data, "r") as data_file:
-                                _raw = data_file.read()
-                                # client will need to decode these
-                                _tmp_list.append(_raw)
+                            if int(data) == idx:
+                                connection_object.character = file_data.split(".")[0]
+                                connection_object.state = "CONNECTED"
+                                self.callback_client_send(connection_object, "Entering the Game as " + connection_object.character)
+                                # TODO: send the first map update.
+                                return
+                            else:
+                                idx = idx + 1
+            # player sent an incorrect option
+            return
 
-                # put that list into a json container with header
-                _container = {"character_list": _tmp_list}
-                # pprint.pprint(_container)
-                self.callback_client_send(
-                    connection_object, json.dumps(_container))
+        if connection_object.state == "CREATE_CHARACTER1":
+            if not data in self.characters:
+                # this character doesn't exist in the world yet.
+                self.handle_new_character(connection_object.username, data)
+                print("Server: character created: {} From client {}.".format( data, connection_object.address))
+            else:
+                print("Server: character NOT created. Already Exists.: {} From client {}.".format(data["ident"], connection_object.address))
+            connection_object.state = "CHOOSE_CHARACTER"
+            return
 
-            if _command["command"] == "request_localmap_update":
-                self.localmaps[data["args"]] = self.worldmap.get_chunks_near_position(
-                    self.characters[data["args"]]["position"]
-                )
 
-                _container = {"localmap_update": self.localmaps[data["args"]]}
-                self.callback_client_send(
-                    connection_object, json.dumps(_container))
+        # Once players have chosen a character they are CONNECTED and can start sending commands as a player and recieve map updates.
+        if connection_object.state == "CONNECTED":
+            # player sent an empty command.
+            if len(data) < 1:
+                _localmap = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]['position'])
+                cx = self.characters[connection_object.character]['position']['x']
+                cy = self.characters[connection_object.character]['position']['y']
+                cz = self.characters[connection_object.character]['position']['z']
+                send_map = dict()
+                for i in range(39):
+                    send_map[i] = dict()
+                    for j in range(39):
+                        send_map[i][j] = '.' # null by default then gets filled.
+
+                min_x = None
+                min_y = None
+                for chunk in _localmap:
+                    for tile in chunk['tiles']:
+                        x = tile['position']['x']
+                        y = tile['position']['y']
+                        z = tile['position']['z']
+                        if min_x is None:
+                            min_x = x
+                            min_y = y
+                            continue
+                        if x < min_x:
+                            min_x = x
+                        if y < min_y:
+                            min_y = y
+
+
+                for chunk in _localmap:
+                    for tile in chunk['tiles']:
+                        # translate localmap to a terminal friendly map and send it to the client.
+                        # order the tiles by x, y, ignore z levels not on current level.
+                        # send map to client line by line centered on the player.
+                        x = tile['position']['x']
+                        y = tile['position']['y']
+                        z = tile['position']['z']
+                        if cz != z:
+                            continue
+                        if tile['creature'] is not None:
+                            send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
+                        else:
+                            send_map[x - min_x][y - min_y] = self.TileManager.TILE_TYPES[tile['terrain']['ident']]['symbol']
+                        # print(tile['terrain'])
+
+                next_line = ''
+                for i in range(39):
+                    for j in range(39):
+                        next_line = next_line + send_map[i][j]
+                    self.callback_client_send(connection_object, next_line + '\r\n')
+                    next_line = ''
+                return
+
 
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
@@ -616,14 +650,16 @@ class Server(MastermindServerTCP):
         return super(Server, self).callback_client_handle(connection_object, data)
 
     def callback_client_send(self, connection_object, data, compression=False):
-        return super(Server, self).callback_client_send(
-            connection_object, data, compression
-        )
+        return super(Server, self).callback_client_send(connection_object, data, compression)
 
     def callback_connect_client(self, connection_object):
-        print("Server: Client from {} connected.".format(
-            connection_object.address))
-        return super(Server, self).callback_connect_client(connection_object)
+        # we need to have a login system to handle raw telnet and MUD clients.
+        print("Server: Client from {} connected.".format(connection_object.address))
+        # send the user a login prompt
+        connection_object.state = "LOGIN"
+        # return super(Server, self).callback_connect_client(connection_object)
+        self.callback_client_send(connection_object, "Username? >")
+        return
 
     def callback_disconnect_client(self, connection_object):
         print("Server: Client from {} disconnected.".format(
@@ -872,8 +908,8 @@ class Server(MastermindServerTCP):
                 if (
                     server.worldmap.get_chunk_by_position(
                         Position(
-                            i * server.worldmap["chunk_size"] + 1,
-                            j * server.worldmap["chunk_size"] + 1,
+                            i * server.worldmap["chunk_size"],
+                            j * server.worldmap["chunk_size"],
                             0,
                         )
                     )["was_loaded"]
@@ -887,8 +923,8 @@ class Server(MastermindServerTCP):
                         server.worldmap.build_json_building_at_position(
                             "./data/json/mapgen/residential/" + json_file,
                             Position(
-                                i * server.worldmap["chunk_size"] + 1,
-                                j * server.worldmap["chunk_size"] + 1,
+                                i * server.worldmap["chunk_size"],
+                                j * server.worldmap["chunk_size"],
                                 0,
                             ),
                         )
@@ -899,8 +935,8 @@ class Server(MastermindServerTCP):
                         server.worldmap.build_json_building_at_position(
                             "./data/json/mapgen/commercial/" + json_file,
                             Position(
-                                i * server.worldmap["chunk_size"] + 1,
-                                j * server.worldmap["chunk_size"] + 1,
+                                i * server.worldmap["chunk_size"],
+                                j * server.worldmap["chunk_size"],
                                 0,
                             ),
                         )
@@ -911,8 +947,8 @@ class Server(MastermindServerTCP):
                         server.worldmap.build_json_building_at_position(
                             "./data/json/mapgen/industrial/" + json_file,
                             Position(
-                                i * server.worldmap["chunk_size"] + 1,
-                                j * server.worldmap["chunk_size"] + 1,
+                                i * server.worldmap["chunk_size"],
+                                j * server.worldmap["chunk_size"],
                                 0,
                             ),
                         )
@@ -1012,7 +1048,7 @@ if __name__ == "__main__":
     time_offset = float(defaultConfig.get("time_offset", 1.0))
     last_turn_time = time.time()
     citySize = int(defaultConfig.get("city_size", 1))
-    # print('City size: {}'.format(citySize))
+    print('City size: {}'.format(citySize))
 
     # TODO: add variable to make it at world position.
     server.generate_and_apply_city_layout(citySize)

@@ -35,7 +35,7 @@
 
         "ident" : "t_brick_wall",
         "name": "brick wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "X",
         "color": "brown",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -53,7 +53,7 @@
 
         "ident" : "t_scrap_wall",
         "name": "simple metal wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "dark_gray",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -88,7 +88,7 @@
 
         "ident" : "t_sconc_wall",
         "name": "simple concrete wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "#",
         "color": "light_gray",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -124,7 +124,7 @@
 
         "ident" : "t_strconc_wall",
         "name": "reinforced concrete wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "#",
         "color": "light_gray",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -407,7 +407,7 @@
 
         "ident" : "t_pit_corpsed",
         "name": "corpse filled pit",
-        "symbol": "#",
+        "symbol": "|",
         "color": "green",
         "move_cost": 5,
         "flags": ["TRANSPARENT", "DIGGABLE"],
@@ -800,7 +800,7 @@
 
         "ident" : "t_wall_log",
         "name": "log wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "brown",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -818,7 +818,7 @@
 
         "ident" : "t_wall_log_chipped",
         "name": "chipped log wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "brown",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -836,7 +836,7 @@
 
         "ident" : "t_wall_log_broken",
         "name": "broken log wall",
-        "symbol": "",
+        "symbol": "W",
         "color": "brown",
         "move_cost": 0,
         "flags": [
@@ -931,7 +931,7 @@
 
         "ident" : "t_wall_wood",
         "name": "wooden wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_red",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -951,7 +951,7 @@
 
         "ident" : "t_wall_wood_chipped",
         "name": "chipped wood wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_red",
         "move_cost": 0,
         "flags": ["FLAMMABLE", "NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL"],
@@ -971,7 +971,7 @@
 
         "ident" : "t_wall_wood_broken",
         "name": "broken wood wall",
-        "symbol": "",
+        "symbol": ".",
         "color": "light_red",
         "move_cost": 0,
         "flags": [
@@ -996,7 +996,7 @@
             "t_wall_v"
         ],
         "name": "wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "#",
         "color": "light_gray",
         "move_cost": 0,
         "roof": "t_flat_roof",
@@ -1016,7 +1016,7 @@
             "t_concrete_v"
         ],
         "name": "concrete wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "#",
         "color": "dark_gray",
         "move_cost": 0,
         "roof": "t_rock_floor",
@@ -1039,7 +1039,7 @@
             "t_wall_metal_v"
         ],
         "name": "metal wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "#",
         "color": "cyan",
         "move_cost": 0,
         "roof": "t_metal_floor",
@@ -1063,7 +1063,7 @@
             "t_wall_glass_v"
         ],
         "name": "glass wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_cyan",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "AUTO_WALL_SYMBOL"],
@@ -1086,7 +1086,7 @@
             "t_wall_glass_v_alarm"
         ],
         "name": "glass wall",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_cyan",
         "move_cost": 0,
         "flags": [
@@ -1110,7 +1110,7 @@
             "t_reinforced_glass_v"
         ],
         "name": "reinforced glass",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_cyan",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "AUTO_WALL_SYMBOL"],
@@ -1130,7 +1130,7 @@
 
         "ident" : "t_reinforced_glass_shutter",
         "name": "reinforced glass with closed shutters",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_gray",
         "move_cost": 0,
         "flags": ["NOITEM", "WALL", "AUTO_WALL_SYMBOL", "OPENCLOSE_INSIDE"],
@@ -1152,7 +1152,7 @@
 
         "ident" : "t_reinforced_glass_shutter_open",
         "name": "reinforced glass with open shutters",
-        "symbol": "LINE_OXOX",
+        "symbol": "O",
         "color": "light_cyan",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "WALL", "AUTO_WALL_SYMBOL", "OPENCLOSE_INSIDE"],
@@ -1199,7 +1199,7 @@
 
         "ident" : "t_reinforced_door_glass_o",
         "name": "open reinforced  glass door",
-        "symbol": "'",
+        "symbol": "U",
         "color": "light_cyan",
         "move_cost": 2,
         "roof": "t_flat_roof",
@@ -1223,7 +1223,7 @@
         "ident" : "t_bars",
         "name": "metal bars",
         "examine_action": "bars",
-        "symbol": "\"",
+        "symbol": "(",
         "color": "light_gray",
         "move_cost": 0,
         "flags": ["TRANSPARENT", "NOITEM", "PERMEABLE", "CONNECT_TO_WALL"],
@@ -1305,7 +1305,7 @@
 
         "ident" : "t_door_b",
         "name": "damaged wood door",
-        "symbol": "",
+        "symbol": "U",
         "color": "brown",
         "move_cost": 0,
         "roof": "t_flat_roof",
@@ -1329,7 +1329,7 @@
         "ident" : "t_door_b_peep",
         "name": "damaged wood door with peephole",
         "comment": "There's no need for a use-peephole, because the door is transparent",
-        "symbol": "",
+        "symbol": "o",
         "color": "brown",
         "move_cost": 0,
         "roof": "t_flat_roof",
@@ -1353,7 +1353,7 @@
 
         "ident" : "t_door_o",
         "name": "open wood door",
-        "symbol": "'",
+        "symbol": "O",
         "color": "brown",
         "move_cost": 2,
         "roof": "t_flat_roof",
@@ -1448,7 +1448,7 @@
 
         "ident" : "t_rdoor_b",
         "name": "damaged reinforced wood door",
-        "symbol": "",
+        "symbol": "X",
         "color": "red",
         "move_cost": 0,
         "roof": "t_flat_roof",
@@ -2280,7 +2280,7 @@
 
         "ident" : "t_recycler",
         "name": "steel compactor",
-        "symbol": "",
+        "symbol": "R",
         "color": "green",
         "move_cost": 0,
         "max_volume": 8000,
@@ -2301,7 +2301,7 @@
 
         "ident" : "t_window",
         "name": "window",
-        "symbol": "\"",
+        "symbol": "W",
         "color": "light_cyan",
         "move_cost": 0,
         "flags": [
@@ -2329,7 +2329,7 @@
 
         "ident" : "t_window_taped",
         "name": "taped window",
-        "symbol": "\"",
+        "symbol": "W",
         "color": "dark_gray",
         "move_cost": 0,
         "flags": [
@@ -2350,7 +2350,7 @@
 
         "ident" : "t_window_domestic",
         "name": "window with curtains",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "light_gray",
         "move_cost": 0,
         "flags": [
@@ -2388,7 +2388,7 @@
 
         "ident" : "t_window_no_curtains",
         "name": "window without curtains",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "white",
         "move_cost": 0,
         "flags": [
@@ -2439,7 +2439,7 @@
         "ident" : "t_window_no_curtains_taped",
         "name": "taped window",
         "comment": "Taped window without curtains",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "dark_gray",
         "move_cost": 0,
         "flags": [
@@ -2461,7 +2461,7 @@
         "ident" : "t_window_domestic_taped",
         "name": "taped window",
         "comment": "Taped window with curtains",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "dark_gray",
         "move_cost": 0,
         "flags": [
@@ -2508,7 +2508,7 @@
 
         "ident" : "t_curtains",
         "name": "window with closed curtains",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "dark_gray",
         "move_cost": 0,
         "flags": [
@@ -2544,7 +2544,7 @@
 
         "ident" : "t_window_alarm",
         "name": "window",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "light_cyan",
         "move_cost": 0,
         "flags": [
@@ -2563,7 +2563,7 @@
 
         "ident" : "t_window_alarm_taped",
         "name": "taped window",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "dark_gray",
         "move_cost": 0,
         "flags": [
@@ -2775,7 +2775,7 @@
 
         "ident" : "t_window_stained_green",
         "name": "high stained glass window",
-        "symbol": "\"",
+        "symbol": "W",
         "color": "light_green",
         "move_cost": 0,
         "roof": "t_rock_floor",
@@ -2793,7 +2793,7 @@
 
         "ident" : "t_window_stained_red",
         "name": "high stained glass window",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "light_red",
         "move_cost": 0,
         "roof": "t_rock_floor",
@@ -2811,7 +2811,7 @@
 
         "ident" : "t_window_stained_blue",
         "name": "high stained glass window",
-        "symbol": "\"",
+        "symbol": "w",
         "color": "light_blue",
         "move_cost": 0,
         "roof": "t_rock_floor",
@@ -2829,7 +2829,7 @@
 
         "ident" : "t_rock",
         "name": "solid rock",
-        "symbol": "#",
+        "symbol": "r",
         "color": "white",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL"],
@@ -2850,7 +2850,7 @@
 
         "ident" : "t_rock_smooth",
         "name": "smoothed rock",
-        "symbol": "LINE_OXOX",   "comment": "use pillars, 't_column', as a compliment.",
+        "symbol": "r",   "comment": "use pillars, 't_column', as a compliment.",
         "color": "white",
         "move_cost": 0,
         "flags": ["NOITEM", "SUPPORTS_ROOF", "WALL", "AUTO_WALL_SYMBOL", "CONNECT_TO_WALL"],
@@ -2896,7 +2896,7 @@
 
         "ident" : "t_tree",
         "name": "oak tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "green", "green", "green", "brown" ], "comment": "barren in winter",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -2914,7 +2914,7 @@
 
         "ident" : "t_tree_dead",
         "name": "dead tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": "brown",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -2932,7 +2932,7 @@
 
         "ident" : "t_tree_young",
         "name": "young tree",
-        "symbol": "1",
+        "symbol": "t",
         "color": [ "green", "green", "green", "brown" ], "comment": "barren in winter",
         "move_cost": 4,
         "flags": ["TRANSPARENT", "FLAMMABLE_ASH", "NOITEM", "YOUNG", "REDUCE_SCENT"],
@@ -2949,7 +2949,7 @@
 
         "ident" : "t_tree_apple",
         "name": "apple tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "red_green", "brown" ], "comment": "barren in winter, fruits in autum",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -2972,7 +2972,7 @@
 
         "ident" : "t_tree_apple_harvested",
         "name": "apple tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, no fruits anymore",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],
@@ -2992,7 +2992,7 @@
 
         "ident" : "t_tree_pear",
         "name": "pear tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green_green", "brown" ], "comment": "barren in winter, fruits in autum",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3015,7 +3015,7 @@
 
         "ident" : "t_tree_pear_harvested",
         "name": "pear tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, no fruits anymore",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],
@@ -3035,7 +3035,7 @@
 
         "ident" : "t_tree_cherry",
         "name": "cherry tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "red_green", "light_green", "brown" ], "comment": "barren in winter, fruits in summer",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3058,7 +3058,7 @@
 
         "ident" : "t_tree_cherry_harvested",
         "name": "cherry tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, no fruits anymore",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],
@@ -3078,7 +3078,7 @@
 
         "ident" : "t_tree_peach",
         "name": "peach tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_red_green", "light_green", "brown" ], "comment": "barren in winter, fruits in summer",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3101,7 +3101,7 @@
 
         "ident" : "t_tree_peach_harvested",
         "name": "peach tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, no fruits anymore",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],
@@ -3121,7 +3121,7 @@
 
         "ident" : "t_tree_apricot",
         "name": "apricot tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_red_green", "light_green", "brown" ], "comment": "barren in winter, fruits in summer",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3144,7 +3144,7 @@
 
         "ident" : "t_tree_apricot_harvested",
         "name": "apricot tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, no fruits anymore",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],
@@ -3164,7 +3164,7 @@
 
         "ident" : "t_tree_plum",
         "name": "plum tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "magenta_green", "light_green", "brown" ], "comment": "barren in winter, fruits in summer",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3187,7 +3187,7 @@
 
         "ident" : "t_tree_plum_harvested",
         "name": "plum tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, no fruits anymore",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],
@@ -3207,7 +3207,7 @@
 
         "ident" : "t_tree_pine",
         "name": "pine tree",
-        "symbol": "4",
+        "symbol": "T",
         "color": "green",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3230,7 +3230,7 @@
 
         "ident" : "t_tree_deadpine",
         "name": "dead pine tree",
-        "symbol": "4",
+        "symbol": "T",
         "color": "brown",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3248,7 +3248,7 @@
 
         "ident" : "t_tree_birch",
         "name": "birch tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, harvestable all year round",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3271,7 +3271,7 @@
 
         "ident" : "t_tree_birch_harvested",
         "name": "birch tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": "green", "comment": "dead, not harvestable",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3289,7 +3289,7 @@
 
         "ident" : "t_tree_willow",
         "name": "willow tree",
-        "symbol": "4",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, harvestable all year round",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3312,7 +3312,7 @@
 
         "ident" : "t_tree_willow_harvested",
         "name": "willow tree",
-        "symbol": "4",
+        "symbol": "T",
         "color": [ "brown", "brown", "brown", "brown" ], "comment": "barren in winter, not harvestable",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3330,7 +3330,7 @@
 
         "ident" : "t_tree_maple",
         "name": "maple tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "red", "light_green", "light_green", "red" ],
         "move_cost": 0,
         "flags": [ "FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT" ],
@@ -3349,7 +3349,7 @@
 
         "ident" : "t_tree_maple_tapped",
         "name": "maple tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "red", "light_green", "light_green", "red" ],
         "move_cost": 0,
         "flags": [ "FLAMMABLE_ASH", "SEALED", "PLACE_ITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "LIQUIDCONT" ],
@@ -3368,7 +3368,7 @@
 
         "ident" : "t_tree_hickory",
         "name": "hickory tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "brown_green", "brown" ], "comment": "barren in winter, harvestable in autum",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT"],
@@ -3391,7 +3391,7 @@
 
         "ident" : "t_tree_hickory_harvested",
         "name": "hickory tree",
-        "symbol": "7",
+        "symbol": "T",
         "color": [ "light_green", "light_green", "light_green", "brown" ], "comment": "barren in winter, kind of harvestable",
         "move_cost": 0,
         "flags": ["FLAMMABLE_ASH", "NOITEM", "SUPPORTS_ROOF", "TREE", "REDUCE_SCENT", "HARVESTED"],

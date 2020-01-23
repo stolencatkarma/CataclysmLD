@@ -16,9 +16,7 @@ from src.terrain import Terrain
 
 
 class Chunk(dict):
-    def __init__(
-        self, x, y, z, chunk_size
-    ):  # x, y, z relate to it's position on the world map.
+    def __init__(self, x, y, z, chunk_size):  # x, y, z relate to it's position on the world map.
         self["tiles"] = list()
         self["weather"] = "WEATHER_NONE"  # weather is per chunk.
         # the tile represented on the over map
@@ -26,9 +24,9 @@ class Chunk(dict):
         # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
         self["is_dirty"] = True
         self["was_loaded"] = False
-        # start = time.time()
-        for i in range(chunk_size):  # 0-13
-            for j in range(chunk_size):  # 0-13
+        start = time.time()
+        for i in range(chunk_size):  # 0-12
+            for j in range(chunk_size):  # 0-12
                 chunkdict = {}
                 # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
                 chunkdict["position"] = Position(
@@ -46,9 +44,9 @@ class Chunk(dict):
                 # used in lightmap calculations, use 1 for base so we never have total darkness.
                 chunkdict["lumens"] = 1
                 self["tiles"].append(chunkdict)
-        # end = time.time()
-        # duration = end - start
-        # print('chunk generation took: ' + str(duration) + ' seconds.')
+        end = time.time()
+        duration = end - start
+        print('chunk generation took: ' + str(duration) + ' seconds.')
 
 
 class Worldmap(dict):
@@ -58,7 +56,7 @@ class Worldmap(dict):
         self["WORLD_SIZE"] = size
         self["WORLDMAP"] = dict()  # dict of dicts for chunks
         # size of the chunk, leave it hardcoded here. (0-12)
-        self["chunk_size"] = 13
+        self["chunk_size"] = 12
         start = time.time()
         # TODO: only need to load the chunks where there are actual Characters present in memory after generation.
         print("creating/loading world chunks")
@@ -100,9 +98,7 @@ class Worldmap(dict):
         print("---------------------------------------------")
         print("World generation took: {} seconds".format(duration))
 
-    def update_chunks_on_disk(
-        self
-    ):  # after our map in memory changes we need to update the chunk file on disk.
+    def update_chunks_on_disk(self):  # after our map in memory changes we need to update the chunk file on disk.
         for i in range(self["WORLD_SIZE"]):
             for j in range(self["WORLD_SIZE"]):
                 for k, chunk in self["WORLDMAP"][i][j].items():
@@ -130,7 +126,7 @@ class Worldmap(dict):
             x = x - self["chunk_size"]
             x_count = x_count + 1
 
-        y_count = 0  #
+        y_count = 0
         y = position["y"]
         # worldmap[x][y]['tiles']
         while y >= self["chunk_size"]:
@@ -160,7 +156,7 @@ class Worldmap(dict):
             x = x - self["chunk_size"]
             x_count = x_count + 1
 
-        y_count = 0  #
+        y_count = 0
         y = position["y"]
         while y >= self["chunk_size"]:
             y = y - self["chunk_size"]
@@ -176,9 +172,7 @@ class Worldmap(dict):
             #    raise Exception("FATAL ERROR: couldn't find chunk for tile")
         except Exception:
             # if it doesn't exist yet (exception) we need to create it and return it.
-            self["WORLDMAP"][x_count][y_count][z] = Chunk(
-                x_count, y_count, z, self["chunk_size"]
-            )
+            self["WORLDMAP"][x_count][y_count][z] = Chunk(x_count, y_count, z, self["chunk_size"])
             path = str(
                 "./worlds/default/"
                 + str(x_count)
@@ -511,8 +505,8 @@ class Worldmap(dict):
 
         for j in range(size):
             for i in range(size):
-                # print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
-                pass
+                print(str(city_layout[i][j]), end = '') # the visual feedback on the console.
+            print()
 
         return city_layout
 

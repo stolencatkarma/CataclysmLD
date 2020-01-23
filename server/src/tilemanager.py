@@ -5,7 +5,7 @@ from collections import defaultdict
 # holds all the tile types from tile_config.json as well as terrain.json information
 # because terrain can have a fg and bg
 class TileManager:
-    def __init__(self, tileset='Chesthole32'):
+    def __init__(self):
         self.tilemapPx = 32
         self.tilemapPy = 32
         # the dict of tiles loaded from the tile_config.json
@@ -50,12 +50,13 @@ class TileManager:
             self.TILE_TYPES[terrain['ident']]['roof'] = terrain['roof']
             if('harvest_season' not in terrain.keys()):
                 terrain['harvest_season'] = 'Summer'
-            self.TILE_TYPES[terrain['ident']
-                            ]['harvest_season'] = terrain['harvest_season']
+            self.TILE_TYPES[terrain['ident']]['harvest_season'] = terrain['harvest_season']
             if('deconstruct' not in terrain.keys()):
                 terrain['deconstruct'] = None
-            self.TILE_TYPES[terrain['ident']
-                            ]['deconstruct'] = terrain['deconstruct']
+            self.TILE_TYPES[terrain['ident']]['deconstruct'] = terrain['deconstruct']
+            if('symbol' not in terrain.keys()):
+                terrain['symbol'] = ' '
+            self.TILE_TYPES[terrain['ident']]['symbol'] = terrain['symbol']
 
         # possible_keys = ['group', 'ident', 'subtype', 'entries', 'type', 'name', 'symbol', 'color', 'move_cost',
         # 'trap', 'flags', 'roof', 'examine_action', 'bash', 'connects_to', 'comment', 'aliases', 'open', 'close',
