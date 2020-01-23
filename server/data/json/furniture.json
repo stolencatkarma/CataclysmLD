@@ -2898,12 +2898,15 @@
     },{
         "type" : "furniture",
         "ident" : "ceiling_fixture",
-        "name": "Ceiling Light",
+        "name": "ceiling light",
         "symbol": "o",
         "color": "11",
         "description": "A light attached to the ceiling.",
         "move_cost_mod": 99,
         "required_str": 99,
-        "flags": ["LIGHT_5"]
+        "flags": ["LIGHT_5"],
+        "items": [
+                { "item": "scrap", "count": [1, 3] }
+            ]
     }
 ]

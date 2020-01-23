@@ -351,9 +351,9 @@ class Server(MastermindServerTCP):
                 cy = self.characters[connection_object.character]['position']['y']
                 cz = self.characters[connection_object.character]['position']['z']
                 send_map = dict()
-                for i in range(39):
+                for i in range(36):
                     send_map[i] = dict()
-                    for j in range(39):
+                    for j in range(36):
                         send_map[i][j] = '.' # null by default then gets filled.
 
                 min_x = None
@@ -398,8 +398,8 @@ class Server(MastermindServerTCP):
                         # print(tile['terrain'])
 
                 next_line = ''
-                for i in range(39):
-                    for j in range(39):
+                for i in range(36):
+                    for j in range(36):
                         next_line = next_line + send_map[j][i]
                     self.callback_client_send(connection_object, next_line + '\r\n')
                     next_line = ''
@@ -416,19 +416,54 @@ class Server(MastermindServerTCP):
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
             if _command["command"] == "move":
-                self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, "move", _command["args"]))
-                self.callback_client_send(connection_object, "You move " + _command['args'][0] + ".")
+                self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
+                self.callback_client_send(connection_object, "You head " + _command['args'][0] + ".\r\n")
                 return
 
             if _command["command"] == "bash":
-                _position = Position(
-                    data["args"][0], data["args"][1], data["args"][2])
-                _action = Action('bash', _position)
-                self.characters[data["ident"]]["command_queue"].append(_action)
+                _target = _command["args"][0]
+                _action = Action(connection_object.character, _target, 'bash', _command["args"])
+                self.characters[connection_object.character]["command_queue"].append(_action)
+                self.callback_client_send(connection_object, "You break down " + _target + " for its components.")
+                return
 
-                _container = {"ping": 'pong'}
-                self.callback_client_send(
-                    connection_object, json.dumps(_container))
+            if _command["command"] == "look":
+                _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
+                # pprint.pprint(_tile)
+                self.callback_client_send(connection_object, "---- Items ----\r\n")
+                for item in _tile["items"]:
+                    _item = self.ItemManager.ITEM_TYPES[item["ident"]]
+                    self.callback_client_send(connection_object, _item["name"] + "\r\n")
+                self.callback_client_send(connection_object, "-- Furniture --\r\n")
+                if _tile["furniture"] is not None:
+                    _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
+                    self.callback_client_send(connection_object, _furniture["name"] + ": " + _furniture["description"] + "\r\n")
+
+                return
+
+            if _command["command"] == "character": # character sheet
+                _character = self.characters[connection_object.character]
+                self.callback_client_send(connection_object, "### Character Sheet\r\n")
+                self.callback_client_send(connection_object, "# Name: " + _character["name"] + "\r\n")
+                self.callback_client_send(connection_object, "#\r\n")
+                self.callback_client_send(connection_object, "# Strength: " + str(_character["strength"]) + "\r\n")
+                self.callback_client_send(connection_object, "# Dexterity: " + str(_character["dexterity"]) + "\r\n")
+                self.callback_client_send(connection_object, "# Intelligence: " + str(_character["intelligence"]) + "\r\n")
+                self.callback_client_send(connection_object, "# Perception: " + str(_character["perception"]) + "\r\n")
+                self.callback_client_send(connection_object, "# Constitution: " + str(_character["constitution"]) + "\r\n")
+                for body_part in _character["body_parts"]:
+                    # pprint.pprint(body_part)
+                    self.callback_client_send(connection_object, "# " + body_part["ident"] + "\r\n")
+                    if body_part["slot0"] is not None:
+                        self.callback_client_send(connection_object, "#  " + body_part["slot0"]["ident"] + "\r\n")
+                    if body_part["slot1"] is not None:
+                        self.callback_client_send(connection_object, "#  " + body_part["slot1"]["ident"] + "\r\n")
+                    if "slot_equipped" in _character:
+                        if body_part["slot_equipped"] is not None:
+                            self.callback_client_send(connection_object, "#  " + body_part["slot_equipped"]["ident"] + "\r\n")
+
+
+                return
 
             if _command["command"] == "create_blueprint":  # [result, direction]
                 # args 0 is ident args 1 is direction.
@@ -696,7 +731,7 @@ class Server(MastermindServerTCP):
                 return
             # if we get here we can process a single action
             if action.type == "move":
-                pprint.pprint(action.args)
+                # pprint.pprint(action.args)
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
                 if action.args[0] == "south":
                     if self.worldmap.move_creature_from_position_to_position(
@@ -807,42 +842,24 @@ class Server(MastermindServerTCP):
                         )
                     creature["command_queue"].remove(action)
             elif action.type == "bash":
-                pprint.pprint(action)
+                # pprint.pprint(action)
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
-                self.bash(
-                    self.characters[creature["name"]],
-                    Position(
-                        action["args"]['x'],
-                        action["args"]['y'],
-                        action["args"]['z']
-                    ),
-                )
-                self.localmaps[
-                    creature["name"]
-                ] = self.worldmap.get_chunks_near_position(
-                    self.characters[creature["name"]]["position"]
-                )
+                self.bash(action.owner, action.target)
+                self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(self.characters[creature["name"]]["position"])
                 creature["command_queue"].remove(action)
 
-    # catch-all for bash/smash
+    # catch-all for bash/smash/break
     # since we bash in a direction we need to check what's in the tile.
-    def bash(self, creature, position):
-        tile = self.worldmap.get_tile_by_position(position)
+    def bash(self, owner, target):
+        _tile = self.worldmap.get_tile_by_position(self.characters[owner]["position"])
         # strength = creature strength.
-        if tile["furniture"] is not None:
-            furniture_type = self.FurnitureManager.FURNITURE_TYPES[
-                tile["furniture"]["ident"]
-            ]
-            for item in furniture_type["bash"]["items"]:
-                self.worldmap.put_object_at_position(
-                    Item(
-                        self.ItemManager.ITEM_TYPES[str(
-                            item["item"])]["ident"],
-                        self.ItemManager.ITEM_TYPES[str(item["item"])],
-                    ),
-                    position,
-                )  # need to pass the reference to load the item with data.
-            tile["furniture"] = None
+        if _tile["furniture"] is not None:
+            _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
+            if target in _furniture["name"].split(" "):
+                for item in _furniture["bash"]["items"]:
+                    self.worldmap.put_object_at_position(Item(self.ItemManager.ITEM_TYPES[item["item"]]["ident"], self.ItemManager.ITEM_TYPES[item["item"]]), self.characters[owner]["position"])
+                _tile["furniture"] = None
+                # TODO: check 4 directions for target
         return
 
     def compute_turn(self):
