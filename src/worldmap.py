@@ -15,7 +15,8 @@ from src.terrain import Terrain
 
 
 class Chunk(dict):
-    def __init__(self, x, y, z, chunk_size):  # x, y, z relate to it's position on the world map.
+    def __init__(self, x, y):  # x, y relate to it's position on the world map.
+        self["chunk_size"] = 13  # 0-12 tiles in x and y, z-level 1 tile only (0).
         self["tiles"] = list()
         self["weather"] = "WEATHER_NONE"  # weather is per chunk.
         # the tile represented on the over map
@@ -23,28 +24,23 @@ class Chunk(dict):
         # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
         self["is_dirty"] = True
         self["was_loaded"] = False
-        #self["should_stasis"] = True# TODO: when we unload from memory we need a flag not to loop through it during compute turn
-        #self["stasis"] = False # when a chunk is put into stasis.
-        #self["Time until stasis"] = 100 # reduce by 1 every turn a player is not near it. set should_stasis when gets to zero
-        #TODO: when a player needs a chunk not in memory we 'wake up' the chunk and load it into memory and start computing turns on it.
+        self["should_stasis"] = True  # TODO: when we unload from memory we need a flag not to loop through it during compute turn
+        self["stasis"] = False  # when a chunk is put into stasis.
+        self["time_to_stasis"] = 100  # reduce by 1 every turn a player is not near it. set should_stasis when gets to zero
+        
+        # when a chunk is created for the first time fill with dirt and nothing else. rest is handled in world generation.
         start = time.time()
-        for i in range(chunk_size):  # 0-12
-            for j in range(chunk_size):  # 0-12
+        for i in range(self["chunk_size"]):  # 0-12
+            for j in range(self["chunk_size"]):  # 0-12
                 chunkdict = {}
                 # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
-                chunkdict["position"] = Position(
-                    i + int(x * chunk_size), j + int(y * chunk_size), z)
-                if int(z) <= 0:
-                    chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
-                else:
-                    chunkdict["terrain"] = Terrain(
-                        "t_open_air")  # make the air
-                # Creature() # one creature per tile
-                chunkdict["creature"] = None
+                chunkdict["position"] = Position(i + int(x * self["chunk_size"]), j + int(y * self["chunk_size"]), 0)
+                chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
+                chunkdict["creature"] = None  # one per tile.
                 chunkdict["items"] = []  # can be zero to many items in a tile.
-                chunkdict["furniture"] = None  # single furniture per tile
-                chunkdict["vehicle"] = None  # one per tile
-                chunkdict["lumens"] = 0
+                chunkdict["furniture"] = None  # one furniture per tile
+                chunkdict["vehicle"] = None  # one per tile, but may be part of a bigger whole.
+                chunkdict["lumens"] = 0 # lighting engine
                 self["tiles"].append(chunkdict)
         end = time.time()
         duration = end - start
@@ -58,64 +54,50 @@ class Worldmap(dict):
         self["WORLD_SIZE"] = size
         self["WORLDMAP"] = dict()  # dict of dicts for chunks
         # size of the chunk, leave it hardcoded here. (0-12)
-        self["chunk_size"] = 13
         start = time.time()
         print("creating/loading world chunks")
-        count = 0
         for i in range(self["WORLD_SIZE"]):
             self["WORLDMAP"][i] = dict()
             for j in range(self["WORLD_SIZE"]):
-                # just load z0 for now. load the rest as needed.
-                for k in range(0, 1):
-                    self["WORLDMAP"][i][j] = dict()
-                    path = str(
-                        "./world/"
-                        + str(i)
-                        + "_"
-                        + str(j)
-                        + ".chunk"
-                    )
+                self["WORLDMAP"][i][j] = dict()
+                path = str(
+                    "./world/"
+                    + str(i)
+                    + "_"
+                    + str(j)
+                    + ".chunk"
+                )
 
-                    if os.path.isfile(path):  # if the chunk already exists on disk just load it.
-                        with open(path, "r") as fp:
-                            self["WORLDMAP"][i][j][k] = json.loads(fp.read())
-                            self["WORLDMAP"][i][j][k]["was_loaded"] = "yes"
-                        if count < self["WORLD_SIZE"] - 1:
-                            count = count + 1
-                        else:
-                            count = 0
-                    else:
-                        self["WORLDMAP"][i][j][k] = Chunk(i, j, k, self["chunk_size"])
-                        with open(path, "w") as fp:
-                            json.dump(self["WORLDMAP"][i][j][k], fp)
+                if os.path.isfile(path):  # if the chunk already exists on disk load it. Otherwise create it and save it.
+                    with open(path, "r") as fp:
+                        self["WORLDMAP"][i][j] = json.loads(fp.read())
+                        self["WORLDMAP"][i][j]["was_loaded"] = "yes"
+                else:
+                    self["WORLDMAP"][i][j] = Chunk(i, j)
+                    with open(path, "w") as fp:
+                        json.dump(self["WORLDMAP"][i][j], fp)
 
         end = time.time()
         duration = end - start
-        print("---------------------------------------------")
-        print("World generation took: {} seconds".format(duration))
+        print("First pass world generation took: {} seconds".format(duration))
 
     def update_chunks_on_disk(self):  # after our map in memory changes we need to update the chunk file on disk.
         for i in range(self["WORLD_SIZE"]):
             for j in range(self["WORLD_SIZE"]):
-                for k, chunk in self["WORLDMAP"][i][j].items():
-                    path = str(
-                        "./worlds/default/"
-                        + str(i)
-                        + "_"
-                        + str(j)
-                        + "_"
-                        + str(k)
-                        + ".chunk"
-                    )
-                    if os.path.isfile(path):
-                        if chunk["is_dirty"]:
-                            with open(path, "w") as fp:
-                                self["WORLDMAP"][i][j][k]["is_dirty"] = False
-                                json.dump(chunk, fp)
+                path = str(
+                    "./world/"
+                    + str(i)
+                    + "_"
+                    + str(j)
+                    + ".chunk"
+                )
+                if os.path.isfile(path):
+                    if self["WORLDMAP"][i][j]["is_dirty"]:
+                        with open(path, "w") as fp:
+                            self["WORLDMAP"][i][j]["is_dirty"] = False
+                            json.dump(self["WORLDMAP"][i][j], fp)
 
     def get_chunk_by_position(self, position):
-        # check and see if it exists if not create it.
-        tile = self.get_tile_by_position(position)
         x_count = 0
         x = position["x"]
         while x >= self["chunk_size"]:
@@ -129,10 +111,8 @@ class Worldmap(dict):
             y = y - self["chunk_size"]
             y_count = y_count + 1
 
-        z = position["z"]
-
         # print('getting chunk {} {}'.format(x_count, y_count))
-        return self["WORLDMAP"][x_count][y_count][z]
+        return self["WORLDMAP"][x_count][y_count]
 
     def get_all_tiles(self):
         ret = []
@@ -160,34 +140,13 @@ class Worldmap(dict):
 
         z = position["z"]
 
-        try:
-            for tile in self["WORLDMAP"][x_count][y_count][z]["tiles"]:
-                if tile["position"] == position:
-                    return tile
-            # else:
-            #    raise Exception("FATAL ERROR: couldn't find chunk for tile")
-        except Exception:
-            # if it doesn't exist yet (exception) we need to create it and return it.
-            self["WORLDMAP"][x_count][y_count][z] = Chunk(x_count, y_count, z, self["chunk_size"])
-            path = str(
-                "./worlds/default/"
-                + str(x_count)
-                + "_"
-                + str(y_count)
-                + "_"
-                + str(z)
-                + ".chunk"
-            )
-            with open(path, "w") as fp:
-                fp = json.dumps(self["WORLDMAP"][x_count][y_count][z])
-                for tile in self["WORLDMAP"][x_count][y_count][z]["tiles"]:
-                    if tile["position"] == position:
-                        return tile
-                else:
-                    print("position we couldnt find", str(position))
-                    raise Exception(
-                        "ERROR: Could not find tile or create it. (this should never happen)"
-                    )
+        
+        for tile in self["WORLDMAP"][x_count][y_count]["tiles"]:
+            if tile["position"] == position:
+                return tile
+        else:
+            raise Exception("FATAL ERROR: couldn't find chunk for tile")
+        
 
     def get_chunks_near_position(self, position):  # a localmap
         chunks = []
@@ -253,9 +212,8 @@ class Worldmap(dict):
 
         return _ret_list
 
-    def put_object_at_position(
-        self, obj, position
-    ):  # attempts to take any object (creature, item, furniture) and put it in the right spot in the WORLDMAP
+    # attempts to take any object (creature, item, furniture) and put it in the right spot in the WORLDMAP
+    def put_object_at_position(self, obj, position):
         # TODO: check if something is already there. right now it just replaces it
         tile = self.get_tile_by_position(position)
         self.get_chunk_by_position(position)["is_dirty"] = True
@@ -289,10 +247,8 @@ class Worldmap(dict):
 
         # TODO: the rest of the types.
 
-    def build_json_building_at_position(
-        self, filename, position
-    ):  # applys the json file to world coordinates. can be done over multiple chunks.
-        # print("building: {} at {}".format(filename, position))
+    # applys the json file to a chunk.
+    def build_json_building_on_chunk(self, filename, position):
         start = time.time()
         # TODO: fill the chunk overmap tile with this om_terrain
         with open(filename) as json_file:
