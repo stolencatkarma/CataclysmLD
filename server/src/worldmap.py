@@ -3,11 +3,10 @@ import os
 import random
 import time
 
-from src.blueprint import Blueprint
 from src.creature import Creature
-from src.model.manager.furniture import Furniture
-from src.model.manager.item import Item
-from src.model.manager.monster import Monster
+from src.furniture import Furniture
+from src.item import Item, Container, Blueprint
+from src.monster import Monster
 from src.character import Character
 from src.position import Position
 from src.terrain import Terrain
@@ -24,6 +23,10 @@ class Chunk(dict):
         # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
         self["is_dirty"] = True
         self["was_loaded"] = False
+        #self["should_stasis"] = True# TODO: when we unload from memory we need a flag not to loop through it during compute turn
+        #self["stasis"] = False # when a chunk is put into stasis.
+        #self["Time until stasis"] = 100 # reduce by 1 every turn a player is not near it. set should_stasis when gets to zero
+        #TODO: when a player needs a chunk not in memory we 'wake up' the chunk and load it into memory and start computing turns on it.
         start = time.time()
         for i in range(chunk_size):  # 0-12
             for j in range(chunk_size):  # 0-12
@@ -41,8 +44,7 @@ class Chunk(dict):
                 chunkdict["items"] = []  # can be zero to many items in a tile.
                 chunkdict["furniture"] = None  # single furniture per tile
                 chunkdict["vehicle"] = None  # one per tile
-                # used in lightmap calculations, use 1 for base so we never have total darkness.
-                chunkdict["lumens"] = 1
+                chunkdict["lumens"] = 0
                 self["tiles"].append(chunkdict)
         end = time.time()
         duration = end - start
@@ -56,9 +58,8 @@ class Worldmap(dict):
         self["WORLD_SIZE"] = size
         self["WORLDMAP"] = dict()  # dict of dicts for chunks
         # size of the chunk, leave it hardcoded here. (0-12)
-        self["chunk_size"] = 12
+        self["chunk_size"] = 13
         start = time.time()
-        # TODO: only need to load the chunks where there are actual Characters present in memory after generation.
         print("creating/loading world chunks")
         count = 0
         for i in range(self["WORLD_SIZE"]):
@@ -68,18 +69,14 @@ class Worldmap(dict):
                 for k in range(0, 1):
                     self["WORLDMAP"][i][j] = dict()
                     path = str(
-                        "./worlds/default/"
+                        "./world/"
                         + str(i)
                         + "_"
                         + str(j)
-                        + "_"
-                        + str(k)
                         + ".chunk"
                     )
 
-                    if os.path.isfile(
-                        path
-                    ):  # if the chunk already exists on disk just load it.
+                    if os.path.isfile(path):  # if the chunk already exists on disk just load it.
                         with open(path, "r") as fp:
                             self["WORLDMAP"][i][j][k] = json.loads(fp.read())
                             self["WORLDMAP"][i][j][k]["was_loaded"] = "yes"
@@ -88,8 +85,7 @@ class Worldmap(dict):
                         else:
                             count = 0
                     else:
-                        self["WORLDMAP"][i][j][k] = Chunk(
-                            i, j, k, self["chunk_size"])
+                        self["WORLDMAP"][i][j][k] = Chunk(i, j, k, self["chunk_size"])
                         with open(path, "w") as fp:
                             json.dump(self["WORLDMAP"][i][j][k], fp)
 
@@ -252,7 +248,7 @@ class Worldmap(dict):
         _ret_list = []
         for tile in self.get_all_tiles():
             if tile["creature"] is not None and tile["creature"]["name"] is not None:
-                print("found player:" + tile["creature"]["name"])
+                # print("found player:" + tile["creature"]["name"])
                 _ret_list.append(tile["creature"])
 
         return _ret_list
@@ -367,31 +363,6 @@ class Worldmap(dict):
         to_tile["creature"] = obj
         from_tile["creature"] = None
         return True
-
-    def furniture_open(self, object, position):  # the object doing the opening
-        tile = self.get_tile_by_position(position)
-        furniture = tile["furniture"]
-        if furniture is not None:
-            if "open" in furniture:  #
-                # replace this furniture with the open version.
-                # make sure to copy any items in it to the new one.
-                pass
-        else:
-            return False
-        return
-
-    # the object doing the opening.
-    def furniture_close(self, object, position):
-        tile = self.get_tile_by_position(position)
-        furniture = tile["furniture"]
-        if furniture is not None:
-            if "close" in furniture:  #
-                # replace this furniture with the closed version.
-                # make sure to copy any items in it to the new one.
-                pass
-        else:
-            return False
-        return
 
     def get_tiles_near_position(self, position, radius):
         # figure out a way to get all tile positions near a position so we can get_tile_by_position on them.

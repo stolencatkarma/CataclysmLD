@@ -5,24 +5,22 @@ import json
 import os
 import random
 import time
-import pprint
+# import pprint
 import configparser
-import logging.config
+# import logging.config
 
 from src.mastermind._mm_server import MastermindServerTCP
-from src.model.action import Action
-from src.blueprint import Blueprint
+from src.action import Action
 from src.calendar import Calendar
-from src.model.command import Command
-from src.model.manager.furniture import FurnitureManager
-from src.model.manager.item import Container, Item
+from src.command import Command
+from src.furniture import FurnitureManager
+from src.item import Container, Item, ItemManager, Blueprint
 from src.character import Character
 from src.position import Position
-from src.model.manager.recipe import RecipeManager
-from src.model.manager.profession import ProfessionManager
-from src.model.manager.monster import MonsterManager
+from src.recipe import RecipeManager
+from src.profession import ProfessionManager
+from src.monster import MonsterManager
 from src.worldmap import Worldmap
-from src.model.manager.item import ItemManager
 from src.tilemanager import TileManager
 from src.passhash import makeSalt, hashPassword
 
@@ -41,12 +39,7 @@ class Server(MastermindServerTCP):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
         self._config = config
         if logger is None:
-            logging.basicConfig()
-            self._log = logging.getLogger("root")
-            self._log.warn(
-                "Basic logging configuration fallback used because no logger defined."
-            )
-
+            pass
         else:
             self._log = logger
 
@@ -223,7 +216,7 @@ class Server(MastermindServerTCP):
             )
         )
 
-	# quit on disconnect signal.
+        # quit on disconnect signal.
         if data == "disconnect":
             # print('got disconnect signal')
             connection_object.terminate()
@@ -289,7 +282,6 @@ class Server(MastermindServerTCP):
             connection_object.state = "CHOOSE_CHARACTER"
             self.callback_client_send(connection_object, _message)
 
-
         if connection_object.state == "CHOOSE_CHARACTER":
             # first option is always create new character
             idx = 2
@@ -302,7 +294,6 @@ class Server(MastermindServerTCP):
             self.callback_client_send(connection_object, 'Choice? >')
             connection_object.state = "CHOOSING_CHARACTER"
             return
-
 
         if connection_object.state == "CHOOSING_CHARACTER":
             # the client has been shown the list of characters. they now select to make a new one or choose a existing one.
@@ -583,7 +574,7 @@ class Server(MastermindServerTCP):
                         for body_item in bodypart["slot0"]:
                             if isinstance(body_item, Container): # could be a container or armor. only move to a container.
                                 for containted_item in body_item["contained_items"]:
-                                    if _command["args"][0] is in contained_item["name"].split(" "):
+                                    if _command["args"][0] in contained_item["name"].split(" "):
                                         _item = body_item
                                         _from_container = bodypart["slot0"]
                                         break
@@ -591,7 +582,7 @@ class Server(MastermindServerTCP):
                             if isinstance(body_item, Container): # could be a container or armor. only move to a container.
 
                                 for containted_item in body_item["contained_items"]:
-                                    if _command["args"][0] is in contained_item["name"].split(" "):
+                                    if _command["args"][0] in contained_item["name"].split(" "):
                                         _item = body_item
                                         _from_container = bodypart["slot1"]
                                         break
@@ -983,23 +974,23 @@ if __name__ == "__main__":
     port = int(defaultConfig.get("listen_port", args.port))
 
     # Enable logging - It uses its own configparser for the same file
-    logging.config.fileConfig(args.config)
-    log = logging.getLogger("root")
-    print("Server is listening at {}:{}".format(ip, port))
+    #logging.config.fileConfig(args.config)
+    #log = logging.getLogger("root")
 
-    server = Server(logger=log, config=defaultConfig)
+    server = Server(logger=None, config=defaultConfig)
     server.connect(ip, port)
     server.accepting_allow()
+    print("Server is listening at {}:{}".format(ip, port))
 
     dont_break = True
     # 0.5 is twice as fast, 2.0 is twice as slow
     time_offset = float(defaultConfig.get("time_offset", 1.0))
     last_turn_time = time.time()
     citySize = int(defaultConfig.get("city_size", 1))
-    print('City size: {}'.format(citySize))
+    # print('City size: {}'.format(citySize))
 
     # TODO: add variable to make it at world position.
-    # server.generate_and_apply_city_layout(citySize)
+    server.generate_and_apply_city_layout(citySize)
 
     time_per_turn = int(defaultConfig.get("time_per_turn", 1))
     # print('time_per_turn: {}'.format(time_per_turn))

@@ -1,4 +1,4 @@
-from src.model.manager.profession import Profession
+from src.profession import Profession
 from src.creature import Creature
 
 
