@@ -3,9 +3,8 @@ Cataclysm: Looming Darkness
 
 A multiplayer re-imagining of Cataclysm: Dark Days Ahead.
 
-Currently the pre-release of the client and server is available for download.
-We are currently reworking the client to use pyglet and glooey as pygame was
-not working for our needs.
+1-24-19 update - This codebase is moving to a more mud-style clientless telnet system where player's will connect
+                 to the game using a telnet or MUD client.
 
 ----
 
@@ -20,24 +19,22 @@ Helping hands are always welcome, especially those familiar with pyglet and gloo
 
 ----
 
-Made with python 3.7.0 64 bit and pyglet+glooey using Mastermind for the TCP backend.
-
-Discord: https://discord.gg/EqNQ784
+Made with python 3.7.0 64 bit and Mastermind for the TCP backend.
 
 Generic installation instructions
 
 ---
 
-* install python 3.4+
+* install python 3.4 64bit or greater on any OS that supports it. (python 2 not supported at this time.)
 
 ---
 
 **Running a server**
 
-* `python3 ./server.py`
+* `python3 ./server.py` - the first time you start the server a world is generated automatically using default settings. This does take a few minutes or longer on older hardware.
 
-**Running a client**
+**connecting to a server.**
 
-* `python3 ./client.py`
+* `telnet 127.0.0.1 6317` from a command-line. default port is 6317 but can be changed in server.cfg
        
 
