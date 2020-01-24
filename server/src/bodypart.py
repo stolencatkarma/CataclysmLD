@@ -7,8 +7,6 @@ class Bodypart(dict):
         self['vital_organ'] = vital_organ
         self['slot0'] = None  # (container or armor)
         self['slot1'] = None
-        # recaculate this when we wear or remove armor. the total armor value of worn items.
-        self['armor'] = 0
         if(self['ident'].split('_')[0] == 'HAND'):
             # hands have an extra slot for grabbed items.
             self['slot_equipped'] = None

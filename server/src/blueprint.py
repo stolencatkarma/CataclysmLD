@@ -4,14 +4,15 @@ import sys
 # # once built it 'turns' into the type and fills the worldmap with it.
 
 
-class Blueprint():
+class Blueprint(Container):
+    # valid_types = ['Terrain', 'Furniture', 'Item']
+
     def __init__(self, type_of, recipe):
-        valid_types = ['Terrain', 'Furniture', 'Item']
-        self['ident'] = 'Blueprint'
-        self.recipe = recipe
+        self['ident'] = 'blueprint'
+        self["recipe"] = recipe
         # when this reaches self.recipe['time'] then we need to 'turn' it into the object.
-        self.turns_worked_on = 0
-        self.contained_items = list()
+        self["turns_worked_on"] = 0
+        self["contained_items"] = list()
 
         if(str(type_of) not in valid_types):
             self.type_of = None

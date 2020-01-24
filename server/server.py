@@ -388,14 +388,12 @@ class Server(MastermindServerTCP):
 
                         t_id = self.TileManager.TILE_TYPES[tile['terrain']['ident']]
                         send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id['symbol'] + post_color # concat color and symbol
-                        # print(pre_color + t_id['color'] + t_id['symbol'] + post_color)
 
                         if tile['furniture'] is not None:
                             f_id = self.FurnitureManager.FURNITURE_TYPES[tile['furniture']['ident']]
                             send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id['symbol'] + post_color.lower()
                         if tile['creature'] is not None:
                             send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
-                        # print(tile['terrain'])
 
                 next_line = ''
                 for i in range(36):
@@ -465,52 +463,40 @@ class Server(MastermindServerTCP):
 
                 return
 
-            if _command["command"] == "create_blueprint":  # [result, direction]
+            if _command["command"] == "craft":  # 2-3 args (craft, <recipe>, direction)
                 # args 0 is ident args 1 is direction.
-                print(
-                    "creating blueprint "
-                    + str(data["args"][0])
-                    + " for character "
-                    + str(self.characters[data["ident"]])
-                )
-                print(
-                    "creating blueprint {} for character {}".format(
-                        str(data["args"][0]), str(
-                            self.characters[data["ident"]])
-                    )
-                )
+                print("creating blueprint " + _command["args"][0] + " for character " + connection_object.character)
                 # blueprint rules
-                # * there should be blueprints for terrain, furniture, items, and anything else
-                # that takes a slot up in the Worldmap.
+                # * there should be blueprints for terrain, furniture, items, and anything else that takes a slot up in a tile.
                 # * they act as placeholders and then 'transform' into the type they are once completed.
                 # Blueprint(type, recipe)
-                position_to_create_at = None
-                if data["args"][1] == "south":
+                position_to_create_at = self.characters[connection_object.character]["position"]
+                if _command["args"][1] == "south":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]["position"]["x"],
-                        self.characters[data["ident"]]["position"]["y"] + 1,
-                        self.characters[data["ident"]]["position"]["z"],
+                        position_to_create_at["x"],
+                        position_to_create_at["y"] + 1,
+                        position_to_create_at["z"],
                     )
-                elif data["args"][1] == "north":
+                elif _command["args"][1] == "north":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]["position"]["x"],
-                        self.characters[data["ident"]]["position"]["y"] - 1,
-                        self.characters[data["ident"]]["position"]["z"],
+                        position_to_create_at["x"],
+                        position_to_create_at["y"] - 1,
+                        position_to_create_at["z"],
                     )
-                elif data["args"][1] == "east":
+                elif _command["args"][1] == "east":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]["position"]["x"] + 1,
-                        self.characters[data["ident"]]["position"]["y"],
-                        self.characters[data["ident"]]["position"]["z"],
+                        position_to_create_at["x"] + 1,
+                        position_to_create_at["y"],
+                        position_to_create_at["z"],
                     )
-                elif data["args"][1] == "west":
+                elif _command["args"][1] == "west":
                     position_to_create_at = Position(
-                        self.characters[data["ident"]]["position"]["x"] - 1,
-                        self.characters[data["ident"]]["position"]["y"],
-                        self.characters[data["ident"]]["position"]["z"],
+                        position_to_create_at["x"] - 1,
+                        position_to_create_at["y"],
+                        position_to_create_at["z"],
                     )
 
-                _recipe = server.RecipeManager.RECIPE_TYPES[data["args"][0]]
+                _recipe = server.RecipeManager.RECIPE_TYPES[_command["args"][0]]
                 type_of = _recipe["type_of"]
                 bp_to_create = Blueprint(type_of, _recipe)
 
@@ -518,67 +504,9 @@ class Server(MastermindServerTCP):
                     bp_to_create, position_to_create_at
                 )
 
-            if _command["command"] == "calculated_move":
-                print(
-                    "Recieved calculated_move action. Building a path for {}".format(
-                        str(data["ident"])
-                    )
-                )
-                _position = Position(
-                    data["args"][0], data["args"][1], data["args"][2])
-                _route = self.calculate_route(
-                    self.characters[data["ident"]]["position"], _position
-                )  # returns a route from point 0 to point 1 as a series of Position(s)
-                print(
-                    "Calculated route for Character {}: {}".format(
-                        self.characters[data["ident"]]["name"], _route
-                    )
-                )
-                self.characters[data["ident"]]["command_queue"].clear()
-                # fill the queue with move commands to reach the tile.
-                # pprint.pprint(self.characters[data['ident']])
-                _x = self.characters[data["ident"]]["position"]["x"]
-                _y = self.characters[data["ident"]]["position"]["y"]
-                _z = self.characters[data["ident"]]["position"]["z"]
-                action = None
-                if _route is None:
-                    print("No _route possible.")
-                    return
-                for step in _route:
-                    _next_x = step["x"]
-                    _next_y = step["y"]
-                    _next_z = step["z"]
-                    # print(_x, _y, _z)
-                    # print(_next_x, _next_y, _next_z)
-                    if _x > _next_x:
-                        action = Action("move", ["west"])
-                    elif _x < _next_x:
-                        action = Action("move", ["east"])
-                    elif _y > _next_y:
-                        action = Action("move", ["north"])
-                    elif _y < _next_y:
-                        action = Action("move", ["south"])
-                    elif _z < _next_z:
-                        action = Action("move", ["up"])
-                    elif _z > _next_z:
-                        action = Action("move", ["down"])
-                    else:
-                        _x = _next_x
-                        _y = _next_y
-                        _z = _next_z
-                        continue  # we are at the same position as the character
-                    self.characters[data["ident"]
-                                    ]["command_queue"].append(action)
-                    print(action)
-                    # pretend as if we are in the next position.
-                    _x = _next_x
-                    _y = _next_y
-                    _z = _next_z
-
-            if _command["command"] == "move_item_to_character_storage":
-                _character = self.characters[data["ident"]["name"]]
-                _from_pos = Position(data["args"][0], data["args"][1], data["args"][2])
-                _item_ident = data["args"][3]
+            if _command["command"] == "take": # take an item from current tile and put it in players open inventory. (take, <item>)
+                _from_pos = self.characters(connection_object.character)["position"]
+                _item_ident = _command["args"][0]
                 _from_item = None
                 _open_containers = []
                 # find the item that the character is requesting.
@@ -593,7 +521,7 @@ class Server(MastermindServerTCP):
                     return
 
                 # make a list of open_containers the character has to see if they can pick it up.
-                for bodyPart in _character["body_parts"]:
+                for bodyPart in self.characters(connection_object.character)["body_parts"]:
                     if (
                         bodyPart["slot0"] is not None
                         and isinstance(bodyPart["slot0"], Container)
@@ -626,60 +554,60 @@ class Server(MastermindServerTCP):
                         return
                     else:
                         print("could not add item to character inventory.")
-                    # then send the character the updated version of themselves so they can refresh.
 
-            if _command["command"] == "move_item":
-                # client sends 'hey server. can you move this item from this to that?'
-                _character_requesting = self.characters[data["ident"]]
-                _item = data["args"][0]  # the item we are moving.
-                # creature.held_item, creature.held_item.container, bodypart.equipped, bodypart.equipped.container,
-                # position, blueprint
-                _from_type = data["args"][1]
+            if _command["command"] == "transfer": # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
+                # client sends 'hey server. can you move item from this to that?'
+                _character_requesting = self.characters[connection_object.character]
 
-                # the object list that contains the item. parse the type and fill this properly.
-                _from_list = []
+                _item = None  # the item we are moving. parse this
 
-                # the list the item will end up. passed from command.
-                _to_list = data["args"][2]
+                # the container the item is coming from. parse this
+                # either the player's character inventory or the player occupied tile["items"]
+                _from_container = None
 
-                # pass the position even if we may not need it.
-                _position = Position(data["args"][3], data["args"][4], data["args"][5])
+                # the container the item will end up. parse this as well.
+                _to_container = None
 
-                # need to parse where it's coming from and where it's going.
-                if _from_type == "bodypart.equipped":
+                # find _from_container and _item, either equipped containers or items on the ground.
+                for ground_item in self.worldmap.get_tile_by_position(_character_requesting["position"])["items"][:]: # parse copy
+                    # check if ground item is a container or blueprint
+                    #
+                    # check if item is laying on the ground. tile["items"]
+                    if _command["args"][0] in ground_item["name"].split(" "): # found the item on the ground by parsing it's ["name"]
+                        _item = ground_item
+                        _from_container = self.worldmap.get_tile_by_position(_character_requesting["position"])["items"]
+                        break
+                # if we didn't find it there let's check the player's own inventory.
+                if _item is None:
                     for bodypart in _character_requesting["body_parts"][:]:
-                        if _item in bodypart.equipped:
-                            _from_list = bodypart.equipped
-                            _from_list.remove(_item)
-                            _to_list.append(_item)
-                            return
-                elif _from_type == "bodypart.equipped.container":
-                    for bodypart in _character_requesting["body_parts"][:]:
-                        for item in bodypart.equipped:  # could be a container or not.
-                            # if it's a container.
-                            if isinstance(item, Container):
-                                # check every item in the container.
-                                for item2 in item.contained_items[:]:
-                                    if item2 is _item:
-                                        _from_list = item.contained_items
-                                        _from_list.remove(_item)
-                                        _to_list.append(_item)
-                                        return
-                elif _from_type == "position":
-                    _from_list = self.worldmap.get_tile_by_position(_position)["items"]
-                    if _item in _from_list:
-                        _from_list.remove(_item)
-                        _to_list.append(_item)
+                        for body_item in bodypart["slot0"]:
+                            if isinstance(body_item, Container): # could be a container or armor. only move to a container.
+                                for containted_item in body_item["contained_items"]:
+                                    if _command["args"][0] is in contained_item["name"].split(" "):
+                                        _item = body_item
+                                        _from_container = bodypart["slot0"]
+                                        break
+                        for body_item in bodypart["slot1"]:
+                            if isinstance(body_item, Container): # could be a container or armor. only move to a container.
+
+                                for containted_item in body_item["contained_items"]:
+                                    if _command["args"][0] is in contained_item["name"].split(" "):
+                                        _item = body_item
+                                        _from_container = bodypart["slot1"]
+                                        break
+                    else:
+                        self.callback_client_send(connection_object, "Couldn't find item on ground or in open containers.\r\n")
                         return
+
                 # a blueprint is a type of container but can't be moved from it's world position.
-                elif _from_type == "blueprint":
-                    for item in self.worldmap.get_tile_by_position(_position)["items"]:
-                        # only one blueprint allowed per space.
-                        if isinstance(item) == Blueprint:
-                            _from_list = item.contained_items
-                            _from_list.remove(_item)
-                            _to_list.append(_item)
-                            return
+                # TODO: Move to "dump" command blueprints are containers.
+                #    for item in self.worldmap.get_tile_by_position(_position)["items"]:
+                #        # only one blueprint allowed per space.
+                #        if isinstance(item) == Blueprint:
+                #            _from_list = item.contained_items
+                #            _from_list.remove(_item)
+                #            _to_list.append(_item)
+                #            return
 
                 # ## possible move types ##
                 # creature(held) to creature(held) (give to another character)
@@ -696,6 +624,8 @@ class Server(MastermindServerTCP):
 
                 # blueprint to position (empty blueprint on ground)
                 # blueprint to creature (grab from blueprint)
+        if _command == "hotbar":
+            return
 
         return super(Server, self).callback_client_handle(connection_object, data)
 
@@ -739,15 +669,13 @@ class Server(MastermindServerTCP):
                         self.characters[creature["name"]]["position"],
                         Position(
                             self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]
-                                            ]["position"]["y"] + 1,
+                            self.characters[creature["name"]]["position"]["y"] + 1,
                             self.characters[creature["name"]]["position"]["z"],
                         ),
                     ):
                         self.characters[creature["name"]]["position"] = Position(
                             self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]
-                                            ]["position"]["y"] + 1,
+                            self.characters[creature["name"]]["position"]["y"] + 1,
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
@@ -757,15 +685,13 @@ class Server(MastermindServerTCP):
                         self.characters[creature["name"]]["position"],
                         Position(
                             self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]
-                                            ]["position"]["y"] - 1,
+                            self.characters[creature["name"]]["position"]["y"] - 1,
                             self.characters[creature["name"]]["position"]["z"],
                         ),
                     ):
                         self.characters[creature["name"]]["position"] = Position(
                             self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]
-                                            ]["position"]["y"] - 1,
+                            self.characters[creature["name"]]["position"]["y"] - 1,
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
@@ -774,15 +700,13 @@ class Server(MastermindServerTCP):
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
                         Position(
-                            self.characters[creature["name"]
-                                            ]["position"]["x"] + 1,
+                            self.characters[creature["name"]]["position"]["x"] + 1,
                             self.characters[creature["name"]]["position"]["y"],
                             self.characters[creature["name"]]["position"]["z"],
                         ),
                     ):
                         self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]
-                                            ]["position"]["x"] + 1,
+                            self.characters[creature["name"]]["position"]["x"] + 1,
                             self.characters[creature["name"]]["position"]["y"],
                             self.characters[creature["name"]]["position"]["z"],
                         )
@@ -792,15 +716,13 @@ class Server(MastermindServerTCP):
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
                         Position(
-                            self.characters[creature["name"]
-                                            ]["position"]["x"] - 1,
+                            self.characters[creature["name"]]["position"]["x"] - 1,
                             self.characters[creature["name"]]["position"]["y"],
                             self.characters[creature["name"]]["position"]["z"],
                         ),
                     ):
                         self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]
-                                            ]["position"]["x"] - 1,
+                            self.characters[creature["name"]]["position"]["x"] - 1,
                             self.characters[creature["name"]]["position"]["y"],
                             self.characters[creature["name"]]["position"]["z"],
                         )
@@ -812,15 +734,13 @@ class Server(MastermindServerTCP):
                         Position(
                             self.characters[creature["name"]]["position"]["x"],
                             self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]
-                                            ]["position"]["z"] + 1,
+                            self.characters[creature["name"]]["position"]["z"] + 1,
                         ),
                     ):
                         self.characters[creature["name"]]["position"] = Position(
                             self.characters[creature["name"]]["position"]["x"],
                             self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]
-                                            ]["position"]["z"] + 1,
+                            self.characters[creature["name"]]["position"]["z"] + 1,
                         )
                     creature["command_queue"].remove(action)
                 if action.args[0] == "down":
@@ -830,15 +750,13 @@ class Server(MastermindServerTCP):
                         Position(
                             self.characters[creature["name"]]["position"]["x"],
                             self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]
-                                            ]["position"]["z"] - 1,
+                            self.characters[creature["name"]]["position"]["z"] - 1,
                         ),
                     ):
                         self.characters[creature["name"]]["position"] = Position(
                             self.characters[creature["name"]]["position"]["x"],
                             self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]
-                                            ]["position"]["z"] - 1,
+                            self.characters[creature["name"]]["position"]["z"] - 1,
                         )
                     creature["command_queue"].remove(action)
             elif action.type == "bash":
@@ -897,8 +815,7 @@ class Server(MastermindServerTCP):
                         ]:
                             if key == "flags":
                                 for flag in self.FurnitureManager.FURNITURE_TYPES[
-                                    tile["furniture"]["ident"]
-                                ]["flags"]:
+                                    tile["furniture"]["ident"]]["flags"]:
                                     # this furniture produces light.
                                     if flag.split("_")[0] == "LIGHT":
                                         for (
@@ -932,7 +849,6 @@ class Server(MastermindServerTCP):
         # now that we've processed what everything wants to do we can return.
 
     def generate_and_apply_city_layout(self, city_size):
-        # city_size = 1
         city_layout = self.worldmap.generate_city(city_size)
         # for every 1 city size it's 12 tiles across and high
         for j in range(city_size * 12):
@@ -1083,7 +999,7 @@ if __name__ == "__main__":
     print('City size: {}'.format(citySize))
 
     # TODO: add variable to make it at world position.
-    server.generate_and_apply_city_layout(citySize)
+    # server.generate_and_apply_city_layout(citySize)
 
     time_per_turn = int(defaultConfig.get("time_per_turn", 1))
     # print('time_per_turn: {}'.format(time_per_turn))
