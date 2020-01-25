@@ -5,7 +5,7 @@ import json
 import os
 import random
 import time
-# import pprint
+import pprint
 import configparser
 # import logging.config
 
@@ -333,7 +333,7 @@ class Server(MastermindServerTCP):
         ########################################################
         ## Main Loop After a Client connects with a Character. #
         ########################################################
-        # Once players have chosen a character they are CONNECTED and can start sending commands as a player and recieve map updates.
+        # Once players have chosen a character they are CONNECTED and can start sending character commands.
         if connection_object.state == "CONNECTED":
             # player sent an empty command.
             if len(data) < 1:
@@ -345,7 +345,7 @@ class Server(MastermindServerTCP):
                 for i in range(36):
                     send_map[i] = dict()
                     for j in range(36):
-                        send_map[i][j] = '.' # null by default then gets filled.
+                        send_map[i][j] = '.'  # null by default then gets filled.
 
                 min_x = None
                 min_y = None
@@ -363,7 +363,6 @@ class Server(MastermindServerTCP):
                         if y < min_y:
                             min_y = y
 
-
                 pre_color = "\u001b[38;5;"
                 post_color = "\u001b[0m"
                 for chunk in self.localmaps[connection_object.character]:
@@ -378,7 +377,7 @@ class Server(MastermindServerTCP):
                             continue
 
                         t_id = self.TileManager.TILE_TYPES[tile['terrain']['ident']]
-                        send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id['symbol'] + post_color # concat color and symbol
+                        send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id['symbol'] + post_color  # concat color and symbol
 
                         if tile['furniture'] is not None:
                             f_id = self.FurnitureManager.FURNITURE_TYPES[tile['furniture']['ident']]
@@ -844,26 +843,18 @@ class Server(MastermindServerTCP):
         # for every 1 city size it's 12 tiles across and high
         for j in range(city_size * 12):
             for i in range(city_size * 12):
-                if (
-                    server.worldmap.get_chunk_by_position(
-                        Position(
-                            i * server.worldmap["chunk_size"],
-                            j * server.worldmap["chunk_size"],
-                            0,
-                        )
-                    )["was_loaded"]
-                    is False
-                ):
+                _chunk = server.worldmap.get_chunk_by_position(Position(i, j, 0,))
+                if (server.worldmap.get_chunk_by_position(Position(i, j, 0,))["was_loaded"] is False):
                     if city_layout[i][j] == "r":
                         json_file = random.choice(
                             os.listdir("./data/json/mapgen/residential/")
                         )
 
-                        server.worldmap.build_json_building_at_position(
+                        server.worldmap.build_json_building_on_chunk(
                             "./data/json/mapgen/residential/" + json_file,
                             Position(
-                                i * server.worldmap["chunk_size"],
-                                j * server.worldmap["chunk_size"],
+                                i * _chunk["chunk_size"],
+                                j * _chunk["chunk_size"],
                                 0,
                             ),
                         )
@@ -871,11 +862,11 @@ class Server(MastermindServerTCP):
                         json_file = random.choice(
                             os.listdir("./data/json/mapgen/commercial/")
                         )
-                        server.worldmap.build_json_building_at_position(
+                        server.worldmap.build_json_building_on_chunk(
                             "./data/json/mapgen/commercial/" + json_file,
                             Position(
-                                i * server.worldmap["chunk_size"],
-                                j * server.worldmap["chunk_size"],
+                                i * _chunk["chunk_size"],
+                                j * _chunk["chunk_size"],
                                 0,
                             ),
                         )
@@ -883,11 +874,11 @@ class Server(MastermindServerTCP):
                         json_file = random.choice(
                             os.listdir("./data/json/mapgen/industrial/")
                         )
-                        server.worldmap.build_json_building_at_position(
+                        server.worldmap.build_json_building_on_chunk(
                             "./data/json/mapgen/industrial/" + json_file,
                             Position(
-                                i * server.worldmap["chunk_size"],
-                                j * server.worldmap["chunk_size"],
+                                i * _chunk["chunk_size"],
+                                j * _chunk["chunk_size"],
                                 0,
                             ),
                         )
@@ -936,11 +927,11 @@ class Server(MastermindServerTCP):
                                     json_file = (
                                         "./data/json/mapgen/road/city_road_v.json"
                                     )
-                            server.worldmap.build_json_building_at_position(
+                            server.worldmap.build_json_building_on_chunk(
                                 json_file,
                                 Position(
-                                    i * server.worldmap["chunk_size"] + 1,
-                                    j * server.worldmap["chunk_size"] + 1,
+                                    i * _chunk["chunk_size"] + 1,
+                                    j * _chunk["chunk_size"] + 1,
                                     0,
                                 ),
                             )

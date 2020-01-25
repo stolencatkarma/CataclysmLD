@@ -100,15 +100,15 @@ class Worldmap(dict):
     def get_chunk_by_position(self, position):
         x_count = 0
         x = position["x"]
-        while x >= self["chunk_size"]:
-            x = x - self["chunk_size"]
+        while x >= 13:
+            x = x - 13
             x_count = x_count + 1
 
         y_count = 0
         y = position["y"]
         # worldmap[x][y]['tiles']
-        while y >= self["chunk_size"]:
-            y = y - self["chunk_size"]
+        while y >= 13:
+            y = y - 13
             y_count = y_count + 1
 
         # print('getting chunk {} {}'.format(x_count, y_count))
@@ -118,35 +118,45 @@ class Worldmap(dict):
         ret = []
         # print("getting all tiles")
         for i, dictionary_x in self["WORLDMAP"].items():
-            for j, dictionary_y in dictionary_x.items():
-                for k, chunk in dictionary_y.items():
-                    for tile in chunk["tiles"]:
-                        ret.append(tile)
-        # print("all tiles: {}".format(len(ret)))
+            for j, chunk in dictionary_x.items():
+                for tile in chunk["tiles"]:
+                    ret.append(tile)
+        print("all tiles: {}".format(len(ret)))
         return ret  # expensive function. use sparingly.
 
     def get_tile_by_position(self, position):
+        # print(position)
         x_count = 0  # these two little loop gets us the right chunk FAST
         x = position["x"]
-        while x >= self["chunk_size"]:
-            x = x - self["chunk_size"]
+        while x >= 12:
+            x = x - 12
             x_count = x_count + 1
 
         y_count = 0
         y = position["y"]
-        while y >= self["chunk_size"]:
-            y = y - self["chunk_size"]
+        while y >= 12:
+            y = y - 12
             y_count = y_count + 1
 
-        z = position["z"]
+        # z = position["z"]
 
-        
         for tile in self["WORLDMAP"][x_count][y_count]["tiles"]:
             if tile["position"] == position:
                 return tile
         else:
-            raise Exception("FATAL ERROR: couldn't find chunk for tile")
-        
+            # need a position that doesn't exit yet. (likely z-level generation) Let's create it.
+            # print("creating NEW tile for position")
+            _tile = {}
+            # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
+            _tile["position"] = position
+            _tile["terrain"] = Terrain("t_dirt")  # make the earth
+            _tile["creature"] = None  # one per tile.
+            _tile["items"] = []  # can be zero to many items in a tile.
+            _tile["furniture"] = None  # one furniture per tile
+            _tile["vehicle"] = None  # one per tile, but may be part of a bigger whole.
+            _tile["lumens"] = 0  # lighting engine
+            self["WORLDMAP"][x_count][y_count]["tiles"].append(_tile)
+            return _tile
 
     def get_chunks_near_position(self, position):  # a localmap
         chunks = []
@@ -154,7 +164,7 @@ class Worldmap(dict):
         x = position["x"]
         y = position["y"]
         z = position["z"]
-
+        self["chunk_size"] = 13
         north_east_chunk = self.get_chunk_by_position(
             Position(x + self["chunk_size"], y + self["chunk_size"], z)
         )
@@ -185,12 +195,6 @@ class Worldmap(dict):
             Position(x - self["chunk_size"], y + self["chunk_size"], z)
         )
         chunks.append(south_east_chunk)
-
-        # up_chunk = self.get_chunk_by_position(Position(x, y, z+1))
-        # chunks.append(up_chunk)
-
-        # down_chunk = self.get_chunk_by_position(Position(x, y, z-1))
-        # chunks.append(down_chunk)
 
         return chunks
 
@@ -267,21 +271,14 @@ class Worldmap(dict):
                 i = 0
                 for char in row:
                     impassable = False
-                    t_position = Position(
-                        position["x"] + i, position["y"] + j, k)
-                    self.put_object_at_position(
-                        Terrain(fill_terrain, impassable), t_position
-                    )  # use fill_terrain if unrecognized.
+                    t_position = Position(position["x"] + i, position["y"] + j, k)
+                    self.put_object_at_position(Terrain(fill_terrain, impassable), t_position)  # use fill_terrain if unrecognized.
                     if char in terrain:
                         if terrain[char] in impassable_tiles:
                             impassable = True
-                        self.put_object_at_position(
-                            Terrain(terrain[char], impassable), t_position
-                        )
+                        self.put_object_at_position(Terrain(terrain[char], impassable), t_position)
                     elif char in furniture:
-                        self.put_object_at_position(
-                            Furniture(furniture[char]), t_position
-                        )
+                        self.put_object_at_position(Furniture(furniture[char]), t_position)
                     else:
                         pass
                     i = i + 1

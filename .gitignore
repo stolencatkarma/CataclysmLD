@@ -12,6 +12,8 @@
 /build/*
 # py files open in nano sessions.
 *.py.swp
+# generated map files.
+*.chunk
 # ignore logs
 server/log/*
 !server/log/.gitkeep
@@ -21,5 +23,5 @@ server/accounts/*
 server/worlds/*
 # ignore godot optional import settings.
 /client/.import/*
-CataclysmLD.code-workspace
+# CataclysmLD.code-workspace
 client/debug.log
