@@ -53,7 +53,7 @@ class Server(MastermindServerTCP):
         # self.options.save()
         # create this many chunks in x and y (z is always 1 (level 0)
         # for genning the world. we will build off that for caverns and ant stuff and z level buildings.
-        self.worldmap = Worldmap(13)
+        self.worldmap = Worldmap()
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
@@ -97,26 +97,23 @@ class Server(MastermindServerTCP):
         return path
 
     def find_spawn_point_for_new_character(self):
-        _tiles = self.worldmap.get_all_tiles()
-        random.shuffle(_tiles)  # so we all don't spawn in one corner.
-        for tile in _tiles:
-            if (
-                tile["position"]["x"] < 12
-                or tile["position"]["y"] < 12
-                or tile["position"]["z"] != 0
-            ):
-                continue
-            if tile["terrain"]["impassable"]:
-                continue
-            if tile["creature"] is not None:
-                continue
-            if tile["terrain"]["ident"] == "t_open_air":
-                continue
+        for _, chunk in self.worldmap["CHUNKS"].items():
+            for tile in chunk["tiles"]:
+                if tile["position"]["z"] != 0:
+                    continue
+                if tile["terrain"]["impassable"]:
+                    continue
+                if tile["creature"] is not None:
+                    continue
+                if tile["terrain"]["ident"] == "t_open_air":
+                    continue
 
             return tile["position"]
+        else:
+            print("ERROR: Couldn't find spawn point for new character!")
+            return None
 
     def handle_new_character(self, ident, character):
-        # print(character)
         self.characters[character] = Character(character)
 
         # find a spot for them to spawn and fill their server side settings.
@@ -203,18 +200,14 @@ class Server(MastermindServerTCP):
         )
 
         with open(path, "w") as fp:
-            json.dump(self.characters[character], fp)
+            json.dump(self.characters[character]["name"], fp)
             # pprint.pprint(_pickled)
 
             print("New character added to world: {}".format(character))
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
-        print(
-            "Server: Recieved data {} from client {}.".format(
-                data, connection_object.address
-            )
-        )
+        # print("Server: Recieved data {} from client {}.".format(data, connection_object.address))
 
         # quit on disconnect signal.
         if data == "disconnect":
@@ -248,7 +241,7 @@ class Server(MastermindServerTCP):
                             print("password accepted for " + connection_object.username)
 
                         else:
-                            print("password not accepted for " + connection_object.username)
+                            self.callback_client_send(connection_object, "Password NOT accepted for " + connection_object.username)
                             connection_object.terminate()
                             return
 
@@ -325,9 +318,8 @@ class Server(MastermindServerTCP):
                 self.handle_new_character(connection_object.username, data)
                 print("Server: character created: {} From client {}.".format( data, connection_object.address))
             else:
-                print("Server: character NOT created. Already Exists.: {} From client {}.".format(data["ident"], connection_object.address))
+                print("Server: character NOT created. Already Exists")
             connection_object.state = "CHOOSE_CHARACTER"
-            return
 
 
         ########################################################
@@ -342,9 +334,9 @@ class Server(MastermindServerTCP):
                 cy = self.characters[connection_object.character]['position']['y']
                 cz = self.characters[connection_object.character]['position']['z']
                 send_map = dict()
-                for i in range(36):
+                for i in range(39):
                     send_map[i] = dict()
-                    for j in range(36):
+                    for j in range(39):
                         send_map[i][j] = '.'  # null by default then gets filled.
 
                 min_x = None
@@ -363,6 +355,8 @@ class Server(MastermindServerTCP):
                         if y < min_y:
                             min_y = y
 
+                print("min_x: " + str(min_x))
+                print("min_y: " + str(min_y))
                 pre_color = "\u001b[38;5;"
                 post_color = "\u001b[0m"
                 for chunk in self.localmaps[connection_object.character]:
@@ -375,7 +369,7 @@ class Server(MastermindServerTCP):
                         z = tile['position']['z']
                         if cz != z:
                             continue
-
+                        # print("trying " + str(x - min_x) + ", " + str(y - min_y))
                         t_id = self.TileManager.TILE_TYPES[tile['terrain']['ident']]
                         send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id['symbol'] + post_color  # concat color and symbol
 
@@ -385,9 +379,9 @@ class Server(MastermindServerTCP):
                         if tile['creature'] is not None:
                             send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
 
-                next_line = ''
-                for i in range(36):
-                    for j in range(36):
+                next_line = ""
+                for i in range(39):
+                    for j in range(39):
                         next_line = next_line + send_map[j][i]
                     self.callback_client_send(connection_object, next_line + '\r\n')
                     next_line = ''
@@ -614,8 +608,8 @@ class Server(MastermindServerTCP):
 
                 # blueprint to position (empty blueprint on ground)
                 # blueprint to creature (grab from blueprint)
-        if _command == "hotbar":
-            return
+            if _command["command"] == "hotbar":
+                return
 
         return super(Server, self).callback_client_handle(connection_object, data)
 
@@ -650,10 +644,10 @@ class Server(MastermindServerTCP):
                 )
                 return
             # if we get here we can process a single action
-            if action.type == "move":
-                # pprint.pprint(action.args)
+            if action["type"] == "move":
+                # pprint.pprint(action["args"])
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
-                if action.args[0] == "south":
+                if action["args"][0] == "south":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -669,7 +663,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action.args[0] == "north":
+                if action["args"][0] == "north":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -685,7 +679,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action.args[0] == "east":
+                if action["args"][0] == "east":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -701,7 +695,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action.args[0] == "west":
+                if action["args"][0] == "west":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -717,7 +711,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"],
                         )
                     creature["command_queue"].remove(action)
-                if action.args[0] == "up":
+                if action["args"][0] == "up":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -733,7 +727,7 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"] + 1,
                         )
                     creature["command_queue"].remove(action)
-                if action.args[0] == "down":
+                if action["args"][0] == "down":
                     if self.worldmap.move_creature_from_position_to_position(
                         self.characters[creature["name"]],
                         self.characters[creature["name"]]["position"],
@@ -749,10 +743,10 @@ class Server(MastermindServerTCP):
                             self.characters[creature["name"]]["position"]["z"] - 1,
                         )
                     creature["command_queue"].remove(action)
-            elif action.type == "bash":
+            elif action["type"] == "bash":
                 # pprint.pprint(action)
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
-                self.bash(action.owner, action.target)
+                self.bash(action["owner"], action["target"])
                 self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(self.characters[creature["name"]]["position"])
                 creature["command_queue"].remove(action)
 
@@ -775,12 +769,12 @@ class Server(MastermindServerTCP):
 
         # init a list for all our found lights around characters.
         for _, chunks in self.localmaps.items():
-            for chunk in chunks:  # characters typically get 9 chunks
+            for chunk in chunks:  # characters typically see 9 chunks
                 for tile in chunk["tiles"]:
                     tile["lumens"] = 0  # reset light levels.
 
         for _, chunks in self.localmaps.items():
-            for chunk in chunks:  # characters typically get 9 chunks
+            for chunk in chunks:  # characters typically see 9 chunks and 1 z level
                 for tile in chunk["tiles"]:
                     for item in tile["items"]:
                         if isinstance(item, Blueprint):
@@ -800,9 +794,7 @@ class Server(MastermindServerTCP):
                                             int(flag.split("_")[1]) - distance
                                         )
                     if tile["furniture"] is not None:
-                        for key in self.FurnitureManager.FURNITURE_TYPES[
-                            tile["furniture"]["ident"]
-                        ]:
+                        for key in self.FurnitureManager.FURNITURE_TYPES[tile["furniture"]["ident"]]:
                             if key == "flags":
                                 for flag in self.FurnitureManager.FURNITURE_TYPES[
                                     tile["furniture"]["ident"]]["flags"]:
@@ -840,28 +832,17 @@ class Server(MastermindServerTCP):
 
     def generate_and_apply_city_layout(self, city_size):
         city_layout = self.worldmap.generate_city(city_size)
-        # for every 1 city size it's 12 tiles across and high
-        for j in range(city_size * 12):
-            for i in range(city_size * 12):
-                _chunk = server.worldmap.get_chunk_by_position(Position(i, j, 0,))
-                if (server.worldmap.get_chunk_by_position(Position(i, j, 0,))["was_loaded"] is False):
+        # for every 1 city size it's 13 tiles across and high
+        for j in range(city_size * 13):
+            for i in range(city_size * 13):
+                _chunk = server.worldmap.get_chunk_by_position(Position(i, j, 0))
+                if _chunk["was_loaded"] is False:
                     if city_layout[i][j] == "r":
-                        json_file = random.choice(
-                            os.listdir("./data/json/mapgen/residential/")
-                        )
-
-                        server.worldmap.build_json_building_on_chunk(
-                            "./data/json/mapgen/residential/" + json_file,
-                            Position(
-                                i * _chunk["chunk_size"],
-                                j * _chunk["chunk_size"],
-                                0,
-                            ),
-                        )
+                        json_file = random.choice(os.listdir("./data/json/mapgen/residential/"))
+                        server.worldmap.build_json_building_on_chunk("./data/json/mapgen/residential/" + json_file,
+                            Position(i * _chunk["chunk_size"], j * _chunk["chunk_size"], 0))
                     elif city_layout[i][j] == "c":
-                        json_file = random.choice(
-                            os.listdir("./data/json/mapgen/commercial/")
-                        )
+                        json_file = random.choice(os.listdir("./data/json/mapgen/commercial/"))
                         server.worldmap.build_json_building_on_chunk(
                             "./data/json/mapgen/commercial/" + json_file,
                             Position(
@@ -943,15 +924,10 @@ class Server(MastermindServerTCP):
 # do this if the server was started up directly.
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Cataclysm LD Server")
-    parser.add_argument("--host", metavar="Host",
-                        help="Server host", default="0.0.0.0")
-    parser.add_argument(
-        "--port", metavar="Port", type=int, help="Server port", default=6317
-    )
-    parser.add_argument(
-        "--config", metavar="Config", help="Configuration file", default="server.cfg"
-    )
+    parser = argparse.ArgumentParser(description="Cataclysm: Looming Darkness Server")
+    parser.add_argument("--host", metavar="Host", help="Server host", default="0.0.0.0")
+    parser.add_argument("--port", metavar="Port", type=int, help="Server port", default=6317)
+    parser.add_argument("--config", metavar="Config", help="Configuration file", default="server.cfg")
     args = parser.parse_args()
 
     # Configuration Parser - configured values override command line
@@ -988,8 +964,9 @@ if __name__ == "__main__":
     spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
     # print('spin_delay_ms: {}'.format(spin_delay_ms))
 
-    for _character in server.worldmap.get_all_characters():
-        server.characters[_character["name"]] = _character
+    for character in server.worldmap.get_all_characters():
+       server.characters[character["name"]] = character
+    print("found " + str(len(server.characters)) + " characters in the world.")
 
     print("Started Cataclysm: Looming Darkness. Clients may now connect.")
     try:
@@ -1005,7 +982,7 @@ if __name__ == "__main__":
                 server.compute_turn()
 
                 # if the worldmap in memory changed update it on the hard drive.
-                server.worldmap.update_chunks_on_disk()
+                server.worldmap.handle_chunks()
 
                 # TODO: unload from memory chunks that have no updates required.
                 # (such as no monsters, Characters, or fires)
@@ -1017,6 +994,6 @@ if __name__ == "__main__":
         server.disconnect_clients()
         server.disconnect()
         # if the worldmap in memory changed update it on the hard drive.
-        server.worldmap.update_chunks_on_disk()
+        server.worldmap.handle_chunks()
         dont_break = False
         print("Done cleaning up.")
