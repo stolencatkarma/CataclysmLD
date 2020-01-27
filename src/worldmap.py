@@ -83,10 +83,14 @@ class Worldmap(dict):
 
     def handle_chunks(self):
         # save as needed. check for dirty, TODO: stasis.
+        _chunks_to_save = []
         for _, chunk in self["CHUNKS"].items():
             if chunk["is_dirty"]:
+                _chunks_to_save.append(chunk)
                 chunk["is_dirty"] = False
-                self.save_chunk(chunk)
+        for chunk in _chunks_to_save[:]:  # save from a copy to not disturb the world.
+            self.save_chunk(chunk)
+        return
 
 
     def get_chunk_by_position(self, position):

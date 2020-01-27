@@ -14,6 +14,11 @@
     "items_in_containers": {
       "backpack": "cell_phone"
     },
+    "known_recipes": [
+        "makeshift_halberd",
+        "makeshift_knife",
+        "makeshift_machete"
+    ],
     "flags": [],
     "CBMs": []
   }

@@ -10,7 +10,7 @@ class Creature(dict):
         self['perception'] = 8
         self['constitution'] = 8
 
-        # known_recipes[0] = Recipe(ident, favorite) -  pull full recipe info from RecipeManager['ident'] - NPCs may know recipes that's why its in Creature
+        # known_recipes[0] = Recipe(ident) -  pull full recipe info from RecipeManager['ident'] - NPCs may know recipes that's why its in Creature
         self['known_recipes'] = list()
 
         # what each creature wants to do this turn and the upcoming turns. contains a list of Action(s) that are processed by the server.

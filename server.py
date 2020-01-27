@@ -125,7 +125,11 @@ class Server(MastermindServerTCP):
 
         # give the character their starting items by referencing the ProfessionManager.
         for key, value in self.ProfessionManager.PROFESSIONS[str(self.characters[character]["profession"])].items():
-            # TODO: load the items into the character equipment slots as well as future things like CBMs and flags
+            if key == "known_recipes":  # list
+                for recipe in value:
+                    # print("adding recipe")
+                    self.characters[character]["known_recipes"].append(recipe)
+
             if key == "equipped_items":
                 for equip_location, item_ident in value.items():
                     for bodypart in self.characters[character]["body_parts"]:
@@ -222,7 +226,7 @@ class Server(MastermindServerTCP):
             # this will be the client's username.
             connection_object.state = "LOGIN2"
             connection_object.username = data
-            self.callback_client_send(connection_object, "Password? > ")
+            self.callback_client_send(connection_object, "Password? >\r\n")
             return
 
         if connection_object.state == "LOGIN2":
@@ -285,8 +289,9 @@ class Server(MastermindServerTCP):
                 for file_data in files:
                     if file_data.endswith(".character"):
                         self.callback_client_send(connection_object, str(idx) + '.) ' + file_data.split(".")[0] + '\r\n')
+                        idx = idx + 1
 
-            self.callback_client_send(connection_object, 'Choice? >')
+            self.callback_client_send(connection_object, "Choice? >\r\n")
             connection_object.state = "CHOOSING_CHARACTER"
             return
 
@@ -295,7 +300,7 @@ class Server(MastermindServerTCP):
             if data == "1":
                 # client has chosen to create a new character.
                 connection_object.state = "CREATE_CHARACTER1"
-                self.callback_client_send(connection_object, "Name? > ")
+                self.callback_client_send(connection_object, "Name? >\r\n")
                 return
             else:
                 idx = 2
@@ -306,7 +311,8 @@ class Server(MastermindServerTCP):
                             if int(data) == idx:
                                 connection_object.character = file_data.split(".")[0]
                                 connection_object.state = "CONNECTED"
-                                self.callback_client_send(connection_object, "Entering the Game as " + connection_object.character)
+                                self.callback_client_send(connection_object, "Entering the Darkness as " + connection_object.character + "\r\n")
+                                self.callback_client_send(connection_object, "try help for a list of commands." + "\r\n")
                                 # TODO: send the first map update.
                                 return
                             else:
@@ -357,8 +363,8 @@ class Server(MastermindServerTCP):
                         if y < min_y:
                             min_y = y
 
-                print("min_x: " + str(min_x))
-                print("min_y: " + str(min_y))
+                # print("min_x: " + str(min_x))
+                # print("min_y: " + str(min_y))
                 pre_color = "\u001b[38;5;"
                 post_color = "\u001b[0m"
                 for chunk in self.localmaps[connection_object.character]:
@@ -387,6 +393,8 @@ class Server(MastermindServerTCP):
                         next_line = next_line + send_map[j][i]
                     self.callback_client_send(connection_object, next_line + '\r\n')
                     next_line = ''
+
+                self.send_prompt(connection_object)
                 return
 
             # try to parse the data sent for arguments.
@@ -402,6 +410,7 @@ class Server(MastermindServerTCP):
             if _command["command"] == "move":
                 self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
                 self.callback_client_send(connection_object, "You head " + _command['args'][0] + ".\r\n")
+                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "bash":
@@ -409,6 +418,7 @@ class Server(MastermindServerTCP):
                 _action = Action(connection_object.character, _target, 'bash', _command["args"])
                 self.characters[connection_object.character]["command_queue"].append(_action)
                 self.callback_client_send(connection_object, "You break down " + _target + " for its components.")
+                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "look":
@@ -423,6 +433,8 @@ class Server(MastermindServerTCP):
                     _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
                     self.callback_client_send(connection_object, _furniture["name"] + ": " + _furniture["description"] + "\r\n")
 
+                # send_prompt sends the client's character's stats after each request
+                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "character": # character sheet
@@ -446,7 +458,7 @@ class Server(MastermindServerTCP):
                         if body_part["slot_equipped"] is not None:
                             self.callback_client_send(connection_object, "#  " + body_part["slot_equipped"]["ident"] + "\r\n")
 
-
+                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "craft":  # 2-3 args (craft, <recipe>, direction)
@@ -613,7 +625,56 @@ class Server(MastermindServerTCP):
             if _command["command"] == "hotbar":
                 return
 
+            if _command["command"] == "recipes":
+                if len(_command["args"]) == 0:
+                    # send the player their character's known recipes.
+                    _character = self.characters[connection_object.character]
+                    self.callback_client_send(connection_object, "--- Known Recipes ---\r\n")
+
+                    for recipe in _character["known_recipes"]:
+                        self.callback_client_send(connection_object, recipe + "\r\n")
+                else: # send the specific recipe.
+                    try:
+                        _recipe = _command["args"][0]
+                        self.callback_client_send(connection_object, "--- Recipe ---\r\n")
+                        self.callback_client_send(connection_object, self.RecipeManager.RECIPE_TYPES[_recipe]["result"] + "\r\n")
+                        for component in self.RecipeManager.RECIPE_TYPES[_recipe]["components"]:
+                            self.callback_client_send(connection_object, " " + str(component["amount"]) + ": " + component["ident"] + "\r\n")
+                        return
+                    except:
+                        # recipe doesn't exist.
+                        self.callback_client_send(connection_object, "No known recipe.\r\n")
+                self.send_prompt(connection_object)
+                return
+
+            if _command["command"] == "help":
+                self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipes.\r\n")
+                self.callback_client_send(connection_object, "Furniture can be bashed for recipe components.\r\n")
+                self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
+                self.send_prompt(connection_object)
+                return
+
+            if _command["command"] == "work":
+                # TODO: work on a blueprint checking for materials in a direction.
+                pass
+
+            if _command["command"] == "dump":
+                # TODO: check for items in a blueprint from the direction and drop the items in the blueprint that are needed.
+                pass
+
+            # fallback to not knowing wtf the player is talking about.
+            self.callback_client_send(connection_object, "I am not sure what you are trying to do.\r\n")
+            self.send_prompt(connection_object)
+
         return super(Server, self).callback_client_handle(connection_object, data)
+
+    def send_prompt(self, connection_object):
+        _character = self.characters[connection_object.character]
+        # send body health as [*******] of varying colors of wounds.
+        pre_color = "\u001b[38;5;150m"
+        post_color = "\u001b[0m"
+
+        self.callback_client_send(connection_object, pre_color + "(" + str(_character["position"]) + ")" + "(" + _character["name"] + ") > " + post_color + "\r\n")
 
     def callback_client_send(self, connection_object, data, compression=False):
         return super(Server, self).callback_client_send(connection_object, data, compression)
@@ -624,7 +685,7 @@ class Server(MastermindServerTCP):
         # send the user a login prompt
         connection_object.state = "LOGIN"
         # return super(Server, self).callback_connect_client(connection_object)
-        self.callback_client_send(connection_object, "Username? > ")
+        self.callback_client_send(connection_object, "Username? >\r\n")
         return
 
     def callback_disconnect_client(self, connection_object):

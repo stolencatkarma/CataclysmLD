@@ -6,7 +6,6 @@ import os
 class Recipe:
     def __init__(self, ident):
         self['ident'] = ident
-        self.favorite = False  # should we show this recipe first.
 
 
 class RecipeManager:
