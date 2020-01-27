@@ -97,6 +97,7 @@ class Server(MastermindServerTCP):
         return path
 
     def find_spawn_point_for_new_character(self):
+        _possible = list()
         for _, chunk in self.worldmap["CHUNKS"].items():
             for tile in chunk["tiles"]:
                 if tile["position"]["z"] != 0:
@@ -107,11 +108,12 @@ class Server(MastermindServerTCP):
                     continue
                 if tile["terrain"]["ident"] == "t_open_air":
                     continue
-
-            return tile["position"]
-        else:
-            print("ERROR: Couldn't find spawn point for new character!")
-            return None
+                _possible.append(tile)
+        random.shuffle(_possible)
+        return _possible[0]["position"]
+        #else:
+        #    print("ERROR: Couldn't find spawn point for new character!")
+        #    return None
 
     def handle_new_character(self, ident, character):
         self.characters[character] = Character(character)
@@ -632,6 +634,7 @@ class Server(MastermindServerTCP):
 
     def process_creature_command_queue(self, creature):
         actions_to_take = creature["actions_per_turn"]
+        print("processing " + str(creature["position"]))
         # iterate a copy so we can remove on the fly.
         for action in creature["command_queue"][:]:
             if actions_to_take == 0:

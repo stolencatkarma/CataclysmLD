@@ -120,8 +120,7 @@ class MastermindServerBase(object):
         pass  # Called to handle a client's received data                 SHOULD OVERRIDE
 
     def callback_client_send(
-        self, connection_object, data, compression=None
-    ):  # Called to send data to a client                           CAN OVERRIDE      IF super() CALLED
+        self, connection_object, data, compression=None):
         result = netutil.packet_send(
             connection_object.socket,
             (self._mm_connection_type, connection_object.address),

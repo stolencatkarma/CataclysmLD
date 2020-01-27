@@ -8,8 +8,12 @@ def packet_send(sock, protocol_and_udpaddress, data, compression):  # E.g.: =(MM
     # print(data_str.encode('ascii'))
     # data = data + '\r\n'
 
-    sock.send(data.encode('ascii'))
-    return True
+    try:
+        sock.send(data.encode('ascii'))
+        return True
+    except:
+        sock.close()  # client closed the connection without telling us.
+        return
 
 
 def packet_recv_tcp(sock):
