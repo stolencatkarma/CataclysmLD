@@ -73,7 +73,7 @@ class Worldmap(dict):
                         self["CHUNKS"][str(x) + ":" + str(y)]["was_loaded"] = True
 
 
-    # save the chunk to disk TODO: and free memory
+    # save the chunk to disk.
     def save_chunk(self, chunk):
         # print("saving chunk to disk")
         path = str("./world/" + str(chunk["x"]) + "_" + str(chunk["y"]) + ".chunk")
@@ -82,17 +82,31 @@ class Worldmap(dict):
 
 
     def handle_chunks(self):
-        # save as needed. check for dirty, TODO: stasis.
+        # save as needed. check for dirty, stasis
         _chunks_to_save = []
         for _, chunk in self["CHUNKS"].items():
+            if chunk["stasis"]:
+                continue
+
+            if chunk["time_to_stasis"] > 1:
+               chunk["time_to_stasis"] = chunk["time_to_stasis"] - 100
+            else:
+                chunk["should_stasis"] = True
+
             if chunk["is_dirty"]:
-                _chunks_to_save.append(chunk)
+                self.save_chunk(chunk)
                 chunk["is_dirty"] = False
-        for chunk in _chunks_to_save[:]:  # save from a copy to not disturb the world.
-            self.save_chunk(chunk)
-        return
 
+            if chunk["should_stasis"]:
+                _dict = {}
+                _dict["stasis"] = True
+                _dict["x"] = chunk["x"]
+                _dict["y"] = chunk["y"]
+                self["CHUNKS"][str(chunk["x"]) + ":" + str(chunk["y"])] = _dict # use a small placeholder instead of completely removing it.
 
+        return True
+
+    # if you write a function that deals with chunk manipulation of any kind use this.
     def get_chunk_by_position(self, position):
         x_count = 0
         x = position["x"]
@@ -108,6 +122,15 @@ class Worldmap(dict):
 
         _dict = str(x_count) + ":" + str(y_count)
 
+        path = str("./world/" + str(self["CHUNKS"][_dict]["x"]) + "_" + str(self["CHUNKS"][_dict]["y"]) + ".chunk")
+
+        if self["CHUNKS"][_dict]["stasis"]:  # need to load it from disk and back into memory.
+            with open(path) as json_file:
+                self["CHUNKS"][_dict] = json.load(json_file)
+                self["CHUNKS"][_dict]["stasis"] = False
+                self["CHUNKS"][_dict]["should_stasis"] = False
+                self["CHUNKS"][_dict]["time_to_stasis"] = 100
+
         try:
             # print('{},{}'.format(x_count, y_count), end=":")
             _ret = self["CHUNKS"][_dict]
@@ -116,7 +139,6 @@ class Worldmap(dict):
             # print("WARNING: creating new chunk!")
             self["CHUNKS"][_dict] = Chunk(x_count, y_count)
 
-            path = str("./world/" + str(self["CHUNKS"][_dict]["x"]) + "_" + str(self["CHUNKS"][_dict]["y"]) + ".chunk")
             with open(path, "w") as fp:
                 json.dump(self["CHUNKS"][_dict], fp)
 

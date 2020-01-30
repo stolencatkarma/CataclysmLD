@@ -337,6 +337,7 @@ class Server(MastermindServerTCP):
         if connection_object.state == "CONNECTED":
             # player sent an empty command.
             if len(data) < 1:
+                print("Data from character while CONNECTED: " + connection_object.character)
                 self.localmaps[connection_object.character] = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]['position'])
                 cx = self.characters[connection_object.character]['position']['x']
                 cy = self.characters[connection_object.character]['position']['y']
@@ -407,6 +408,27 @@ class Server(MastermindServerTCP):
 
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
+
+            # translate letters to commands.
+            if _command["command"] == "n":
+                _command["command"] = "move"
+                _command["args"].append("north")
+            if _command["command"] == "e":
+                _command["command"] = "move"
+                _command["args"].append("east")
+            if _command["command"] == "s":
+                _command["command"] = "move"
+                _command["args"].append("south")
+            if _command["command"] == "w":
+                _command["command"] = "move"
+                _command["args"].append("west")
+            if _command["command"] == "u":
+                _command["command"] = "move"
+                _command["args"].append("up")
+            if _command["command"] == "d":
+                _command["command"] = "move"
+                _command["args"].append("down")
+
             if _command["command"] == "move":
                 self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
                 self.callback_client_send(connection_object, "You head " + _command['args'][0] + ".\r\n")
@@ -625,7 +647,7 @@ class Server(MastermindServerTCP):
             if _command["command"] == "hotbar":
                 return
 
-            if _command["command"] == "recipes":
+            if _command["command"] == "recipe":
                 if len(_command["args"]) == 0:
                     # send the player their character's known recipes.
                     _character = self.characters[connection_object.character]
@@ -648,7 +670,7 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "help":
-                self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipes.\r\n")
+                self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipe.\r\n")
                 self.callback_client_send(connection_object, "Furniture can be bashed for recipe components.\r\n")
                 self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
                 self.send_prompt(connection_object)
@@ -830,62 +852,21 @@ class Server(MastermindServerTCP):
 
     def compute_turn(self):
         # this function handles overseeing all creature movement, attacks, and interactions
-
-        # init a list for all our found lights around characters.
-        for _, chunks in self.localmaps.items():
-            for chunk in chunks:  # characters typically see 9 chunks
-                for tile in chunk["tiles"]:
-                    tile["lumens"] = 0  # reset light levels.
-
-        for _, chunks in self.localmaps.items():
+        # if two characters are in the same chunk we don't want to check the same chunk twice
+        # so get a list of unique chunks.
+        _chunks_to_update = []
+        for character, chunks in self.localmaps.items():  # (str, list())
             for chunk in chunks:  # characters typically see 9 chunks and 1 z level
-                for tile in chunk["tiles"]:
-                    for item in tile["items"]:
-                        if isinstance(item, Blueprint):
-                            continue
-                        # this item produces light.
-                        if("flags" in self.ItemManager.ITEM_TYPES[item["ident"]]):
-                            for flag in self.ItemManager.ITEM_TYPES[item["ident"]]["flags"]:
-                                if flag.split("_")[0] == "LIGHT":
-                                    for (
-                                        tile,
-                                        distance,
-                                    ) in self.worldmap.get_tiles_near_position(
-                                        tile["position"], int(
-                                            flag.split("_")[1])
-                                    ):
-                                        tile["lumens"] = tile["lumens"] + int(
-                                            int(flag.split("_")[1]) - distance
-                                        )
-                    if tile["furniture"] is not None:
-                        for key in self.FurnitureManager.FURNITURE_TYPES[tile["furniture"]["ident"]]:
-                            if key == "flags":
-                                for flag in self.FurnitureManager.FURNITURE_TYPES[
-                                    tile["furniture"]["ident"]]["flags"]:
-                                    # this furniture produces light.
-                                    if flag.split("_")[0] == "LIGHT":
-                                        for (
-                                            tile,
-                                            distance,
-                                        ) in self.worldmap.get_tiles_near_position(
-                                            tile["position"], int(
-                                                flag.split("_")[1])
-                                        ):
-                                            tile["lumens"] = tile["lumens"] + int(
-                                                int(flag.split("_")
-                                                    [1]) - distance
-                                            )
-                                        break
+                if not chunk in _chunks_to_update:
+                    _chunks_to_update.append(chunk)
+
+        print("updating " + str(len(_chunks_to_update)) + " chunks")
         # we want a list that contains all the non-duplicate creatures on all localmaps around characters.
         creatures_to_process = list()
-        for _, chunks in self.localmaps.items():
-            for chunk in chunks:  # characters typically get 9 chunks
-                for tile in chunk["tiles"]:
-                    if (
-                        tile["creature"] is not None
-                        and tile["creature"] not in creatures_to_process
-                    ):
-                        creatures_to_process.append(tile["creature"])
+        for chunk in _chunks_to_update:
+            for tile in chunk["tiles"]:
+                if tile["creature"] is not None and tile["creature"] not in creatures_to_process:
+                    creatures_to_process.append(tile["creature"])
 
         for creature in creatures_to_process:
             # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
@@ -1030,6 +1011,7 @@ if __name__ == "__main__":
 
     for character in server.worldmap.get_all_characters():
        server.characters[character["name"]] = character
+       server.localmaps[character["name"]] = server.worldmap.get_chunks_near_position(character["position"])
     print("found " + str(len(server.characters)) + " characters in the world.")
 
     print("Started Cataclysm: Looming Darkness. Clients may now connect.")
