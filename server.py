@@ -878,14 +878,14 @@ class Server(MastermindServerTCP):
     def generate_and_apply_city_layout(self, city_size):
         city_layout = self.worldmap.generate_city(city_size)
         # for every 1 city size it's 13 tiles across and high
-        for j in range(city_size * 13):
-            for i in range(city_size * 13):
+        for j in range(city_size * 13 - 1):
+            for i in range(city_size * 13 - 1):
+                print("building city at", i, j)
                 _chunk = server.worldmap.get_chunk_by_position(Position(i, j, 0))
                 if _chunk["was_loaded"] is False:
                     if city_layout[i][j] == "r":
                         json_file = random.choice(os.listdir("./data/json/mapgen/residential/"))
-                        server.worldmap.build_json_building_on_chunk("./data/json/mapgen/residential/" + json_file,
-                            Position(i * _chunk["chunk_size"], j * _chunk["chunk_size"], 0))
+                        server.worldmap.build_json_building_on_chunk("./data/json/mapgen/residential/" + json_file, Position(i * _chunk["chunk_size"], j * _chunk["chunk_size"], 0))
                     elif city_layout[i][j] == "c":
                         json_file = random.choice(os.listdir("./data/json/mapgen/commercial/"))
                         server.worldmap.build_json_building_on_chunk(

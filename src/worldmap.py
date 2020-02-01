@@ -69,8 +69,8 @@ class Worldmap(dict):
                     y = file_data.split(".")[0].split("_")[1]
                     with open(root+file_data) as json_file:
                         data = json.load(json_file)
-                        self["CHUNKS"][str(x) + ":" + str(y)] = data
-                        self["CHUNKS"][str(x) + ":" + str(y)]["was_loaded"] = True
+                        self["CHUNKS"][str(x) + "_" + str(y)] = data
+                        self["CHUNKS"][str(x) + "_" + str(y)]["was_loaded"] = True
 
 
     # save the chunk to disk.
@@ -89,7 +89,7 @@ class Worldmap(dict):
                 continue
 
             if chunk["time_to_stasis"] > 1:
-               chunk["time_to_stasis"] = chunk["time_to_stasis"] - 100
+               chunk["time_to_stasis"] = chunk["time_to_stasis"] - 1
             else:
                 chunk["should_stasis"] = True
 
@@ -102,7 +102,7 @@ class Worldmap(dict):
                 _dict["stasis"] = True
                 _dict["x"] = chunk["x"]
                 _dict["y"] = chunk["y"]
-                self["CHUNKS"][str(chunk["x"]) + ":" + str(chunk["y"])] = _dict # use a small placeholder instead of completely removing it.
+                self["CHUNKS"][str(chunk["x"]) + "_" + str(chunk["y"])] = _dict # use a small placeholder instead of completely removing it.
 
         return True
 
@@ -120,30 +120,27 @@ class Worldmap(dict):
             y = y - 13
             y_count = y_count + 1
 
-        _dict = str(x_count) + ":" + str(y_count)
+        _dict = str(x_count) + "_" + str(y_count)
 
-        path = str("./world/" + str(self["CHUNKS"][_dict]["x"]) + "_" + str(self["CHUNKS"][_dict]["y"]) + ".chunk")
+        path = str("./world/" + str(_dict) + ".chunk")
+
+        # chunks will either be loaded, stasis'd,  or non-existant. handle all three cases.
+        # check if chunk exists first. if not create it and load it into memory.
+        if _dict not in self["CHUNKS"].keys():
+            print("WARNING: creating new chunk!", _dict)
+            self["CHUNKS"][_dict] = Chunk(x_count, y_count)
+            with open(path, "w") as fp:
+                json.dump(self["CHUNKS"][_dict], fp)
 
         if self["CHUNKS"][_dict]["stasis"]:  # need to load it from disk and back into memory.
+            print("WARNING: loading chunk", _dict)
             with open(path) as json_file:
                 self["CHUNKS"][_dict] = json.load(json_file)
                 self["CHUNKS"][_dict]["stasis"] = False
                 self["CHUNKS"][_dict]["should_stasis"] = False
                 self["CHUNKS"][_dict]["time_to_stasis"] = 100
 
-        try:
-            # print('{},{}'.format(x_count, y_count), end=":")
-            _ret = self["CHUNKS"][_dict]
-            return _ret
-        except:  # create a new chunk if a player reaches a border. (currently gens dirt only)
-            # print("WARNING: creating new chunk!")
-            self["CHUNKS"][_dict] = Chunk(x_count, y_count)
-
-            with open(path, "w") as fp:
-                json.dump(self["CHUNKS"][_dict], fp)
-
-            return self["CHUNKS"][_dict]
-
+        return self["CHUNKS"][_dict]
 
     def get_tile_by_position(self, position):
         _chunk = self.get_chunk_by_position(position)
