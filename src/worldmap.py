@@ -211,7 +211,7 @@ class Worldmap(dict):
         for _, chunk in self["CHUNKS"].items():
             for tile in chunk["tiles"]:
                 if tile["creature"] is not None: # and isinstance(tile["creature"], Character):
-                    print("found player:" + tile["creature"]["name"])
+                    # print("found player:" + tile["creature"]["name"])
                     ret_list.append(tile["creature"])
         return ret_list
 

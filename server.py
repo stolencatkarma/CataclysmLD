@@ -36,7 +36,7 @@ class OverMap:
 
 class Server(MastermindServerTCP):
     def __init__(self, config, logger=None):
-        MastermindServerTCP.__init__(self, 0.5, 0.5, 300.0)
+        MastermindServerTCP.__init__(self, 0.5, 0.5, 1800.0)
         self._config = config
         if logger is None:
             pass
@@ -305,7 +305,6 @@ class Server(MastermindServerTCP):
                 return
             else:
                 idx = 2
-                # send the current localmap to the player choosing the character
                 for root, _, files in os.walk("./accounts/" + connection_object.username + "/characters/"):
                     for file_data in files:
                         if file_data.endswith(".character"):
@@ -314,7 +313,7 @@ class Server(MastermindServerTCP):
                                 connection_object.state = "CONNECTED"
                                 self.callback_client_send(connection_object, "Entering the Darkness as " + connection_object.character + "\r\n")
                                 self.callback_client_send(connection_object, "try help for a list of commands." + "\r\n")
-                                # TODO: send the first map update.
+                                self.send_prompt(connection_object)
                                 return
                             else:
                                 idx = idx + 1
@@ -449,6 +448,31 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "look":
+                if len(_command["args"]) > 0: # character is trying to look into a container or blueprint.
+                    if _command["args"][0] == "in":
+                        # find a container that matches the [1] arg
+                        _ident = _command["args"][1]
+                        _open_containers = []
+
+                        # make a list of open_containers the character has.
+                        for bodyPart in self.characters[connection_object.character]["body_parts"]:
+                            if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"]["opened"] == "yes"):
+                                _open_containers.append(bodyPart["slot0"])
+                            if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"]["opened"] == "yes"):
+                                _open_containers.append(bodyPart["slot1"])
+
+                        if len(_open_containers) <= 0:
+                            self.callback_client_send(connection_object, "You have no open containers.\r\n")
+                            self.send_prompt(connection_object)
+                            return  # no open containers.
+
+                        for container in _open_containers:
+                            if _ident in container["reference"]["name"].lower().split(" "):
+                                for item in container["contained_items"]:
+                                    self.callback_client_send(connection_object, item["reference"]["name"] + "\r\n")
+                                self.send_prompt(connection_object)
+                                return
+
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
                 self.callback_client_send(connection_object, "---- Items ----\r\n")
                 for item in _tile["items"]:
@@ -459,7 +483,7 @@ class Server(MastermindServerTCP):
                     _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
                     self.callback_client_send(connection_object, _furniture["name"] + ": " + _furniture["description"] + "\r\n")
 
-                # send_prompt sends the client's character's stats after each request
+                # send_prompt sends a prompt to the client after each request. Don't forget to add it for new commands.
                 self.send_prompt(connection_object)
                 return
 
@@ -602,7 +626,7 @@ class Server(MastermindServerTCP):
                         _from_container = self.worldmap.get_tile_by_position(_character_requesting["position"])["items"]
                         break
                 # if we didn't find it there let's check the player's own inventory.
-                if _item is None:
+                else:
                     for bodypart in _character_requesting["body_parts"][:]:
                         for body_item in bodypart["slot0"]:
                             if isinstance(body_item, Container): # could be a container or armor. only move to a container.
@@ -620,7 +644,8 @@ class Server(MastermindServerTCP):
                                         _from_container = bodypart["slot1"]
                                         break
                     else:
-                        self.callback_client_send(connection_object, "Couldn't find item on ground or in open containers.\r\n")
+                        self.callback_client_send(connection_object, "Could not find item on ground or in open containers.\r\n")
+                        self.send_prompt(connection_object)
                         return
 
                 # a blueprint is a type of container but can't be moved from it's world position.
@@ -648,7 +673,8 @@ class Server(MastermindServerTCP):
 
                 # blueprint to position (empty blueprint on ground)
                 # blueprint to creature (grab from blueprint)
-            if _command["command"] == "hotbar":
+
+            if _command["command"] == "hotbar":  # basically user aliases that get saved per character. TODO
                 return
 
             if _command["command"] == "recipe":
