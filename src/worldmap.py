@@ -203,6 +203,8 @@ class Worldmap(dict):
         chunks.append(south_east_chunk)
 
         # print("num chunks in localmap: " + str(len(chunks)))
+        for chunk in chunks:
+            chunk["time_to_stasis"] = 100  # keep used chunks from going to stasis
 
         return chunks
 

@@ -2,6 +2,7 @@ from collections import defaultdict
 import json
 import os
 import sys
+import pprint
 
 
 class Item(dict):
@@ -57,26 +58,25 @@ class Container(Item):
 class Blueprint(Container):
     # Blueprint is a type of container that's immovable.
     def __init__(self, type_of, recipe):
-        valid_types = ['Terrain', 'Furniture', 'Item']
-        self['ident'] = 'blueprint'
+        valid_types = ["Terrain", "Furniture", "Item"]
+        self["ident"] = "blueprint"
         self["recipe"] = recipe
+        self["type_of"] = type_of
+
         # when this reaches self.recipe['time'] then we need to 'turn' it into the object.
         self["turns_worked_on"] = 0
         self["contained_items"] = list()
 
-        if(str(type_of) not in valid_types):
+        if self["type_of"] not in valid_types:
             self.type_of = None
             print()
-            print('!!! COULDN\'T set type. Invalid')
-            print(str(type_of))
+            print("FATAL ERROR:  COULD NOT set type_of for Blueprint. Invalid.")
+            pprint.pprint(recipe)
             print()
             sys.exit()
-        else:
-            print('set type',  str(self.type_of))
-            self.type_of = type_of
 
     def __str__(self):
-        return str(self.type_of + ' ' + self['ident'])
+        return str(self.type_of + ': ' + self["ident"])
 
     def work_on(self):
         # when a creature 'works on' this blueprint

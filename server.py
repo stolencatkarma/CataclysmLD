@@ -395,6 +395,8 @@ class Server(MastermindServerTCP):
                             send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id['symbol'] + post_color.lower()
                         if tile['creature'] is not None:
                             send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
+                        if len(tile["items"]) > 0:
+                            send_map[x - min_x][y - min_y] = tile["items"][0]["ident"][:1].lower()
 
                 next_line = ""
                 for i in range(39):
@@ -512,12 +514,22 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "craft":  # 2-3 args (craft, <recipe>, direction)
+
+                if len(_command["args"]) == 0:
+                    self.callback_client_send(connection_object, "syntax is \'craft recipe direction\'\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                if _command["args"][0] not in self.characters[connection_object.character]["known_recipes"]:
+                    self.callback_client_send(connection_object, "You do not know how to craft" + _command["args"][0]+".\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
                 # args 0 is ident args 1 is direction.
-                print("creating blueprint " + _command["args"][0] + " for character " + connection_object.character)
                 # blueprint rules
                 # * there should be blueprints for terrain, furniture, items, and anything else that takes a slot up in a tile.
                 # * they act as placeholders and then 'transform' into the type they are once completed.
-                # Blueprint(type, recipe)
+                # Blueprint(type_of, recipe)
                 position_to_create_at = self.characters[connection_object.character]["position"]
                 if _command["args"][1] == "south":
                     position_to_create_at = Position(
@@ -543,14 +555,25 @@ class Server(MastermindServerTCP):
                         position_to_create_at["y"],
                         position_to_create_at["z"],
                     )
+                else:
+                    self.callback_client_send(connection_object, "That is not a valid direction. try north, south, east, or west.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                if self.worldmap.get_tile_by_position(position_to_create_at)["terrain"]["impassable"]:
+                    self.callback_client_send(connection_object, "You cannot create a blueprint on impassable terrain.\r\n")
+                    self.send_prompt(connection_object)
+                    return
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[_command["args"][0]]
                 type_of = _recipe["type_of"]
+
                 bp_to_create = Blueprint(type_of, _recipe)
 
-                self.worldmap.put_object_at_position(
-                    bp_to_create, position_to_create_at
-                )
+                self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
+                self.callback_client_send(connection_object, "You created a blueprint for " +_recipe["ident"] + "\r\n")
+                self.send_prompt(connection_object)
+                return
 
             if _command["command"] == "take": # take an item from current tile and put it in players open inventory. (take, <item>)
                 _from_pos = self.characters[connection_object.character]["position"]

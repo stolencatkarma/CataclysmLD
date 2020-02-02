@@ -6,15 +6,12 @@ from collections import defaultdict
 # because terrain can have a fg and bg
 class TileManager:
     def __init__(self):
-        self.tilemapPx = 32
-        self.tilemapPy = 32
         # the dict of tiles loaded from the tile_config.json
         self.TILE_TYPES = defaultdict(dict)
-        # load terrain data as well.
+        # load terrain data.
         with open('./data/json/terrain.json') as data_file:
             data = json.load(data_file)
         for terrain in data:
-            # pprint(terrain)
             if('name' not in terrain.keys()):
                 terrain['name'] = None
             self.TILE_TYPES[terrain['ident']]['name'] = terrain['name']
