@@ -17,7 +17,7 @@ class Container(Item):
     def __init__(self, ident, reference):
         Item.__init__(self, ident, reference)
         self['contained_items'] = []
-        self['opened'] = 'yes'  # I don't like using True/False in python.
+        self['opened'] = 'yes'
         # this plus all the contained items is how much the item weighs.
         self['base_weight'] = int(self['reference']['weight'])
         self['max_volume'] = int(self['reference']['volume'])
@@ -55,7 +55,7 @@ class Container(Item):
 
 
 class Blueprint(Container):
-
+    # Blueprint is a type of container that's immovable.
     def __init__(self, type_of, recipe):
         valid_types = ['Terrain', 'Furniture', 'Item']
         self['ident'] = 'blueprint'

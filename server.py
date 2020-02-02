@@ -45,6 +45,7 @@ class Server(MastermindServerTCP):
 
         # all the Character()s that exist in the world whether connected or not.
         self.characters = dict()
+        self.mobiles = dict()
 
         self.localmaps = dict()  # the localmaps for each character.
         self.overmaps = dict()  # the dict of all overmaps by character
@@ -335,10 +336,16 @@ class Server(MastermindServerTCP):
         ########################################################
         # Once players have chosen a character they are CONNECTED and can start sending character commands.
         if connection_object.state == "CONNECTED":
+            # try to parse the data sent for arguments.
+            data_list = data.split(" ")
+            _command = dict()
+            _command["args"] = list()
+            _command["command"] = data_list.pop(0)
+            for item in data_list:
+                _command["args"].append(item)
+
             # player sent an empty command.
-            if len(data) < 1:
-                print("Data from character while CONNECTED: " + connection_object.character)
-                self.localmaps[connection_object.character] = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]['position'])
+            if _command["command"] == "map":
                 cx = self.characters[connection_object.character]['position']['x']
                 cy = self.characters[connection_object.character]['position']['y']
                 cz = self.characters[connection_object.character]['position']['z']
@@ -350,7 +357,9 @@ class Server(MastermindServerTCP):
 
                 min_x = None
                 min_y = None
-                for chunk in self.localmaps[connection_object.character]:
+                chunks = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]["position"])
+
+                for chunk in chunks:
                     for tile in chunk['tiles']:
                         x = tile['position']['x']
                         y = tile['position']['y']
@@ -368,7 +377,7 @@ class Server(MastermindServerTCP):
                 # print("min_y: " + str(min_y))
                 pre_color = "\u001b[38;5;"
                 post_color = "\u001b[0m"
-                for chunk in self.localmaps[connection_object.character]:
+                for chunk in chunks:
                     for tile in chunk['tiles']:
                         # translate localmap to a terminal friendly map and send it to the client.
                         # order the tiles by x, y, ignore z levels not on current level.
@@ -397,14 +406,6 @@ class Server(MastermindServerTCP):
 
                 self.send_prompt(connection_object)
                 return
-
-            # try to parse the data sent for arguments.
-            data_list = data.split(" ")
-            _command = dict()
-            _command["args"] = list()
-            _command["command"] = data_list.pop(0)
-            for item in data_list:
-                _command["args"].append(item)
 
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
@@ -436,16 +437,19 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "bash":
+                if len(_command["args"]) == 0:
+                    self.callback_client_send(connection_object, "What do you want to bash?\r\n")
+                    self.send_prompt(connection_object)
+                    return
                 _target = _command["args"][0]
                 _action = Action(connection_object.character, _target, 'bash', _command["args"])
                 self.characters[connection_object.character]["command_queue"].append(_action)
-                self.callback_client_send(connection_object, "You break down " + _target + " for its components.")
+                self.callback_client_send(connection_object, "You break down " + _target + " for its components.\r\n")
                 self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "look":
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
-                # pprint.pprint(_tile)
                 self.callback_client_send(connection_object, "---- Items ----\r\n")
                 for item in _tile["items"]:
                     _item = self.ItemManager.ITEM_TYPES[item["ident"]]
@@ -525,55 +529,57 @@ class Server(MastermindServerTCP):
                 )
 
             if _command["command"] == "take": # take an item from current tile and put it in players open inventory. (take, <item>)
-                _from_pos = self.characters(connection_object.character)["position"]
+                _from_pos = self.characters[connection_object.character]["position"]
+                if len(_command["args"]) == 0:
+                    self.callback_client_send(connection_object, "What do you want to take?\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
                 _item_ident = _command["args"][0]
                 _from_item = None
                 _open_containers = []
+
                 # find the item that the character is requesting.
                 for item in self.worldmap.get_tile_by_position(_from_pos)["items"]:
-                    if item["ident"] == _item_ident:
+                    # pprint.pprint(item["reference"])
+                    if _item_ident in item["reference"]["name"].split(" "):
                         # this is the item or at least the first one that matches the same ident.
-                        _from_item = item  # save a reference to it to use.
+                        _from_item = item  # save the reference to our local variable.
                         break
 
-                # we didn't find one, character sent bad information (possible hack?)
+                # we didn't find the item they wanted.
                 if _from_item is None:
+                    self.callback_client_send(connection_object, "I could not find what you were looking for.\r\n")
+                    self.send_prompt(connection_object)
                     return
 
                 # make a list of open_containers the character has to see if they can pick it up.
-                for bodyPart in self.characters(connection_object.character)["body_parts"]:
-                    if (
-                        bodyPart["slot0"] is not None
-                        and isinstance(bodyPart["slot0"], Container)
-                        and bodyPart["slot0"].opened == "yes"
-                    ):
+                for bodyPart in self.characters[connection_object.character]["body_parts"]:
+                    if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"]["opened"] == "yes"):
                         _open_containers.append(bodyPart["slot0"])
-                    if (
-                        bodyPart["slot1"] is not None
-                        and isinstance(bodyPart["slot1"], Container)
-                        and bodyPart["slot1"].opened == "yes"
-                    ):
+                    if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"]["opened"] == "yes"):
                         _open_containers.append(bodyPart["slot1"])
 
                 if len(_open_containers) <= 0:
+                    self.callback_client_send(connection_object, "You have no open containers.\r\n")
+                    self.send_prompt(connection_object)
                     return  # no open containers.
 
-                # check if the character can carry that item.
+                # add it to the container and remove it from the world.
+                # TODO: check if the character can carry that item.
                 for container in _open_containers:
-                    # then find a spot for it to go (open_containers)
-                    if container.add_item(item):  # if it added it sucessfully.
-                        # remove it from the world.
-                        for item in self.worldmap.get_tile_by_position(_from_pos)[
-                            "items"
-                        ][:]:
-                            if item["ident"] == _item_ident:
-                                self.worldmap.get_tile_by_position(_from_pos)[
-                                    "items"
-                                ].remove(item)
-                                break
-                        return
-                    else:
-                        print("could not add item to character inventory.")
+                    container["contained_items"].append(item)  # add it.
+                    break
+                # then find a spot for it to go (open_containers)
+                # remove it from the world.
+                self.worldmap.get_tile_by_position(_from_pos)["items"].remove(_from_item) # remove it from the world.
+                self.worldmap.get_chunk_by_position(_from_pos)["is_dirty"] = True
+
+                self.callback_client_send(connection_object, str("You take the " + item["reference"]["name"] + " and put it in your " + container["reference"]["name"]+ "\r\n"))
+                self.send_prompt(connection_object)
+
+                return
+
 
             if _command["command"] == "transfer": # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
@@ -590,8 +596,6 @@ class Server(MastermindServerTCP):
 
                 # find _from_container and _item, either equipped containers or items on the ground.
                 for ground_item in self.worldmap.get_tile_by_position(_character_requesting["position"])["items"][:]: # parse copy
-                    # check if ground item is a container or blueprint
-                    #
                     # check if item is laying on the ground. tile["items"]
                     if _command["args"][0] in ground_item["name"].split(" "): # found the item on the ground by parsing it's ["name"]
                         _item = ground_item
@@ -851,27 +855,18 @@ class Server(MastermindServerTCP):
         return
 
     def compute_turn(self):
-        # this function handles overseeing all creature movement, attacks, and interactions
+        # this function handles overseeing all character and creature movement, attacks, and interactions
         # if two characters are in the same chunk we don't want to check the same chunk twice
-        # so get a list of unique chunks.
-        _chunks_to_update = []
-        for character, chunks in self.localmaps.items():  # (str, list())
-            for chunk in chunks:  # characters typically see 9 chunks and 1 z level
-                if not chunk in _chunks_to_update:
-                    _chunks_to_update.append(chunk)
 
-        print("updating " + str(len(_chunks_to_update)) + " chunks")
-        # we want a list that contains all the non-duplicate creatures on all localmaps around characters.
-        creatures_to_process = list()
-        for chunk in _chunks_to_update:
-            for tile in chunk["tiles"]:
-                if tile["creature"] is not None and tile["creature"] not in creatures_to_process:
-                    creatures_to_process.append(tile["creature"])
+        for _, character in self.characters.items():  # Player's characters
+            if len(character["command_queue"]) > 0:
+                self.process_creature_command_queue(character)
 
-        for creature in creatures_to_process:
-            # as long as there at least one we'll pass it on and let the function handle how many actions they can take.
+        for _, creature in self.mobiles.items():  # Computer controlled Creatures
             if len(creature["command_queue"]) > 0:
                 self.process_creature_command_queue(creature)
+
+        # for fire in self.fires: #TODO
 
         # now that we've processed what everything wants to do we can return.
 
@@ -880,7 +875,6 @@ class Server(MastermindServerTCP):
         # for every 1 city size it's 13 tiles across and high
         for j in range(city_size * 13 - 1):
             for i in range(city_size * 13 - 1):
-                print("building city at", i, j)
                 _chunk = server.worldmap.get_chunk_by_position(Position(i, j, 0))
                 if _chunk["was_loaded"] is False:
                     if city_layout[i][j] == "r":
@@ -991,8 +985,6 @@ if __name__ == "__main__":
 
     server = Server(logger=None, config=defaultConfig)
     server.connect(ip, port)
-    server.accepting_allow()
-    print("Server is listening at {}:{}".format(ip, port))
 
     dont_break = True
     # 0.5 is twice as fast, 2.0 is twice as slow
@@ -1006,33 +998,37 @@ if __name__ == "__main__":
 
     time_per_turn = int(defaultConfig.get("time_per_turn", 1))
     # print('time_per_turn: {}'.format(time_per_turn))
-    spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
+    # spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
     # print('spin_delay_ms: {}'.format(spin_delay_ms))
 
     for character in server.worldmap.get_all_characters():
        server.characters[character["name"]] = character
-       server.localmaps[character["name"]] = server.worldmap.get_chunks_near_position(character["position"])
-    print("found " + str(len(server.characters)) + " characters in the world.")
+    print("Found " + str(len(server.characters)) + " characters in the world.")
+    print("Handling any chunks that may need to move to stasis before players connect.")
+    server.worldmap.handle_chunks() # handle any chunks that may need to move to stasis before player's connect.
+    print("Server is listening at {}:{}".format(ip, port))
+    print("Started Cataclysm: Looming Darkness. Clients may now connect!")
 
-    print("Started Cataclysm: Looming Darkness. Clients may now connect.")
+    server.accepting_allow()
+
     try:
         while dont_break:
-            # keep up with the time offset but never go faster than it.
-            if (time.time() - last_turn_time < time_offset):
+            # a turn is normally one second.
+            server.calendar.advance_time_by_x_seconds(time_per_turn)
+
+            # where all queued creature actions get taken care of, as well as physics engine stuff.
+            server.compute_turn()
+
+            # if the worldmap in memory changed update it on the hard drive.
+            server.worldmap.handle_chunks()
+
+            if (time.time() - last_turn_time > time_offset):
+                print("WARNING: last turn took " +  "{:.4f}".format(time.time() - last_turn_time) + " seconds to compute.")
+
+            while (time.time() - last_turn_time < time_offset):
                 pass
-            else:
-                # a turn is normally one second.
-                server.calendar.advance_time_by_x_seconds(time_per_turn)
 
-                # where all queued creature actions get taken care of, as well as physics engine stuff.
-                server.compute_turn()
-
-                # if the worldmap in memory changed update it on the hard drive.
-                server.worldmap.handle_chunks()
-
-                # TODO: unload from memory chunks that have no updates required.
-                # (such as no monsters, Characters, or fires)
-                last_turn_time = time.time()  # based off of system clock.
+            last_turn_time = time.time()  # based off of system clock.
 
     except (KeyboardInterrupt):
         print("Cleaning up before exiting.")

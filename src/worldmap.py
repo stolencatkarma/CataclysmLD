@@ -71,12 +71,13 @@ class Worldmap(dict):
                         data = json.load(json_file)
                         self["CHUNKS"][str(x) + "_" + str(y)] = data
                         self["CHUNKS"][str(x) + "_" + str(y)]["was_loaded"] = True
+                        self["CHUNKS"][str(x) + "_" + str(y)]["is_dirty"] = False
 
 
     # save the chunk to disk.
     def save_chunk(self, chunk):
-        # print("saving chunk to disk")
         path = str("./world/" + str(chunk["x"]) + "_" + str(chunk["y"]) + ".chunk")
+        print("Saving", path, "to disk")
         with open(path, "w") as fp:
             json.dump(chunk, fp)
 
@@ -94,6 +95,7 @@ class Worldmap(dict):
                 chunk["should_stasis"] = True
 
             if chunk["is_dirty"]:
+                print("saving dirty chunk")
                 self.save_chunk(chunk)
                 chunk["is_dirty"] = False
 
@@ -163,7 +165,6 @@ class Worldmap(dict):
 
             _chunk["tiles"].append(chunkdict)
             return chunkdict
-
 
 
     def get_chunks_near_position(self, position):  # a localmap
