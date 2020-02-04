@@ -95,7 +95,6 @@ class Worldmap(dict):
                 chunk["should_stasis"] = True
 
             if chunk["is_dirty"]:
-                print("saving dirty chunk")
                 self.save_chunk(chunk)
                 chunk["is_dirty"] = False
 

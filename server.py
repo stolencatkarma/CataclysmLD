@@ -136,81 +136,38 @@ class Server(MastermindServerTCP):
                     for bodypart in self.characters[character]["body_parts"]:
                         if bodypart["ident"].split("_")[0] == equip_location:
                             if bodypart["slot0"] is None:
-                                if (
-                                    "container_type"
-                                    in self.ItemManager.ITEM_TYPES[item_ident]
-                                ):
-                                    bodypart["slot0"] = Container(
-                                        item_ident,
-                                        self.ItemManager.ITEM_TYPES[item_ident],
-                                    )  # need to pass the reference to load the item with data.
+                                if "container_type" in self.ItemManager.ITEM_TYPES[item_ident]:
+                                    bodypart["slot0"] = Container(item_ident)
                                 else:
-                                    bodypart["slot0"] = Item(
-                                        item_ident,
-                                        self.ItemManager.ITEM_TYPES[item_ident],
-                                    )  # need to pass the reference to load the item with data.
+                                    bodypart["slot0"] = Item(item_ident)
                                 break
                             elif bodypart["slot1"] is None:
-                                if (
-                                    "container_type"
-                                    in self.ItemManager.ITEM_TYPES[item_ident]
-                                ):
-                                    bodypart["slot1"] = Container(
-                                        item_ident,
-                                        self.ItemManager.ITEM_TYPES[item_ident],
-                                    )  # need to pass the reference to load the item with data.
+                                if "container_type" in self.ItemManager.ITEM_TYPES[item_ident]:
+                                    bodypart["slot1"] = Container(item_ident)
                                 else:
-                                    bodypart["slot1"] = Item(
-                                        item_ident,
-                                        self.ItemManager.ITEM_TYPES[item_ident],
-                                    )  # need to pass the reference to load the item with data.
+                                    bodypart["slot1"] = Item(item_ident)
                                 break
                     else:
-                        self._log.warn(
-                            "character needed an item but no free slots found"
-                        )
-            elif (
-                key == "items_in_containers"
-            ):  # load the items_in_containers into their containers we just created.
+                        print("character needed an item but no free slots found")
+            elif key == "items_in_containers":  # load the items_in_containers into their containers we just created.
                 for location_ident, item_ident in value.items():
                     # first find the location_ident so we can load a new item into it.
                     for bodypart in self.characters[character]["body_parts"]:
                         if bodypart["slot0"] is not None:
-                            if (
-                                isinstance(bodypart["slot0"], Container)
-                                and bodypart["slot0"]["ident"] == location_ident
-                            ):  # uses the first one it finds, maybe check if it's full?
-                                bodypart["slot0"].add_item(
-                                    Item(
-                                        item_ident,
-                                        self.ItemManager.ITEM_TYPES[item_ident],
-                                    )
-                                )
-                            if (
-                                isinstance(bodypart["slot1"], Container)
-                                and bodypart["slot1"]["ident"] == location_ident
-                            ):  # uses the first one it finds, maybe check if it's full?
-                                bodypart["slot1"].add_item(
-                                    Item(
-                                        item_ident,
-                                        self.ItemManager.ITEM_TYPES[item_ident],
-                                    )
-                                )
-        path = str(
-            "./accounts/"
-            + str(ident)
-            + "/"
-            + str("characters")
-            + "/"
-            + str(character)
-            + ".character"
-        )
+                            pprint.pprint(bodypart)
+                            if "contained_items" in bodypart["slot0"] and bodypart["ident"] == location_ident:  # uses the first one it finds, maybe check if it's full?
+                                bodypart["slot0"]["contained_items"].append(Item(item_ident))
+                        if bodypart["slot1"] is not None:
+                            pprint.pprint(bodypart)
+                            if "contained_items" in bodypart["slot1"] and bodypart["ident"] == location_ident:  # uses the first one it finds, maybe check if it's full?
+                                bodypart["slot1"]["contained_items"].append(Item(item_ident))
+
+        path = str("./accounts/" + str(ident) + "/" + str("characters") + "/" + str(character) + ".character")
 
         with open(path, "w") as fp:
             json.dump(self.characters[character]["name"], fp)
-            # pprint.pprint(_pickled)
-
             print("New character added to world: {}".format(character))
+            return
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
@@ -393,10 +350,10 @@ class Server(MastermindServerTCP):
                         if tile['furniture'] is not None:
                             f_id = self.FurnitureManager.FURNITURE_TYPES[tile['furniture']['ident']]
                             send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id['symbol'] + post_color.lower()
-                        if tile['creature'] is not None:
-                            send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
                         if len(tile["items"]) > 0:
                             send_map[x - min_x][y - min_y] = tile["items"][0]["ident"][:1].lower()
+                        if tile['creature'] is not None:
+                            send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
 
                 next_line = ""
                 for i in range(39):
@@ -469,19 +426,24 @@ class Server(MastermindServerTCP):
                             return  # no open containers.
 
                         for container in _open_containers:
-                            if _ident in container["reference"]["name"].lower().split(" "):
+                            if _ident in self.ItemManager.ITEM_TYPES[container["ident"]]["name"].lower().split(" "):
                                 for item in container["contained_items"]:
-                                    self.callback_client_send(connection_object, item["reference"]["name"] + "\r\n")
+                                    self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
                                 self.send_prompt(connection_object)
                                 return
 
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
-                self.callback_client_send(connection_object, "---- Items ----\r\n")
-                for item in _tile["items"]:
-                    _item = self.ItemManager.ITEM_TYPES[item["ident"]]
-                    self.callback_client_send(connection_object, _item["name"] + "\r\n")
-                self.callback_client_send(connection_object, "-- Furniture --\r\n")
+                if len(_tile["items"]) > 0:
+                    self.callback_client_send(connection_object, "---- Items ----\r\n")
+                    for item in _tile["items"]:
+                        pprint.pprint(item)
+                        if item["ident"] == "blueprint":
+                            self.callback_client_send(connection_object, item["ident"] + ": " + item["recipe"]["result"] + "\r\n")
+                        else:
+                            self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
+
                 if _tile["furniture"] is not None:
+                    self.callback_client_send(connection_object, "-- Furniture --\r\n")
                     _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
                     self.callback_client_send(connection_object, _furniture["name"] + ": " + _furniture["description"] + "\r\n")
 
@@ -560,10 +522,19 @@ class Server(MastermindServerTCP):
                     self.send_prompt(connection_object)
                     return
 
-                if self.worldmap.get_tile_by_position(position_to_create_at)["terrain"]["impassable"]:
+                _tile = self.worldmap.get_tile_by_position(position_to_create_at)
+                if _tile["terrain"]["impassable"]:
                     self.callback_client_send(connection_object, "You cannot create a blueprint on impassable terrain.\r\n")
                     self.send_prompt(connection_object)
                     return
+
+                for item in _tile["items"]:
+                    pprint.pprint(item)
+                    if item["ident"] == "blueprint":
+                        self.callback_client_send(connection_object, "You cannot create two blueprints on one tile.\r\n")
+                        self.send_prompt(connection_object)
+                        return
+
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[_command["args"][0]]
                 type_of = _recipe["type_of"]
@@ -571,7 +542,7 @@ class Server(MastermindServerTCP):
                 bp_to_create = Blueprint(type_of, _recipe)
 
                 self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
-                self.callback_client_send(connection_object, "You created a blueprint for " +_recipe["ident"] + "\r\n")
+                self.callback_client_send(connection_object, "You created a blueprint for " +_command["args"][0] + ".\r\n")
                 self.send_prompt(connection_object)
                 return
 
@@ -588,15 +559,14 @@ class Server(MastermindServerTCP):
 
                 # find the item that the character is requesting.
                 for item in self.worldmap.get_tile_by_position(_from_pos)["items"]:
-                    # pprint.pprint(item["reference"])
-                    if _item_ident in item["reference"]["name"].split(" "):
+                    if _item_ident in self.ItemManager.ITEM_TYPES[item["ident"]]["name"].split(" "):
                         # this is the item or at least the first one that matches the same ident.
                         _from_item = item  # save the reference to our local variable.
                         break
 
                 # we didn't find the item they wanted.
                 if _from_item is None:
-                    self.callback_client_send(connection_object, "I could not find what you were looking for.\r\n")
+                    self.callback_client_send(connection_object, "I could not find what you are looking for.\r\n")
                     self.send_prompt(connection_object)
                     return
 
@@ -622,7 +592,7 @@ class Server(MastermindServerTCP):
                 self.worldmap.get_tile_by_position(_from_pos)["items"].remove(_from_item) # remove it from the world.
                 self.worldmap.get_chunk_by_position(_from_pos)["is_dirty"] = True
 
-                self.callback_client_send(connection_object, str("You take the " + item["reference"]["name"] + " and put it in your " + container["reference"]["name"]+ "\r\n"))
+                self.callback_client_send(connection_object, str("You take the " + self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + " and put it in your " + self.ItemManager.ITEM_TYPES[container["ident"]]["name"] + "\r\n"))
                 self.send_prompt(connection_object)
 
                 return
@@ -723,19 +693,104 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "help":
-                self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipe.\r\n")
-                self.callback_client_send(connection_object, "Furniture can be bashed for recipe components.\r\n")
+                self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipe, character.\r\n")
+                self.callback_client_send(connection_object, "Furniture can be \'bash\'d for recipe components.\r\n")
                 self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
+                self.callback_client_send(connection_object, "\'dump dirction\' to put components in a blueprint from inventory.\r\n")
                 self.send_prompt(connection_object)
                 return
 
-            if _command["command"] == "work":
+            if _command["command"] == "work":  # (work direction)
                 # TODO: work on a blueprint checking for materials in a direction.
+                # check there is a blueprint there. we may have finished it in a earlier loop.
+                # check there are all the required materials present.
+                # send an action to the action queue that repeats every turn.
                 pass
 
-            if _command["command"] == "dump":
-                # TODO: check for items in a blueprint from the direction and drop the items in the blueprint that are needed.
-                pass
+            if _command["command"] == "dump":  # (dump direction)
+                # check for items in a blueprint from the direction and drop the items in the blueprint that are needed.
+                # get the recipe from the blueprint. we need a reference.
+                if len(_command["args"]) == 0:
+                    self.callback_client_send(connection_object, "You must supply a direction. try north, south, east, or west.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                position_to_create_at = self.characters[connection_object.character]["position"]
+                if _command["args"][0] == "south":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"],
+                        position_to_create_at["y"] + 1,
+                        position_to_create_at["z"],
+                    )
+                elif _command["args"][0] == "north":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"],
+                        position_to_create_at["y"] - 1,
+                        position_to_create_at["z"],
+                    )
+                elif _command["args"][0] == "east":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"] + 1,
+                        position_to_create_at["y"],
+                        position_to_create_at["z"],
+                    )
+                elif _command["args"][0] == "west":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"] - 1,
+                        position_to_create_at["y"],
+                        position_to_create_at["z"],
+                    )
+                else:
+                    self.callback_client_send(connection_object, "That is not a valid direction. try north, south, east, or west.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                _tile = self.worldmap.get_tile_by_position(position_to_create_at)
+
+                _recipe = None
+                _blueprint = None
+                for item in _tile["items"]:
+                    if item["ident"] == "blueprint": # only one blueprint per tile.
+                        _recipe = item["recipe"]
+                        _blueprint = item
+                        break
+                else:
+                    self.callback_client_send(connection_object, "There is no Blueprint in that tile to dump.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+                # check only items that belong to the recipe get dumped.
+                # loop through open containers on the creature (try to keep this agnosic as possible so mobiles use it.
+
+                for component in self.RecipeManager.RECIPE_TYPES[_recipe["result"]]["components"]:  # the recipe is only stored by ident in the worldmap to save memory.
+                    # get open containers.
+                    _character_requesting = self.characters[connection_object.character]
+                    for bodypart in _character_requesting["body_parts"]:
+                        if bodypart["slot0"] is not None:
+                            body_item = bodypart["slot0"]
+                            print(type(body_item))
+                            # pprint.pprint(body_item)
+                            if "opened" in body_item.keys():
+                                for contained_item in body_item["contained_items"][:]:
+                                    pprint.pprint(contained_item)
+                                    pprint.pprint(component)
+                                    if component["ident"] == contained_item["ident"]:
+                                        # add item to blueprint["contained_items"]
+                                        # remove item from container.
+                                        _blueprint["contained_items"].append(contained_item)
+                                        body_item["contained_items"].remove(contained_item)
+                                        self.callback_client_send(connection_object, "dumped " + component["ident"] + ".\r\n")
+                        if bodypart["slot1"] is not None:
+                            for body_item in bodypart["slot1"]:
+                                if isinstance(body_item, Container):
+                                    for containted_item in body_item["contained_items"][:]:
+                                        if component["ident"] == contained_item["ident"]:
+                                            # add item to blueprint["contained_items"]
+                                            # remove item from container.
+                                            _blueprint["contained_items"].append(contained_item)
+                                            body_item["contained_items"].remove(contained_item)
+                                            self.callback_client_send(connection_object, "dumped " + component["ident"] + ".\r\n")
+                    self.send_prompt(connection_object)
+                    return
 
             # fallback to not knowing wtf the player is talking about.
             self.callback_client_send(connection_object, "I am not sure what you are trying to do.\r\n")
@@ -898,7 +953,7 @@ class Server(MastermindServerTCP):
             _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
             if target in _furniture["name"].split(" "):
                 for item in _furniture["bash"]["items"]:
-                    self.worldmap.put_object_at_position(Item(self.ItemManager.ITEM_TYPES[item["item"]]["ident"], self.ItemManager.ITEM_TYPES[item["item"]]), self.characters[owner]["position"])
+                    self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
                 _tile["furniture"] = None
                 # TODO: check 4 directions for target
         return
@@ -1080,6 +1135,7 @@ if __name__ == "__main__":
             last_turn_time = time.time()  # based off of system clock.
 
     except (KeyboardInterrupt):
+        print()
         print("Cleaning up before exiting.")
         server.accepting_disallow()
         server.disconnect_clients()

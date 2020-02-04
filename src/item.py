@@ -6,25 +6,24 @@ import pprint
 
 
 class Item(dict):
-    def __init__(self, ident, reference):
+    def __init__(self, ident):
         self['ident'] = ident
-        self['reference'] = reference
         # you can create objects like this.
         # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
 
 
 # containers are types of Items and can do everything an item can do.
 class Container(Item):
-    def __init__(self, ident, reference):
-        Item.__init__(self, ident, reference)
+    def __init__(self, ident):
+        Item.__init__(self, ident)
         self['contained_items'] = []
         self['opened'] = 'yes'
         # this plus all the contained items is how much the item weighs.
-        self['base_weight'] = int(self['reference']['weight'])
-        self['max_volume'] = int(self['reference']['volume'])
+        self['base_weight'] = 0  # int(self['reference']['weight'])
+        self['max_volume'] = 0  # int(self['reference']['volume'])
         self['contained_weight'] = 0
         self['contained_volume'] = 0
-
+'''
     def recalc_weight(self):
         # total weight is the weight of all contained items.
         weight = 0
@@ -53,7 +52,7 @@ class Container(Item):
                 self.recalc_weight()
                 # if we remove it then it needs to go somewhere. better return it so we can manage it.
                 return item
-
+'''
 
 class Blueprint(Container):
     # Blueprint is a type of container that's immovable.

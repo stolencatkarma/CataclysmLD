@@ -3,7 +3,7 @@ import json
 import os
 
 
-class Recipe:
+class Recipe(dict):
     def __init__(self, ident):
         self['ident'] = ident
 
