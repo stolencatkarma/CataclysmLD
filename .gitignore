@@ -18,9 +18,8 @@
 server/log/*
 !server/log/.gitkeep
 # ignore accounts
-server/accounts/*
+/accounts/*
 # ignore worlds
-server/worlds/*
 # ignore godot optional import settings.
 /client/.import/*
 # CataclysmLD.code-workspace

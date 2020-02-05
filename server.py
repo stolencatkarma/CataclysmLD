@@ -5,7 +5,7 @@ import json
 import os
 import random
 import time
-import pprint as pprint
+from pprint import pprint
 import configparser
 # import logging.config
 
@@ -757,29 +757,31 @@ class Server(MastermindServerTCP):
 
                 for component in self.RecipeManager.RECIPE_TYPES[_recipe["result"]]["components"]:  # the recipe is only stored by ident in the worldmap to save memory.
                     # get open containers.
+                    self.callback_client_send(connection_object, "Looking for " + component["ident"] + " in open containers.\r\n")
                     _character_requesting = self.characters[connection_object.character]
                     for bodypart in _character_requesting["body_parts"]:
                         if bodypart["slot0"] is not None:
                             body_item = bodypart["slot0"]
                             if "opened" in body_item.keys():
-                                for contained_item in body_item["contained_items"][:]:
-                                    if component["ident"] == contained_item["ident"]:
-                                        # add item to blueprint["contained_items"]
-                                        # remove item from container.
-                                        _blueprint["contained_items"].append(contained_item)
-                                        body_item["contained_items"].remove(contained_item)
-                                        self.callback_client_send(connection_object, "dumped " + component["ident"] + ".\r\n")
-                        if bodypart["slot1"] is not None:
-                            for body_item in bodypart["slot1"]:
-                                if isinstance(body_item, Container):
-                                    for containted_item in body_item["contained_items"][:]:
+                                if body_item["opened"] == "yes":
+                                    for contained_item in body_item["contained_items"][:]:
+                                        # self.callback_client_send(connection_object, "Is " + contained_item["ident"] + " equal to " + component["ident"] + "?\r\n")
                                         if component["ident"] == contained_item["ident"]:
+                                            # pprint(component)  # { "amount": 2, "ident": "scrap" }
                                             # add item to blueprint["contained_items"]
                                             # remove item from container.
                                             _blueprint["contained_items"].append(contained_item)
                                             body_item["contained_items"].remove(contained_item)
-                                            self.callback_client_send(connection_object, "dumped " + component["ident"] + ".\r\n")
-                    self.send_prompt(connection_object)
+                                            self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
+                        if bodypart["slot1"] is not None:
+                            body_item = bodypart["slot1"]
+                            if "opened" in body_item.keys():
+                                if body_item["opened"] == "yes":
+                                    for contained_item in body_item["contained_items"][:]:
+                                        if component["ident"] == contained_item["ident"]:
+                                            _blueprint["contained_items"].append(contained_item)
+                                            body_item["contained_items"].remove(contained_item)
+                                            self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
                     return
 
             # fallback to not knowing wtf the player is talking about.
