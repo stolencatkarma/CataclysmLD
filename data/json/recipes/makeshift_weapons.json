@@ -3,16 +3,16 @@
   "result" : "makeshift_machete",
   "type_of" : "Item",
   "skill_used": "survival",
-  "time": 60,
+  "time": 30,
   "reversible": true,
   "autolearn": false,
   "components": [
     {
-      "ident": "duct_tape",
+      "ident": "rag",
       "amount": 50
     },
     {
-      "ident": "blade",
+      "ident": "scrap",
       "amount": 1
     }
   ]
@@ -21,28 +21,24 @@
   "result" : "makeshift_halberd",
   "type_of" : "Item",
   "skill_used": "survival",
-  "time": 60,
+  "time": 120,
   "reversible": true,
   "autolearn": false,
   "components": [
     {
-      "ident": "duct_tape",
-      "amount": 50
+      "ident": "scrap",
+      "amount": 2
     },
     {
-      "ident": "blade",
-      "amount": 1
+      "ident": "rag",
+      "amount": 2
     },
     {
-      "ident": "stick",
-      "amount": 1
+      "ident": "nails",
+      "amount": 4
     },
     {
       "ident": "2x4",
-      "amount": 1
-    },
-    {
-      "ident": "broom",
       "amount": 1
     }
   ]
@@ -60,20 +56,8 @@
       "amount": 1
     },
     {
-      "ident": "duct_tape",
-      "amount": 50
-    },
-    {
-      "ident": "cordage_short",
+      "ident": "scrap",
       "amount": 2
-    },
-    {
-      "ident": "filament",
-      "amount": 100
-    },
-    {
-      "ident": "spike",
-      "amount": 1
     }
   ]
 },

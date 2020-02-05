@@ -5,7 +5,7 @@ import json
 import os
 import random
 import time
-import pprint
+import pprint as pprint
 import configparser
 # import logging.config
 
@@ -154,11 +154,9 @@ class Server(MastermindServerTCP):
                     # first find the location_ident so we can load a new item into it.
                     for bodypart in self.characters[character]["body_parts"]:
                         if bodypart["slot0"] is not None:
-                            pprint.pprint(bodypart)
                             if "contained_items" in bodypart["slot0"] and bodypart["ident"] == location_ident:  # uses the first one it finds, maybe check if it's full?
                                 bodypart["slot0"]["contained_items"].append(Item(item_ident))
                         if bodypart["slot1"] is not None:
-                            pprint.pprint(bodypart)
                             if "contained_items" in bodypart["slot1"] and bodypart["ident"] == location_ident:  # uses the first one it finds, maybe check if it's full?
                                 bodypart["slot1"]["contained_items"].append(Item(item_ident))
 
@@ -353,7 +351,7 @@ class Server(MastermindServerTCP):
                         if len(tile["items"]) > 0:
                             send_map[x - min_x][y - min_y] = tile["items"][0]["ident"][:1].lower()
                         if tile['creature'] is not None:
-                            send_map[x - min_x][y - min_y] = tile['creature']['tile_ident'][:1].upper()
+                            send_map[x - min_x][y - min_y] = pre_color + "1m" + tile['creature']['tile_ident'][:1].upper() + post_color
 
                 next_line = ""
                 for i in range(39):
@@ -368,7 +366,7 @@ class Server(MastermindServerTCP):
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
 
-            # translate letters to commands.
+            # translate letters to commands. TODO: The most basic of alias system. Expand alias system from this.
             if _command["command"] == "n":
                 _command["command"] = "move"
                 _command["args"].append("north")
@@ -436,7 +434,6 @@ class Server(MastermindServerTCP):
                 if len(_tile["items"]) > 0:
                     self.callback_client_send(connection_object, "---- Items ----\r\n")
                     for item in _tile["items"]:
-                        pprint.pprint(item)
                         if item["ident"] == "blueprint":
                             self.callback_client_send(connection_object, item["ident"] + ": " + item["recipe"]["result"] + "\r\n")
                         else:
@@ -462,7 +459,6 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, "# Perception: " + str(_character["perception"]) + "\r\n")
                 self.callback_client_send(connection_object, "# Constitution: " + str(_character["constitution"]) + "\r\n")
                 for body_part in _character["body_parts"]:
-                    # pprint.pprint(body_part)
                     self.callback_client_send(connection_object, "# " + body_part["ident"] + "\r\n")
                     if body_part["slot0"] is not None:
                         self.callback_client_send(connection_object, "#  " + body_part["slot0"]["ident"] + "\r\n")
@@ -477,7 +473,7 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "craft":  # 2-3 args (craft, <recipe>, direction)
 
-                if len(_command["args"]) == 0:
+                if len(_command["args"]) < 2:
                     self.callback_client_send(connection_object, "syntax is \'craft recipe direction\'\r\n")
                     self.send_prompt(connection_object)
                     return
@@ -486,7 +482,6 @@ class Server(MastermindServerTCP):
                     self.callback_client_send(connection_object, "You do not know how to craft" + _command["args"][0]+".\r\n")
                     self.send_prompt(connection_object)
                     return
-
                 # args 0 is ident args 1 is direction.
                 # blueprint rules
                 # * there should be blueprints for terrain, furniture, items, and anything else that takes a slot up in a tile.
@@ -529,7 +524,6 @@ class Server(MastermindServerTCP):
                     return
 
                 for item in _tile["items"]:
-                    pprint.pprint(item)
                     if item["ident"] == "blueprint":
                         self.callback_client_send(connection_object, "You cannot create two blueprints on one tile.\r\n")
                         self.send_prompt(connection_object)
@@ -767,12 +761,8 @@ class Server(MastermindServerTCP):
                     for bodypart in _character_requesting["body_parts"]:
                         if bodypart["slot0"] is not None:
                             body_item = bodypart["slot0"]
-                            print(type(body_item))
-                            # pprint.pprint(body_item)
                             if "opened" in body_item.keys():
                                 for contained_item in body_item["contained_items"][:]:
-                                    pprint.pprint(contained_item)
-                                    pprint.pprint(component)
                                     if component["ident"] == contained_item["ident"]:
                                         # add item to blueprint["contained_items"]
                                         # remove item from container.
@@ -839,7 +829,6 @@ class Server(MastermindServerTCP):
                 return
             # if we get here we can process a single action
             if action["type"] == "move":
-                # pprint.pprint(action["args"])
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
                 if action["args"][0] == "south":
                     if self.worldmap.move_creature_from_position_to_position(
@@ -938,7 +927,6 @@ class Server(MastermindServerTCP):
                         )
                     creature["command_queue"].remove(action)
             elif action["type"] == "bash":
-                # pprint.pprint(action)
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
                 self.bash(action["owner"], action["target"])
                 self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(self.characters[creature["name"]]["position"])
@@ -952,9 +940,14 @@ class Server(MastermindServerTCP):
         if _tile["furniture"] is not None:
             _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
             if target in _furniture["name"].split(" "):
-                for item in _furniture["bash"]["items"]:
-                    self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
-                _tile["furniture"] = None
+                if "bash" in _furniture.keys():
+                    for item in _furniture["bash"]["items"]:
+                        self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
+                    _tile["furniture"] = None
+                else:
+                    self.callback_client_send(conntion_object, "I am sorry. You cannot bash that yet.\r\n")
+                    self.send_prompt(connection_object)
+
                 # TODO: check 4 directions for target
         return
 
