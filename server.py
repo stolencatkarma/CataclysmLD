@@ -100,6 +100,8 @@ class Server(MastermindServerTCP):
     def find_spawn_point_for_new_character(self):
         _possible = list()
         for _, chunk in self.worldmap["CHUNKS"].items():
+            if "tiles" not in chunk.keys():
+                continue  # chunk is in stasis.
             for tile in chunk["tiles"]:
                 if tile["position"]["z"] != 0:
                     continue
@@ -425,8 +427,11 @@ class Server(MastermindServerTCP):
 
                         for container in _open_containers:
                             if _ident in self.ItemManager.ITEM_TYPES[container["ident"]]["name"].lower().split(" "):
-                                for item in container["contained_items"]:
-                                    self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
+                                if len(container["contained_items"]) == 0:
+                                    self.callback_client_send(connection_object, "There is no items in this container.\r\n")
+                                else:
+                                    for item in container["contained_items"]:
+                                        self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
                                 self.send_prompt(connection_object)
                                 return
 
@@ -694,10 +699,9 @@ class Server(MastermindServerTCP):
                 self.send_prompt(connection_object)
                 return
 
-            if _command["command"] == "work":  # (work direction)
+            if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in that loop.
                 # TODO: work on a blueprint checking for materials in a direction.
-                # check there is a blueprint there. we may have finished it in a earlier loop.
-                # check there are all the required materials present.
+                # check there is a blueprint there. We may have finished it in a earlier loop.
                 # send an action to the action queue that repeats every turn.
                 pass
 
@@ -811,123 +815,50 @@ class Server(MastermindServerTCP):
         return
 
     def callback_disconnect_client(self, connection_object):
-        print("Server: Client from {} disconnected.".format(
-            connection_object.address))
+        print("Server: Client from {} disconnected.".format(connection_object.address))
         return super(Server, self).callback_disconnect_client(connection_object)
 
-    def process_creature_command_queue(self, creature):
+    def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
-        print("processing " + str(creature["position"]))
-        # iterate a copy so we can remove on the fly.
+        # iterate a copy so we can remove properly.
         for action in creature["command_queue"][:]:
+            _pos = creature["position"] # we need to make sure this gets updated to the position on the worldmap where it actually is.
+            _target_pos = None
             if actions_to_take == 0:
                 return  # this creature is out of action points.
 
             # this creature can't act until x turns from now.
             if creature["next_action_available"] > 0:
-                creature["next_action_available"] = (
-                    creature["next_action_available"] - 1
-                )
+                creature["next_action_available"] = creature["next_action_available"] - 1
                 return
-            # if we get here we can process a single action
-            if action["type"] == "move":
+
+            if action["args"][0] == "north":
+                _target_pos = Position(_pos["x"], _pos["y"] - 1, _pos["z"])
+            if action["args"][0] == "south":
+                _target_pos = Position(_pos["x"], _pos["y"] + 1, _pos["z"])
+            if action["args"][0] == "east":
+                _target_pos = Position(_pos["x"] + 1, _pos["y"], _pos["z"])
+            if action["args"][0] == "west":
+                _target_pos = Position(_pos["x"] - 1, _pos["y"], _pos["z"])
+            if action["args"][0] == "up":
+                _target_pos = Position(_pos["x"], _pos["y"], _pos["z"] + 1)
+            if action["args"][0] == "down":
+                _target_pos = Position(_pos["x"], _pos["y"], _pos["z"] - 1)
+            # even if we don't have a _target_pos we can still continue on. We may not need it.
+            # print("POS, TARGETPOS", _pos, _target_pos)
+
+            if action["type"] == "work":  # "args" is the direction. For working on blueprints.
+                for i in range(actions_to_take):   # working uses up all your action points per turn.
+                   # We want any creature to be able to work on blueprints.
+                   # check if blueprint is there.
+                   # check if blueprint has all the materials. You cannot take items from blueprints. To reclaim destroy blueprint and all progress made.
+                   # if that's all okay then add time worked on to the blueprint.
+                   # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
+                return
+            elif action["type"] == "move":
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
-                if action["args"][0] == "south":
-                    if self.worldmap.move_creature_from_position_to_position(
-                        self.characters[creature["name"]],
-                        self.characters[creature["name"]]["position"],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"] + 1,
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    ):
-                        self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"] + 1,
-                            self.characters[creature["name"]]["position"]["z"],
-                        )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "north":
-                    if self.worldmap.move_creature_from_position_to_position(
-                        self.characters[creature["name"]],
-                        self.characters[creature["name"]]["position"],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"] - 1,
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    ):
-                        self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"] - 1,
-                            self.characters[creature["name"]]["position"]["z"],
-                        )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "east":
-                    if self.worldmap.move_creature_from_position_to_position(
-                        self.characters[creature["name"]],
-                        self.characters[creature["name"]]["position"],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"] + 1,
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    ):
-                        self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]]["position"]["x"] + 1,
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"],
-                        )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "west":
-                    if self.worldmap.move_creature_from_position_to_position(
-                        self.characters[creature["name"]],
-                        self.characters[creature["name"]]["position"],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"] - 1,
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"],
-                        ),
-                    ):
-                        self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]]["position"]["x"] - 1,
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"],
-                        )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "up":
-                    if self.worldmap.move_creature_from_position_to_position(
-                        self.characters[creature["name"]],
-                        self.characters[creature["name"]]["position"],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"] + 1,
-                        ),
-                    ):
-                        self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"] + 1,
-                        )
-                    creature["command_queue"].remove(action)
-                if action["args"][0] == "down":
-                    if self.worldmap.move_creature_from_position_to_position(
-                        self.characters[creature["name"]],
-                        self.characters[creature["name"]]["position"],
-                        Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"] - 1,
-                        ),
-                    ):
-                        self.characters[creature["name"]]["position"] = Position(
-                            self.characters[creature["name"]]["position"]["x"],
-                            self.characters[creature["name"]]["position"]["y"],
-                            self.characters[creature["name"]]["position"]["z"] - 1,
-                        )
-                    creature["command_queue"].remove(action)
+                self.worldmap.move_creature_from_position_to_position(creature, _pos, _target_pos)
+                creature["command_queue"].remove(action)
             elif action["type"] == "bash":
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
                 self.bash(action["owner"], action["target"])

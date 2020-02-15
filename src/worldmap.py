@@ -224,6 +224,7 @@ class Worldmap(dict):
         self.get_chunk_by_position(position)["is_dirty"] = True
         if isinstance(obj, (Creature, Character, Monster)):
             tile["creature"] = obj
+            tile["creature"]["position"] = position  # for the action queue.
             return
         elif isinstance(obj, Terrain):
             tile["terrain"] = obj
@@ -303,19 +304,24 @@ class Worldmap(dict):
                 if from_tile["terrain"]["ident"] != "t_stairs_down":
                     print("no down stairs there")
                     return False
-        self.get_chunk_by_position(from_position)["is_dirty"] = True
-        self.get_chunk_by_position(to_position)["is_dirty"] = True
 
+        # Can't move into impassable terrain.
         if to_tile["terrain"]["impassable"]:
             print("tile is impassable")
             return False
-        # don't replace creatures in the tile if we move over them.
+
+        # Don't move over creatures. 1 per tile.
         if to_tile["creature"] is not None:
             print("creature is impassable")
             return False
-        # print("moving checks passed")
+
+        # cut from one and paste it to another.
         to_tile["creature"] = obj
+        to_tile["creature"]["position"] = to_position  # update it for the action queue. makes life easier there.
         from_tile["creature"] = None
+
+        self.get_chunk_by_position(from_position)["is_dirty"] = True
+        self.get_chunk_by_position(to_position)["is_dirty"] = True
         return True
 
     def get_tiles_near_position(self, position, radius):
