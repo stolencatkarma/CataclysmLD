@@ -854,6 +854,7 @@ class Server(MastermindServerTCP):
                    # check if blueprint has all the materials. You cannot take items from blueprints. To reclaim destroy blueprint and all progress made.
                    # if that's all okay then add time worked on to the blueprint.
                    # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
+                   pass
                 return
             elif action["type"] == "move":
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
