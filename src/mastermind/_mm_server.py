@@ -2,6 +2,7 @@ import select
 import socket
 import time
 import threading
+import traceback
 
 import src.mastermind._mm_netutil as netutil
 from src.mastermind._mm_constants import MM_TCP, MM_UDP, MM_UNKNOWN
@@ -248,7 +249,11 @@ class MastermindConnectionThreadTCP(MastermindConnectionThread):
             if status == False:
                 break
 
-            self.server.callback_client_handle(self, data)
+            try:
+                self.server.callback_client_handle(self, data)
+            except Exception as e:
+                self.server.callback_client_send(self, "Server made a boo boo\r\n")
+                traceback.print_exc()
 
             self.amount_waiting = 0.0
         self.server.callback_disconnect_client(self)
