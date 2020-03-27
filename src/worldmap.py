@@ -122,6 +122,10 @@ class Worldmap(dict):
             y_count = y_count + 1
 
         _dict = str(x_count) + "_" + str(y_count)
+        
+        # Create dir if not exists
+        # TODO: Adding some type of check or exception handling to determine what was created correctly
+        if os.path.exists("./world/") == False: os.mkdir("./world/")
 
         path = str("./world/" + str(_dict) + ".chunk")
 

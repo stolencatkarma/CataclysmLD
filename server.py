@@ -6,7 +6,12 @@ import os
 import random
 import time
 from pprint import pprint
-import configparser
+from sys import version_info
+# [WIP] Retrocompatibility options
+if version_info.major == 2:
+    import ConfigParser as configparser
+elif version_info.major == 3:
+    import configparser
 # import logging.config
 
 from src.mastermind._mm_server import MastermindServerTCP
@@ -211,8 +216,9 @@ class Server(MastermindServerTCP):
 
             else:
                 # account doesn't exist. create a directory for them.
+                # The ./accounts directory is also created if it does not exist
                 try:
-                    os.mkdir(_path)
+                    os.makedirs(_path)
                 except OSError:
                     print("Creation of the directory %s failed" % _path)
                 else:
@@ -249,7 +255,7 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object, str(idx) + '.) ' + file_data.split(".")[0] + '\r\n')
                         idx = idx + 1
 
-            self.callback_client_send(connection_object, "Choice? >\r\n")
+            self.callback_client_send(connection_object, "Enter a number to continue >\r\n")
             connection_object.state = "CHOOSING_CHARACTER"
             return
 
@@ -285,6 +291,7 @@ class Server(MastermindServerTCP):
             else:
                 print("Server: character NOT created. Already Exists")
             connection_object.state = "CHOOSE_CHARACTER"
+            return
 
 
         ########################################################
@@ -434,6 +441,9 @@ class Server(MastermindServerTCP):
                                         self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
                                 self.send_prompt(connection_object)
                                 return
+                    # If it gets this far, it's because the user only wrote "look"
+                else:
+                    self.callback_client_send(connection_object, "Look in what?\r\n")
 
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
                 if len(_tile["items"]) > 0:
@@ -1060,6 +1070,7 @@ if __name__ == "__main__":
                 pass
 
             last_turn_time = time.time()  # based off of system clock.
+            time.sleep(0.9)
 
     except (KeyboardInterrupt):
         print()
