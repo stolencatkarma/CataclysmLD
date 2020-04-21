@@ -24,3 +24,4 @@ world/*
 # ignore vscode files
 .vscode/*
 # CataclysmLD.code-workspace
+.vscode/settings.json
