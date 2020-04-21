@@ -1012,6 +1012,17 @@ if __name__ == "__main__":
     # logging.config.fileConfig(args.config)
     # log = logging.getLogger("root")
 
+    # make needed directories if they don't exist
+    _needed_directories = ["./accounts/", "./world/"]
+    for _path in _needed_directories:
+        if not os.path.isdir(_path):
+            try:
+                os.mkdir(_path)
+            except OSError:
+                print("Creation of the directory %s failed" % _path)
+            else:
+                print("Successfully created the directory %s " % _path)
+   
     server = Server(logger=None, config=defaultConfig)
     server.connect(ip, port)
 
