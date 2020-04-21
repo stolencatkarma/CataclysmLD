@@ -114,7 +114,7 @@ class Server(MastermindServerTCP):
                 _possible.append(tile)
         random.shuffle(_possible)
         return _possible[0]["position"]
-        #else:
+        # else:
         #    print("ERROR: Couldn't find spawn point for new character!")
         #    return None
 
@@ -534,7 +534,6 @@ class Server(MastermindServerTCP):
                         self.send_prompt(connection_object)
                         return
 
-
                 _recipe = server.RecipeManager.RECIPE_TYPES[_command["args"][0]]
                 type_of = _recipe["type_of"]
 
@@ -595,7 +594,6 @@ class Server(MastermindServerTCP):
                 self.send_prompt(connection_object)
 
                 return
-
 
             if _command["command"] == "transfer": # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
@@ -849,12 +847,12 @@ class Server(MastermindServerTCP):
 
             if action["type"] == "work":  # "args" is the direction. For working on blueprints.
                 for i in range(actions_to_take):   # working uses up all your action points per turn.
-                   # We want any creature to be able to work on blueprints.
-                   # check if blueprint is there.
-                   # check if blueprint has all the materials. You cannot take items from blueprints. To reclaim destroy blueprint and all progress made.
-                   # if that's all okay then add time worked on to the blueprint.
-                   # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
-                   pass
+                    # We want any creature to be able to work on blueprints.
+                    # check if blueprint is there.
+                    # check if blueprint has all the materials. You cannot take items from blueprints. To reclaim destroy blueprint and all progress made.
+                    # if that's all okay then add time worked on to the blueprint.
+                    # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
+                    pass
                 return
             elif action["type"] == "move":
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
@@ -1011,8 +1009,8 @@ if __name__ == "__main__":
     port = int(defaultConfig.get("listen_port", args.port))
 
     # Enable logging - It uses its own configparser for the same file
-    #logging.config.fileConfig(args.config)
-    #log = logging.getLogger("root")
+    # logging.config.fileConfig(args.config)
+    # log = logging.getLogger("root")
 
     server = Server(logger=None, config=defaultConfig)
     server.connect(ip, port)
@@ -1033,7 +1031,7 @@ if __name__ == "__main__":
     # print('spin_delay_ms: {}'.format(spin_delay_ms))
 
     for character in server.worldmap.get_all_characters():
-       server.characters[character["name"]] = character
+        server.characters[character["name"]] = character
     print("Found " + str(len(server.characters)) + " characters in the world.")
     print("Handling any chunks that may need to move to stasis before players connect.")
     server.worldmap.handle_chunks() # handle any chunks that may need to move to stasis before player's connect.
