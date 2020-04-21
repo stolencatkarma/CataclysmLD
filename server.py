@@ -879,7 +879,7 @@ class Server(MastermindServerTCP):
                         self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
                     _tile["furniture"] = None
                 else:
-                    self.callback_client_send(conntion_object, "I am sorry. You cannot bash that yet.\r\n")
+                    self.callback_client_send(connection_object, "I am sorry. You cannot bash that.\r\n")
                     self.send_prompt(connection_object)
 
                 # TODO: check 4 directions for target
