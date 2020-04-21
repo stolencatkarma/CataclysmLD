@@ -1066,7 +1066,7 @@ if __name__ == "__main__":
                 print("WARNING: last turn took " +  "{:.4f}".format(time.time() - last_turn_time) + " seconds to compute.")
 
             while (time.time() - last_turn_time < time_offset):
-                time.sleep(0.01)
+                time.sleep(0.01)  # keeps CPU usage at reasonable levels - thanks aaferrari
                 pass
 
             last_turn_time = time.time()  # based off of system clock.
