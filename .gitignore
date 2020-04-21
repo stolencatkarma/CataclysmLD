@@ -18,10 +18,9 @@
 server/log/*
 !server/log/.gitkeep
 # ignore accounts
-/accounts/*
+accounts/*
 # ignore worlds
-/world/*
+world/*
 # ignore vscode files
-/.vscode/*
+.vscode/*
 # CataclysmLD.code-workspace
-
