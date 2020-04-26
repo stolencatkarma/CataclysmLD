@@ -156,10 +156,10 @@ class Server(MastermindServerTCP):
                     # first find the location_ident so we can load a new item into it.
                     for bodypart in self.characters[character]["body_parts"]:
                         if bodypart["slot0"] is not None:
-                            if "contained_items" in bodypart["slot0"] and bodypart["ident"] == location_ident:  # uses the first one it finds, maybe check if it's full?
+                            if "contained_items" in bodypart["slot0"] and bodypart["ident"] == location_ident:
                                 bodypart["slot0"]["contained_items"].append(Item(item_ident))
                         if bodypart["slot1"] is not None:
-                            if "contained_items" in bodypart["slot1"] and bodypart["ident"] == location_ident:  # uses the first one it finds, maybe check if it's full?
+                            if "contained_items" in bodypart["slot1"] and bodypart["ident"] == location_ident:
                                 bodypart["slot1"]["contained_items"].append(Item(item_ident))
 
         path = str("./accounts/" + str(ident) + "/" + str("characters") + "/" + str(character) + ".character")
@@ -540,7 +540,7 @@ class Server(MastermindServerTCP):
                 bp_to_create = Blueprint(type_of, _recipe)
 
                 self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
-                self.callback_client_send(connection_object, "You created a blueprint for " +_command["args"][0] + ".\r\n")
+                self.callback_client_send(connection_object, "You created a blueprint for " + _command["args"][0] + ".\r\n")
                 self.send_prompt(connection_object)
                 return
 
@@ -595,7 +595,7 @@ class Server(MastermindServerTCP):
 
                 return
 
-            if _command["command"] == "transfer": # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
+            if _command["command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
                 _character_requesting = self.characters[connection_object.character]
 
@@ -606,12 +606,12 @@ class Server(MastermindServerTCP):
                 _from_container = None
 
                 # the container the item will end up. parse this as well.
-                _to_container = None
+                contained_item = None
 
                 # find _from_container and _item, either equipped containers or items on the ground.
                 for ground_item in self.worldmap.get_tile_by_position(_character_requesting["position"])["items"][:]: # parse copy
                     # check if item is laying on the ground. tile["items"]
-                    if _command["args"][0] in ground_item["name"].split(" "): # found the item on the ground by parsing it's ["name"]
+                    if _command["args"][0] in ground_item["name"].split(" "):  # found the item on the ground by parsing it's ["name"]
                         _item = ground_item
                         _from_container = self.worldmap.get_tile_by_position(_character_requesting["position"])["items"]
                         break
@@ -619,14 +619,14 @@ class Server(MastermindServerTCP):
                 else:
                     for bodypart in _character_requesting["body_parts"][:]:
                         for body_item in bodypart["slot0"]:
-                            if isinstance(body_item, Container): # could be a container or armor. only move to a container.
+                            if isinstance(body_item, Container):  # could be a container or armor. only move to a container.
                                 for containted_item in body_item["contained_items"]:
                                     if _command["args"][0] in contained_item["name"].split(" "):
                                         _item = body_item
                                         _from_container = bodypart["slot0"]
                                         break
                         for body_item in bodypart["slot1"]:
-                            if isinstance(body_item, Container): # could be a container or armor. only move to a container.
+                            if isinstance(body_item, Container):  # could be a container or armor. only move to a container.
 
                                 for containted_item in body_item["contained_items"]:
                                     if _command["args"][0] in contained_item["name"].split(" "):
@@ -1043,9 +1043,10 @@ if __name__ == "__main__":
 
     for character in server.worldmap.get_all_characters():
         server.characters[character["name"]] = character
-    print("Found " + str(len(server.characters)) + " characters in the world.")
+    print("Found " + str(len(server.characters)) + " living characters in the world.")
     print("Handling any chunks that may need to move to stasis before players connect.")
     server.worldmap.handle_chunks() # handle any chunks that may need to move to stasis before player's connect.
+    print("\n")
     print("Server is listening at {}:{}".format(ip, port))
     print("Started Cataclysm: Looming Darkness. Clients may now connect!")
 
