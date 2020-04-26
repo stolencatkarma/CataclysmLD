@@ -697,10 +697,15 @@ class Server(MastermindServerTCP):
                 self.send_prompt(connection_object)
                 return
 
-            if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in that loop.
-                # TODO: work on a blueprint checking for materials in a direction.
-                # check there is a blueprint there. We may have finished it in a earlier loop.
-                # send an action to the action queue that repeats every turn.
+            if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
+                if len(_command["args"]) == 0:
+                    self.callback_client_send(connection_object, "You must supply a direction. try north, south, east, or west.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                # TODO: check blueprint exists in the direction.
+                # TODO: check for materials in blueprint in the direction.
+                # send an action to the action queue that repeats every turn. Client sends once, server repeats until done or interrupted.
                 pass
 
             if _command["command"] == "dump":  # (dump direction)
