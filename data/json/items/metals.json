@@ -87,7 +87,7 @@
     "ident": "scrap",
     "group": "AMMO",
     "category": "spare_parts",
-    "name": "scrap metal",
+    "name": "scrap",
     "description": "An bulky assortment of small bits of scrap steel useful in all kinds of crafting",
     "weight": 50,
     "volume": 1,
@@ -95,7 +95,7 @@
     "count": 2,
     "stack_size": 10, "comment": "Density 7.60g/cm³ ~ 1.9kg/250ml @ 50g/unit ~ stack 40 but fragments stacks poorly so only 25% of this",
     "material": "steel",
-    "symbol": ",",
+    "symbol": "*",
     "color": "light_gray",
     "ammo_type": "components"
   },

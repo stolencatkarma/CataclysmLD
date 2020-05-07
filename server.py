@@ -681,7 +681,8 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object, "--- Recipe ---\r\n")
                         self.callback_client_send(connection_object, self.RecipeManager.RECIPE_TYPES[_recipe]["result"] + "\r\n")
                         for component in self.RecipeManager.RECIPE_TYPES[_recipe]["components"]:
-                            self.callback_client_send(connection_object, " " + str(component["amount"]) + ": " + component["ident"] + "\r\n")
+                            print(component)
+                            self.callback_client_send(connection_object, " " + str(component["amount"]) + "* " + component["ident"] + "\r\n")
                         return
                     except:
                         # recipe doesn't exist.
@@ -749,9 +750,12 @@ class Server(MastermindServerTCP):
                     return
 
                 # TODO: Does character have this blueprint learned? give it to them. (learn by seeing)
-                # TODO: check for materials in blueprint in the direction. Fail if not all materials present.
                 # send an action to the action queue that repeats every turn. Client sends once, server repeats until done or interrupted.
-                pass
+                _action = Action(connection_object.character, None, 'work', _command["args"])
+                self.characters[connection_object.character]["command_queue"].append(_action)
+                self.callback_client_send(connection_object, "You start working on the blueprint.\r\n")
+                self.send_prompt(connection_object)
+                return
 
             if _command["command"] == "dump":  # (dump direction)
                 # check for items in a blueprint from the direction and drop the items in the blueprint that are needed.
@@ -805,24 +809,23 @@ class Server(MastermindServerTCP):
                     self.send_prompt(connection_object)
                     return
                 # check only items that belong to the recipe get dumped.
-                # loop through open containers on the creature (try to keep this agnosic as possible so mobiles use it.
+                # loop through open containers on the creature (try to keep this agnostic as possible so mobiles use it.
 
                 for component in self.RecipeManager.RECIPE_TYPES[_recipe["result"]]["components"]:  # the recipe is only stored by ident in the worldmap to save memory.
                     # get open containers.
-                    self.callback_client_send(connection_object, "Looking for " + component["ident"] + " in open containers.\r\n")
+                    #TODO: check for items already in it. 
                     _character_requesting = self.characters[connection_object.character]
                     for bodypart in _character_requesting["body_parts"]:
                         if bodypart["slot0"] is not None:
                             body_item = bodypart["slot0"]
-                            if "opened" in body_item.keys():
+                            if "opened" in body_item.keys():  # is this a container?
                                 if body_item["opened"] == "yes":
                                     for contained_item in body_item["contained_items"][:]:
-                                        # self.callback_client_send(connection_object, "Is " + contained_item["ident"] + " equal to " + component["ident"] + "?\r\n")
                                         if component["ident"] == contained_item["ident"]:
-                                            # pprint(component)  # { "amount": 2, "ident": "scrap" }
                                             # add item to blueprint["contained_items"]
                                             # remove item from container.
                                             _blueprint["contained_items"].append(contained_item)
+                                            pprint(_blueprint)
                                             body_item["contained_items"].remove(contained_item)
                                             self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
                         if bodypart["slot1"] is not None:
@@ -834,7 +837,7 @@ class Server(MastermindServerTCP):
                                             _blueprint["contained_items"].append(contained_item)
                                             body_item["contained_items"].remove(contained_item)
                                             self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
-                    return
+                return
 
             # fallback to not knowing what the player is talking about.
             self.callback_client_send(connection_object, "I am not sure what you are trying to do.\r\n")
@@ -870,7 +873,7 @@ class Server(MastermindServerTCP):
         actions_to_take = creature["actions_per_turn"]
         # iterate a copy so we can remove properly.
         for action in creature["command_queue"][:]:
-            _pos = creature["position"] # we need to make sure this gets updated to the position on the worldmap where it actually is.
+            _pos = creature["position"] 
             _target_pos = None
             if actions_to_take == 0:
                 return  # this creature is out of action points.
@@ -896,13 +899,51 @@ class Server(MastermindServerTCP):
             # print("POS, TARGETPOS", _pos, _target_pos)
 
             if action["type"] == "work":  # "args" is the direction. For working on blueprints.
+
+                _tile = self.worldmap.get_tile_by_position(_target_pos)
+                _recipe = None
+                _blueprint = None
+                for item in _tile["items"]:
+                    if item["ident"] == "blueprint": # only one blueprint per tile.
+                        _recipe = item["recipe"]
+                        _blueprint = item
+                        break
+                else:
+                    creature["command_queue"].remove(action)  # no blueprint found. won't normally happen.
+                    print("WARNING: Player tried to work on non-existant blueprint.")
+                    return
+
                 for i in range(actions_to_take):   # working uses up all your action points per turn.
-                    # We want any creature to be able to work on blueprints.
-                    # check if blueprint is there.
-                    # check if blueprint has all the materials. You cannot take items from blueprints. To reclaim destroy blueprint and all progress made.
-                    # if that's all okay then add time worked on to the blueprint.
+                    # check if blueprint has all the materials.
+                    #pprint(_blueprint)
+                    count = dict()
+                    for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
+                        pprint(material)
+                        if material["ident"] in count.keys():
+                            count["ident"]["amount"] = count["ident"]["amount"] + 1
+                        else:
+                            count[material["ident"]] = dict()
+                            count[material["ident"]]["amount"] = 1
+                    for component in _recipe["components"]:
+                        # get count of item by ident in blueprint.
+                        if count[component["ident"]]["amount"] < _recipe["components"]["amount"]:
+                            # need all required components to start.
+                            self.callback_client_send(connection_object, "Blueprint needs more " + component["ident"] +".\r\n")
+                            self.send_prompt(connection_object)
+                            creature["command_queue"].remove(action)
+                            return
+
+                    # add time worked on to the blueprint.
+                    _blueprint["turns_worked_on"] = _blueprint["turns_worked_on"] + 1
                     # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
-                    pass
+                    if _blueprint["turns_worked_on"] >= _recipe["time"]:
+                        # create Item, Terrain, Furniture from recipe by ident.
+                        # delete blueprint (will delete components as well as they are contained within it.)
+                        # put object at position of blueprint.
+                        # let character know the blueprint was completed.
+                        # Remove the action.
+                        creature["command_queue"].remove(action)
+                        pass
                 return
             elif action["type"] == "move":
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.

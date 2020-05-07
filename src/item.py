@@ -31,27 +31,6 @@ class Container(Item):
             weight = weight + int(item['reference']['weight'])
         weight = weight + self['base_weight']  # add the base weight
         self['contained_weight'] = weight
-
-    def add_item(self, item):
-        # TODO: check right item type and container type (liquids go in liquid containers.)
-
-        # check volume
-        if(int(item['reference']['volume']) + self['contained_volume'] < self['max_volume']):
-            self['contained_items'].append(item)
-            self.recalc_weight()
-            print(' - added item to container successfully.')
-            return True
-        else:
-            # TODO: send a message to the player that the container is full and they cannot do this.
-            return False
-
-    def remove_item(self, item):
-        for item_to_check in self['contained_items'][:]:
-            if item_to_check == item:
-                self['contained_items'].remove(item_to_check)
-                self.recalc_weight()
-                # if we remove it then it needs to go somewhere. better return it so we can manage it.
-                return item
 '''
 
 class Blueprint(Container):
@@ -77,50 +56,7 @@ class Blueprint(Container):
     def __str__(self):
         return str(self.type_of + ': ' + self["ident"])
 
-    def work_on(self):
-        # when a creature 'works on' this blueprint
-        # first check if the required materials are present.
-        # do we have a threshold for removing materials or create a list from the materials once
-        # we start and remove 1 every so often?
-        #  e.g. recipe has 5 materials and takes 10 turns, remove 1 material every 2 turns.
-        # (self.turns_worked_on / int(self.recipe['time']))
-
-        # recipes have OR and AND components. how do we handle that?
-        pass
-
-    def add_item(self, item_or_list):
-        print('Trying to add item to contained_items')
-
-        # if item not in recipe items return False else return True
-        if(isinstance(item_or_list, list)):
-            # got a list of items to add
-            for item in item_or_list:
-                for component in self.recipe['components']:
-                    if(component['ident'] == item['ident']):
-                        # this item belongs in this recipe.
-                        break
-                else:
-                    # item passed doesn't belong in to this recipe.
-                    return False
-            # if we made it this far then every item in the list belongs to the recipe.
-            for item in item_or_list:
-                self.contained_items.append(item)
-            return True
-        else:
-            # add single item.
-            for component in self.recipe['components']:
-                if(component['ident'] == item_or_list['ident']):
-                    # this item belongs in this recipe.
-                    break
-            else:
-                return False  # item passed doesn't belong in to this recipe.
-            # if we made it this far then every item in the list belongs to the recipe.
-            for item in item_or_list:
-                self.contained_items.append(item)
-            return True
-
-
-
+# loads JSON data into memory.
 class ItemManager:
     def __init__(self):
         self.ITEM_TYPES = defaultdict(dict)
