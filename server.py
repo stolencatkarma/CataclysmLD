@@ -703,8 +703,53 @@ class Server(MastermindServerTCP):
                     self.send_prompt(connection_object)
                     return
 
-                # TODO: check blueprint exists in the direction.
-                # TODO: check for materials in blueprint in the direction.
+                # check blueprint exists in the direction.
+                position_to_create_at = self.characters[connection_object.character]["position"]
+                if _command["args"][0] == "south":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"],
+                        position_to_create_at["y"] + 1,
+                        position_to_create_at["z"],
+                    )
+                elif _command["args"][0] == "north":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"],
+                        position_to_create_at["y"] - 1,
+                        position_to_create_at["z"],
+                    )
+                elif _command["args"][0] == "east":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"] + 1,
+                        position_to_create_at["y"],
+                        position_to_create_at["z"],
+                    )
+                elif _command["args"][0] == "west":
+                    position_to_create_at = Position(
+                        position_to_create_at["x"] - 1,
+                        position_to_create_at["y"],
+                        position_to_create_at["z"],
+                    )
+                else:
+                    self.callback_client_send(connection_object, "That is not a valid direction. try north, south, east, or west.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                _tile = self.worldmap.get_tile_by_position(position_to_create_at)
+
+                _recipe = None
+                _blueprint = None
+                for item in _tile["items"]:
+                    if item["ident"] == "blueprint": # one blueprint per tile.
+                        _recipe = item["recipe"]
+                        _blueprint = item
+                        break
+                else:
+                    self.callback_client_send(connection_object, "There is no Blueprint in that tile to work on.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
+                # TODO: Does character have this blueprint learned? give it to them. (learn by seeing)
+                # TODO: check for materials in blueprint in the direction. Fail if not all materials present.
                 # send an action to the action queue that repeats every turn. Client sends once, server repeats until done or interrupted.
                 pass
 
@@ -791,7 +836,7 @@ class Server(MastermindServerTCP):
                                             self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
                     return
 
-            # fallback to not knowing wtf the player is talking about.
+            # fallback to not knowing what the player is talking about.
             self.callback_client_send(connection_object, "I am not sure what you are trying to do.\r\n")
             self.send_prompt(connection_object)
 
