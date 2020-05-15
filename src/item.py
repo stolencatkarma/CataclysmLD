@@ -9,7 +9,9 @@ class Item(dict):
     def __init__(self, ident):
         self['ident'] = ident
         # you can create objects like this.
-        # worldmap.put_object_at_position(Item(ItemManager.ITEM_TYPES[str(item['item'])]['ident']), Position)
+        # _position = Position(5,5,0) # (world coordinates)
+        # _newobject = Item('ident') # ident of items is found in /data/json/
+        # worldmap.put_object_at_position(_newobject, _position)
 
 
 # containers are types of Items and can do everything an item can do.

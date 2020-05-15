@@ -23,6 +23,8 @@ from src.monster import MonsterManager
 from src.worldmap import Worldmap
 from src.tilemanager import TileManager
 from src.passhash import makeSalt, hashPassword
+from src.terrain import Terrain
+from src.furniture import Furniture
 
 
 # when the character pulls up the OverMap.
@@ -862,6 +864,7 @@ class Server(MastermindServerTCP):
         # send the user a login prompt
         connection_object.state = "LOGIN"
         # return super(Server, self).callback_connect_client(connection_object)
+        #TODO: for line in Message Of The Day send to client.
         self.callback_client_send(connection_object, "Username? >\r\n")
         return
 
@@ -899,52 +902,9 @@ class Server(MastermindServerTCP):
             # print("POS, TARGETPOS", _pos, _target_pos)
 
             if action["type"] == "work":  # "args" is the direction. For working on blueprints.
-
-                _tile = self.worldmap.get_tile_by_position(_target_pos)
-                _recipe = None
-                _blueprint = None
-                for item in _tile["items"]:
-                    if item["ident"] == "blueprint": # only one blueprint per tile.
-                        _recipe = item["recipe"]
-                        _blueprint = item
-                        break
-                else:
-                    creature["command_queue"].remove(action)  # no blueprint found. won't normally happen.
-                    print("WARNING: Player tried to work on non-existant blueprint.")
-                    return
-
                 for i in range(actions_to_take):   # working uses up all your action points per turn.
-                    # check if blueprint has all the materials.
-                    #pprint(_blueprint)
-                    count = dict()
-                    for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
-                        pprint(material)
-                        if material["ident"] in count.keys():
-                            count["ident"]["amount"] = count["ident"]["amount"] + 1
-                        else:
-                            count[material["ident"]] = dict()
-                            count[material["ident"]]["amount"] = 1
-                    for component in _recipe["components"]:
-                        # get count of item by ident in blueprint.
-                        if count[component["ident"]]["amount"] < _recipe["components"]["amount"]:
-                            # need all required components to start.
-                            self.callback_client_send(connection_object, "Blueprint needs more " + component["ident"] +".\r\n")
-                            self.send_prompt(connection_object)
-                            creature["command_queue"].remove(action)
-                            return
-
-                    # add time worked on to the blueprint.
-                    _blueprint["turns_worked_on"] = _blueprint["turns_worked_on"] + 1
-                    # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
-                    if _blueprint["turns_worked_on"] >= _recipe["time"]:
-                        # create Item, Terrain, Furniture from recipe by ident.
-                        # delete blueprint (will delete components as well as they are contained within it.)
-                        # put object at position of blueprint.
-                        # let character know the blueprint was completed.
-                        # Remove the action.
-                        creature["command_queue"].remove(action)
-                        pass
-                return
+                    self.work(action["owner"], _target_pos)
+                creature["command_queue"].remove(action)
             elif action["type"] == "move":
                 actions_to_take = actions_to_take - 1  # moving costs 1 ap.
                 self.worldmap.move_creature_from_position_to_position(creature, _pos, _target_pos)
@@ -954,6 +914,59 @@ class Server(MastermindServerTCP):
                 self.bash(action["owner"], action["target"])
                 self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(self.characters[creature["name"]]["position"])
                 creature["command_queue"].remove(action)
+
+    def work(self, owner, target):
+        _tile = self.worldmap.get_tile_by_position(target)
+        _recipe = None
+        _blueprint = None
+        for item in _tile["items"]:
+            if item["ident"] == "blueprint": # only one blueprint per tile.
+                _recipe = item["recipe"]
+                _blueprint = item
+                break
+        else:
+            creature["command_queue"].remove(action)  # no blueprint found. won't normally happen.
+            print("WARNING: Player tried to work on non-existant blueprint.")
+            return
+
+    
+        # check if blueprint has all the materials.
+        #pprint(_blueprint)
+        count = dict()
+        for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
+            #pprint(material)
+            if material["ident"] in count.keys():
+                count["ident"]["amount"] = count["ident"]["amount"] + 1
+            else:
+                count[material["ident"]] = dict()
+                count[material["ident"]]["amount"] = 1
+        for component in _recipe["components"]:
+            # get count of item by ident in blueprint.
+            if count[component["ident"]]["amount"] < component["amount"]:
+                # need all required components to start.
+                print("not enough components.")
+                return
+
+        # add time worked on to the blueprint.
+        _blueprint["turns_worked_on"] = _blueprint["turns_worked_on"] + 1
+        print("working...")
+        # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
+        if _blueprint["turns_worked_on"] >= _recipe["time"]:
+            _newobject = None
+            # delete blueprint (will delete components as well as they are contained within it.)
+            _popped = _tile["items"].pop(_blueprint)                    
+            # create Item, Terrain, Furniture from recipe by ident.
+            if _blueprint["type_of"] == "Item":
+                _newobject = Item(_recipe["ident"])
+                tile["items"].append(_newobject)
+            if _blueprint["type_of"] == "Furniture":
+                _newobject = Furniture(_recipe["ident"])
+                tile["furniture"] = _newobject
+            if _blueprint["type_of"] == "Terrain":
+                _newobject = Terrain(_recipe["ident"])
+                tile["terrain"] = _newobject
+            # put object at position of blueprint.
+            print("--COMPLETED--")
 
     # catch-all for bash/smash/break
     # since we bash in a direction we need to check what's in the tile.
@@ -967,10 +980,7 @@ class Server(MastermindServerTCP):
                     for item in _furniture["bash"]["items"]:
                         self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
                     _tile["furniture"] = None
-                else:
-                    self.callback_client_send(connection_object, "I am sorry. You cannot bash that.\r\n")
-                    self.send_prompt(connection_object)
-
+                
                 # TODO: check 4 directions for target
         return
 
