@@ -1,7 +1,7 @@
 Cataclysm: Looming Darkness
 ===
 
-A multiplayer re-imagining of Cataclysm: Dark Days Ahead.
+A multiplayer rewrite of Cataclysm: Dark Days Ahead in python. 
 
 1-24-19 update - This codebase is moving to a more mud-style clientless telnet system where player's will connect
                  to the game using a telnet or MUD client.
@@ -15,7 +15,6 @@ A playable release is coming soon and will follow an episodic pattern, with each
 * Chapter 3 - Bionics and Mutations. The main sci-fi elements of the game brought to multiplayer.
 * Chapter 4+ - Continued Expansion. Maps, graphics, and content on for as long as there are people willing to work on it.
 
-Helping hands are always welcome, especially those familiar with pyglet and glooey. If you'd like to contribute follow the Discord link below.
 
 ----
 
