@@ -64,9 +64,6 @@ class Server(MastermindServerTCP):
         self.FurnitureManager = FurnitureManager()
         self.TileManager = TileManager()
 
-    def get_connections(self):
-        return self._mm_connections
-
     def calculate_route(self, pos0, pos1, consider_impassable=True):
         # normally we will want to consider impassable terrain in movement calculations.
         # Creatures that can walk or break through walls don't need to though.
@@ -865,12 +862,30 @@ class Server(MastermindServerTCP):
         connection_object.state = "LOGIN"
         # return super(Server, self).callback_connect_client(connection_object)
         #TODO: for line in Message Of The Day send to client.
+        motd = open('motd.txt', 'r') 
+        motd_lines = motd.readlines() 
+        
+        # Strips the newline character 
+        for line in motd_lines: 
+            self.callback_client_send(connection_object, line)
+        self.callback_client_send(connection_object, " \r\n")
+        self.callback_client_send(connection_object, " \r\n")
+        self.callback_client_send(connection_object, "Please Login:\r\n")
         self.callback_client_send(connection_object, "Username? >\r\n")
         return
 
     def callback_disconnect_client(self, connection_object):
         print("Server: Client from {} disconnected.".format(connection_object.address))
         return super(Server, self).callback_disconnect_client(connection_object)
+
+    def find_connection_object_by_character_name(self, character):
+        print("looking for " + character)
+        for con_object in self._mm_connections.keys():
+            pprint(self._mm_connections[con_object])
+            if self._mm_connections[con_object].character == character:
+                return self._mm_connections[con_object]
+        else:
+            print("could not find character " + character)
 
     def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
@@ -944,6 +959,9 @@ class Server(MastermindServerTCP):
             # get count of item by ident in blueprint.
             if count[component["ident"]]["amount"] < component["amount"]:
                 # need all required components to start.
+                connection_object = self.find_connection_object_by_character_name(owner)
+                self.callback_client_send(connection_object, "Blueprint does not contain the required components.\r\n")
+                self.send_prompt(connection_object)
                 print("not enough components.")
                 return
 
@@ -953,7 +971,7 @@ class Server(MastermindServerTCP):
         # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
         if _blueprint["turns_worked_on"] >= _recipe["time"]:
             _newobject = None
-            # delete blueprint (will delete components as well as they are contained within it.)
+            # delete blueprint (Will delete components. They are contained within it.)
             _popped = _tile["items"].pop(_blueprint)                    
             # create Item, Terrain, Furniture from recipe by ident.
             if _blueprint["type_of"] == "Item":
@@ -967,6 +985,8 @@ class Server(MastermindServerTCP):
                 tile["terrain"] = _newobject
             # put object at position of blueprint.
             print("--COMPLETED--")
+            return
+        return
 
     # catch-all for bash/smash/break
     # since we bash in a direction we need to check what's in the tile.
@@ -1134,7 +1154,7 @@ if __name__ == "__main__":
     citySize = int(defaultConfig.get("city_size", 1))
     # print('City size: {}'.format(citySize))
 
-    # TODO: add variable to make it at world position.
+    # TODO: add variable to make it at world position for generating cities anywhere.
     server.generate_and_apply_city_layout(citySize)
 
     time_per_turn = int(defaultConfig.get("time_per_turn", 1))
