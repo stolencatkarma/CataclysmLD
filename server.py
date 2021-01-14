@@ -388,6 +388,11 @@ class Server(MastermindServerTCP):
                 _command["args"].append("down")
 
             if _command["command"] == "move":
+                if not _command["args"]:
+                    self.callback_client_send(connection_object, "You need to input a direction. (move north)\r\n")
+                    self.send_prompt(connection_object)
+                    return
+                    
                 self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
                 self.callback_client_send(connection_object, "You head " + _command['args'][0] + ".\r\n")
                 self.send_prompt(connection_object)
@@ -900,6 +905,8 @@ class Server(MastermindServerTCP):
             if creature["next_action_available"] > 0:
                 creature["next_action_available"] = creature["next_action_available"] - 1
                 return
+
+
 
             if action["args"][0] == "north":
                 _target_pos = Position(_pos["x"], _pos["y"] - 1, _pos["z"])
