@@ -440,6 +440,8 @@ class Server(MastermindServerTCP):
                                 return
 
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
+                self.callback_client_send(connection_object, "You are standing on " + self.TileManager.TILE_TYPES[_tile['terrain']['ident']]['name'] + "\r\n")                
+                
                 if len(_tile["items"]) > 0:
                     self.callback_client_send(connection_object, "---- Items ----\r\n")
                     for item in _tile["items"]:
