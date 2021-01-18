@@ -957,6 +957,7 @@ class Server(MastermindServerTCP):
 
     
         # check if blueprint has all the materials.
+        pprint(_recipe)
         pprint(_blueprint)
         count = dict()
         for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
