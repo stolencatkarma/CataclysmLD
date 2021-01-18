@@ -170,7 +170,6 @@ class Server(MastermindServerTCP):
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
-        # print("Server: Recieved data {} from client {}.".format(data, connection_object.address))
 
         # quit on disconnect signal.
         if data == "disconnect":
@@ -300,6 +299,13 @@ class Server(MastermindServerTCP):
                 _command["args"].append(item)
 
             # player sent an empty command.
+            if _command["command"] == "":
+                self.send_prompt(connection_object)
+                return
+
+            print(connection_object.character + " sent " + _command["command"])
+
+            # player sent map command
             if _command["command"] == "map":
                 cx = self.characters[connection_object.character]['position']['x']
                 cy = self.characters[connection_object.character]['position']['y']
@@ -603,6 +609,11 @@ class Server(MastermindServerTCP):
 
             if _command["command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
+                if len(_command["args"]) < 2:
+                    self.callback_client_send(connection_object, "Requires an item and an open container.\r\n")
+                    self.send_prompt(connection_object)
+                    return
+
                 _character_requesting = self.characters[connection_object.character]
 
                 _item = None  # the item we are moving. parse this
@@ -644,15 +655,6 @@ class Server(MastermindServerTCP):
                         self.send_prompt(connection_object)
                         return
 
-                # a blueprint is a type of container but can't be moved from it's world position.
-                # TODO: Move to "dump" command blueprints are containers.
-                #    for item in self.worldmap.get_tile_by_position(_position)["items"]:
-                #        # only one blueprint allowed per space.
-                #        if isinstance(item) == Blueprint:
-                #            _from_list = item.contained_items
-                #            _from_list.remove(_item)
-                #            _to_list.append(_item)
-                #            return
 
                 # ## possible move types ##
                 # creature(held) to creature(held) (give to another character)
@@ -955,7 +957,7 @@ class Server(MastermindServerTCP):
 
     
         # check if blueprint has all the materials.
-        #pprint(_blueprint)
+        pprint(_blueprint)
         count = dict()
         for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
             #pprint(material)
