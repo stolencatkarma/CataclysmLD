@@ -279,6 +279,7 @@ class Server(MastermindServerTCP):
             if not data in self.characters:
                 # this character doesn't exist in the world yet.
                 self.handle_new_character(connection_object.username, data)
+                self.callback_client_send(connection_object, "Character successfully created. Returning to Character select.\r\n")
                 print("Server: character created: {} From client {}.".format( data, connection_object.address))
             else:
                 print("Server: character NOT created. Already Exists")
