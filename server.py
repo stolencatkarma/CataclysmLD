@@ -957,19 +957,25 @@ class Server(MastermindServerTCP):
 
     
         # check if blueprint has all the materials.
+        print("_recipe")
         pprint(_recipe)
+        print()
+        print("_blueprint")
         pprint(_blueprint)
+        print()
         count = dict()
         for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
-            #pprint(material)
+            print("material")
+            pprint(material)
             if material["ident"] in count.keys():
                 count["ident"]["amount"] = count["ident"]["amount"] + 1
             else:
                 count[material["ident"]] = dict()
                 count[material["ident"]]["amount"] = 1
+
         for component in _recipe["components"]:
             # get count of item by ident in blueprint.
-            if count[component["ident"]]["amount"] < component["amount"]:
+            if not component["ident"] in count or count[component["ident"]]["amount"] < component["amount"]:
                 # need all required components to start.
                 connection_object = self.find_connection_object_by_character_name(owner)
                 self.callback_client_send(connection_object, "Blueprint does not contain the required components.\r\n")
@@ -979,7 +985,8 @@ class Server(MastermindServerTCP):
 
         # add time worked on to the blueprint.
         _blueprint["turns_worked_on"] = _blueprint["turns_worked_on"] + 1
-        print("working...")
+        self.callback_client_send(connection_object, "Working on blueprint..\r\n")
+        self.send_prompt(connection_object)
         # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
         if _blueprint["turns_worked_on"] >= _recipe["time"]:
             _newobject = None
@@ -996,7 +1003,9 @@ class Server(MastermindServerTCP):
                 _newobject = Terrain(_recipe["ident"])
                 tile["terrain"] = _newobject
             # put object at position of blueprint.
-            print("--COMPLETED--")
+            self.callback_client_send(connection_object, "Finished working on blueprint!\r\n")
+            self.send_prompt(connection_object)
+            print("Completed blueprint")
             return
         return
 
