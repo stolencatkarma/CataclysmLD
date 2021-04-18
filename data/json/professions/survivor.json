@@ -1,7 +1,7 @@
 [
   {
     "ident": "survivor",
-    "_comment": "A basic as it comes. I'll use this for the default profession.",
+    "_comment": "As basic as it comes. This is the default profession.",
     "name": "Survivor",
     "description": "Some would say that there's nothing particularly notable about you. But you survived. That's more than most can say right now.",
     "skills": {
@@ -17,7 +17,8 @@
     "known_recipes": [
         "makeshift_halberd",
         "makeshift_knife",
-        "makeshift_machete"
+        "makeshift_machete",
+        "debug_blueprint"
     ],
     "flags": [],
     "CBMs": []

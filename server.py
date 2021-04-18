@@ -703,7 +703,7 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipe, character.\r\n")
                 self.callback_client_send(connection_object, "Furniture can be \'bash\'d for recipe components.\r\n")
                 self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
-                self.callback_client_send(connection_object, "\'dump dirction\' to put components in a blueprint from inventory.\r\n")
+                self.callback_client_send(connection_object, "\'dump direction\' to put components in a blueprint from inventory.\r\n")
                 self.send_prompt(connection_object)
                 return
 
@@ -943,6 +943,7 @@ class Server(MastermindServerTCP):
                 creature["command_queue"].remove(action)
 
     def work(self, owner, target):
+        connection_object = self.find_connection_object_by_character_name(owner)
         _tile = self.worldmap.get_tile_by_position(target)
         _recipe = None
         _blueprint = None
@@ -978,7 +979,6 @@ class Server(MastermindServerTCP):
             # get count of item by ident in blueprint.
             if not component["ident"] in count or count[component["ident"]]["amount"] < component["amount"]:
                 # need all required components to start.
-                connection_object = self.find_connection_object_by_character_name(owner)
                 self.callback_client_send(connection_object, "Blueprint does not contain the required components.\r\n")
                 self.send_prompt(connection_object)
                 print("not enough components.")
@@ -991,19 +991,17 @@ class Server(MastermindServerTCP):
         # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
         if _blueprint["turns_worked_on"] >= _recipe["time"]:
             _newobject = None
-            # delete blueprint (Will delete components. They are contained within it.)
-            _popped = _tile["items"].pop(_blueprint)                    
-            # create Item, Terrain, Furniture from recipe by ident.
+            # create Item, Terrain, Furniture from recipe by result.
             if _blueprint["type_of"] == "Item":
-                _newobject = Item(_recipe["ident"])
-                tile["items"].append(_newobject)
+                _newobject = Item(_recipe["result"])
+                _tile["items"].append(_newobject)
             if _blueprint["type_of"] == "Furniture":
-                _newobject = Furniture(_recipe["ident"])
-                tile["furniture"] = _newobject
+                _newobject = Furniture(_recipe["result"])
+                _tile["furniture"] = _newobject
             if _blueprint["type_of"] == "Terrain":
-                _newobject = Terrain(_recipe["ident"])
-                tile["terrain"] = _newobject
-            # put object at position of blueprint.
+                _newobject = Terrain(_recipe["result"])
+                _tile["terrain"] = _newobject
+            _tile["items"].remove(_blueprint) # remove it from the world.
             self.callback_client_send(connection_object, "Finished working on blueprint!\r\n")
             self.send_prompt(connection_object)
             print("Completed blueprint")

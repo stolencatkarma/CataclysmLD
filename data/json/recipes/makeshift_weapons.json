@@ -86,5 +86,15 @@
       "amount": 1
     }
   ]
+},
+{
+  "result" : "debug_blueprint",
+  "type_of" : "Item",
+  "skill_used": "fabrication",
+  "time": 2,
+  "autolearn": true,
+  "required_tool_tag" : "CUT",
+  "components": [
+  ]
 }
 ]
