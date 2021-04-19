@@ -47,7 +47,7 @@ class Server(MastermindServerTCP):
 
         # all the Character()s that exist in the world whether connected or not.
         self.characters = dict()
-        self.mobiles = dict()
+        self.monsters = dict()
 
         self.localmaps = dict()  # the localmaps for each character.
         self.overmaps = dict()  # the dict of all overmaps by character
@@ -818,7 +818,7 @@ class Server(MastermindServerTCP):
                     self.send_prompt(connection_object)
                     return
                 # check only items that belong to the recipe get dumped.
-                # loop through open containers on the creature (try to keep this agnostic as possible so mobiles use it.
+                # loop through open containers on the creature (try to keep this agnostic as possible so monsters use it.
 
                 for component in self.RecipeManager.RECIPE_TYPES[_recipe["result"]]["components"]:  # the recipe is only stored by ident in the worldmap to save memory.
                     # get open containers.
@@ -1032,9 +1032,9 @@ class Server(MastermindServerTCP):
             if len(character["command_queue"]) > 0:
                 self.process_creature_command_queue(character)
 
-        for _, creature in self.mobiles.items():  # Computer controlled Creatures
-            if len(creature["command_queue"]) > 0:
-                self.process_creature_command_queue(creature)
+        for _, monster in self.monsters.items():  # Computer controlled Creatures
+            if len(monster["command_queue"]) > 0:
+                self.process_creature_command_queue(monster)
 
         # for fire in self.fires: #TODO
 
