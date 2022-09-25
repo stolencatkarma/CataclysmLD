@@ -63,5 +63,4 @@ class Creature(dict):
             Bodypart('HAND_LEFT'),
             Bodypart('HAND_RIGHT'),
         ]
-        # the 'special' area where items held on the mouse cursor are stored.
         self['grabbed'] = None

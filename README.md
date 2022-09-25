@@ -3,9 +3,6 @@ Cataclysm: Looming Darkness
 
 A multiplayer rewrite of Cataclysm: Dark Days Ahead in python. 
 
-1-24-19 update - This codebase is moving to a more mud-style clientless telnet system where player's will connect
-                 to the game using a telnet or MUD client.
-
 ----
 
 A playable release is coming soon and will follow an episodic pattern, with each release adding more:
@@ -13,7 +10,7 @@ A playable release is coming soon and will follow an episodic pattern, with each
 * Chapter 1 - Immediately after the cataclysm. This will be the minimum playable product.
 * Chapter 2 - Vehicles. One of the more complex - and enjoyable - systems in C:DDA.
 * Chapter 3 - Bionics and Mutations. The main sci-fi elements of the game brought to multiplayer.
-* Chapter 4+ - Continued Expansion. Maps, graphics, and content on for as long as there are people willing to work on it.
+* Chapter 4+ - Continued expansion, maps, and content.
 
 
 ----

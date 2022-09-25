@@ -953,7 +953,6 @@ class Server(MastermindServerTCP):
                 _blueprint = item
                 break
         else:
-            creature["command_queue"].remove(action)  # no blueprint found. won't normally happen.
             print("WARNING: Player tried to work on non-existant blueprint.")
             return
 
@@ -1021,12 +1020,10 @@ class Server(MastermindServerTCP):
                         self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
                     _tile["furniture"] = None
                 
-                # TODO: check 4 directions for target
         return
 
     def compute_turn(self):
         # this function handles overseeing all character and creature movement, attacks, and interactions
-        # if two characters are in the same chunk we don't want to check the same chunk twice
 
         for _, character in self.characters.items():  # Player's characters
             if len(character["command_queue"]) > 0:
@@ -1036,10 +1033,26 @@ class Server(MastermindServerTCP):
             if len(monster["command_queue"]) > 0:
                 self.process_creature_command_queue(monster)
 
+        # Now that characters and monsters have moved and done their actions let's check
+        # for any possible combat that may have occurred.
+        for _, character in self.characters.items():
+            # get all 4 directions and check for enemies.
+            pprint(character)
+            # if enemy found do an attack with wielded weapon or bare hands.
+            
+            # continue to next character or monster
+        
+        for _, monster in self.monsters.items():
+            # get all 4 directions and check for enemies.
+            pprint(monster)
+            # if enemy found do an attack with wielded weapon or bare hands.
+            
+            # continue to next character or monster
+        
         # for fire in self.fires: #TODO
 
         # now that we've processed what everything wants to do we can return.
-
+        return
     def generate_and_apply_city_layout(self, city_size):
         city_layout = self.worldmap.generate_city(city_size)
         # for every 1 city size it's 13 tiles across and high
