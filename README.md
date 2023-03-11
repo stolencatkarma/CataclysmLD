@@ -21,10 +21,13 @@ Generic installation instructions
 ---
 
 * install python 3.9 64bit or greater on any OS that supports it. (python 2 not supported at this time.)
+* download or clone the repository.
 
 **Running a server**
 
-* execute `python3 ./server.py` from a command line - the first time you start the server a world is generated automatically using default settings. This does take a few minutes or longer on older hardware. Newer hardware should be less than 10 seconds.
+* execute `python3 ./server.py` from a command line in the directory that was created 
+
+The first time you start the server a world is generated automatically using default settings. This does take a few minutes or longer on older hardware. Newer hardware should be less than 10 seconds.
 
 **connecting to a server.**
 
