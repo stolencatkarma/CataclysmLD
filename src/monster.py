@@ -16,7 +16,7 @@ class MonsterManager:
         for root, dirs, files in os.walk('./data/json/monsters/'):
             for file_data in files:
                 if file_data.endswith('.json'):
-                    # load tile config so we know what tile foes with what ident
+                    # load tile config, so we know what tile foes with what ident
                     with open(root+'/'+file_data, encoding='utf-8') as data_file:
                         data = json.load(data_file)
                     for item in data:

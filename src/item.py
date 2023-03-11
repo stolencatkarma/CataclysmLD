@@ -25,6 +25,8 @@ class Container(Item):
         self['max_volume'] = 0  # int(self['reference']['volume'])
         self['contained_weight'] = 0
         self['contained_volume'] = 0
+
+
 '''
     def recalc_weight(self):
         # total weight is the weight of all contained items.
@@ -35,9 +37,11 @@ class Container(Item):
         self['contained_weight'] = weight
 '''
 
+
 class Blueprint(Container):
     # Blueprint is a type of container that's immovable.
-    def __init__(self, type_of, recipe):
+    def __init__(self, type_of, recipe, ident):
+        super().__init__(ident)
         valid_types = ["Terrain", "Furniture", "Item"]
         self["ident"] = "blueprint"
         self["recipe"] = recipe
@@ -58,6 +62,7 @@ class Blueprint(Container):
     def __str__(self):
         return str(self.type_of + ': ' + self["ident"])
 
+
 # loads JSON data into memory.
 class ItemManager:
     def __init__(self):
@@ -65,12 +70,12 @@ class ItemManager:
         for root, dirs, files in os.walk('./data/json/items/'):
             for file_data in files:
                 if file_data.endswith('.json'):
-                    with open(root+'/'+file_data, encoding='utf-8') as data_file:
+                    with open(root + '/' + file_data, encoding='utf-8') as data_file:
                         data = json.load(data_file)
                     for item in data:
                         try:
                             for key, value in item.items():
-                                if(isinstance(value, list)):
+                                if isinstance(value, list):
                                     self.ITEM_TYPES[item['ident']][key] = []
                                     for add_value in value:
                                         self.ITEM_TYPES[item['ident']][key].append(

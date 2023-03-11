@@ -1,4 +1,4 @@
-# defines a A.I. controlled Creature. They should have their own personal goals as well as faction goals.
+# defines an A.I. controlled Creature. They should have their own personal goals as well as faction goals.
 # factions will have a 'manager' NPC who decides how forts will be setup and hands outs jobs to npcs or Characters.
 # forts are mini-cities that get built over time by factions.
 from src.creature import Creature

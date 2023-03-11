@@ -613,7 +613,7 @@
         "symbol" : "/",
         "material" : ["wood", "steel"],
         "techniques" : ["WBLOCK_2", "DEF_DISARM"],
-        "comment" : "Block 2 until we re-implement defensive-disarm, I'm afraid.",
+        "comment2" : "Block 2 until we re-implement defensive-disarm, I'm afraid.",
         "volume" : 6,
         "bashing" : 6,
         "cutting" : 17,

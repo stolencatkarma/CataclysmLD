@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+# /usr/bin/env python3
 
 import argparse
 import json
@@ -52,9 +52,9 @@ class Server(MastermindServerTCP):
         self.localmaps = dict()  # the localmaps for each character.
         self.overmaps = dict()  # the dict of all overmaps by character
         # self.options = Options()
-        self.calendar = Calendar(0, 0, 0, 0, 0, 0)  # all zeros is the epoch
+        self.calendar = Calendar(0, 0, 0, 0, 0, 0)  # all zeros is default
         # self.options.save()
-        # create this many chunks in x and y (z is always 1 (level 0)
+        # create this many chunks in x and y (z is always 1 (level 0))
         # for genning the world. we will build off that for caverns and ant stuff and z level buildings.
         self.worldmap = Worldmap()
         self.RecipeManager = RecipeManager()
@@ -84,7 +84,7 @@ class Server(MastermindServerTCP):
                     next_pos = adjacent
                     continue
                 if (abs(adjacent["x"] - goal["x"]) + abs(adjacent["y"] - goal["y"])) < (
-                    abs(next_pos["x"] - goal["x"]) +
+                        abs(next_pos["x"] - goal["x"]) +
                         abs(next_pos["y"] - goal["y"])
                 ):
                     next_pos = adjacent
@@ -152,7 +152,7 @@ class Server(MastermindServerTCP):
                         print("character needed an item but no free slots found")
             elif key == "items_in_containers":  # load the items_in_containers into their containers we just created.
                 for location_ident, item_ident in value.items():
-                    # first find the location_ident so we can load a new item into it.
+                    # first find the location_ident, so we can load a new item into it.
                     for bodypart in self.characters[character]["body_parts"]:
                         if bodypart["slot0"] is not None:
                             if "contained_items" in bodypart["slot0"] and bodypart["ident"] == location_ident:
@@ -193,7 +193,7 @@ class Server(MastermindServerTCP):
             # check whether this username has an account.
             _path = "./accounts/" + connection_object.username + "/"
             if os.path.isdir("./accounts/" + connection_object.username):
-                # account exists. check the sent password against the saved one.
+                # account exists. check the recieved password against the saved one.
                 with open(str(_path + "SALT"), "r") as _salt:
                     with open(str(_path + "HASHED_PASSWORD"), "r") as _hashed_password:
                         # read the password hashed
@@ -203,7 +203,8 @@ class Server(MastermindServerTCP):
                             print("password accepted for " + connection_object.username)
 
                         else:
-                            self.callback_client_send(connection_object, "Password NOT accepted for " + connection_object.username)
+                            self.callback_client_send(connection_object,
+                                                      "Password NOT accepted for " + connection_object.username)
                             connection_object.terminate()
                             return
 
@@ -244,7 +245,8 @@ class Server(MastermindServerTCP):
             for root, _, files in os.walk("./accounts/" + connection_object.username + "/characters/"):
                 for file_data in files:
                     if file_data.endswith(".character"):
-                        self.callback_client_send(connection_object, str(idx) + '.) ' + file_data.split(".")[0] + '\r\n')
+                        self.callback_client_send(connection_object,
+                                                  str(idx) + '.) ' + file_data.split(".")[0] + '\r\n')
                         idx = idx + 1
 
             self.callback_client_send(connection_object, "Choice? >\r\n")
@@ -252,7 +254,7 @@ class Server(MastermindServerTCP):
             return
 
         if connection_object.state == "CHOOSING_CHARACTER":
-            # the client has been shown the list of characters. they now select to make a new one or choose a existing one.
+            # the client has been shown the list of characters.
             if data == "1":
                 # client has chosen to create a new character.
                 connection_object.state = "CREATE_CHARACTER1"
@@ -266,8 +268,10 @@ class Server(MastermindServerTCP):
                             if int(data) == idx:
                                 connection_object.character = file_data.split(".")[0]
                                 connection_object.state = "CONNECTED"
-                                self.callback_client_send(connection_object, "Entering the Darkness as " + connection_object.character + "\r\n")
-                                self.callback_client_send(connection_object, "try help for a list of commands." + "\r\n")
+                                self.callback_client_send(connection_object,
+                                                          "Entering the Darkness as " + connection_object.character + "\r\n")
+                                self.callback_client_send(connection_object,
+                                                          "try help for a list of commands." + "\r\n")
                                 self.send_prompt(connection_object)
                                 return
                             else:
@@ -279,12 +283,12 @@ class Server(MastermindServerTCP):
             if not data in self.characters:
                 # this character doesn't exist in the world yet.
                 self.handle_new_character(connection_object.username, data)
-                self.callback_client_send(connection_object, "Character successfully created. Returning to Character select.\r\n")
-                print("Server: character created: {} From client {}.".format( data, connection_object.address))
+                self.callback_client_send(connection_object,
+                                          "Character successfully created. Returning to Character select.\r\n")
+                print("Server: character created: {} From client {}.".format(data, connection_object.address))
             else:
                 print("Server: character NOT created. Already Exists")
             connection_object.state = "CHOOSE_CHARACTER"
-
 
         ########################################################
         ## Main Loop After a Client connects with a Character. #
@@ -319,7 +323,8 @@ class Server(MastermindServerTCP):
 
                 min_x = None
                 min_y = None
-                chunks = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]["position"])
+                chunks = self.worldmap.get_chunks_near_position(
+                    self.characters[connection_object.character]["position"])
 
                 for chunk in chunks:
                     for tile in chunk['tiles']:
@@ -351,15 +356,18 @@ class Server(MastermindServerTCP):
                             continue
                         # print("trying " + str(x - min_x) + ", " + str(y - min_y))
                         t_id = self.TileManager.TILE_TYPES[tile['terrain']['ident']]
-                        send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id['symbol'] + post_color  # concat color and symbol
+                        send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id[
+                            'symbol'] + post_color  # concat color and symbol
 
                         if tile['furniture'] is not None:
                             f_id = self.FurnitureManager.FURNITURE_TYPES[tile['furniture']['ident']]
-                            send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id['symbol'] + post_color.lower()
+                            send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id[
+                                'symbol'] + post_color.lower()
                         if len(tile["items"]) > 0:
                             send_map[x - min_x][y - min_y] = tile["items"][0]["ident"][:1].lower()
                         if tile['creature'] is not None:
-                            send_map[x - min_x][y - min_y] = pre_color + "1m" + tile['creature']['tile_ident'][:1].upper() + post_color
+                            send_map[x - min_x][y - min_y] = pre_color + "1m" + tile['creature']['tile_ident'][
+                                                                                :1].upper() + post_color
 
                 next_line = ""
                 for i in range(39):
@@ -399,8 +407,9 @@ class Server(MastermindServerTCP):
                     self.callback_client_send(connection_object, "You need to input a direction. (move north)\r\n")
                     self.send_prompt(connection_object)
                     return
-                    
-                self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
+
+                self.characters[connection_object.character]["command_queue"].append(
+                    Action(connection_object.character, connection_object.character, "move", _command["args"]))
                 self.callback_client_send(connection_object, "You head " + _command['args'][0] + ".\r\n")
                 self.send_prompt(connection_object)
                 return
@@ -418,7 +427,7 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "look":
-                if len(_command["args"]) > 0: # character is trying to look into a container or blueprint.
+                if len(_command["args"]) > 0:  # character is trying to look into a container or blueprint.
                     if _command["args"][0] == "in":
                         # find a container that matches the [1] arg
                         _ident = _command["args"][1]
@@ -426,9 +435,11 @@ class Server(MastermindServerTCP):
 
                         # make a list of open_containers the character has.
                         for bodyPart in self.characters[connection_object.character]["body_parts"]:
-                            if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"]["opened"] == "yes"):
+                            if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"][
+                                "opened"] == "yes"):
                                 _open_containers.append(bodyPart["slot0"])
-                            if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"]["opened"] == "yes"):
+                            if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"][
+                                "opened"] == "yes"):
                                 _open_containers.append(bodyPart["slot1"])
 
                         if len(_open_containers) <= 0:
@@ -439,43 +450,52 @@ class Server(MastermindServerTCP):
                         for container in _open_containers:
                             if _ident in self.ItemManager.ITEM_TYPES[container["ident"]]["name"].lower().split(" "):
                                 if len(container["contained_items"]) == 0:
-                                    self.callback_client_send(connection_object, "There is no items in this container.\r\n")
+                                    self.callback_client_send(connection_object,
+                                                              "There is no items in this container.\r\n")
                                 else:
                                     for item in container["contained_items"]:
-                                        self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
+                                        self.callback_client_send(connection_object,
+                                                                  self.ItemManager.ITEM_TYPES[item["ident"]][
+                                                                      "name"] + "\r\n")
                                 self.send_prompt(connection_object)
                                 return
 
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
-                self.callback_client_send(connection_object, "You are standing on " + self.TileManager.TILE_TYPES[_tile['terrain']['ident']]['name'] + "\r\n")                
-                
+                self.callback_client_send(connection_object, "You are standing on " +
+                                          self.TileManager.TILE_TYPES[_tile['terrain']['ident']]['name'] + "\r\n")
+
                 if len(_tile["items"]) > 0:
                     self.callback_client_send(connection_object, "---- Items ----\r\n")
                     for item in _tile["items"]:
                         if item["ident"] == "blueprint":
-                            self.callback_client_send(connection_object, item["ident"] + ": " + item["recipe"]["result"] + "\r\n")
+                            self.callback_client_send(connection_object,
+                                                      item["ident"] + ": " + item["recipe"]["result"] + "\r\n")
                         else:
-                            self.callback_client_send(connection_object, self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
+                            self.callback_client_send(connection_object,
+                                                      self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
 
                 if _tile["furniture"] is not None:
                     self.callback_client_send(connection_object, "-- Furniture --\r\n")
                     _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
-                    self.callback_client_send(connection_object, _furniture["name"] + ": " + _furniture["description"] + "\r\n")
+                    self.callback_client_send(connection_object,
+                                              _furniture["name"] + ": " + _furniture["description"] + "\r\n")
 
                 # send_prompt sends a prompt to the client after each request. Don't forget to add it for new commands.
                 self.send_prompt(connection_object)
                 return
 
-            if _command["command"] == "character": # character sheet
+            if _command["command"] == "character":  # character sheet
                 _character = self.characters[connection_object.character]
                 self.callback_client_send(connection_object, "### Character Sheet\r\n")
                 self.callback_client_send(connection_object, "# Name: " + _character["name"] + "\r\n")
                 self.callback_client_send(connection_object, "#\r\n")
                 self.callback_client_send(connection_object, "# Strength: " + str(_character["strength"]) + "\r\n")
                 self.callback_client_send(connection_object, "# Dexterity: " + str(_character["dexterity"]) + "\r\n")
-                self.callback_client_send(connection_object, "# Intelligence: " + str(_character["intelligence"]) + "\r\n")
+                self.callback_client_send(connection_object,
+                                          "# Intelligence: " + str(_character["intelligence"]) + "\r\n")
                 self.callback_client_send(connection_object, "# Perception: " + str(_character["perception"]) + "\r\n")
-                self.callback_client_send(connection_object, "# Constitution: " + str(_character["constitution"]) + "\r\n")
+                self.callback_client_send(connection_object,
+                                          "# Constitution: " + str(_character["constitution"]) + "\r\n")
                 for body_part in _character["body_parts"]:
                     self.callback_client_send(connection_object, "# " + body_part["ident"] + "\r\n")
                     if body_part["slot0"] is not None:
@@ -484,7 +504,8 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object, "#  " + body_part["slot1"]["ident"] + "\r\n")
                     if "slot_equipped" in _character:
                         if body_part["slot_equipped"] is not None:
-                            self.callback_client_send(connection_object, "#  " + body_part["slot_equipped"]["ident"] + "\r\n")
+                            self.callback_client_send(connection_object,
+                                                      "#  " + body_part["slot_equipped"]["ident"] + "\r\n")
 
                 self.send_prompt(connection_object)
                 return
@@ -497,7 +518,8 @@ class Server(MastermindServerTCP):
                     return
 
                 if _command["args"][0] not in self.characters[connection_object.character]["known_recipes"]:
-                    self.callback_client_send(connection_object, "You do not know how to craft" + _command["args"][0]+".\r\n")
+                    self.callback_client_send(connection_object,
+                                              "You do not know how to craft" + _command["args"][0] + ".\r\n")
                     self.send_prompt(connection_object)
                     return
                 # args 0 is ident args 1 is direction.
@@ -531,19 +553,22 @@ class Server(MastermindServerTCP):
                         position_to_create_at["z"],
                     )
                 else:
-                    self.callback_client_send(connection_object, "That is not a valid direction. try north, south, east, or west.\r\n")
+                    self.callback_client_send(connection_object,
+                                              "That is not a valid direction. try north, south, east, or west.\r\n")
                     self.send_prompt(connection_object)
                     return
 
                 _tile = self.worldmap.get_tile_by_position(position_to_create_at)
                 if _tile["terrain"]["impassable"]:
-                    self.callback_client_send(connection_object, "You cannot create a blueprint on impassable terrain.\r\n")
+                    self.callback_client_send(connection_object,
+                                              "You cannot create a blueprint on impassable terrain.\r\n")
                     self.send_prompt(connection_object)
                     return
 
                 for item in _tile["items"]:
                     if item["ident"] == "blueprint":
-                        self.callback_client_send(connection_object, "You cannot create two blueprints on one tile.\r\n")
+                        self.callback_client_send(connection_object,
+                                                  "You cannot create two blueprints on one tile.\r\n")
                         self.send_prompt(connection_object)
                         return
 
@@ -553,11 +578,13 @@ class Server(MastermindServerTCP):
                 bp_to_create = Blueprint(type_of, _recipe)
 
                 self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
-                self.callback_client_send(connection_object, "You created a blueprint for " + _command["args"][0] + ".\r\n")
+                self.callback_client_send(connection_object,
+                                          "You created a blueprint for " + _command["args"][0] + ".\r\n")
                 self.send_prompt(connection_object)
                 return
 
-            if _command["command"] == "take": # take an item from current tile and put it in players open inventory. (take, <item>)
+            if _command[
+                "command"] == "take":  # take an item from current tile and put it in players open inventory. (take, <item>)
                 _from_pos = self.characters[connection_object.character]["position"]
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object, "What do you want to take?\r\n")
@@ -583,9 +610,11 @@ class Server(MastermindServerTCP):
 
                 # make a list of open_containers the character has to see if they can pick it up.
                 for bodyPart in self.characters[connection_object.character]["body_parts"]:
-                    if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"]["opened"] == "yes"):
+                    if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"][
+                        "opened"] == "yes"):
                         _open_containers.append(bodyPart["slot0"])
-                    if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"]["opened"] == "yes"):
+                    if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"][
+                        "opened"] == "yes"):
                         _open_containers.append(bodyPart["slot1"])
 
                 if len(_open_containers) <= 0:
@@ -600,15 +629,19 @@ class Server(MastermindServerTCP):
                     break
                 # then find a spot for it to go (open_containers)
                 # remove it from the world.
-                self.worldmap.get_tile_by_position(_from_pos)["items"].remove(_from_item) # remove it from the world.
+                self.worldmap.get_tile_by_position(_from_pos)["items"].remove(_from_item)  # remove it from the world.
                 self.worldmap.get_chunk_by_position(_from_pos)["is_dirty"] = True
 
-                self.callback_client_send(connection_object, str("You take the " + self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + " and put it in your " + self.ItemManager.ITEM_TYPES[container["ident"]]["name"] + "\r\n"))
+                self.callback_client_send(connection_object,
+                                          str("You take the " + self.ItemManager.ITEM_TYPES[item["ident"]][
+                                              "name"] + " and put it in your " +
+                                              self.ItemManager.ITEM_TYPES[container["ident"]]["name"] + "\r\n"))
                 self.send_prompt(connection_object)
 
                 return
 
-            if _command["command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
+            if _command[
+                "command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
                 if len(_command["args"]) < 2:
                     self.callback_client_send(connection_object, "Requires an item and an open container.\r\n")
@@ -627,9 +660,11 @@ class Server(MastermindServerTCP):
                 contained_item = None
 
                 # find _from_container and _item, either equipped containers or items on the ground.
-                for ground_item in self.worldmap.get_tile_by_position(_character_requesting["position"])["items"][:]: # parse copy
+                for ground_item in self.worldmap.get_tile_by_position(_character_requesting["position"])["items"][
+                                   :]:  # parse copy
                     # check if item is laying on the ground. tile["items"]
-                    if _command["args"][0] in ground_item["name"].split(" "):  # found the item on the ground by parsing it's ["name"]
+                    if _command["args"][0] in ground_item["name"].split(
+                            " "):  # found the item on the ground by parsing its ["name"]
                         _item = ground_item
                         _from_container = self.worldmap.get_tile_by_position(_character_requesting["position"])["items"]
                         break
@@ -637,14 +672,16 @@ class Server(MastermindServerTCP):
                 else:
                     for bodypart in _character_requesting["body_parts"][:]:
                         for body_item in bodypart["slot0"]:
-                            if isinstance(body_item, Container):  # could be a container or armor. only move to a container.
+                            if isinstance(body_item,
+                                          Container):  # could be a container or armor. only move to a container.
                                 for containted_item in body_item["contained_items"]:
                                     if _command["args"][0] in contained_item["name"].split(" "):
                                         _item = body_item
                                         _from_container = bodypart["slot0"]
                                         break
                         for body_item in bodypart["slot1"]:
-                            if isinstance(body_item, Container):  # could be a container or armor. only move to a container.
+                            if isinstance(body_item,
+                                          Container):  # could be a container or armor. only move to a container.
 
                                 for containted_item in body_item["contained_items"]:
                                     if _command["args"][0] in contained_item["name"].split(" "):
@@ -652,10 +689,10 @@ class Server(MastermindServerTCP):
                                         _from_container = bodypart["slot1"]
                                         break
                     else:
-                        self.callback_client_send(connection_object, "Could not find item on ground or in open containers.\r\n")
+                        self.callback_client_send(connection_object,
+                                                  "Could not find item on ground or in open containers.\r\n")
                         self.send_prompt(connection_object)
                         return
-
 
                 # ## possible move types ##
                 # creature(held) to creature(held) (give to another character)
@@ -684,14 +721,17 @@ class Server(MastermindServerTCP):
 
                     for recipe in _character["known_recipes"]:
                         self.callback_client_send(connection_object, recipe + "\r\n")
-                else: # send the specific recipe.
+                else:  # send the specific recipe.
                     try:
                         _recipe = _command["args"][0]
                         self.callback_client_send(connection_object, "--- Recipe ---\r\n")
-                        self.callback_client_send(connection_object, self.RecipeManager.RECIPE_TYPES[_recipe]["result"] + "\r\n")
+                        self.callback_client_send(connection_object,
+                                                  self.RecipeManager.RECIPE_TYPES[_recipe]["result"] + "\r\n")
                         for component in self.RecipeManager.RECIPE_TYPES[_recipe]["components"]:
                             print(component)
-                            self.callback_client_send(connection_object, " " + str(component["amount"]) + "* " + component["ident"] + "\r\n")
+                            self.callback_client_send(connection_object,
+                                                      " " + str(component["amount"]) + "* " + component[
+                                                          "ident"] + "\r\n")
                         return
                     except:
                         # recipe doesn't exist.
@@ -700,16 +740,20 @@ class Server(MastermindServerTCP):
                 return
 
             if _command["command"] == "help":
-                self.callback_client_send(connection_object, "Common commands are look, move, bash, craft, take, transfer, recipe, character.\r\n")
+                self.callback_client_send(connection_object,
+                                          "Common commands are look, move, bash, craft, take, transfer, recipe, character.\r\n")
                 self.callback_client_send(connection_object, "Furniture can be \'bash\'d for recipe components.\r\n")
                 self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
-                self.callback_client_send(connection_object, "\'dump direction\' to put components in a blueprint from inventory.\r\n")
+                self.callback_client_send(connection_object,
+                                          "\'dump direction\' to put components in a blueprint from inventory.\r\n")
                 self.send_prompt(connection_object)
                 return
 
-            if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
+            if _command[
+                "command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
                 if len(_command["args"]) == 0:
-                    self.callback_client_send(connection_object, "You must supply a direction. try north, south, east, or west.\r\n")
+                    self.callback_client_send(connection_object,
+                                              "You must supply a direction. try north, south, east, or west.\r\n")
                     self.send_prompt(connection_object)
                     return
 
@@ -740,7 +784,8 @@ class Server(MastermindServerTCP):
                         position_to_create_at["z"],
                     )
                 else:
-                    self.callback_client_send(connection_object, "That is not a valid direction. try north, south, east, or west.\r\n")
+                    self.callback_client_send(connection_object,
+                                              "That is not a valid direction. try north, south, east, or west.\r\n")
                     self.send_prompt(connection_object)
                     return
 
@@ -749,7 +794,7 @@ class Server(MastermindServerTCP):
                 _recipe = None
                 _blueprint = None
                 for item in _tile["items"]:
-                    if item["ident"] == "blueprint": # one blueprint per tile.
+                    if item["ident"] == "blueprint":  # one blueprint per tile.
                         _recipe = item["recipe"]
                         _blueprint = item
                         break
@@ -770,7 +815,8 @@ class Server(MastermindServerTCP):
                 # check for items in a blueprint from the direction and drop the items in the blueprint that are needed.
                 # get the recipe from the blueprint. we need a reference.
                 if len(_command["args"]) == 0:
-                    self.callback_client_send(connection_object, "You must supply a direction. try north, south, east, or west.\r\n")
+                    self.callback_client_send(connection_object,
+                                              "You must supply a direction. try north, south, east, or west.\r\n")
                     self.send_prompt(connection_object)
                     return
 
@@ -800,7 +846,8 @@ class Server(MastermindServerTCP):
                         position_to_create_at["z"],
                     )
                 else:
-                    self.callback_client_send(connection_object, "That is not a valid direction. try north, south, east, or west.\r\n")
+                    self.callback_client_send(connection_object,
+                                              "That is not a valid direction. try north, south, east, or west.\r\n")
                     self.send_prompt(connection_object)
                     return
 
@@ -809,7 +856,7 @@ class Server(MastermindServerTCP):
                 _recipe = None
                 _blueprint = None
                 for item in _tile["items"]:
-                    if item["ident"] == "blueprint": # only one blueprint per tile.
+                    if item["ident"] == "blueprint":  # only one blueprint per tile.
                         _recipe = item["recipe"]
                         _blueprint = item
                         break
@@ -818,11 +865,12 @@ class Server(MastermindServerTCP):
                     self.send_prompt(connection_object)
                     return
                 # check only items that belong to the recipe get dumped.
-                # loop through open containers on the creature (try to keep this agnostic as possible so monsters use it.
+                # loop through open containers on the creature
 
-                for component in self.RecipeManager.RECIPE_TYPES[_recipe["result"]]["components"]:  # the recipe is only stored by ident in the worldmap to save memory.
+                for component in self.RecipeManager.RECIPE_TYPES[_recipe["result"]]["components"]:
+                    # the recipe is only stored by ident in the worldmap to save memory.
                     # get open containers.
-                    #TODO: check for items already in it. 
+                    # TODO: check for items already in it.
                     _character_requesting = self.characters[connection_object.character]
                     for bodypart in _character_requesting["body_parts"]:
                         if bodypart["slot0"] is not None:
@@ -836,7 +884,8 @@ class Server(MastermindServerTCP):
                                             _blueprint["contained_items"].append(contained_item)
                                             pprint(_blueprint)
                                             body_item["contained_items"].remove(contained_item)
-                                            self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
+                                            self.callback_client_send(connection_object,
+                                                                      "You dumped " + component["ident"] + ".\r\n")
                         if bodypart["slot1"] is not None:
                             body_item = bodypart["slot1"]
                             if "opened" in body_item.keys():
@@ -845,7 +894,8 @@ class Server(MastermindServerTCP):
                                         if component["ident"] == contained_item["ident"]:
                                             _blueprint["contained_items"].append(contained_item)
                                             body_item["contained_items"].remove(contained_item)
-                                            self.callback_client_send(connection_object, "You dumped " + component["ident"] + ".\r\n")
+                                            self.callback_client_send(connection_object,
+                                                                      "You dumped " + component["ident"] + ".\r\n")
                 return
 
             # fallback to not knowing what the player is talking about.
@@ -860,7 +910,9 @@ class Server(MastermindServerTCP):
         pre_color = "\u001b[38;5;150m"
         post_color = "\u001b[0m"
 
-        self.callback_client_send(connection_object, pre_color + "(" + str(_character["position"]) + ")" + "(" + _character["name"] + ") > " + post_color + "\r\n")
+        self.callback_client_send(connection_object,
+                                  pre_color + "(" + str(_character["position"]) + ")" + "(" + _character[
+                                      "name"] + ") > " + post_color + "\r\n")
 
     def callback_client_send(self, connection_object, data, compression=False):
         return super(Server, self).callback_client_send(connection_object, data, compression)
@@ -871,12 +923,12 @@ class Server(MastermindServerTCP):
         # send the user a login prompt
         connection_object.state = "LOGIN"
         # return super(Server, self).callback_connect_client(connection_object)
-        #TODO: for line in Message Of The Day send to client.
-        motd = open('motd.txt', 'r') 
-        motd_lines = motd.readlines() 
-        
+        # TODO: for line in Message Of The Day send to client.
+        motd = open('motd.txt', 'r')
+        motd_lines = motd.readlines()
+
         # Strips the newline character 
-        for line in motd_lines: 
+        for line in motd_lines:
             self.callback_client_send(connection_object, line)
         self.callback_client_send(connection_object, " \r\n")
         self.callback_client_send(connection_object, " \r\n")
@@ -897,11 +949,12 @@ class Server(MastermindServerTCP):
         else:
             print("could not find character " + character)
 
-    def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
+    def process_creature_command_queue(self,
+                                       creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
         # iterate a copy so we can remove properly.
         for action in creature["command_queue"][:]:
-            _pos = creature["position"] 
+            _pos = creature["position"]
             _target_pos = None
             if actions_to_take == 0:
                 return  # this creature is out of action points.
@@ -910,8 +963,6 @@ class Server(MastermindServerTCP):
             if creature["next_action_available"] > 0:
                 creature["next_action_available"] = creature["next_action_available"] - 1
                 return
-
-
 
             if action["args"][0] == "north":
                 _target_pos = Position(_pos["x"], _pos["y"] - 1, _pos["z"])
@@ -929,7 +980,7 @@ class Server(MastermindServerTCP):
             # print("POS, TARGETPOS", _pos, _target_pos)
 
             if action["type"] == "work":  # "args" is the direction. For working on blueprints.
-                for i in range(actions_to_take):   # working uses up all your action points per turn.
+                for i in range(actions_to_take):  # working uses up all your action points per turn.
                     self.work(action["owner"], _target_pos)
                 creature["command_queue"].remove(action)
             elif action["type"] == "move":
@@ -939,7 +990,8 @@ class Server(MastermindServerTCP):
             elif action["type"] == "bash":
                 actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
                 self.bash(action["owner"], action["target"])
-                self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(self.characters[creature["name"]]["position"])
+                self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(
+                    self.characters[creature["name"]]["position"])
                 creature["command_queue"].remove(action)
 
     def work(self, owner, target):
@@ -948,7 +1000,7 @@ class Server(MastermindServerTCP):
         _recipe = None
         _blueprint = None
         for item in _tile["items"]:
-            if item["ident"] == "blueprint": # only one blueprint per tile.
+            if item["ident"] == "blueprint":  # only one blueprint per tile.
                 _recipe = item["recipe"]
                 _blueprint = item
                 break
@@ -956,7 +1008,6 @@ class Server(MastermindServerTCP):
             print("WARNING: Player tried to work on non-existant blueprint.")
             return
 
-    
         # check if blueprint has all the materials.
         print("_recipe")
         pprint(_recipe)
@@ -987,7 +1038,8 @@ class Server(MastermindServerTCP):
         _blueprint["turns_worked_on"] = _blueprint["turns_worked_on"] + 1
         self.callback_client_send(connection_object, "Working on blueprint..\r\n")
         self.send_prompt(connection_object)
-        # if the "time worked on" is greater then the "time" is takes to craft then create the object and remove the blueprint and all materials.
+        # if the "time worked on" is greater than the "time" is takes to craft then
+        # create the object and remove the blueprint and all materials.
         if _blueprint["turns_worked_on"] >= _recipe["time"]:
             _newobject = None
             # create Item, Terrain, Furniture from recipe by result.
@@ -1000,7 +1052,7 @@ class Server(MastermindServerTCP):
             if _blueprint["type_of"] == "Terrain":
                 _newobject = Terrain(_recipe["result"])
                 _tile["terrain"] = _newobject
-            _tile["items"].remove(_blueprint) # remove it from the world.
+            _tile["items"].remove(_blueprint)  # remove it from the world.
             self.callback_client_send(connection_object, "Finished working on blueprint!\r\n")
             self.send_prompt(connection_object)
             print("Completed blueprint")
@@ -1019,7 +1071,7 @@ class Server(MastermindServerTCP):
                     for item in _furniture["bash"]["items"]:
                         self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
                     _tile["furniture"] = None
-                
+
         return
 
     def compute_turn(self):
@@ -1039,20 +1091,21 @@ class Server(MastermindServerTCP):
             # get all 4 directions and check for enemies.
             pprint(character)
             # if enemy found do an attack with wielded weapon or bare hands.
-            
+
             # continue to next character or monster
-        
+
         for _, monster in self.monsters.items():
             # get all 4 directions and check for enemies.
             pprint(monster)
             # if enemy found do an attack with wielded weapon or bare hands.
-            
+
             # continue to next character or monster
-        
+
         # for fire in self.fires: #TODO
 
         # now that we've processed what everything wants to do we can return.
         return
+
     def generate_and_apply_city_layout(self, city_size):
         city_layout = self.worldmap.generate_city(city_size)
         # for every 1 city size it's 13 tiles across and high
@@ -1062,7 +1115,9 @@ class Server(MastermindServerTCP):
                 if _chunk["was_loaded"] is False:
                     if city_layout[i][j] == "r":
                         json_file = random.choice(os.listdir("./data/json/mapgen/residential/"))
-                        server.worldmap.build_json_building_on_chunk("./data/json/mapgen/residential/" + json_file, Position(i * _chunk["chunk_size"], j * _chunk["chunk_size"], 0))
+                        server.worldmap.build_json_building_on_chunk("./data/json/mapgen/residential/" + json_file,
+                                                                     Position(i * _chunk["chunk_size"],
+                                                                              j * _chunk["chunk_size"], 0))
                     elif city_layout[i][j] == "c":
                         json_file = random.choice(os.listdir("./data/json/mapgen/commercial/"))
                         server.worldmap.build_json_building_on_chunk(
@@ -1086,7 +1141,7 @@ class Server(MastermindServerTCP):
                             ),
                         )
                     elif (
-                        city_layout[i][j] == "R"
+                            city_layout[i][j] == "R"
                     ):  # complex enough to choose the right rotation.
                         attached_roads = 0
                         try:
@@ -1103,7 +1158,7 @@ class Server(MastermindServerTCP):
                                     "./data/json/mapgen/road/city_road_4_way.json"
                                 )
                             elif (
-                                attached_roads == 3
+                                    attached_roads == 3
                             ):  # TODO: make sure the roads line up right.
                                 if city_layout[int(i + 1)][int(j)] != "R":
                                     json_file = "./data/json/mapgen/road/city_road_3_way_s0.json"
@@ -1176,7 +1231,7 @@ if __name__ == "__main__":
                 print("Creation of the directory %s failed" % _path)
             else:
                 print("Successfully created the directory %s " % _path)
-   
+
     server = Server(logger=None, config=defaultConfig)
     server.connect(ip, port)
 
@@ -1199,7 +1254,7 @@ if __name__ == "__main__":
         server.characters[character["name"]] = character
     print("Found " + str(len(server.characters)) + " living characters in the world.")
     print("Handling any chunks that may need to move to stasis before players connect.")
-    server.worldmap.handle_chunks() # handle any chunks that may need to move to stasis before player's connect.
+    server.worldmap.handle_chunks()  # handle any chunks that may need to move to stasis before player's connect.
     print("\n")
     print("Server is listening at {}:{}".format(ip, port))
     print("Started Cataclysm: Looming Darkness. Clients may now connect!")
@@ -1218,7 +1273,8 @@ if __name__ == "__main__":
             server.worldmap.handle_chunks()
 
             if (time.time() - last_turn_time > time_offset):
-                print("WARNING: last turn took " +  "{:.4f}".format(time.time() - last_turn_time) + " seconds to compute.")
+                print(
+                    "WARNING: last turn took " + "{:.4f}".format(time.time() - last_turn_time) + " seconds to compute.")
 
             while (time.time() - last_turn_time < time_offset):
                 time.sleep(0.01)  # keeps CPU usage at reasonable levels - thanks aaferrari
@@ -1226,7 +1282,7 @@ if __name__ == "__main__":
 
             last_turn_time = time.time()  # based off of system clock.
 
-    except (KeyboardInterrupt):
+    except KeyboardInterrupt:
         print()
         print("Cleaning up before exiting.")
         server.accepting_disallow()

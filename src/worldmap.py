@@ -15,51 +15,12 @@ from src.terrain import Terrain
 # weather = [WEATHER_CLEAR, WEATHER_RAIN, WEATHER_FOG, WEATHER_STORM, WEATHER_TORNADO]
 
 
-class Chunk(dict):
-    def __init__(self, x, y):  # x, y relate to it's position on the world map.
-        self["chunk_size"] = 13  # 0-12 tiles in x and y, z-level 1 tile only (0).
-        self["x"] = x
-        self["y"] = y
-        self["tiles"] = list()
-        self["weather"] = "WEATHER_NONE"  # weather is per chunk.
-        # the tile represented on the over map
-        self["overmap_tile"] = "open_air"
-        # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
-        self["is_dirty"] = False
-        self["was_loaded"] = False
-        self["should_stasis"] = False  # TODO: when we unload from memory we need a flag not to loop through it during compute turn
-        self["stasis"] = False  # when a chunk is put into stasis.
-        self["time_to_stasis"] = 100  # reduce by 1 every turn a player is not near it. set should_stasis when gets to zero
-
-        # when a chunk is created for the first time fill with dirt and nothing else.
-        start = time.time()
-        for i in range(self["chunk_size"]):  # 0-12
-            for j in range(self["chunk_size"]):  # 0-12
-                chunkdict = {}
-                # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
-                chunkdict["position"] = Position(i + int(x * self["chunk_size"]), j + int(y * self["chunk_size"]), 0)
-                chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
-                chunkdict["creature"] = None  # one per tile.
-                chunkdict["items"] = []  # can be zero to many items in a tile.
-                chunkdict["furniture"] = None  # one furniture per tile
-                # chunkdict["vehicle"] = None  # one per tile, but may be part of a bigger whole.
-                chunkdict["lumens"] = 0 # lighting engine
-
-                self["tiles"].append(chunkdict)
-
-        end = time.time()
-        duration = end - start
-        print('chunk generation took: ' + str(duration) + ' seconds.')
-
-
-
-
 class Worldmap(dict):
     # let's make the world map and fill it with chunks!
 
     def __init__(self):
         print("Initalizing Worldmap..")
-        self["CHUNKS"] = dict()  # dict of dicts for chunks chunks are x, y
+        self["CHUNKS"] = dict()  # dict of dicts for chunks. chunks are x, y
         #self["CHUNKS"]["x:y"]
         # search for chunks in the world folder to load.
         for root, _, files in os.walk("./world/"):
@@ -325,7 +286,7 @@ class Worldmap(dict):
         return True
 
     def get_tiles_near_position(self, position, radius):
-        # figure out a way to get all tile positions near a position so we can get_tile_by_position on them.
+        # figure out a way to get all tile positions near a position, so we can get_tile_by_position on them.
         ret_tiles = []
         for i in range(position["x"] - radius, position["x"] + radius + 1):
             for j in range(position["y"] - radius, position["y"] + radius + 1):
@@ -340,7 +301,7 @@ class Worldmap(dict):
 
     def generate_city(self, size):
         size = int(size * 13)  # multiplier
-        # this function creates a overmap that can be translated to build json buildings.
+        # this function creates an overmap that can be translated to build json buildings.
         # size is 1-10
         city_layout = dict()
         for i in range(size):
@@ -467,4 +428,44 @@ class Worldmap(dict):
             ret_tiles.append(tile3["position"])
 
         return ret_tiles
+
+
+
+class Chunk(dict):
+    def __init__(self, x, y):  # x, y relate to its position on the world map.
+        self["chunk_size"] = 13  # 0-12 tiles in x and y, z-level 1 tile only (0).
+        self["x"] = x
+        self["y"] = y
+        self["tiles"] = list()
+        self["weather"] = "WEATHER_NONE"  # weather is per chunk.
+        # the tile represented on the over map
+        self["overmap_tile"] = "open_air"
+        # set this to true to have the changes updated on the disk, default is True so worldgen writes it to disk
+        self["is_dirty"] = False
+        self["was_loaded"] = False
+        self["should_stasis"] = False  # TODO: when we unload from memory we need a flag not to loop through it during compute turn
+        self["stasis"] = False  # when a chunk is put into stasis.
+        self["time_to_stasis"] = 100  # reduce by 1 every turn a player is not near it. set should_stasis when gets to zero
+
+        # when a chunk is created for the first time fill with dirt and nothing else.
+        start = time.time()
+        for i in range(self["chunk_size"]):  # 0-12
+            for j in range(self["chunk_size"]):  # 0-12
+                chunkdict = {}
+                # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
+                chunkdict["position"] = Position(i + int(x * self["chunk_size"]), j + int(y * self["chunk_size"]), 0)
+                chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
+                chunkdict["creature"] = None  # one per tile.
+                chunkdict["items"] = []  # can be zero to many items in a tile.
+                chunkdict["furniture"] = None  # one furniture per tile
+                # chunkdict["vehicle"] = None  # one per tile, but may be part of a bigger whole.
+                chunkdict["lumens"] = 0 # lighting engine
+
+                self["tiles"].append(chunkdict)
+
+        end = time.time()
+        duration = end - start
+        print('chunk generation took: ' + str(duration) + ' seconds.')
+
+
 

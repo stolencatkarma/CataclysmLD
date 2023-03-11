@@ -15,11 +15,11 @@ class FurnitureManager:  # holds all the furniture types from furniture.json
     def __init__(self):
         # the dict of tiles loaded from the tile_config.json
         self.FURNITURE_TYPES = defaultdict(dict)
-        # load tile config so we know what tile foes with what ident
+        # load tile config, so we know what tile goes with what ident
         with open('./data/json/furniture.json') as data_file:
             data = json.load(data_file)
         for furniture in data:
-            # some entries dont' contain a bg, use 0 for default. (which is blank)
+            # some entries don't contain a bg, use 0 for default. (which is blank)
             if('move_cost_mod' not in furniture.keys()):
                 furniture['move_cost_mod'] = 0
             if('name' not in furniture.keys()):

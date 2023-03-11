@@ -21,7 +21,7 @@ class Creature(dict):
         # name is optional here. characters and most NPCs would have a name.
         self['name'] = None
 
-        self['in_vehicle'] = False  # other wise have a reference to the vehicle it's in.
+        self['in_vehicle'] = False  # otherwise have a reference to the vehicle it's in.
         self['controlling_vehicle'] = False
 
         # what is this creature able to do?
@@ -39,7 +39,7 @@ class Creature(dict):
         # actions per turn (per second). (moving 5 ft a second is average walking speed)
         self['actions_per_turn'] = 1
 
-        # how many turns until we can take an action. if this is greater then 0 subtract 1 per turn until 0. add to this per action.
+        # how many turns until we can take an action. if this is greater than 0 subtract 1 per turn until 0. add to this per action.
         self['next_action_available'] = 0
 
         # set True for no_clip, does_no_damage, chase_creature
