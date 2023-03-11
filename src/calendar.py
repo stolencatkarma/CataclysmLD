@@ -26,16 +26,22 @@ class Calendar:  # controls the time in game. to advance time in game we do it w
             fp.write(str(self.SECONDS) + ',' + str(self.MINUTES) + ',' + str(self.HOURS)+ ',' + str(self.DAYS) + ',' + str(self.MONTHS) + ',' + str(self.YEARS))
 
     def load_calendar(self):
-        path = str("./world/calendar.data")
-        with open(path) as calendar:
-            data = calendar.read()
-            split = data.split(',')
-            self.SECONDS = int(split[0])
-            self.MINUTES = int(split[1])
-            self.HOURS = int(split[2])
-            self.DAYS = int(split[3])
-            self.MONTHS = int(split[4])
-            self.YEARS = int(split[5])
+        try:
+            path = str("./world/calendar.data")
+            with open(path) as calendar:
+                data = calendar.read()
+                split = data.split(',')
+                self.SECONDS = int(split[0])
+                self.MINUTES = int(split[1])
+                self.HOURS = int(split[2])
+                self.DAYS = int(split[3])
+                self.MONTHS = int(split[4])
+                self.YEARS = int(split[5])
+        except FileNotFoundError:
+            path = str("./world/calendar.data")
+            with open(path, "w") as fp:
+                fp.write(str(self.SECONDS) + ',' + str(self.MINUTES) + ',' + str(self.HOURS) + ',' + str(
+                    self.DAYS) + ',' + str(self.MONTHS) + ',' + str(self.YEARS))
     def localtime(self):
         return str(self.HOURS) + ':' + str(self.MINUTES) + ':' + str(self.SECONDS)
 
