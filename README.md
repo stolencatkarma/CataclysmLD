@@ -3,6 +3,8 @@ Cataclysm: Looming Darkness
 
 A multiplayer rewrite of Cataclysm: Dark Days Ahead in python. 
 
+Made with python 3.9.0 64 bit and Mastermind for the TCP backend.
+
 ----
 
 A playable release is coming soon and will follow an episodic pattern, with each release adding more:
@@ -12,25 +14,21 @@ A playable release is coming soon and will follow an episodic pattern, with each
 * Chapter 3 - Bionics and Mutations. The main sci-fi elements of the game brought to multiplayer.
 * Chapter 4+ - Continued expansion, maps, and content.
 
-
 ----
-
-Made with python 3.7.0 64 bit and Mastermind for the TCP backend.
 
 Generic installation instructions
 
 ---
 
-* install python 3.4 64bit or greater on any OS that supports it. (python 2 not supported at this time.)
-
----
+* install python 3.9 64bit or greater on any OS that supports it. (python 2 not supported at this time.)
 
 **Running a server**
 
-* `python3 ./server.py` - the first time you start the server a world is generated automatically using default settings. This does take a few minutes or longer on older hardware.
+* execute `python3 ./server.py` from a command line - the first time you start the server a world is generated automatically using default settings. This does take a few minutes or longer on older hardware. Newer hardware should be less than 10 seconds.
 
 **connecting to a server.**
 
-* `telnet 127.0.0.1 6317` from a command-line. default port is 6317 but can be changed in server.cfg
+* The current recommendation is to use a MUD client to connect to the server until a proper client can be made. Mudlet is my preferred method.
+* `127.0.0.1:6317` is the default IP and port you will need to connect to it.
        
 
