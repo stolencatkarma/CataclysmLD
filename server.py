@@ -4,10 +4,14 @@ import argparse
 import json
 import os
 import random
+import sys
 import time
 from pprint import pprint
 import configparser
 # import logging.config
+
+import sdl2
+import sdl2.ext
 
 from src.mastermind._mm_server import MastermindServerTCP
 from src.action import Action
@@ -47,15 +51,12 @@ class Server(MastermindServerTCP):
 
         # all the Character()s that exist in the world whether connected or not.
         self.characters = dict()
+        # all the monsters that exist in the world. 
         self.monsters = dict()
 
         self.localmaps = dict()  # the localmaps for each character.
         self.overmaps = dict()  # the dict of all overmaps by character
-        # self.options = Options()
-        self.calendar = Calendar(0, 0, 0, 0, 0, 0)  # all zeros is default
-        # self.options.save()
-        # create this many chunks in x and y (z is always 1 (level 0))
-        # for genning the world. we will build off that for caverns and ant stuff and z level buildings.
+
         self.worldmap = Worldmap()
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
@@ -63,6 +64,9 @@ class Server(MastermindServerTCP):
         self.ItemManager = ItemManager()
         self.FurnitureManager = FurnitureManager()
         self.TileManager = TileManager()
+
+        self.calendar = Calendar(0,0,0,0,0,0)
+        self.calendar.load_calendar()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True):
         # normally we will want to consider impassable terrain in movement calculations.
@@ -88,7 +92,7 @@ class Server(MastermindServerTCP):
                         abs(next_pos["y"] - goal["y"])
                 ):
                     next_pos = adjacent
-            print(path[len(path) - 1])
+            # print(path[len(path) - 1])
             path.append(next_pos)
 
             if len(path) > 9:
@@ -949,8 +953,7 @@ class Server(MastermindServerTCP):
         else:
             print("could not find character " + character)
 
-    def process_creature_command_queue(self,
-                                       creature):  # processes a single turn for as many action points as they get per turn.
+    def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
         # iterate a copy so we can remove properly.
         for action in creature["command_queue"][:]:
@@ -1197,8 +1200,84 @@ class Server(MastermindServerTCP):
                             # TODO: fix this blatant hack to account for coordinates outside the city layout.
                             pass
 
+def mainloop(server, configParser):
+    GREY = sdl2.ext.Color(55, 55, 55)
+    WHITE = sdl2.ext.Color(255, 255, 255)
 
-# do this if the server was started up directly.
+    sdl2.ext.init()
+    window = sdl2.ext.Window("Cataclysm: Looming Darkness Server Window", size=(800, 600))
+    window.show()
+
+    # sprite factory
+    sprite_factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
+
+    sprite_renderer = sprite_factory.create_sprite_render_system(window)
+
+    # worldview
+    worldview_sprite = sprite_factory.from_color(color=GREY, size=(780, 420))
+    # replace pixels in the sprite according to the worldmap.
+    worldview_sprite.position = (10, 80)
+    # gather overmap data and present it as pixels on this worldview
+
+
+    # inputbox
+    inputbox_sprite = sprite_factory.from_color(color=GREY, size=(780, 50))
+    inputbox_sprite.position = (10, 510)
+    # add a way to send commands to the server.
+
+
+    # calendar box
+    calendar_bg_sprite = sprite_factory.from_color(color=GREY, size=(780, 50))
+    calendar_bg_sprite.position = (10, 10)
+
+    calendar_font = sdl2.ext.ttf.FontManager('DejavuSansMono.ttf', size=14)
+
+
+
+    dont_break = True
+    while dont_break:
+        window.refresh()
+        # sdl2.ext.fill(window.get_surface(), sdl2.ext.Color(0, 0, 0))
+        # a turn is normally one second.
+        server.calendar.advance_time_by_x_seconds(time_per_turn)
+        calendar_string = 'It is ' + str(server.calendar.get_season()) + ' and the moon is in its ' + str(server.calendar.moon_phase()) + '. It is day ' + str(server.calendar.DAYS) + '.' + ' The local time is ' + server.calendar.localtime()
+        calendar_text_sprite = sprite_factory.from_text(calendar_string, fontmanager=calendar_font)
+        calendar_text_sprite.position = (20, 24)
+
+        sprite_renderer.render(calendar_bg_sprite)
+        sprite_renderer.render(calendar_text_sprite)
+
+        sprite_renderer.render(worldview_sprite)
+
+        sprite_renderer.render(inputbox_sprite)
+
+        # where all queued creature actions get taken care of, as well as physics engine stuff.
+        server.compute_turn()
+
+
+        # if the worldmap in memory changed update it on the hard drive.
+        server.worldmap.handle_chunks()
+
+        events = sdl2.ext.get_events()
+        for event in events:
+            if event.type == sdl2.SDL_QUIT:
+                dont_break = False
+                print()
+                print("Cleaning up before exiting.")
+                server.accepting_disallow()
+                server.disconnect_clients()
+                server.disconnect()
+                # if the worldmap in memory changed update it on the hard drive.
+                server.worldmap.handle_chunks()
+                server.calendar.save_calendar()
+                dont_break = False
+                print("Done cleaning up.")
+                break
+        sdl2.SDL_Delay(1000)
+
+    return 0
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Cataclysm: Looming Darkness Server")
@@ -1221,6 +1300,9 @@ if __name__ == "__main__":
     # logging.config.fileConfig(args.config)
     # log = logging.getLogger("root")
 
+    citySize = int(defaultConfig.get("city_size", 1))
+
+
     # make needed directories if they don't exist
     _needed_directories = ["./accounts/", "./world/"]
     for _path in _needed_directories:
@@ -1230,25 +1312,18 @@ if __name__ == "__main__":
             except OSError:
                 print("Creation of the directory %s failed" % _path)
             else:
-                print("Successfully created the directory %s " % _path)
+                print("Successfully created %s " % _path)
 
     server = Server(logger=None, config=defaultConfig)
     server.connect(ip, port)
 
-    dont_break = True
-    # 0.5 is twice as fast, 2.0 is twice as slow
-    time_offset = float(defaultConfig.get("time_offset", 1.0))
-    last_turn_time = time.time()
-    citySize = int(defaultConfig.get("city_size", 1))
-    # print('City size: {}'.format(citySize))
+
+   
 
     # TODO: add variable to make it at world position for generating cities anywhere.
     server.generate_and_apply_city_layout(citySize)
 
     time_per_turn = int(defaultConfig.get("time_per_turn", 1))
-    # print('time_per_turn: {}'.format(time_per_turn))
-    # spin_delay_ms = float(defaultConfig.get("time_per_turn", 0.001))
-    # print('spin_delay_ms: {}'.format(spin_delay_ms))
 
     for character in server.worldmap.get_all_characters():
         server.characters[character["name"]] = character
@@ -1261,34 +1336,4 @@ if __name__ == "__main__":
 
     server.accepting_allow()
 
-    try:
-        while dont_break:
-            # a turn is normally one second.
-            server.calendar.advance_time_by_x_seconds(time_per_turn)
-
-            # where all queued creature actions get taken care of, as well as physics engine stuff.
-            server.compute_turn()
-
-            # if the worldmap in memory changed update it on the hard drive.
-            server.worldmap.handle_chunks()
-
-            if (time.time() - last_turn_time > time_offset):
-                print(
-                    "WARNING: last turn took " + "{:.4f}".format(time.time() - last_turn_time) + " seconds to compute.")
-
-            while (time.time() - last_turn_time < time_offset):
-                time.sleep(0.01)  # keeps CPU usage at reasonable levels - thanks aaferrari
-                pass
-
-            last_turn_time = time.time()  # based off of system clock.
-
-    except KeyboardInterrupt:
-        print()
-        print("Cleaning up before exiting.")
-        server.accepting_disallow()
-        server.disconnect_clients()
-        server.disconnect()
-        # if the worldmap in memory changed update it on the hard drive.
-        server.worldmap.handle_chunks()
-        dont_break = False
-        print("Done cleaning up.")
+    sys.exit(mainloop(server=server, configParser=configParser))

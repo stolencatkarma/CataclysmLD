@@ -19,7 +19,7 @@ class Worldmap(dict):
     # let's make the world map and fill it with chunks!
 
     def __init__(self):
-        print("Initalizing Worldmap..")
+        print("Initializing Worldmap..")
         self["CHUNKS"] = dict()  # dict of dicts for chunks. chunks are x, y
         #self["CHUNKS"]["x:y"]
         # search for chunks in the world folder to load.
@@ -41,7 +41,6 @@ class Worldmap(dict):
         print("Saving", path, "to disk")
         with open(path, "w") as fp:
             json.dump(chunk, fp)
-
 
     def handle_chunks(self):
         # save as needed. check for dirty, stasis

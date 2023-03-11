@@ -1,5 +1,5 @@
 
-class Calendar():  # controls the time in game. to advance time in game we do it with this.
+class Calendar:  # controls the time in game. to advance time in game we do it with this.
     def __init__(self, seconds, minutes, hours, days, months, years):
         self.SECONDS = seconds
         self.MINUTES = minutes
@@ -19,6 +19,25 @@ class Calendar():  # controls the time in game. to advance time in game we do it
     # if we need to do something every so often we should set it up here.
     def do_events(self):
         return
+
+    def save_calendar(self):
+        path = str("./world/calendar.data")
+        with open(path, "w") as fp:
+            fp.write(str(self.SECONDS) + ',' + str(self.MINUTES) + ',' + str(self.HOURS)+ ',' + str(self.DAYS) + ',' + str(self.MONTHS) + ',' + str(self.YEARS))
+
+    def load_calendar(self):
+        path = str("./world/calendar.data")
+        with open(path) as calendar:
+            data = calendar.read()
+            split = data.split(',')
+            self.SECONDS = int(split[0])
+            self.MINUTES = int(split[1])
+            self.HOURS = int(split[2])
+            self.DAYS = int(split[3])
+            self.MONTHS = int(split[4])
+            self.YEARS = int(split[5])
+    def localtime(self):
+        return str(self.HOURS) + ':' + str(self.MINUTES) + ':' + str(self.SECONDS)
 
     def advance_time_by_x_seconds(self, amount):
         for x in range(amount):
