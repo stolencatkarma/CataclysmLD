@@ -1,0 +1,58 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scenes/Game_Main/Interface/gfx/statblock.png" type="Texture2D" id=1]
+[ext_resource path="res://Scenes/Game_Main/Interface/Scripts/statblock.gd" type="Script" id=2]
+
+
+[node name="statblock" type="NinePatchRect"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -64.0
+offset_right = 64.0
+offset_bottom = 32.0
+texture = ExtResource( 1 )
+script = ExtResource( 2 )
+
+[node name="strength" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.1946
+offset_top = -0.852844
+offset_right = -43.1946
+offset_bottom = 13.1472
+text = "4"
+
+[node name="dexterity" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.6147
+offset_top = -0.545486
+offset_right = -10.6147
+offset_bottom = 13.4545
+text = "3"
+
+[node name="intelligence" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 12.2725
+offset_top = -0.545486
+offset_right = 22.2725
+offset_bottom = 13.4545
+text = "2"
+
+[node name="perception" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 44.8524
+offset_top = -1.46755
+offset_right = 54.8524
+offset_bottom = 12.5324
+text = "1"

@@ -1,0 +1,123 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Scenes/Game_Main/Interface/Scripts/Inventory.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Game_Main/gfx/equipment_overlay.png" type="Texture2D" id=2]
+[ext_resource path="res://Scenes/Game_Main/gfx/tilesets/Chesthole32/other.res" type="TileSet" id=3]
+[ext_resource path="res://Scenes/Game_Main/Interface/body_part.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Scenes/Game_Main/Interface/equipment_slot.tscn" type="PackedScene" id=5]
+
+[node name="Inventory" type="Node2D"]
+z_as_relative = false
+script = ExtResource( 1 )
+
+[node name="container_slots" type="Node2D" parent="."]
+
+[node name="background" type="TextureRect" parent="."]
+offset_right = 384.0
+offset_bottom = 480.0
+size_flags_horizontal = 0
+texture = ExtResource( 2 )
+
+[node name="inventory_tilemap" type="TileMap" parent="."]
+z_index = 5
+z_as_relative = false
+tile_set = ExtResource( 3 )
+cell_size = Vector2( 32, 32 )
+cell_quadrant_size = 32
+format = 1
+
+[node name="HEAD" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="HEAD" instance=ExtResource( 5 )]
+position = Vector2( 128, 0 )
+
+[node name="slot1" parent="HEAD" instance=ExtResource( 5 )]
+position = Vector2( 192, 0 )
+
+[node name="TORSO" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="TORSO" instance=ExtResource( 5 )]
+position = Vector2( 160, 64 )
+
+[node name="slot1" parent="TORSO" instance=ExtResource( 5 )]
+position = Vector2( 160, 96 )
+
+[node name="ARM_LEFT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="ARM_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 224, 64 )
+
+[node name="slot1" parent="ARM_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 256, 64 )
+
+[node name="HAND_LEFT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="grabbed" parent="HAND_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 256, 192 )
+
+[node name="slot0" parent="HAND_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 224, 128 )
+
+[node name="slot1" parent="HAND_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 256, 128 )
+
+[node name="HAND_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="grabbed" parent="HAND_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 64, 192 )
+
+[node name="slot0" parent="HAND_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 64, 128 )
+
+[node name="slot1" parent="HAND_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 96, 128 )
+
+[node name="ARM_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="ARM_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 96, 64 )
+
+[node name="slot1" parent="ARM_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 64, 64 )
+
+[node name="LEG_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="LEG_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 128, 160 )
+
+[node name="slot1" parent="LEG_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 128, 192 )
+
+[node name="LEG_LEFT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="LEG_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 192, 160 )
+
+[node name="slot1" parent="LEG_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 192, 192 )
+
+[node name="FOOT_LEFT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="FOOT_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 224, 256 )
+
+[node name="slot1" parent="FOOT_LEFT" instance=ExtResource( 5 )]
+position = Vector2( 192, 256 )
+
+[node name="FOOT_RIGHT" parent="." instance=ExtResource( 4 )]
+editor/display_folded = true
+
+[node name="slot0" parent="FOOT_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 128, 256 )
+
+[node name="slot1" parent="FOOT_RIGHT" instance=ExtResource( 5 )]
+position = Vector2( 96, 256 )
