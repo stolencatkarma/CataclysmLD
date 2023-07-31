@@ -10,9 +10,6 @@ from pprint import pprint
 import configparser
 # import logging.config
 
-import sdl2
-import sdl2.ext
-
 from src.mastermind._mm_server import MastermindServerTCP
 from src.action import Action
 from src.calendar import Calendar
@@ -1201,81 +1198,30 @@ class Server(MastermindServerTCP):
                             pass
 
 def mainloop(server, configParser):
-    GREY = sdl2.ext.Color(55, 55, 55)
-    WHITE = sdl2.ext.Color(255, 255, 255)
-
-    sdl2.ext.init()
-    window = sdl2.ext.Window("Cataclysm: Looming Darkness Server Window", size=(800, 600))
-    window.show()
-
-    # sprite factory
-    sprite_factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
-
-    sprite_renderer = sprite_factory.create_sprite_render_system(window)
-
-    # worldview
-    worldview_sprite = sprite_factory.from_color(color=GREY, size=(780, 420))
-    # replace pixels in the sprite according to the worldmap.
-    worldview_sprite.position = (10, 80)
-    # gather overmap data and present it as pixels on this worldview
-
-
-    # inputbox
-    inputbox_sprite = sprite_factory.from_color(color=GREY, size=(780, 50))
-    inputbox_sprite.position = (10, 510)
-    # add a way to send commands to the server.
-
-
-    # calendar box
-    calendar_bg_sprite = sprite_factory.from_color(color=GREY, size=(780, 50))
-    calendar_bg_sprite.position = (10, 10)
-
-    calendar_font = sdl2.ext.ttf.FontManager('DejavuSansMono.ttf', size=14)
-
-
 
     dont_break = True
     while dont_break:
-        window.refresh()
-        # sdl2.ext.fill(window.get_surface(), sdl2.ext.Color(0, 0, 0))
-        # a turn is normally one second.
-        server.calendar.advance_time_by_x_seconds(time_per_turn)
-        calendar_string = 'It is ' + str(server.calendar.get_season()) + ' and the moon is in its ' + str(server.calendar.moon_phase()) + '. It is day ' + str(server.calendar.DAYS) + '.' + ' The local time is ' + server.calendar.localtime()
-        calendar_text_sprite = sprite_factory.from_text(calendar_string, fontmanager=calendar_font)
-        calendar_text_sprite.position = (20, 24)
+        try:
+            # a turn is normally one second.
+            server.calendar.advance_time_by_x_seconds(time_per_turn)
+            # where all queued creature actions get taken care of, as well as physics engine stuff.
+            server.compute_turn()
 
-        sprite_renderer.render(calendar_bg_sprite)
-        sprite_renderer.render(calendar_text_sprite)
+            # if the worldmap in memory changed update it on the hard drive.
+            server.worldmap.handle_chunks()
+        except:
+            dont_break = False
+            print()
+            print("Cleaning up before exiting.")
+            server.accepting_disallow()
+            server.disconnect_clients()
+            server.disconnect()
+            # if the worldmap in memory changed update it on the hard drive.
+            server.worldmap.handle_chunks()
+            server.calendar.save_calendar()
+            dont_break = False
+            print("Done cleaning up.")
 
-        sprite_renderer.render(worldview_sprite)
-
-        sprite_renderer.render(inputbox_sprite)
-
-        # where all queued creature actions get taken care of, as well as physics engine stuff.
-        server.compute_turn()
-
-
-        # if the worldmap in memory changed update it on the hard drive.
-        server.worldmap.handle_chunks()
-
-        events = sdl2.ext.get_events()
-        for event in events:
-            if event.type == sdl2.SDL_QUIT:
-                dont_break = False
-                print()
-                print("Cleaning up before exiting.")
-                server.accepting_disallow()
-                server.disconnect_clients()
-                server.disconnect()
-                # if the worldmap in memory changed update it on the hard drive.
-                server.worldmap.handle_chunks()
-                server.calendar.save_calendar()
-                dont_break = False
-                print("Done cleaning up.")
-                break
-        sdl2.SDL_Delay(1000)
-
-    return 0
 
 
 if __name__ == "__main__":
@@ -1333,6 +1279,7 @@ if __name__ == "__main__":
     print("\n")
     print("Server is listening at {}:{}".format(ip, port))
     print("Started Cataclysm: Looming Darkness. Clients may now connect!")
+    print("Press Ctrl+C to shutdown the server.")
 
     server.accepting_allow()
 
