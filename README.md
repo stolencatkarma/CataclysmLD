@@ -31,7 +31,8 @@ The first time you start the server a world is generated automatically using def
 
 **connecting to a server.**
 
-* The current recommendation is to use a MUD client to connect to the server until a proper client can be made. Mudlet is my preferred method.
-* `127.0.0.1:6317` is the default IP and port you will need to connect to it.
+* Download Godot 3.5.2 and import the project from the /GodotClient/ folder.
+* Run the program and connect to a server. 
+
        
 
