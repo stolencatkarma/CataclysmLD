@@ -39,7 +39,7 @@ class OverMap:
 
 class Server(MastermindServerTCP):
     def __init__(self, config, logger=None):
-        MastermindServerTCP.__init__(self, 0.5, 0.5, 1800.0)
+        MastermindServerTCP.__init__(self, 0.5, 0.5, 60.0)
         self._config = config
         if logger is None:
             pass
