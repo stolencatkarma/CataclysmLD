@@ -277,13 +277,11 @@ class Server(MastermindServerTCP):
             if _command["command"] == "bash":
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object, "What do you want to bash?\r\n")
-                    self.send_prompt(connection_object)
                     return
                 _target = _command["args"][0]
                 _action = Action(connection_object.character, _target, 'bash', _command["args"])
                 self.characters[connection_object.character]["command_queue"].append(_action)
                 self.callback_client_send(connection_object, "You break down " + _target + " for its components.\r\n")
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "look":
@@ -304,7 +302,6 @@ class Server(MastermindServerTCP):
 
                         if len(_open_containers) <= 0:
                             self.callback_client_send(connection_object, "You have no open containers.\r\n")
-                            self.send_prompt(connection_object)
                             return  # no open containers.
 
                         for container in _open_containers:
@@ -317,7 +314,6 @@ class Server(MastermindServerTCP):
                                         self.callback_client_send(connection_object,
                                                                   self.ItemManager.ITEM_TYPES[item["ident"]][
                                                                       "name"] + "\r\n")
-                                self.send_prompt(connection_object)
                                 return
 
                 _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
@@ -341,7 +337,6 @@ class Server(MastermindServerTCP):
                                               _furniture["name"] + ": " + _furniture["description"] + "\r\n")
 
                 # send_prompt sends a prompt to the client after each request. Don't forget to add it for new commands.
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "character":  # character sheet
@@ -367,20 +362,17 @@ class Server(MastermindServerTCP):
                             self.callback_client_send(connection_object,
                                                       "#  " + body_part["slot_equipped"]["ident"] + "\r\n")
 
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "craft":  # 2-3 args (craft, <recipe>, direction)
 
                 if len(_command["args"]) < 2:
                     self.callback_client_send(connection_object, "syntax is \'craft recipe direction\'\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 if _command["args"][0] not in self.characters[connection_object.character]["known_recipes"]:
                     self.callback_client_send(connection_object,
                                               "You do not know how to craft" + _command["args"][0] + ".\r\n")
-                    self.send_prompt(connection_object)
                     return
                 # args 0 is ident args 1 is direction.
                 # blueprint rules
