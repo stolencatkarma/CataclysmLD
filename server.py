@@ -167,8 +167,12 @@ class Server(MastermindServerTCP):
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
-        data = json.loads(data) # convert the data back to json
-        #print(data)
+        try:
+            data = json.loads(data) # convert the data back to json
+        except:
+            return # return silently if we recieve bad requests
+
+
 
         try:
             _command = Command(data["ident"], data["command"], data["args"])
@@ -253,7 +257,6 @@ class Server(MastermindServerTCP):
                     print("Server: character created for {}.".format(connection_object.username))
                 else:
                     print("Server: character NOT created. Already Exists")
-                
 
             if _command["command"] == "request_localmap": # player wants their local map
                 print(connection_object.username + "entered request_localmap")
@@ -262,17 +265,14 @@ class Server(MastermindServerTCP):
                 #print(_command)
                 self.callback_client_send(connection_object, json.dumps(_command))
 
-            # all the commands that are actions need to be put into the command_queue
-            # then we will loop through the queue each turn and process the actions.
-
+        ### all the commands that are actions need to be put into the command_queue
+        ### compute_turn() will loop through each queue each turn and process the actions.
             if _command["command"] == "move":
                 if not _command["args"]:
-                    self.callback_client_send(connection_object, "You need to input a direction. (move north)\r\n")
-                    self.send_prompt(connection_object)
+                    # self.callback_client_send(connection_object, "You need to input a direction. (move north)\r\n")
                     return
 
-                self.characters[connection_object.character]["command_queue"].append(
-                    Action(connection_object.character, connection_object.character, "move", _command["args"]))
+                self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
 
             if _command["command"] == "bash":
                 if len(_command["args"]) == 0:

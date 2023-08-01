@@ -17,7 +17,11 @@ def packet_send(sock, protocol_and_udpaddress, data, compression):  # E.g.: =(MM
 
 
 def packet_recv_tcp(sock):
-    data_str = sock.recv(MM_MAX_PAYLOAD_SIZE)
+    try:
+        data_str = sock.recv(MM_MAX_PAYLOAD_SIZE)
+    except:
+        sock.close()  # client closed the connection without telling us.
+        return
 
     # moving to a client-less system.
     data_str = data_str.decode("utf-8").rstrip()
