@@ -1,7 +1,7 @@
 extends Node2D
 
 # inventory screen uses the same tilemap as items.
-@onready var items_tilemap = get_parent().get_parent().get_node("SubViewport/node_window_main/items_tilemap")
+onready var items_tilemap = get_parent().get_parent().get_node("Viewport/node_window_main/items_tilemap")
 
 var container_slot = load('res://Scenes/Game_Main/Interface/container_slot.tscn')
 
@@ -10,8 +10,8 @@ var atlas_texture = AtlasTexture.new()
 
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
-	atlas_texture.set_atlas(items_tilemap.get_tileset().tile_get_texture(creature_index))
+#func _ready():
+	# atlas_texture.set_atlas(items_tilemap.get_tileset().tile_get_texture(creature_index))
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -46,7 +46,7 @@ func _process(delta):
 							if(starty >= 64):
 								break
 							startx = startx + 32
-							var _slot = container_slot.instantiate()
+							var _slot = container_slot.instance()
 							$container_slots.add_child(_slot)
 							_slot.set_position(Vector2(startx, starty))
 							_slot.contained = item.duplicate()

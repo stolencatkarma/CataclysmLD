@@ -4,19 +4,19 @@
 
 
 [node name="SuperMenu_Terrain" type="Control"]
-offset_right = 48.0
-offset_bottom = 45.0
+margin_right = 48.0
+margin_bottom = 45.0
 script = ExtResource( 1 )
 
 [node name="GridContainer" type="GridContainer" parent="."]
 
 [node name="Move" type="Button" parent="GridContainer"]
-offset_right = 47.0
-offset_bottom = 20.0
+margin_right = 47.0
+margin_bottom = 20.0
 text = "Move"
 
 [node name="Build" type="Button" parent="GridContainer"]
-offset_top = 24.0
-offset_right = 47.0
-offset_bottom = 44.0
+margin_top = 24.0
+margin_right = 47.0
+margin_bottom = 44.0
 text = "Build"

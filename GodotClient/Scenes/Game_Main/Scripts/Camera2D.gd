@@ -9,7 +9,7 @@ var mouse_captured = false
 ## Note that the built in camera limits do not work: they don't actually constrain the position of the camera.
 ## They only stop the view from moving. For the user, this makes the camera appear to "stick" at the edges of the map, 
 ## which is bad.
-var limit_rect = null: set = set_limit_rect
+var limit_rect = null setget set_limit_rect
 
 func _physics_process(delta):
 	if Input.is_action_pressed("ui_left"):
@@ -31,11 +31,11 @@ func _input(event):
 	if event is InputEventMouse:
 		if event.is_pressed() and not event.is_echo():
 			var mouse_position = event.position
-			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			if event.button_index == BUTTON_WHEEL_DOWN:
 				if zoom < Vector2( max_zoom, max_zoom ):
 					zoom_at_point(zoom_step,mouse_position)
 					_snap_zoom_limits()
-			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			elif event.button_index == BUTTON_WHEEL_UP:
 				if zoom > Vector2( min_zoom, min_zoom ):
 					zoom_at_point(1/zoom_step,mouse_position)
 					_snap_zoom_limits()

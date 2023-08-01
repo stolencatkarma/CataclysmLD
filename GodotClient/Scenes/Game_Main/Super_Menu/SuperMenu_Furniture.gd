@@ -1,7 +1,7 @@
 extends Control
 
 func _ready():
-	self.get_node("GridContainer/Bash").connect("button_down", Callable(self, "bash_pressed")) 
+	self.get_node("GridContainer/Bash").connect("button_down", self, "bash_pressed") 
 
 func bash_pressed():
 	self.visible = false
@@ -12,5 +12,5 @@ func bash_pressed():
 	# print(get_parent().clicked_tile)
 	bash["args"] = [get_parent().clicked_tile['position']['x'], get_parent().clicked_tile['position']['y'], 0] # TODO: set z 
 	print("Tile clicked at: ", bash["args"])
-	var to_send = JSON.stringify(bash).to_utf8_buffer()
+	var to_send = JSON.print(bash).to_utf8()
 	manager_connection.client.put_data(to_send)

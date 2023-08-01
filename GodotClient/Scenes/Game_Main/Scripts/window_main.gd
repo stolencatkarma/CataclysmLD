@@ -1,10 +1,10 @@
 extends Node2D
-@onready var camera = $Camera2D
+onready var camera = $Camera2D
 var player_position = Vector2()
 
 var light_scene = preload( "res://Scenes/Game_Main/light.tscn")
 
-@onready var lights = $lights
+onready var lights = $lights
 
 
 func _ready():
@@ -52,9 +52,9 @@ func _physics_process(delta):
 						$creature_tilemap.set_cellv( xy, creature_index )
 				# basic lighting engine
 				if(tile['lumens'] > 10):
-					var light = light_scene.instantiate()
+					var light = light_scene.instance()
 					light.position = Vector2(xy.x*32, xy.y*32)
-					light.get_node("PointLight2D").energy = tile['lumens']/10 + 0.1 
+					light.get_node("Light2D").energy = tile['lumens']/10 + 0.1 
 					lights.add_child(light) 
 				
 				

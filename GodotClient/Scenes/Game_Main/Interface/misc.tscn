@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Scenes/Game_Main/Interface/gfx/misc.png" type="Texture2D" id=1]
+[ext_resource path="res://Scenes/Game_Main/Interface/gfx/misc.png" type="Texture" id=1]
 
 
 [node name="misc" type="TextureRect"]
-offset_right = 40.0
-offset_bottom = 40.0
+margin_right = 40.0
+margin_bottom = 40.0
 texture = ExtResource( 1 )

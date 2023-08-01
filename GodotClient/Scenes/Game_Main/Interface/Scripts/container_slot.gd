@@ -1,12 +1,12 @@
 extends Node2D
 
 # stores the item that was parsed from the character.
-@onready var contained = Dictionary()
-@onready var button = $Button
+onready var contained = Dictionary()
+onready var button = $Button
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	button.connect("button_up", Callable(self, "slot_clicked"))
+	button.connect("button_up", self, "slot_clicked")
 	print('created')
 
 func slot_clicked():

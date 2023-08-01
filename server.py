@@ -99,24 +99,20 @@ class Server(MastermindServerTCP):
 
     def find_spawn_point_for_new_character(self):
         _possible = list()
-        for _, chunk in self.worldmap["CHUNKS"].items():
-            if "tiles" not in chunk.keys():
-                continue  # chunk is in stasis.
-            for tile in chunk["tiles"]:
-                if tile["position"]["z"] != 0:
-                    continue
-                if tile["terrain"]["impassable"]:
-                    continue
-                if tile["creature"] is not None:
-                    continue
-                if tile["terrain"]["ident"] == "t_open_air":
-                    continue
-                _possible.append(tile)
+        # for now start characters near world center.
+        chunk = self.worldmap.get_chunk_by_position(Position(0,0,0))
+        for tile in chunk["tiles"]:
+            if tile["position"]["z"] != 0:
+                continue
+            if tile["terrain"]["impassable"]:
+                continue
+            if tile["creature"] is not None:
+                continue
+            if tile["terrain"]["ident"] == "t_open_air":
+                continue
+            _possible.append(tile)
         random.shuffle(_possible)
         return _possible[0]["position"]
-        # else:
-        #    print("ERROR: Couldn't find spawn point for new character!")
-        #    return None
 
     def handle_new_character(self, ident, character):
         self.characters[character] = Character(character)
@@ -165,243 +161,109 @@ class Server(MastermindServerTCP):
         path = str("./accounts/" + str(ident) + "/" + str("characters") + "/" + str(character) + ".character")
 
         with open(path, "w") as fp:
-            json.dump(self.characters[character]["name"], fp)
+            json.dump(self.characters[character], fp)
             print("New character added to world: {}".format(character))
             return
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
+        data = json.loads(data) # convert the data back to json
+        #print(data)
 
-        # quit on disconnect signal.
-        if data == "disconnect":
-            # print('got disconnect signal')
-            connection_object.terminate()
+        try:
+            _command = Command(data["ident"], data["command"], data["args"])
+        except Exception:
+            print("Server: invalid data from client {}.".format(connection_object.address))
             return
 
-        # LOGIN is the default state when a new connection is established.
-        if connection_object.state == "LOGIN":
-            # this will be the client's username.
-            connection_object.state = "LOGIN2"
-            connection_object.username = data
-            self.callback_client_send(connection_object, "Password? >\r\n")
-            return
+        # we recieved a valid command. process it.
+        if isinstance(_command, Command):
+            if _command["command"] == "login":
+                # this will be the client's username.
+                connection_object.username = data['ident']
+                print(connection_object.username + " entered login")
+                connection_object.password = data['args'] # plaintext password until salting and hashing is back
 
-        if connection_object.state == "LOGIN2":
-            # print(connection_object.username + " entered LOGIN2")
-            # this is the client's password.
-            connection_object.password = data
-
-            # check whether this username has an account.
-            _path = "./accounts/" + connection_object.username + "/"
-            if os.path.isdir("./accounts/" + connection_object.username):
-                # account exists. check the recieved password against the saved one.
-                with open(str(_path + "SALT"), "r") as _salt:
-                    with open(str(_path + "HASHED_PASSWORD"), "r") as _hashed_password:
-                        # read the password hashed
-                        _check = hashPassword(connection_object.password, _salt.read())
-                        _check2 = _hashed_password.read()
+                # check whether this username has an account.
+                _path = "./accounts/" + connection_object.username + "/"
+                if os.path.isdir("./accounts/" + connection_object.username):
+                    # account exists. check the recieved password against the saved one.
+                    with open(str(_path + "PASSWORD"), "r") as _password:
+                        # read the password 
+                        _check = connection_object.password
+                        _check2 = _password.read()
                         if _check == _check2:
                             print("password accepted for " + connection_object.username)
-
+                            _accepted = Command("server", "login", "accepted")
+                            self.callback_client_send(connection_object, json.dumps(_accepted))
                         else:
-                            self.callback_client_send(connection_object,
-                                                      "Password NOT accepted for " + connection_object.username)
+                            print("Password NOT accepted for " + connection_object.username)
                             connection_object.terminate()
                             return
-
-            else:
-                # account doesn't exist. create a directory for them.
-                try:
-                    os.mkdir(_path)
-                except OSError:
-                    print("Creation of the directory %s failed" % _path)
                 else:
-                    print("Successfully created the directory %s " % _path)
+                    # account doesn't exist. create a directory for them.
+                    try:
+                        os.mkdir(_path)
+                    except OSError:
+                        print("Creation of the directory %s failed" % _path)
+                    else:
+                        print("Successfully created the directory %s " % _path)
 
-                _salt = makeSalt()
-                with open(str(_path + "SALT"), "w") as f:
-                    # write the password salt
-                    f.write(str(_salt))
+                    with open(str(_path + "PASSWORD"), "w") as f:
+                        # write the password
+                        f.write(str(connection_object.password))
 
-                with open(str(_path + "HASHED_PASSWORD"), "w") as f:
-                    # write the password hashed
-                    f.write(str(hashPassword(connection_object.password, _salt)))
+                    _path = "./accounts/" + connection_object.username + "/characters/"
+                    try:
+                        os.mkdir(_path)
+                    except OSError:
+                        print("Creation of the directory %s failed" % _path)
+                    else:
+                        print("Successfully created the directory %s " % _path)
 
-                _path = "./accounts/" + connection_object.username + "/characters/"
-                try:
-                    os.mkdir(_path)
-                except OSError:
-                    print("Creation of the directory %s failed" % _path)
-                else:
-                    print("Successfully created the directory %s " % _path)
-
-            _message = "Login Accepted! Moving us to Character Select.\r\n"
-            connection_object.state = "CHOOSE_CHARACTER"
-            self.callback_client_send(connection_object, _message)
-
-        if connection_object.state == "CHOOSE_CHARACTER":
-            # first option is always create new character
-            idx = 2
-            self.callback_client_send(connection_object, '1.) Create New >\r\n')
-            for root, _, files in os.walk("./accounts/" + connection_object.username + "/characters/"):
-                for file_data in files:
-                    if file_data.endswith(".character"):
-                        self.callback_client_send(connection_object,
-                                                  str(idx) + '.) ' + file_data.split(".")[0] + '\r\n')
-                        idx = idx + 1
-
-            self.callback_client_send(connection_object, "Choice? >\r\n")
-            connection_object.state = "CHOOSING_CHARACTER"
-            return
-
-        if connection_object.state == "CHOOSING_CHARACTER":
-            # the client has been shown the list of characters.
-            if data == "1":
-                # client has chosen to create a new character.
-                connection_object.state = "CREATE_CHARACTER1"
-                self.callback_client_send(connection_object, "Name? >\r\n")
-                return
-            else:
-                idx = 2
-                for root, _, files in os.walk("./accounts/" + connection_object.username + "/characters/"):
+            if _command["command"] == "request_character_list":
+                print('client is requesting character list')
+                _tmp_list = list()
+                for root, _, files in os.walk(
+                    "./accounts/" + _command["ident"] + "/characters/"
+                ):
                     for file_data in files:
                         if file_data.endswith(".character"):
-                            if int(data) == idx:
-                                connection_object.character = file_data.split(".")[0]
-                                connection_object.state = "CONNECTED"
-                                self.callback_client_send(connection_object,
-                                                          "Entering the Darkness as " + connection_object.character + "\r\n")
-                                self.callback_client_send(connection_object,
-                                                          "try help for a list of commands." + "\r\n")
-                                self.send_prompt(connection_object)
-                                return
-                            else:
-                                idx = idx + 1
-            # player sent an incorrect option
-            return
+                            with open(root + file_data, "r") as data_file:
+                                _raw = data_file.read()
+                                # client will need to decode these
+                                _tmp_list.append(_raw)
 
-        if connection_object.state == "CREATE_CHARACTER1":
-            if not data in self.characters:
-                # this character doesn't exist in the world yet.
-                self.handle_new_character(connection_object.username, data)
-                self.callback_client_send(connection_object,
-                                          "Character successfully created. Returning to Character select.\r\n")
-                print("Server: character created: {} From client {}.".format(data, connection_object.address))
-            else:
-                print("Server: character NOT created. Already Exists")
-            connection_object.state = "CHOOSE_CHARACTER"
+                _command = Command('server', 'character_list', _tmp_list)
+                self.callback_client_send(connection_object, json.dumps(_command))
 
-        ########################################################
-        ## Main Loop After a Client connects with a Character. #
-        ########################################################
-        # Once players have chosen a character they are CONNECTED and can start sending character commands.
-        if connection_object.state == "CONNECTED":
-            # try to parse the data sent for arguments.
-            data_list = data.split(" ")
-            _command = dict()
-            _command["args"] = list()
-            _command["command"] = data_list.pop(0)
-            for item in data_list:
-                _command["args"].append(item)
+            if _command["command"] == "choose_character":
+                print(connection_object.username + " entered choose_character")
+                connection_object.character = _command['args']
+                _command = Command('server', 'enter_game', [])
+                self.callback_client_send(connection_object, json.dumps(_command))
 
-            # player sent an empty command.
-            if _command["command"] == "":
-                self.send_prompt(connection_object)
-                return
+            if _command["command"] == "completed_character":
+                print(connection_object.username + " entered completed_character")
+                if not _command["args"] in self.characters:
+                    # this character doesn't exist in the world yet.
+                    self.handle_new_character(connection_object.username, _command["args"])
+                    _command = Command('server', 'enter_game', [])
+                    self.callback_client_send(connection_object, json.dumps(_command))
+                    print("Server: character created for {}.".format(connection_object.username))
+                else:
+                    print("Server: character NOT created. Already Exists")
+                
 
-            print(connection_object.character + " sent " + _command["command"])
-
-            # player sent map command
-            if _command["command"] == "map":
-                cx = self.characters[connection_object.character]['position']['x']
-                cy = self.characters[connection_object.character]['position']['y']
-                cz = self.characters[connection_object.character]['position']['z']
-                send_map = dict()
-                for i in range(39):
-                    send_map[i] = dict()
-                    for j in range(39):
-                        send_map[i][j] = '.'  # null by default then gets filled.
-
-                min_x = None
-                min_y = None
-                chunks = self.worldmap.get_chunks_near_position(
-                    self.characters[connection_object.character]["position"])
-
-                for chunk in chunks:
-                    for tile in chunk['tiles']:
-                        x = tile['position']['x']
-                        y = tile['position']['y']
-                        z = tile['position']['z']
-                        if min_x is None:
-                            min_x = x
-                            min_y = y
-                            continue
-                        if x < min_x:
-                            min_x = x
-                        if y < min_y:
-                            min_y = y
-
-                # print("min_x: " + str(min_x))
-                # print("min_y: " + str(min_y))
-                pre_color = "\u001b[38;5;"
-                post_color = "\u001b[0m"
-                for chunk in chunks:
-                    for tile in chunk['tiles']:
-                        # translate localmap to a terminal friendly map and send it to the client.
-                        # order the tiles by x, y, ignore z levels not on current level.
-                        # send map to client line by line centered on the player.
-                        x = tile['position']['x']
-                        y = tile['position']['y']
-                        z = tile['position']['z']
-                        if cz != z:
-                            continue
-                        # print("trying " + str(x - min_x) + ", " + str(y - min_y))
-                        t_id = self.TileManager.TILE_TYPES[tile['terrain']['ident']]
-                        send_map[x - min_x][y - min_y] = pre_color + t_id['color'] + "m" + t_id[
-                            'symbol'] + post_color  # concat color and symbol
-
-                        if tile['furniture'] is not None:
-                            f_id = self.FurnitureManager.FURNITURE_TYPES[tile['furniture']['ident']]
-                            send_map[x - min_x][y - min_y] = pre_color + f_id['color'] + "m" + f_id[
-                                'symbol'] + post_color.lower()
-                        if len(tile["items"]) > 0:
-                            send_map[x - min_x][y - min_y] = tile["items"][0]["ident"][:1].lower()
-                        if tile['creature'] is not None:
-                            send_map[x - min_x][y - min_y] = pre_color + "1m" + tile['creature']['tile_ident'][
-                                                                                :1].upper() + post_color
-
-                next_line = ""
-                for i in range(39):
-                    for j in range(39):
-                        next_line = next_line + send_map[j][i]
-                    self.callback_client_send(connection_object, next_line + '\r\n')
-                    next_line = ''
-
-                self.send_prompt(connection_object)
-                return
+            if _command["command"] == "request_localmap": # player wants their local map
+                print(connection_object.username + "entered request_localmap")
+                chunks = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]["position"])
+                _command = Command('server', 'localmap_update', chunks)
+                #print(_command)
+                self.callback_client_send(connection_object, json.dumps(_command))
 
             # all the commands that are actions need to be put into the command_queue
             # then we will loop through the queue each turn and process the actions.
-
-            # translate letters to commands. TODO: The most basic of alias system. Expand alias system from this.
-            if _command["command"] == "n":
-                _command["command"] = "move"
-                _command["args"].append("north")
-            if _command["command"] == "e":
-                _command["command"] = "move"
-                _command["args"].append("east")
-            if _command["command"] == "s":
-                _command["command"] = "move"
-                _command["args"].append("south")
-            if _command["command"] == "w":
-                _command["command"] = "move"
-                _command["args"].append("west")
-            if _command["command"] == "u":
-                _command["command"] = "move"
-                _command["args"].append("up")
-            if _command["command"] == "d":
-                _command["command"] = "move"
-                _command["args"].append("down")
 
             if _command["command"] == "move":
                 if not _command["args"]:
@@ -411,9 +273,6 @@ class Server(MastermindServerTCP):
 
                 self.characters[connection_object.character]["command_queue"].append(
                     Action(connection_object.character, connection_object.character, "move", _command["args"]))
-                self.callback_client_send(connection_object, "You head " + _command['args'][0] + ".\r\n")
-                self.send_prompt(connection_object)
-                return
 
             if _command["command"] == "bash":
                 if len(_command["args"]) == 0:
@@ -584,8 +443,7 @@ class Server(MastermindServerTCP):
                 self.send_prompt(connection_object)
                 return
 
-            if _command[
-                "command"] == "take":  # take an item from current tile and put it in players open inventory. (take, <item>)
+            if _command["command"] == "take":  # take an item from current tile and put it in players open inventory. (take, <item>)
                 _from_pos = self.characters[connection_object.character]["position"]
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object, "What do you want to take?\r\n")
@@ -641,8 +499,7 @@ class Server(MastermindServerTCP):
 
                 return
 
-            if _command[
-                "command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
+            if _command["command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
                 if len(_command["args"]) < 2:
                     self.callback_client_send(connection_object, "Requires an item and an open container.\r\n")
@@ -750,8 +607,7 @@ class Server(MastermindServerTCP):
                 self.send_prompt(connection_object)
                 return
 
-            if _command[
-                "command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
+            if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object,
                                               "You must supply a direction. try north, south, east, or west.\r\n")
@@ -899,43 +755,28 @@ class Server(MastermindServerTCP):
                                                                       "You dumped " + component["ident"] + ".\r\n")
                 return
 
-            # fallback to not knowing what the player is talking about.
-            self.callback_client_send(connection_object, "I am not sure what you are trying to do.\r\n")
-            self.send_prompt(connection_object)
-
         return super(Server, self).callback_client_handle(connection_object, data)
-
-    def send_prompt(self, connection_object):
-        _character = self.characters[connection_object.character]
-        # send body health as [*******] of varying colors of wounds.
-        pre_color = "\u001b[38;5;150m"
-        post_color = "\u001b[0m"
-
-        self.callback_client_send(connection_object,
-                                  pre_color + "(" + str(_character["position"]) + ")" + "(" + _character[
-                                      "name"] + ") > " + post_color + "\r\n")
 
     def callback_client_send(self, connection_object, data, compression=False):
         return super(Server, self).callback_client_send(connection_object, data, compression)
 
     def callback_connect_client(self, connection_object):
-        # we need to have a login system to handle raw telnet and MUD clients.
-        print("Server: Client from {} connected.".format(connection_object.address))
+        print("Client {} connected.".format(connection_object.address))
         # send the user a login prompt
-        connection_object.state = "LOGIN"
+        # connection_object.state = "LOGIN"
         # return super(Server, self).callback_connect_client(connection_object)
         # TODO: for line in Message Of The Day send to client.
-        motd = open('motd.txt', 'r')
-        motd_lines = motd.readlines()
+        # motd = open('motd.txt', 'r')
+        # motd_lines = motd.readlines()
 
         # Strips the newline character 
-        for line in motd_lines:
-            self.callback_client_send(connection_object, line)
-        self.callback_client_send(connection_object, " \r\n")
-        self.callback_client_send(connection_object, " \r\n")
-        self.callback_client_send(connection_object, "Please Login:\r\n")
-        self.callback_client_send(connection_object, "Username? >\r\n")
-        return
+        #for line in motd_lines:
+        #    self.callback_client_send(connection_object, line)
+        #self.callback_client_send(connection_object, " \r\n")
+        #self.callback_client_send(connection_object, " \r\n")
+        #self.callback_client_send(connection_object, "Please Login:\r\n")
+        #self.callback_client_send(connection_object, "Username? >\r\n")
+        #return
 
     def callback_disconnect_client(self, connection_object):
         print("Server: Client from {} disconnected.".format(connection_object.address))
@@ -1089,14 +930,15 @@ class Server(MastermindServerTCP):
         # for any possible combat that may have occurred.
         for _, character in self.characters.items():
             # get all 4 directions and check for enemies.
-            pprint(character)
+            #pprint(character)
             # if enemy found do an attack with wielded weapon or bare hands.
-
+            pass
             # continue to next character or monster
 
         for _, monster in self.monsters.items():
             # get all 4 directions and check for enemies.
-            pprint(monster)
+            #pprint(monster)
+            pass
             # if enemy found do an attack with wielded weapon or bare hands.
 
             # continue to next character or monster
@@ -1204,7 +1046,8 @@ def mainloop(server, configParser):
         try:
             # a turn is normally one second.
             server.calendar.advance_time_by_x_seconds(time_per_turn)
-            # where all queued creature actions get taken care of, as well as physics engine stuff.
+
+            # where all queued creature actions get taken care of.
             server.compute_turn()
 
             # if the worldmap in memory changed update it on the hard drive.

@@ -8,5 +8,5 @@ z_as_relative = false
 script = ExtResource( 1 )
 
 [node name="Button" type="Button" parent="."]
-offset_right = 32.0
-offset_bottom = 32.0
+margin_right = 32.0
+margin_bottom = 32.0

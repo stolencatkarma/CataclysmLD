@@ -9,8 +9,8 @@ func _ready():
 	# if furniture -> grab, bash, deconstruct, activate (activate a sofa to sit, activate a door to open/close, lock/unlock, peek)
 	# if vehicle -> enter, ride on top, other (to be implemented chapter 2)
 	# if trap -> disarm, trigger,
-	$SuperMenu.get_node("Terrain").connect("button_down", Callable(self, "terrain_pressed")) 
-	$SuperMenu.get_node("Furniture").connect("button_down", Callable(self, "furniture_pressed")) 
+	$SuperMenu.get_node("Terrain").connect("button_down", self, "terrain_pressed") 
+	$SuperMenu.get_node("Furniture").connect("button_down", self, "furniture_pressed") 
 
 func terrain_pressed():
 	# create instance of SuperMenu_Terrain and give it what it needs.
@@ -25,8 +25,8 @@ func furniture_pressed():
 
 func _input(event):
 	if event is InputEventMouseButton:
-		var mousepos = get_parent().get_node("SubViewport/node_window_main/terrain_tilemap").get_global_mouse_position()
-		var coordpos = get_parent().get_node("SubViewport/node_window_main/terrain_tilemap").local_to_map( mousepos )
+		var mousepos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").get_global_mouse_position()
+		var coordpos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").world_to_map( mousepos )
 		if event.is_pressed(): # button pressed.
 			if event.button_index == 2: # right click
 				if self.get_node("SuperMenu").visible:

@@ -84,24 +84,28 @@ class Worldmap(dict):
         _dict = str(x_count) + "_" + str(y_count)
 
         path = str("./world/" + str(_dict) + ".chunk")
+        #print(path)
 
         # chunks will either be loaded, stasis'd,  or non-existant. handle all three cases.
         # check if chunk exists first. if not create it and load it into memory.
         if _dict not in self["CHUNKS"].keys():
-            print("WARNING: creating new chunk!", _dict)
+            print("creating new chunk!", _dict)
             self["CHUNKS"][_dict] = Chunk(x_count, y_count)
             with open(path, "w") as fp:
                 json.dump(self["CHUNKS"][_dict], fp)
 
         if self["CHUNKS"][_dict]["stasis"]:  # need to load it from disk and back into memory.
-            print("WARNING: loading chunk", _dict)
+            print("loading chunk", _dict)
             with open(path) as json_file:
                 self["CHUNKS"][_dict] = json.load(json_file)
                 self["CHUNKS"][_dict]["stasis"] = False
                 self["CHUNKS"][_dict]["should_stasis"] = False
                 self["CHUNKS"][_dict]["time_to_stasis"] = 100
-
+                return self["CHUNKS"][_dict]
+        
         return self["CHUNKS"][_dict]
+
+       
 
     def get_tile_by_position(self, position):
         _chunk = self.get_chunk_by_position(position)

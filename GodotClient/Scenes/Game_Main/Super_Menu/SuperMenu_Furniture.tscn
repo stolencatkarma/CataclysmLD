@@ -8,30 +8,30 @@ anchor_bottom = 1.0
 script = ExtResource( 1 )
 
 [node name="GridContainer" type="GridContainer" parent="."]
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 40.0
-offset_bottom = 40.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 40.0
+margin_bottom = 40.0
 
 [node name="Grab" type="Button" parent="GridContainer"]
-offset_right = 90.0
-offset_bottom = 20.0
+margin_right = 90.0
+margin_bottom = 20.0
 text = "Grab"
 
 [node name="Bash" type="Button" parent="GridContainer"]
-offset_top = 24.0
-offset_right = 90.0
-offset_bottom = 44.0
+margin_top = 24.0
+margin_right = 90.0
+margin_bottom = 44.0
 text = "Bash"
 
 [node name="Deconstruct" type="Button" parent="GridContainer"]
-offset_top = 48.0
-offset_right = 90.0
-offset_bottom = 68.0
+margin_top = 48.0
+margin_right = 90.0
+margin_bottom = 68.0
 text = "Deconstruct"
 
 [node name="Activate" type="Button" parent="GridContainer"]
-offset_top = 72.0
-offset_right = 90.0
-offset_bottom = 92.0
+margin_top = 72.0
+margin_right = 90.0
+margin_bottom = 92.0
 text = "Activate"
