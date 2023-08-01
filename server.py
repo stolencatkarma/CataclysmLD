@@ -407,21 +407,18 @@ class Server(MastermindServerTCP):
                 else:
                     self.callback_client_send(connection_object,
                                               "That is not a valid direction. try north, south, east, or west.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 _tile = self.worldmap.get_tile_by_position(position_to_create_at)
                 if _tile["terrain"]["impassable"]:
                     self.callback_client_send(connection_object,
                                               "You cannot create a blueprint on impassable terrain.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 for item in _tile["items"]:
                     if item["ident"] == "blueprint":
                         self.callback_client_send(connection_object,
                                                   "You cannot create two blueprints on one tile.\r\n")
-                        self.send_prompt(connection_object)
                         return
 
                 _recipe = server.RecipeManager.RECIPE_TYPES[_command["args"][0]]
@@ -432,14 +429,12 @@ class Server(MastermindServerTCP):
                 self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
                 self.callback_client_send(connection_object,
                                           "You created a blueprint for " + _command["args"][0] + ".\r\n")
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "take":  # take an item from current tile and put it in players open inventory. (take, <item>)
                 _from_pos = self.characters[connection_object.character]["position"]
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object, "What do you want to take?\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 _item_ident = _command["args"][0]
@@ -456,7 +451,6 @@ class Server(MastermindServerTCP):
                 # we didn't find the item they wanted.
                 if _from_item is None:
                     self.callback_client_send(connection_object, "I could not find what you are looking for.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 # make a list of open_containers the character has to see if they can pick it up.
@@ -470,7 +464,6 @@ class Server(MastermindServerTCP):
 
                 if len(_open_containers) <= 0:
                     self.callback_client_send(connection_object, "You have no open containers.\r\n")
-                    self.send_prompt(connection_object)
                     return  # no open containers.
 
                 # add it to the container and remove it from the world.
@@ -487,15 +480,12 @@ class Server(MastermindServerTCP):
                                           str("You take the " + self.ItemManager.ITEM_TYPES[item["ident"]][
                                               "name"] + " and put it in your " +
                                               self.ItemManager.ITEM_TYPES[container["ident"]]["name"] + "\r\n"))
-                self.send_prompt(connection_object)
-
                 return
 
             if _command["command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
                 # client sends 'hey server. can you move item from this to that?'
                 if len(_command["args"]) < 2:
                     self.callback_client_send(connection_object, "Requires an item and an open container.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 _character_requesting = self.characters[connection_object.character]
@@ -541,7 +531,6 @@ class Server(MastermindServerTCP):
                     else:
                         self.callback_client_send(connection_object,
                                                   "Could not find item on ground or in open containers.\r\n")
-                        self.send_prompt(connection_object)
                         return
 
                 # ## possible move types ##
@@ -586,7 +575,6 @@ class Server(MastermindServerTCP):
                     except:
                         # recipe doesn't exist.
                         self.callback_client_send(connection_object, "No known recipe.\r\n")
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "help":
@@ -596,14 +584,12 @@ class Server(MastermindServerTCP):
                 self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
                 self.callback_client_send(connection_object,
                                           "\'dump direction\' to put components in a blueprint from inventory.\r\n")
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object,
                                               "You must supply a direction. try north, south, east, or west.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 # check blueprint exists in the direction.
@@ -635,7 +621,6 @@ class Server(MastermindServerTCP):
                 else:
                     self.callback_client_send(connection_object,
                                               "That is not a valid direction. try north, south, east, or west.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 _tile = self.worldmap.get_tile_by_position(position_to_create_at)
@@ -649,7 +634,6 @@ class Server(MastermindServerTCP):
                         break
                 else:
                     self.callback_client_send(connection_object, "There is no Blueprint in that tile to work on.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 # TODO: Does character have this blueprint learned? give it to them. (learn by seeing)
@@ -657,7 +641,6 @@ class Server(MastermindServerTCP):
                 _action = Action(connection_object.character, None, 'work', _command["args"])
                 self.characters[connection_object.character]["command_queue"].append(_action)
                 self.callback_client_send(connection_object, "You start working on the blueprint.\r\n")
-                self.send_prompt(connection_object)
                 return
 
             if _command["command"] == "dump":  # (dump direction)
@@ -666,7 +649,6 @@ class Server(MastermindServerTCP):
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object,
                                               "You must supply a direction. try north, south, east, or west.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 position_to_create_at = self.characters[connection_object.character]["position"]
@@ -697,7 +679,6 @@ class Server(MastermindServerTCP):
                 else:
                     self.callback_client_send(connection_object,
                                               "That is not a valid direction. try north, south, east, or west.\r\n")
-                    self.send_prompt(connection_object)
                     return
 
                 _tile = self.worldmap.get_tile_by_position(position_to_create_at)
@@ -711,7 +692,6 @@ class Server(MastermindServerTCP):
                         break
                 else:
                     self.callback_client_send(connection_object, "There is no Blueprint in that tile to dump.\r\n")
-                    self.send_prompt(connection_object)
                     return
                 # check only items that belong to the recipe get dumped.
                 # loop through open containers on the creature
@@ -863,14 +843,12 @@ class Server(MastermindServerTCP):
             if not component["ident"] in count or count[component["ident"]]["amount"] < component["amount"]:
                 # need all required components to start.
                 self.callback_client_send(connection_object, "Blueprint does not contain the required components.\r\n")
-                self.send_prompt(connection_object)
                 print("not enough components.")
                 return
 
         # add time worked on to the blueprint.
         _blueprint["turns_worked_on"] = _blueprint["turns_worked_on"] + 1
         self.callback_client_send(connection_object, "Working on blueprint..\r\n")
-        self.send_prompt(connection_object)
         # if the "time worked on" is greater than the "time" is takes to craft then
         # create the object and remove the blueprint and all materials.
         if _blueprint["turns_worked_on"] >= _recipe["time"]:
@@ -887,7 +865,6 @@ class Server(MastermindServerTCP):
                 _tile["terrain"] = _newobject
             _tile["items"].remove(_blueprint)  # remove it from the world.
             self.callback_client_send(connection_object, "Finished working on blueprint!\r\n")
-            self.send_prompt(connection_object)
             print("Completed blueprint")
             return
         return
