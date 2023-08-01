@@ -15,6 +15,7 @@ func _physics_process(delta):
 		camera.position = player_position
 	# TODO: add a keypress to switch between locked and free camera. 
 	if manager_connection.should_update_localmap:
+		print("manager_connection.should_update_localmap is true")
 		for light in lights.get_children():
 			light.queue_free()
 		$terrain_tilemap.clear()
@@ -22,7 +23,7 @@ func _physics_process(delta):
 		$creature_tilemap.clear()
 		$players_tilemap.clear()
 		$items_tilemap.clear()
-
+		#print('found ' + str(len(manager_connection.localmap_chunks)) + ' chunks.')
 		for chunk in manager_connection.localmap_chunks:
 			for tile in chunk['tiles']:
 				var xy = Vector2( (tile['position']['x']), (tile['position']['y']) )
@@ -59,4 +60,5 @@ func _physics_process(delta):
 				
 				
 		# finally set back to false until we recieve a new localmap from the server
+		print('done.')
 		manager_connection.should_update_localmap = false

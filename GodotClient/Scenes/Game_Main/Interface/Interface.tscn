@@ -70,3 +70,4 @@ margin_right = 480.212
 margin_bottom = 197.254
 
 [node name="Inventory" parent="." instance=ExtResource( 10 )]
+visible = false

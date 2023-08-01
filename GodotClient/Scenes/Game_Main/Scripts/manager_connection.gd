@@ -14,6 +14,7 @@ var controlled_character = null # a dictionary for updating the Interface (stats
 
 func connect_to_server():
 	print('connecting to server ' + HOST)
+	client.set_no_delay(true)
 	client.connect_to_host(str(HOST), int(PORT))
 	var login_request = Dictionary()
 	login_request["ident"] = username
@@ -22,6 +23,16 @@ func connect_to_server():
 	#print(login_request)
 	var to_send = JSON.print(login_request).to_utf8()
 	client.put_data(to_send)
+	
+
+func request_localmap():
+	var _request = Dictionary()
+	_request["ident"] = manager_connection.username
+	_request["command"] = "request_localmap"
+	_request["args"] = []
+	var to_send = JSON.print(_request).to_utf8()
+	manager_connection.client.put_data(to_send)
+	print('sent localmap request')
 
 func _process(delta): # where we check for new data recieved from server.
 	if client.is_connected_to_host() and client.get_available_bytes() > 0:
@@ -55,18 +66,17 @@ func _process(delta): # where we check for new data recieved from server.
 			get_tree().change_scene("res://Scenes/Game_Menus/Character_Menus/window_character_select.tscn")
 
 		if _command['command'] == "enter_game":
-			# request our first update
-			var _request = Dictionary()
-			_request["ident"] = username
-			_request["command"] = "request_localmap"
-			_request["args"] = "[]"
-			var to_send = JSON.print(_request).to_utf8()
-			client.put_data(to_send)
+			manager_connection.request_localmap()
+			manager_connection.should_update_localmap = true
 			get_tree().change_scene("res://Scenes/Game_Main/window_main.tscn")
 
 		if _command['command'] == "localmap_update": # the full localmap for the character.
 			manager_connection.localmap_chunks.clear()
 			for chunk in _command['args']:
+				# print('added chunk to localmap update.')
 				manager_connection.localmap_chunks.append(chunk)
 			manager_connection.should_update_localmap = true
 			manager_connection.should_update_inventory = true
+			print('recieved a new localmap')
+			return
+		

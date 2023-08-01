@@ -39,8 +39,6 @@ func _process(delta):
 				
 				var xy = Vector2(slot_pos.x/32,slot_pos.y/32)
 				$inventory_tilemap.set_cellv( xy, item_index )
-
-
 			
 			if(body_part['slot1'] != null):
 				# need dict and Texture
@@ -54,3 +52,5 @@ func _process(delta):
 				
 				var xy = Vector2(slot_pos.x/32,slot_pos.y/32)
 				$inventory_tilemap.set_cellv( xy, item_index )
+			
+		manager_connection.should_update_inventory = false

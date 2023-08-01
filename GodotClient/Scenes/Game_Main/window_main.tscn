@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Scenes/Game_Main/Interface/Interface.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Scenes/Game_Main/Scripts/window_main.gd" type="Script" id=2]
@@ -8,7 +8,6 @@
 [ext_resource path="res://Scenes/Game_Main/gfx/tilesets/Chesthole32/creatures.res" type="TileSet" id=6]
 [ext_resource path="res://Scenes/Game_Main/gfx/tilesets/Chesthole32/players.res" type="TileSet" id=7]
 [ext_resource path="res://Scenes/Game_Main/Scripts/Camera2D.gd" type="Script" id=8]
-[ext_resource path="res://Scenes/Game_Main/Scripts/timer_localmap_request.gd" type="Script" id=9]
 
 [node name="base" type="Node2D"]
 
@@ -67,9 +66,5 @@ format = 1
 [node name="Camera2D" type="Camera2D" parent="ViewportContainer/Viewport/node_window_main"]
 current = true
 script = ExtResource( 8 )
-
-[node name="timer_request_mapupdate" type="Timer" parent="ViewportContainer/Viewport/node_window_main"]
-autostart = true
-script = ExtResource( 9 )
 
 [node name="lights" type="Node2D" parent="ViewportContainer/Viewport/node_window_main"]

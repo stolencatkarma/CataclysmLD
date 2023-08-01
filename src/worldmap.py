@@ -68,6 +68,8 @@ class Worldmap(dict):
         return True
 
     # if you write a function that deals with chunk manipulation of any kind use this.
+    # returns a chunk from a global position 
+    # handles chunks that need to be created or manipulated.
     def get_chunk_by_position(self, position):
         x_count = 0
         x = position["x"]
@@ -84,7 +86,6 @@ class Worldmap(dict):
         _dict = str(x_count) + "_" + str(y_count)
 
         path = str("./world/" + str(_dict) + ".chunk")
-        #print(path)
 
         # chunks will either be loaded, stasis'd,  or non-existant. handle all three cases.
         # check if chunk exists first. if not create it and load it into memory.
@@ -109,25 +110,13 @@ class Worldmap(dict):
 
     def get_tile_by_position(self, position):
         _chunk = self.get_chunk_by_position(position)
-        # print(position)
 
         for tile in _chunk["tiles"]:
             if tile["position"] == position:
                 return tile
         else:
-            # print("ERROR: couldn't find position! Creating new one.")
-            chunkdict = {}
-            # this position is on the worldmap. no position is ever repeated. each chunk tile gets its own position.
-            chunkdict["position"] = position
-            chunkdict["terrain"] = Terrain("t_dirt")  # make the earth
-            chunkdict["creature"] = None  # one per tile.
-            chunkdict["items"] = []  # can be zero to many items in a tile.
-            chunkdict["furniture"] = None  # one furniture per tile
-            # chunkdict["vehicle"] = None  # one per tile, but may be part of a bigger whole.
-            chunkdict["lumens"] = 0 # lighting engine
-
-            _chunk["tiles"].append(chunkdict)
-            return chunkdict
+            print("ERROR: couldn't find position!")
+            return
 
 
     def get_chunks_near_position(self, position):  # a localmap
@@ -257,7 +246,7 @@ class Worldmap(dict):
         from_tile = self.get_tile_by_position(from_position)
         to_tile = self.get_tile_by_position(to_position)
         if to_tile is None or from_tile is None:
-            print("tile doesn't exist. This should NEVER get called. ")
+            print("tile doesn't exist.")
             return False
         if from_position["z"] != to_position["z"]:  # check for stairs.
             if from_position["z"] < to_position["z"]:

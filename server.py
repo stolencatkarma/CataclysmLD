@@ -39,7 +39,7 @@ class OverMap:
 
 class Server(MastermindServerTCP):
     def __init__(self, config, logger=None):
-        MastermindServerTCP.__init__(self, 0.5, 0.5, 60.0)
+        MastermindServerTCP.__init__(self, 0.5, 0.5, 600.0)
         self._config = config
         if logger is None:
             pass
@@ -167,13 +167,11 @@ class Server(MastermindServerTCP):
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
-        try:
-            data = json.loads(data) # convert the data back to json
-        except:
-            return # return silently if we recieve bad requests
-
+        pprint(data)
+        data = json.loads(data) # convert the data back to json
         try:
             _command = Command(data["ident"], data["command"], data["args"])
+            print(_command)
         except Exception:
             print("Server: invalid data from client {}.".format(connection_object.address))
             return
@@ -222,7 +220,8 @@ class Server(MastermindServerTCP):
                         print("Creation of the directory %s failed" % _path)
                     else:
                         print("Successfully created the directory %s " % _path)
-
+                return
+            
             if _command["command"] == "request_character_list":
                 print('client is requesting character list')
                 _tmp_list = list()
@@ -238,12 +237,14 @@ class Server(MastermindServerTCP):
 
                 _command = Command('server', 'character_list', _tmp_list)
                 self.callback_client_send(connection_object, json.dumps(_command))
+                return
 
             if _command["command"] == "choose_character":
                 print(connection_object.username + " entered choose_character")
                 connection_object.character = _command['args']
                 _command = Command('server', 'enter_game', [])
                 self.callback_client_send(connection_object, json.dumps(_command))
+                return
 
             if _command["command"] == "completed_character":
                 print(connection_object.username + " entered completed_character")
@@ -255,13 +256,15 @@ class Server(MastermindServerTCP):
                     print("Server: character created for {}.".format(connection_object.username))
                 else:
                     print("Server: character NOT created. Already Exists")
+                return
 
             if _command["command"] == "request_localmap": # player wants their local map
-                print(connection_object.username + "entered request_localmap")
                 chunks = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]["position"])
                 _command = Command('server', 'localmap_update', chunks)
                 #print(_command)
                 self.callback_client_send(connection_object, json.dumps(_command))
+                print('sent ' + connection_object.username + " their localmap")
+                return
         # The commands above this line should all be working. please open an issue if you find a problem.
 
 
@@ -273,7 +276,7 @@ class Server(MastermindServerTCP):
                     return
 
                 self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
-
+                
             if _command["command"] == "bash":
                 if len(_command["args"]) == 0:
                     self.callback_client_send(connection_object, "What do you want to bash?\r\n")
@@ -726,7 +729,7 @@ class Server(MastermindServerTCP):
                                             self.callback_client_send(connection_object,
                                                                       "You dumped " + component["ident"] + ".\r\n")
                 return
-
+        
         return super(Server, self).callback_client_handle(connection_object, data)
 
     def callback_client_send(self, connection_object, data, compression=False):
@@ -767,8 +770,9 @@ class Server(MastermindServerTCP):
         actions_to_take = creature["actions_per_turn"]
         # iterate a copy so we can remove properly.
         for action in creature["command_queue"][:]:
+            print(action)
             _pos = creature["position"]
-            _target_pos = None
+            _target_pos = creature["position"] # default to the characters position if a direction is excluded
             if actions_to_take == 0:
                 return  # this creature is out of action points.
 
@@ -776,7 +780,7 @@ class Server(MastermindServerTCP):
             if creature["next_action_available"] > 0:
                 creature["next_action_available"] = creature["next_action_available"] - 1
                 return
-
+            print(str(action["args"][0]))
             if action["args"][0] == "north":
                 _target_pos = Position(_pos["x"], _pos["y"] - 1, _pos["z"])
             if action["args"][0] == "south":
@@ -1021,7 +1025,7 @@ def mainloop(server, configParser):
 
             # if the worldmap in memory changed update it on the hard drive.
             server.worldmap.handle_chunks()
-        except:
+        except KeyboardInterrupt:
             dont_break = False
             print()
             print("Cleaning up before exiting.")
