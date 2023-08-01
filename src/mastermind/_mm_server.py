@@ -244,9 +244,12 @@ class MastermindConnectionThreadTCP(MastermindConnectionThread):
                     break
                 continue
 
-            data, status = self.server.callback_client_receive(self)
-            if status == False:
-                break
+            try:
+                data, status = self.server.callback_client_receive(self)
+                if status == False:
+                    break
+            except:
+                return
 
             self.server.callback_client_handle(self, data)
 

@@ -172,8 +172,6 @@ class Server(MastermindServerTCP):
         except:
             return # return silently if we recieve bad requests
 
-
-
         try:
             _command = Command(data["ident"], data["command"], data["args"])
         except Exception:
@@ -264,9 +262,11 @@ class Server(MastermindServerTCP):
                 _command = Command('server', 'localmap_update', chunks)
                 #print(_command)
                 self.callback_client_send(connection_object, json.dumps(_command))
+        # The commands above this line should all be working. please open an issue if you find a problem.
 
-        ### all the commands that are actions need to be put into the command_queue
-        ### compute_turn() will loop through each queue each turn and process the actions.
+
+            ### all the commands below are Action() and need to be put into the creature's command_queue
+            ### compute_turn() will loop through each queue each turn and process the Action()
             if _command["command"] == "move":
                 if not _command["args"]:
                     # self.callback_client_send(connection_object, "You need to input a direction. (move north)\r\n")
