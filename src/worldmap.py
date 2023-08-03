@@ -86,23 +86,28 @@ class Worldmap(dict):
         _dict = str(x_count) + "_" + str(y_count)
 
         path = str("./world/" + str(_dict) + ".chunk")
+        
+
 
         # chunks will either be loaded, stasis'd,  or non-existant. handle all three cases.
-        # check if chunk exists first. if not create it and load it into memory.
-        if _dict not in self["CHUNKS"].keys():
+        # check if chunk exists on disk first. if not create it and load it into memory.
+        if(os.path.isfile(path)):
+            pass
+        else:
             print("creating new chunk!", _dict)
             self["CHUNKS"][_dict] = Chunk(x_count, y_count)
             with open(path, "w") as fp:
                 json.dump(self["CHUNKS"][_dict], fp)
-
+            return self["CHUNKS"][_dict]
+        
+        # un-stasis (thaw) the chunk
         if self["CHUNKS"][_dict]["stasis"]:  # need to load it from disk and back into memory.
-            print("loading chunk", _dict)
+            print("thawing chunk ", _dict)
             with open(path) as json_file:
                 self["CHUNKS"][_dict] = json.load(json_file)
                 self["CHUNKS"][_dict]["stasis"] = False
                 self["CHUNKS"][_dict]["should_stasis"] = False
                 self["CHUNKS"][_dict]["time_to_stasis"] = 100
-                return self["CHUNKS"][_dict]
         
         return self["CHUNKS"][_dict]
 
@@ -110,13 +115,25 @@ class Worldmap(dict):
 
     def get_tile_by_position(self, position):
         _chunk = self.get_chunk_by_position(position)
-
+        # if chunk exists but a tile doesn't (usually a z-level) just make one.
         for tile in _chunk["tiles"]:
             if tile["position"] == position:
                 return tile
         else:
-            print("ERROR: couldn't find position!")
-            return
+            # print('creating new tile', position)
+            newtile = {}
+            newtile["position"] = position
+            newtile["terrain"] = Terrain("t_dirt")  # make the earth
+            newtile["creature"] = None  # one per tile.
+            newtile["items"] = []  # can be zero to many items in a tile.
+            newtile["furniture"] = None  # one furniture per tile
+            # chunkdict["vehicle"] = None  # one per tile, but may be part of a bigger whole.
+            newtile["lumens"] = 0 # lighting engine
+
+            _chunk["tiles"].append(newtile)
+            for tile in _chunk["tiles"]:
+                if tile["position"] == position:
+                    return tile
 
 
     def get_chunks_near_position(self, position):  # a localmap

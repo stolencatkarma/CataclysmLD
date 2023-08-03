@@ -24,6 +24,12 @@ func furniture_pressed():
 
 
 func _input(event):
+	if Input.is_action_just_released("toggle_inventory"):
+		if $Inventory.visible:
+			$Inventory.visible = false
+		else:
+			$Inventory.visible = true
+	
 	if event is InputEventMouseButton:
 		var mousepos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").get_global_mouse_position()
 		var coordpos = get_parent().get_node("Viewport/node_window_main/terrain_tilemap").world_to_map( mousepos )

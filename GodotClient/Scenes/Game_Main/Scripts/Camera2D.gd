@@ -20,6 +20,7 @@ func _input(event):
 		move_request["args"] = ["west"]
 		var to_send = JSON.print(move_request).to_utf8()
 		manager_connection.client.put_data(to_send)
+		manager_connection.request_localmap()
 		
 	if Input.is_action_just_released("ui_right"):
 		move_request["ident"] = manager_connection.username
@@ -27,6 +28,7 @@ func _input(event):
 		move_request["args"] = ["east"]
 		var to_send = JSON.print(move_request).to_utf8()
 		manager_connection.client.put_data(to_send)
+		manager_connection.request_localmap()
 		
 	if Input.is_action_just_released("ui_down"):
 		move_request["ident"] = manager_connection.username
@@ -34,6 +36,7 @@ func _input(event):
 		move_request["args"] = ["south"]
 		var to_send = JSON.print(move_request).to_utf8()
 		manager_connection.client.put_data(to_send)
+		manager_connection.request_localmap()
 		
 	if Input.is_action_just_released("ui_up"):
 		move_request["ident"] = manager_connection.username
@@ -41,6 +44,7 @@ func _input(event):
 		move_request["args"] = ["north"]
 		var to_send = JSON.print(move_request).to_utf8()
 		manager_connection.client.put_data(to_send)
+		manager_connection.request_localmap()
 		
 	if Input.is_action_just_released("ui_ascend"):
 		move_request["ident"] = manager_connection.username
@@ -48,6 +52,7 @@ func _input(event):
 		move_request["args"] = ["up"]
 		var to_send = JSON.print(move_request).to_utf8()
 		manager_connection.client.put_data(to_send)
+		manager_connection.request_localmap()
 		
 	if Input.is_action_just_released("ui_decend"):
 		move_request["ident"] = manager_connection.username
@@ -55,6 +60,7 @@ func _input(event):
 		move_request["args"] = ["down"]
 		var to_send = JSON.print(move_request).to_utf8()
 		manager_connection.client.put_data(to_send)
+		manager_connection.request_localmap()
 		
 	if event.is_action_pressed("view_pan_mouse"):
 		mouse_captured = true
