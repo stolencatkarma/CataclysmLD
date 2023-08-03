@@ -5,6 +5,8 @@ A multiplayer rewrite of Cataclysm: Dark Days Ahead in python.
 
 Made with python 3.9.0 64 bit and Mastermind for the TCP backend.
 
+Discord is back online. - https://discord.gg/qvz5py9v7m
+
 ----
 
 A playable release is coming soon and will follow an episodic pattern, with each release adding more:
