@@ -32,12 +32,6 @@ class UIManager:
             "",
             "Tab: Switch field  Enter: Login  ESC: Quit",
             "",
-            "Controls in game:",
-            "  Arrow keys / Numpad - Move",
-            "  L - Look around",
-            "  C - Character sheet",
-            "  R - Recipes",
-            "  H - Help",
         ]
         for i, instruction in enumerate(instructions):
             x = (self.width - len(instruction)) // 2
