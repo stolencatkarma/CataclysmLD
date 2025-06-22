@@ -9,7 +9,14 @@ import argparse
 import tcod
 import tcod.event
 import tcod.console
+import sys
 from typing import Optional, List, Dict, Any, Tuple
+
+# Update sys.path to include src/client for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src', 'client'))
+from ui_manager import UIManager
+from map_renderer import MapRenderer
+from character_manager import CharacterManager
 
 from src.mastermind._mm_client import MastermindClientTCP
 from src.command import Command
@@ -24,247 +31,6 @@ class GameState(Enum):
     CHARACTER_CREATION = "character_creation"
     PLAYING = "playing"
 
-# UIManager (from client_ui.py)
-class UIManager:
-    def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
-        self.messages = []
-        self.max_messages = 20
-    def add_message(self, message: str, color: Tuple[int, int, int] = (255, 255, 255)):
-        self.messages.append((message, color))
-        if len(self.messages) > self.max_messages:
-            self.messages.pop(0)
-    def render_login_screen(self, console: tcod.console.Console):
-        console.clear()
-        title = "CATACLYSM: LOOMING DARKNESS"
-        x = (self.width - len(title)) // 2
-        console.print(x, 5, title, fg=(255, 255, 0))
-        instructions = [
-            "Welcome to Cataclysm: Looming Darkness",
-            "",
-            "Press ENTER to login with default credentials",
-            "Press ESC to quit",
-            "",
-            "Controls in game:",
-            "  Arrow keys / Numpad - Move",
-            "  L - Look around",
-            "  C - Character sheet",
-            "  R - Recipes",
-            "  H - Help",
-        ]
-        start_y = 10
-        for i, instruction in enumerate(instructions):
-            x = (self.width - len(instruction)) // 2
-            console.print(x, start_y + i, instruction)
-    def render_character_select(self, console: tcod.console.Console, characters: List[Dict[str, Any]]):
-        console.clear()
-        title = "CHARACTER SELECTION"
-        x = (self.width - len(title)) // 2
-        console.print(x, 3, title, fg=(255, 255, 0))
-        if characters:
-            console.print(5, 8, "Available Characters:")
-            for i, char in enumerate(characters):
-                name = char.get('name', 'Unknown')
-                profession = char.get('profession', 'Unknown')
-                char_info = f"{i+1}. {name} ({profession})"
-                console.print(7, 10 + i, char_info)
-            console.print(5, 15 + len(characters), "Press ENTER to select first character")
-        else:
-            console.print(5, 8, "No existing characters found.")
-        console.print(5, 20, "Press C to create new character")
-        console.print(5, 22, "Press ESC to quit")
-    def render_character_creation(self, console: tcod.console.Console):
-        console.clear()
-        title = "CHARACTER CREATION"
-        x = (self.width - len(title)) // 2
-        console.print(x, 3, title, fg=(255, 255, 0))
-        instructions = [
-            "Character creation is simplified for this demo.",
-            "",
-            "A basic survivor character will be created.",
-            "",
-            "Press ENTER to create character",
-            "Press ESC to go back",
-        ]
-        start_y = 10
-        for i, instruction in enumerate(instructions):
-            console.print(10, start_y + i, instruction)
-    def render_info_panel(self, console: tcod.console.Console, area: Tuple[int, int, int, int], character_data: Optional[Dict[str, Any]]):
-        x, y, w, h = area
-        console.draw_frame(x, y, w, h, "Character Info", fg=(255, 255, 255))
-        if character_data:
-            info_y = y + 2
-            console.print(x + 2, info_y, f"Name: {character_data.get('name', 'Unknown')}")
-            console.print(x + 2, info_y + 1, f"Profession: {character_data.get('profession', 'Unknown')}")
-            stats_y = info_y + 3
-            console.print(x + 2, stats_y, "Stats:", fg=(200, 200, 200))
-            console.print(x + 2, stats_y + 1, f"STR: {character_data.get('strength', 0)}")
-            console.print(x + 2, stats_y + 2, f"DEX: {character_data.get('dexterity', 0)}")
-            console.print(x + 2, stats_y + 3, f"INT: {character_data.get('intelligence', 0)}")
-            console.print(x + 2, stats_y + 4, f"PER: {character_data.get('perception', 0)}")
-            console.print(x + 2, stats_y + 5, f"CON: {character_data.get('constitution', 0)}")
-        else:
-            console.print(x + 2, y + 2, "No character data")
-    def render_messages_panel(self, console: tcod.console.Console, area: Tuple[int, int, int, int]):
-        x, y, w, h = area
-        console.draw_frame(x, y, w, h, "Messages", fg=(255, 255, 255))
-        start_y = y + h - 2
-        visible_messages = self.messages[-(h-2):]
-        for i, (message, color) in enumerate(visible_messages):
-            msg_y = start_y - len(visible_messages) + i + 1
-            if msg_y >= y + 1:
-                if len(message) > w - 4:
-                    message = message[:w-7] + "..."
-                console.print(x + 2, msg_y, message, fg=color)
-    def render_status_bar(self, console: tcod.console.Console, area: Tuple[int, int, int, int]):
-        x, y, w, h = area
-        console.draw_frame(x, y, w, h, "Commands", fg=(255, 255, 255))
-        help_text = [
-            "Movement: Arrow Keys/Numpad  |  L:Look  C:Character  R:Recipes  H:Help  ESC:Quit",
-            "Game Commands: Take, Craft, Work, Bash, Transfer, Recipe",
-            "Type commands will be implemented in future versions"
-        ]
-        for i, text in enumerate(help_text):
-            if i < h - 2:
-                console.print(x + 2, y + 1 + i, text, fg=(200, 200, 200))
-
-# MapRenderer (from client_map.py)
-class MapRenderer:
-    def __init__(self):
-        self.tile_colors = {
-            't_floor': (128, 128, 128),
-            't_wall': (255, 255, 255),
-            't_door_c': (139, 69, 19),
-            't_door_o': (101, 67, 33),
-            't_window': (173, 216, 230),
-            't_grass': (34, 139, 34),
-            't_dirt': (139, 119, 101),
-            't_pavement': (105, 105, 105),
-            't_road': (64, 64, 64),
-            't_water': (0, 100, 200),
-            't_tree': (0, 100, 0),
-            't_open_air': (135, 206, 235),
-        }
-        self.tile_chars = {
-            't_floor': '.',
-            't_wall': '#',
-            't_door_c': '+',
-            't_door_o': '/',
-            't_window': '"',
-            't_grass': '.',
-            't_dirt': '.',
-            't_pavement': '.',
-            't_road': '.',
-            't_water': '~',
-            't_tree': 'T',
-            't_open_air': ' ',
-        }
-        self.default_color = (100, 100, 100)
-        self.default_char = '?'
-        self.player_char = '@'
-        self.player_color = (255, 255, 0)
-        self.item_color = (255, 255, 0)
-        self.furniture_color = (139, 69, 19)
-        self.monster_color = (255, 0, 0)
-    def render(self, console, localmap, area, character_data):
-        x, y, w, h = area
-        if not localmap:
-            console.print(x + 2, y + 2, "No map data available")
-            return
-        # Determine chunks
-        if isinstance(localmap, list):
-            chunks = localmap
-        elif isinstance(localmap, dict):
-            chunks = localmap.get('chunks', [])
-        else:
-            chunks = []
-        # Center on player if possible
-        player_pos = None
-        if character_data and 'position' in character_data:
-            player_pos = character_data['position']
-        if player_pos:
-            center_x = player_pos.get('x', 0)
-            center_y = player_pos.get('y', 0)
-            offset_x = center_x - w // 2
-            offset_y = center_y - h // 2
-        else:
-            offset_x = 0
-            offset_y = 0
-        # Draw tiles
-        for chunk in chunks:
-            if not isinstance(chunk, dict) or 'tiles' not in chunk:
-                continue
-            for tile in chunk['tiles']:
-                if not isinstance(tile, dict) or 'position' not in tile:
-                    continue
-                tile_pos = tile['position']
-                screen_x = tile_pos['x'] - offset_x
-                screen_y = tile_pos['y'] - offset_y
-                if 0 <= screen_x < w and 0 <= screen_y < h:
-                    self._render_tile(console, x + screen_x, y + screen_y, tile)
-        # Draw player '@' after all tiles
-        if player_pos:
-            px = x + (player_pos.get('x', 0) - offset_x)
-            py = y + (player_pos.get('y', 0) - offset_y)
-            if 0 <= px < x + w and 0 <= py < y + h:
-                console.print(px, py, '@', fg=self.player_color)
-    def _render_tile(self, console, x, y, tile):
-        # Get terrain ident
-        terrain = tile.get('terrain', {})
-        terrain_ident = terrain.get('ident', 'unknown')
-        char = self.tile_chars.get(terrain_ident, self.default_char)
-        fg = self.tile_colors.get(terrain_ident, self.default_color)
-        bg = (0, 0, 0)
-        # Check for furniture
-        if tile.get('furniture'):
-            char = 'f'
-            fg = self.furniture_color
-        # Check for items
-        items = tile.get('items', [])
-        if items:
-            item = items[0]
-            if item.get('ident') == 'blueprint':
-                char = 'B'
-                fg = (0, 255, 255)
-            else:
-                char = '!'
-                fg = self.item_color
-        # Check for creature/monster
-        if tile.get('creature'):
-            char = 'M'
-            fg = self.monster_color
-        console.print(x, y, char, fg=fg, bg=bg)
-
-# CharacterManager (from client_character.py)
-class CharacterManager:
-    def __init__(self):
-        self.character_data = None
-        self.known_recipes = []
-        self.inventory = []
-        self.equipment = {}
-    def update_character(self, data: Dict[str, Any]):
-        self.character_data = data
-    def get_character(self) -> Optional[Dict[str, Any]]:
-        return self.character_data
-    def add_recipe(self, recipe_name: str):
-        if recipe_name not in self.known_recipes:
-            self.known_recipes.append(recipe_name)
-    def has_recipe(self, recipe_name: str) -> bool:
-        return recipe_name in self.known_recipes
-    def add_item(self, item: Dict[str, Any]):
-        self.inventory.append(item)
-    def remove_item(self, item_id: str):
-        self.inventory = [item for item in self.inventory if item.get('id') != item_id]
-    def equip_item(self, item_id: str):
-        item = next((item for item in self.inventory if item.get('id') == item_id), None)
-        if item:
-            self.equipment[item.get('slot')] = item
-    def unequip_item(self, slot: str):
-        if slot in self.equipment:
-            del self.equipment[slot]
-    # ...rest of CharacterManager...
-
 # --- End modular client classes integration ---
 
 
@@ -275,15 +41,30 @@ class CataclysmClient:
         self.client = MastermindClientTCP(timeout_connect=5.0, timeout_receive=1.0)
         self.connected = False
         self.running = True
-        
         # Game state
         self.username = ""
         self.password = ""
+        self.input_username = ""
+        self.input_password = ""
+        self.active_login_field = "username"  # or "password"
         self.character_name = ""
         self.game_state = GameState.LOGIN
         self.available_characters = []
         self.localmap = None
         self.character_data = None
+        
+        # Character creation state
+        self.creation_name = ""
+        self.creation_gender = "male"
+        self.creation_professions = []  # List of loaded professions
+        self.creation_profession_index = 0
+        self.creation_stats = {
+            'strength': 8,
+            'dexterity': 8,
+            'intelligence': 8,
+            'perception': 8,
+            'constitution': 8
+        }
         
         # UI components
         self.ui_manager = None
@@ -302,6 +83,35 @@ class CataclysmClient:
         # Track last printed position
         self.last_player_position = None
         
+        # Active field for character creation
+        self.creation_active_field = 'name'
+        
+        self.motd_lines = []
+        self.load_professions()
+        # Load MOTD ASCII art for main menu
+        try:
+            import src.client.ui_manager as ui_manager
+            self.motd_lines = ui_manager.UIManager.get_motd_lines(self)
+        except Exception:
+            self.motd_lines = []
+
+    def load_professions(self):
+        """Load all professions from data/json/professions/ directory."""
+        import glob
+        import json
+        self.creation_professions = []
+        prof_dir = os.path.join(os.path.dirname(__file__), 'data', 'json', 'professions')
+        if not os.path.exists(prof_dir):
+            prof_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'json', 'professions'))
+        for file in glob.glob(os.path.join(prof_dir, '*.json')):
+            with open(file, encoding='utf-8') as f:
+                data = json.load(f)
+                for prof in data:
+                    self.creation_professions.append(prof)
+        if not self.creation_professions:
+            self.creation_professions.append({'ident': 'survivor', 'name': 'Survivor', 'description': 'Default profession.'})
+        self.creation_profession_index = 0
+
     def setup_console(self):
         """Initialize the tcod console using modern context API"""
         try:
@@ -369,6 +179,9 @@ class CataclysmClient:
                 ident = self.character_name
             else:
                 ident = self.username
+            # Always send args as a list for login, using current username/password
+            if command == 'login':
+                args = [self.username, self.password]
             cmd = Command(ident, command, args)
             message = json.dumps(cmd)
             self.client.send(message)
@@ -519,6 +332,58 @@ class CataclysmClient:
 
     def handle_input(self, event: tcod.event.Event) -> bool:
         """Handle user input based on current game state"""
+        # Mouse support for all menus
+        if isinstance(event, tcod.event.MouseButtonDown):
+            mx, my = event.tile
+            if self.game_state == GameState.LOGIN:
+                button_areas = {}
+                self.ui_manager.render_login_screen(self.console, self.input_username, self.input_password, self.active_login_field, self.motd_lines, button_areas)
+                hit = self.ui_manager.get_button_hit(mx, my, button_areas)
+                if hit == 'login':
+                    if self.input_username and self.input_password:
+                        self.send_command('login', [self.input_username, self.input_password])
+                    return True
+            elif self.game_state == GameState.CHARACTER_SELECT:
+                button_areas = {}
+                self.ui_manager.render_character_select(self.console, self.available_characters, button_areas)
+                hit = self.ui_manager.get_button_hit(mx, my, button_areas)
+                if hit == 'select' and self.available_characters:
+                    char = self.available_characters[0]
+                    self.character_name = char.get('name', 'Unknown')
+                    self.character_data = char
+                    self.send_command('choose_character', self.character_name)
+                    return True
+                elif hit == 'create':
+                    self.game_state = GameState.CHARACTER_CREATION
+                    return True
+            elif self.game_state == GameState.CHARACTER_CREATION:
+                button_areas = {}
+                self.ui_manager.render_character_creation(
+                    self.console,
+                    name=self.creation_name,
+                    gender=self.creation_gender,
+                    professions=self.creation_professions,
+                    profession_index=self.creation_profession_index,
+                    stats=self.creation_stats,
+                    active_field=self.creation_active_field,
+                    active_button=self.creation_active_field if self.creation_active_field in ['ok', 'cancel'] else 'ok',
+                    button_areas=button_areas
+                )
+                hit = self.ui_manager.get_button_hit(mx, my, button_areas)
+                if hit == 'ok':
+                    char_data = {
+                        'name': self.creation_name or f"Player_{int(time.time())}",
+                        'gender': self.creation_gender,
+                        'profession': self.creation_professions[self.creation_profession_index]['ident'] if self.creation_professions else 'survivor',
+                        **self.creation_stats
+                    }
+                    self.character_name = char_data['name']
+                    self.send_command('completed_character', char_data)
+                    return True
+                elif hit == 'cancel':
+                    self.game_state = GameState.CHARACTER_SELECT
+                    return True
+        # ...existing code for keyboard...
         if isinstance(event, tcod.event.KeyDown):
             if self.game_state == GameState.LOGIN:
                 return self.handle_login_input(event)
@@ -528,19 +393,33 @@ class CataclysmClient:
                 return self.handle_character_creation_input(event)
             elif self.game_state == GameState.PLAYING:
                 return self.handle_game_input(event)
-        
         return True
     
     def handle_login_input(self, event: tcod.event.KeyDown) -> bool:
         """Handle input during login state"""
-        if event.sym == tcod.event.KeySym.RETURN:
-            if not self.username:
-                self.username = "testuser"  # Placeholder
-                self.password = "testpass"  # Placeholder
-                self.send_command('login', self.password)
+        import string
+        if event.sym == tcod.event.KeySym.TAB:
+            self.active_login_field = "password" if self.active_login_field == "username" else "username"
+            return True
+        elif event.sym == tcod.event.KeySym.RETURN:
+            if self.input_username and self.input_password:
+                self.send_command('login', [self.input_username, self.input_password])
+            return True
+        elif event.sym == tcod.event.KeySym.BACKSPACE:
+            if self.active_login_field == "username":
+                self.input_username = self.input_username[:-1]
+            else:
+                self.input_password = self.input_password[:-1]
             return True
         elif event.sym == tcod.event.KeySym.ESCAPE:
             return False
+        # Accept printable characters
+        if event.sym >= 32 and event.sym <= 126:
+            char = chr(event.sym)
+            if self.active_login_field == "username":
+                self.input_username += char
+            else:
+                self.input_password += char
         return True
 
     def handle_character_select_input(self, event: tcod.event.KeyDown) -> bool:
@@ -562,14 +441,77 @@ class CataclysmClient:
         return True
 
     def handle_character_creation_input(self, event: tcod.event.KeyDown) -> bool:
-        """Handle input during character creation"""
-        if event.sym == tcod.event.KeySym.RETURN:
-            self.character_name = f"Player_{int(time.time())}"
-            self.send_command('completed_character', self.character_name)
+        fields = ['name', 'gender', 'profession', 'strength', 'dexterity', 'intelligence', 'perception', 'constitution']
+        if self.creation_active_field not in fields:
+            self.creation_active_field = 'name'
+        if event.sym in (tcod.event.KeySym.TAB, tcod.event.KeySym.DOWN):
+            if self.creation_active_field == 'ok':
+                self.creation_active_field = 'cancel'
+            elif self.creation_active_field == 'cancel':
+                self.creation_active_field = 'name'
+            else:
+                idx = fields.index(self.creation_active_field)
+                idx = (idx + 1) % len(fields)
+                self.creation_active_field = fields[idx]
             return True
+        elif event.sym == tcod.event.KeySym.UP:
+            if self.creation_active_field == 'cancel':
+                self.creation_active_field = 'ok'
+            elif self.creation_active_field == 'ok':
+                self.creation_active_field = fields[-1]
+            else:
+                idx = fields.index(self.creation_active_field)
+                idx = (idx - 1) % len(fields)
+                self.creation_active_field = fields[idx]
+            return True
+        elif event.sym == tcod.event.KeySym.LEFT:
+            if self.creation_active_field == 'gender':
+                self.creation_gender = 'male' if self.creation_gender == 'female' else 'female'
+            elif self.creation_active_field == 'profession':
+                self.creation_profession_index = (self.creation_profession_index - 1) % len(self.creation_professions)
+            elif self.creation_active_field in self.creation_stats:
+                self.creation_stats[self.creation_active_field] = max(1, self.creation_stats[self.creation_active_field] - 1)
+            elif self.creation_active_field == 'ok':
+                self.creation_active_field = 'cancel'
+            elif self.creation_active_field == 'cancel':
+                self.creation_active_field = 'ok'
+            return True
+        elif event.sym == tcod.event.KeySym.RIGHT:
+            if self.creation_active_field == 'gender':
+                self.creation_gender = 'female' if self.creation_gender == 'male' else 'male'
+            elif self.creation_active_field == 'profession':
+                self.creation_profession_index = (self.creation_profession_index + 1) % len(self.creation_professions)
+            elif self.creation_active_field in self.creation_stats:
+                self.creation_stats[self.creation_active_field] = min(20, self.creation_stats[self.creation_active_field] + 1)
+            elif self.creation_active_field == 'ok':
+                self.creation_active_field = 'cancel'
+            elif self.creation_active_field == 'cancel':
+                self.creation_active_field = 'ok'
+            return True
+        elif event.sym == tcod.event.KeySym.BACKSPACE:
+            if self.creation_active_field == 'name':
+                self.creation_name = self.creation_name[:-1]
+            return True
+        elif event.sym == tcod.event.KeySym.RETURN:
+            if self.creation_active_field == 'ok':
+                char_data = {
+                    'name': self.creation_name or f"Player_{int(time.time())}",
+                    'gender': self.creation_gender,
+                    'profession': self.creation_professions[self.creation_profession_index]['ident'] if self.creation_professions else 'survivor',
+                    **self.creation_stats
+                }
+                self.character_name = char_data['name']
+                self.send_command('completed_character', char_data)
+                return True
+            elif self.creation_active_field == 'cancel':
+                self.game_state = GameState.CHARACTER_SELECT
+                return True
         elif event.sym == tcod.event.KeySym.ESCAPE:
             self.game_state = GameState.CHARACTER_SELECT
             return True
+        # Accept printable characters for name
+        if self.creation_active_field == 'name' and event.sym >= 32 and event.sym <= 126:
+            self.creation_name += chr(event.sym)
         return True
 
     def handle_game_input(self, event: tcod.event.KeyDown) -> bool:
@@ -611,13 +553,25 @@ class CataclysmClient:
     def render(self):
         """Render the current game state"""
         self.console.clear()
-        
         if self.game_state == GameState.LOGIN:
-            self.ui_manager.render_login_screen(self.console)
+            button_areas = {}
+            self.ui_manager.render_login_screen(self.console, self.input_username, self.input_password, self.active_login_field, self.motd_lines, button_areas)
         elif self.game_state == GameState.CHARACTER_SELECT:
-            self.ui_manager.render_character_select(self.console, self.available_characters)
+            button_areas = {}
+            self.ui_manager.render_character_select(self.console, self.available_characters, button_areas)
         elif self.game_state == GameState.CHARACTER_CREATION:
-            self.ui_manager.render_character_creation(self.console)
+            button_areas = {}
+            self.ui_manager.render_character_creation(
+                self.console,
+                name=self.creation_name,
+                gender=self.creation_gender,
+                professions=self.creation_professions,
+                profession_index=self.creation_profession_index,
+                stats=self.creation_stats,
+                active_field=self.creation_active_field,
+                active_button=self.creation_active_field if self.creation_active_field in ['ok', 'cancel'] else 'ok',
+                button_areas=button_areas
+            )
         elif self.game_state == GameState.PLAYING:
             self.render_game()
         # Present the console using the context
