@@ -386,7 +386,8 @@ class CataclysmClient:
                         **self.creation_stats
                     }
                     self.character_name = char_data['name']
-                    self.send_command('completed_character', char_data)
+                    # Server expects only the character name. Sending full data may cause a server-side error.
+                    self.send_command('completed_character', char_data['name'])
                     return True
                 elif hit == 'cancel':
                     self.game_state = GameState.CHARACTER_SELECT
@@ -407,10 +408,15 @@ class CataclysmClient:
         """Handle input during login state"""
         import string
         if event.sym == tcod.event.KeySym.TAB:
-            self.active_login_field = "password" if self.active_login_field == "username" else "username"
+            fields = ["username", "password", "login_btn"]
+            try:
+                idx = fields.index(self.active_login_field)
+                self.active_login_field = fields[(idx + 1) % len(fields)]
+            except ValueError:
+                self.active_login_field = fields[0]
             return True
         elif event.sym == tcod.event.KeySym.RETURN:
-            if self.input_username and self.input_password:
+            if self.active_login_field == 'login_btn' or (self.input_username and self.input_password):
                 self.send_command('login', [self.input_username, self.input_password])
             return True
         elif event.sym == tcod.event.KeySym.BACKSPACE:
@@ -449,28 +455,23 @@ class CataclysmClient:
         return True
 
     def handle_character_creation_input(self, event: tcod.event.KeyDown) -> bool:
-        fields = ['name', 'gender', 'profession', 'strength', 'dexterity', 'intelligence', 'perception', 'constitution']
+        fields = ['name', 'gender', 'profession', 'strength', 'dexterity', 'intelligence', 'perception', 'constitution', 'ok', 'cancel']
         if self.creation_active_field not in fields:
             self.creation_active_field = 'name'
+        
         if event.sym in (tcod.event.KeySym.TAB, tcod.event.KeySym.DOWN):
-            if self.creation_active_field == 'ok':
-                self.creation_active_field = 'cancel'
-            elif self.creation_active_field == 'cancel':
-                self.creation_active_field = 'name'
-            else:
+            try:
                 idx = fields.index(self.creation_active_field)
-                idx = (idx + 1) % len(fields)
-                self.creation_active_field = fields[idx]
+                self.creation_active_field = fields[(idx + 1) % len(fields)]
+            except ValueError:
+                self.creation_active_field = fields[0]
             return True
         elif event.sym == tcod.event.KeySym.UP:
-            if self.creation_active_field == 'cancel':
-                self.creation_active_field = 'ok'
-            elif self.creation_active_field == 'ok':
-                self.creation_active_field = fields[-1]
-            else:
+            try:
                 idx = fields.index(self.creation_active_field)
-                idx = (idx - 1) % len(fields)
-                self.creation_active_field = fields[idx]
+                self.creation_active_field = fields[(idx - 1 + len(fields)) % len(fields)]
+            except ValueError:
+                self.creation_active_field = fields[0]
             return True
         elif event.sym == tcod.event.KeySym.LEFT:
             if self.creation_active_field == 'gender':
@@ -509,7 +510,8 @@ class CataclysmClient:
                     **self.creation_stats
                 }
                 self.character_name = char_data['name']
-                self.send_command('completed_character', char_data)
+                # Server expects only the character name. Sending full data may cause a server-side error.
+                self.send_command('completed_character', char_data['name'])
                 return True
             elif self.creation_active_field == 'cancel':
                 self.game_state = GameState.CHARACTER_SELECT
