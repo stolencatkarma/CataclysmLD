@@ -392,6 +392,9 @@ class CataclysmClient:
                 elif hit == 'cancel':
                     self.game_state = GameState.CHARACTER_SELECT
                     return True
+                elif hit == 'back':  # New Back button handling
+                    self.game_state = GameState.CHARACTER_SELECT
+                    return True
         # ...existing code for keyboard...
         if isinstance(event, tcod.event.KeyDown):
             if self.game_state == GameState.LOGIN:
@@ -612,6 +615,7 @@ class CataclysmClient:
                 self.process_messages()
                 # Handle all input events (non-blocking)
                 for event in tcod.event.get():
+                    self.context.convert_event(event)
                     if isinstance(event, tcod.event.Quit):
                         raise SystemExit()
                     elif not self.handle_input(event):
