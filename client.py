@@ -20,6 +20,7 @@ from character_manager import CharacterManager
 
 from src.mastermind._mm_client import MastermindClientTCP
 from src.command import Command
+from src.passhash import hashPassword as hashpass
 
 # --- Begin modular client classes integration ---
 
@@ -168,20 +169,27 @@ class CataclysmClient:
         if not self.connected:
             return
         try:
-            # Use character_name as ident for in-game commands, username for login/character selection
             in_game_commands = {
                 'move', 'look', 'character', 'recipe', 'help', 'take', 'craft', 'work', 'bash', 'transfer'
             }
             if command in in_game_commands:
-                if not self.character_name:
-                    print(f"[ERROR] Tried to send in-game command '{command}' but character_name is not set!")
-                    return
                 ident = self.character_name
             else:
                 ident = self.username
-            # Always send args as a list for login, using current username/password
             if command == 'login':
-                args = [self.username, self.password]
+                if not self.input_username or not self.input_password:
+                    print("Username or password is empty. Not sending login command.")
+                    return
+                # Ensure both are strings
+                username = str(self.input_username)
+                password = str(self.input_password)
+                args = [username, password]
+                ident = username
+            # If using hashpass anywhere, ensure password is a string
+            if command == 'some_command_that_hashes':
+                # Example usage:
+                # hashed = hashpass(str(password), salt)
+                pass
             cmd = Command(ident, command, args)
             message = json.dumps(cmd)
             self.client.send(message)

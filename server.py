@@ -24,7 +24,7 @@ from src.profession import ProfessionManager
 from src.monster import MonsterManager
 from src.worldmap import Worldmap
 from src.tilemanager import TileManager
-from src.passhash import makeSalt, hashPassword
+from src.passhash import hashPassword as hashpass
 from src.terrain import Terrain
 from src.furniture import Furniture
 
@@ -198,24 +198,25 @@ class Server(MastermindServerTCP):
                     # this will be the client's username.
                     connection_object.username = data['ident']
                     print(connection_object.username + " entered login")
-                    connection_object.password = data['args'] # plaintext password until salting and hashing is back
+                    connection_object.password = data['args'][1] # assign only the password string
 
-                    # check whether this username has an account.
                     _path = "./accounts/" + connection_object.username + "/"
-                    if os.path.isdir("./accounts/" + connection_object.username):
-                        # account exists. check the recieved password against the saved one.
-                        with open(str(_path + "PASSWORD"), "r") as _password:
-                            # read the password 
-                            _check = connection_object.password
-                            _check2 = _password.read()
-                            if _check == _check2:
-                                print("password accepted for " + connection_object.username)
-                                _accepted = Command("server", "login", "accepted")
-                                self.callback_client_send(connection_object, json.dumps(_accepted))
-                            else:
-                                print("Password NOT accepted for " + connection_object.username)
-                                connection_object.terminate()
-                                return
+                    if os.path.isdir(_path):
+                        # account exists. check the received password against the saved one.
+                        with open(str(_path + "SALT"), "r") as _salt_file:
+                            salt = _salt_file.read().strip()
+                        with open(str(_path + "HASHED_PASSWORD"), "r") as _password:
+                            stored_hash = _password.read().strip()
+                        # hash the received password with the stored salt
+                        check_hash = hashpass(connection_object.password, salt)
+                        if check_hash == stored_hash:
+                            print("password accepted for " + connection_object.username)
+                            _accepted = Command("server", "login", "accepted")
+                            self.callback_client_send(connection_object, json.dumps(_accepted))
+                        else:
+                            print("Password NOT accepted for " + connection_object.username)
+                            connection_object.terminate()
+                            return
                     else:
                         # account doesn't exist. create a directory for them.
                         try:
@@ -224,21 +225,24 @@ class Server(MastermindServerTCP):
                             print("Creation of the directory %s failed" % _path)
                         else:
                             print("Successfully created the directory %s " % _path)
-
-                        with open(str(_path + "PASSWORD"), "w") as f:
-                            # write the password
-                            f.write(str(connection_object.password))
-
-                        _path = "./accounts/" + connection_object.username + "/characters/"
+                        # generate salt and hash password
+                        import random, string
+                        salt = ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+                        hashed = hashpass(connection_object.password, salt)
+                        with open(str(_path + "SALT"), "w") as f:
+                            f.write(salt)
+                        with open(str(_path + "HASHED_PASSWORD"), "w") as f:
+                            f.write(hashed)
+                        _path_char = _path + "characters/"
                         try:
-                            os.mkdir(_path)
+                            os.mkdir(_path_char)
                         except OSError:
-                            print("Creation of the directory %s failed" % _path)
+                            print("Creation of the directory %s failed" % _path_char)
                         else:
-                            print("Successfully created the directory %s " % _path)
-                            _accepted = Command("server", "login", "accepted")
-                            self.callback_client_send(connection_object, json.dumps(_accepted))
-                            return
+                            print("Successfully created the directory %s " % _path_char)
+                        _accepted = Command("server", "login", "accepted")
+                        self.callback_client_send(connection_object, json.dumps(_accepted))
+                        return
                 
                 if _command["command"] == "request_character_list":
                     print('client is requesting character list')
