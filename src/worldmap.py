@@ -262,6 +262,7 @@ class Worldmap(dict):
     def move_creature_from_position_to_position(self, obj, from_position, to_position):
         from_tile = self.get_tile_by_position(from_position)
         to_tile = self.get_tile_by_position(to_position)
+        print(f"[DEBUG] move_creature_from_position_to_position: from={from_position}, to={to_position}")
         if to_tile is None or from_tile is None:
             print("tile doesn't exist.")
             return False
@@ -280,15 +281,16 @@ class Worldmap(dict):
             print("tile is impassable")
             return False
 
-        # Don't move over creatures. 1 per tile.
-        if to_tile["creature"] is not None:
-            print("creature is impassable")
+        # Don't move over creatures. 1 per tile, unless it's the same creature (moving to own tile is a no-op)
+        if to_tile["creature"] is not None and to_tile["creature"] is not obj:
+            print(f"creature is impassable: {to_tile['creature']}")
             return False
 
         # cut from one and paste it to another.
         to_tile["creature"] = obj
         to_tile["creature"]["position"] = to_position  # update it for the action queue. makes life easier there.
-        from_tile["creature"] = None
+        if from_tile is not to_tile:
+            from_tile["creature"] = None
 
         self.get_chunk_by_position(from_position)["is_dirty"] = True
         self.get_chunk_by_position(to_position)["is_dirty"] = True
