@@ -175,7 +175,7 @@ class CataclysmClient:
             if command in in_game_commands:
                 ident = self.character_name
             else:
-                ident = self.username
+                ident = self.username  # Always use self.username for account-level commands
             if command == 'login':
                 if not self.input_username or not self.input_password:
                     print("Username or password is empty. Not sending login command.")
@@ -260,6 +260,7 @@ class CataclysmClient:
         if command == 'login':
             if message.get('args') == 'accepted':
                 print("Login accepted")
+                self.username = self.input_username  # Set username after successful login
                 self.game_state = GameState.CHARACTER_SELECT
                 self.send_command('request_character_list')
         elif command == 'character_list':
@@ -271,6 +272,14 @@ class CataclysmClient:
                 except Exception as e:
                     print(f"Failed to parse character: {e}")
             print(f"Received {len(self.available_characters)} characters")
+            # Auto-select just created character if needed
+            if hasattr(self, '_just_created_character') and self._just_created_character:
+                for char in self.available_characters:
+                    if char.get('name') == self.character_name:
+                        self.character_data = char
+                        self.send_command('choose_character', self.character_name)
+                        break
+                self._just_created_character = False
         elif command == 'enter_game':
             print("Entering game!")
             self.game_state = GameState.PLAYING
@@ -385,7 +394,8 @@ class CataclysmClient:
                         'profession': self.creation_professions[self.creation_profession_index]['ident'] if self.creation_professions else 'survivor',
                         **self.creation_stats
                     }
-                    self.character_name = char_data['name']
+                    self.character_name = char_data['name']  # Set character_name BEFORE sending command
+                    self._just_created_character = True  # Track that we just created a character
                     # Server expects only the character name. Sending full data may cause a server-side error.
                     self.send_command('completed_character', char_data['name'])
                     return True
@@ -512,7 +522,8 @@ class CataclysmClient:
                     'profession': self.creation_professions[self.creation_profession_index]['ident'] if self.creation_professions else 'survivor',
                     **self.creation_stats
                 }
-                self.character_name = char_data['name']
+                self.character_name = char_data['name']  # Set character_name BEFORE sending command
+                self._just_created_character = True  # Track that we just created a character
                 # Server expects only the character name. Sending full data may cause a server-side error.
                 self.send_command('completed_character', char_data['name'])
                 return True
