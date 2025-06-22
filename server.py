@@ -270,14 +270,15 @@ class Server(MastermindServerTCP):
 
                 if _command["command"] == "completed_character":
                     print(connection_object.username + " entered completed_character")
+                    # _command["args"] should be the character name or data
                     if not _command["args"] in self.characters:
                         # this character doesn't exist in the world yet.
                         self.handle_new_character(connection_object.username, _command["args"])
                         _command = Command('server', 'enter_game', [])
                         self.callback_client_send(connection_object, json.dumps(_command))
-                        print("Server: character created for {}.".format(connection_object.username))
+                        print(f"Server: character created for {connection_object.username}.")
                     else:
-                        print("Server: character NOT created. Already Exists")
+                        print(f"Server: character NOT created. Already Exists: {_command['args']}")
                     return
 
                 if _command["command"] == "request_localmap": # player wants their local map
