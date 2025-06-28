@@ -1,5 +1,4 @@
-
-class Calendar:  # controls the time in game. to advance time in game we do it with this.
+class GameCalendar:  # controls the time in game. to advance time in game we do it with this.
     def __init__(self, seconds, minutes, hours, days, months, years):
         self.SECONDS = seconds
         self.MINUTES = minutes
@@ -45,6 +44,7 @@ class Calendar:  # controls the time in game. to advance time in game we do it w
     def localtime(self):
         return str(self.HOURS) + ':' + str(self.MINUTES) + ':' + str(self.SECONDS)
 
+
     def advance_time_by_x_seconds(self, amount):
         for x in range(amount):
             self.SECONDS = self.SECONDS + 1
@@ -68,6 +68,75 @@ class Calendar:  # controls the time in game. to advance time in game we do it w
             if(self.MONTHS >= self.MONTHS_PER_YEAR):
                 self.MONTHS = 0
                 self.YEARS = self.YEARS + 1
+
+    def advance_turn(self):
+        """
+        Advance the game by one turn (one second).
+        This is the standard method to advance time in the game loop.
+        """
+        self.advance_time_by_x_seconds(1)
+
+    def get_time_string(self):
+        """
+        Return a formatted string of the current time (HH:MM:SS).
+        """
+        return f"{self.HOURS:02}:{self.MINUTES:02}:{self.SECONDS:02}"
+
+    def get_date_string(self):
+        """
+        Return a formatted string of the current date (Year-Month-Day, Season).
+        """
+        season = self.get_season()
+        return f"Year {self.YEARS+1}, Month {self.MONTHS+1}, Day {self.DAYS+1} ({season})"
+
+    def get_full_datetime_string(self):
+        """
+        Return a full string of the current date and time.
+        """
+        return f"{self.get_date_string()} {self.get_time_string()}"
+
+    def is_night(self):
+        """
+        Return True if the current time is considered night (e.g., 20:00-6:00).
+        """
+        return self.HOURS < 6 or self.HOURS >= 20
+
+    def is_day(self):
+        """
+        Return True if the current time is considered day (e.g., 6:00-20:00).
+        """
+        return not self.is_night()
+
+    def get_day_of_year(self):
+        """
+        Return the day of the year (1-based).
+        """
+        return self.DAYS + 1 + self.MONTHS * self.DAYS_PER_MONTH
+
+    def get_week_of_year(self):
+        """
+        Return the week of the year (1-based, 7 days per week).
+        """
+        return (self.get_day_of_year() - 1) // 7 + 1
+
+    def get_total_seconds(self):
+        """
+        Return the total number of seconds since the start of the game.
+        """
+        return self.get_turn()
+
+    def get_time_of_day(self):
+        """
+        Return a string representing the time of day (morning, afternoon, evening, night).
+        """
+        if 6 <= self.HOURS < 12:
+            return "morning"
+        elif 12 <= self.HOURS < 18:
+            return "afternoon"
+        elif 18 <= self.HOURS < 20:
+            return "evening"
+        else:
+            return "night"
 
     def get_turn(self):
         self.TURN = self.SECONDS + int(self.MINUTES * self.SECONDS_PER_MINUTE) + int(self.HOURS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR) + int(self.DAYS * self.SECONDS_PER_MINUTE * self.MINUTES_PER_HOUR * self.HOURS_PER_DAY) + int(

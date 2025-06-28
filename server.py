@@ -13,7 +13,7 @@ import re
 
 from src.mastermind._mm_server import MastermindServerTCP
 from src.action import Action
-from src.calendar import Calendar
+from src.game_calendar import GameCalendar
 from src.command import Command
 from src.furniture import FurnitureManager
 from src.item import Container, Item, ItemManager, Blueprint
@@ -39,6 +39,28 @@ class OverMap:
 
 
 class Server(MastermindServerTCP):
+    def compute_turn(self):
+        """Process all player and monster command queues for this turn."""
+        # Process all player characters
+        for character_name, character in self.characters.items():
+            if not character or not isinstance(character, dict):
+                continue
+            # Defensive: ensure command_queue exists
+            if "command_queue" not in character or not isinstance(character["command_queue"], list):
+                character["command_queue"] = []
+            self.process_creature_command_queue(character)
+        # Process all monsters (if they have AI/commands)
+        for monster_name, monster in self.monsters.items():
+            if not monster or not isinstance(monster, dict):
+                continue
+            if "command_queue" not in monster or not isinstance(monster["command_queue"], list):
+                monster["command_queue"] = []
+            self.process_creature_command_queue(monster)
+        # Advance the calendar (time)
+        if hasattr(self, "calendar") and hasattr(self.calendar, "advance_turn"):
+            self.calendar.advance_turn()
+        # Optionally, handle world events, stasis, etc. here
+        # print("Turn processed.")
     def __init__(self, config, logger=None):
         MastermindServerTCP.__init__(self, 0.5, 0.5, 600.0)
         self._config = config
@@ -63,7 +85,7 @@ class Server(MastermindServerTCP):
         self.FurnitureManager = FurnitureManager()
         self.TileManager = TileManager()
 
-        self.calendar = Calendar(0,0,0,0,0,0)
+        self.calendar = GameCalendar(0,0,0,0,0,0)
         self.calendar.load_calendar()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True):
