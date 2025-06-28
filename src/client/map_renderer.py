@@ -83,10 +83,13 @@ class MapRenderer:
             if 0 <= px < x + w and 0 <= py < y + h:
                 console.print(px, py, '@', fg=self.player_color)
     def _render_tile(self, console, x, y, tile):
-        # Get terrain ident
+        # Get terrain ident and symbol
         terrain = tile.get('terrain', {})
         terrain_ident = terrain.get('ident', 'unknown')
-        char = self.tile_chars.get(terrain_ident, self.default_char)
+        # Prefer symbol from terrain data, fallback to tile_chars
+        char = terrain.get('symbol')
+        if not char:
+            char = self.tile_chars.get(terrain_ident, self.default_char)
         fg = self.tile_colors.get(terrain_ident, self.default_color)
         bg = (0, 0, 0)
         # Check for furniture
