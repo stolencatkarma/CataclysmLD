@@ -12,11 +12,11 @@ import tcod.console
 import sys
 from typing import Optional, List, Dict, Any, Tuple
 
-# Update sys.path to include src/client for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src', 'client'))
-from ui_manager import UIManager
-from map_renderer import MapRenderer
-from character_manager import CharacterManager
+
+# Use absolute imports for client modules
+from src.client.ui_manager import UIManager
+from src.client.map_renderer import MapRenderer
+from src.client.character_manager import CharacterManager
 
 from src.mastermind._mm_client import MastermindClientTCP
 from src.command import Command
