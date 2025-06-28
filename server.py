@@ -281,7 +281,12 @@ class Server(MastermindServerTCP):
                         print(f"Server: character NOT created. Already Exists: {_command['args']}")
                     return
 
+
                 if _command["command"] == "request_localmap": # player wants their local map
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} requested localmap without selecting character")
+                        return
                     chunks = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]["position"])
                     _command = Command('server', 'localmap_update', chunks)
                     #print(_command)
@@ -293,12 +298,13 @@ class Server(MastermindServerTCP):
                 ### all the commands below are Action() and need to be put into the creature's command_queue
                 ### compute_turn() will loop through each queue each turn and process the Action()
                 if _command["command"] == "move":
-                    self.characters[connection_object.character]["command_queue"].append(Action(connection_object.character, connection_object.character, "move", _command["args"]))
-                    chunks = self.worldmap.get_chunks_near_position(self.characters[connection_object.character]["position"])
-                    _command = Command('server', 'localmap_update', chunks)
-                    #print(_command)
-                    self.callback_client_send(connection_object, json.dumps(_command))
-                    print('sent ' + connection_object.username + " their localmap")
+                    # Only allow one move/action to be queued at a time to prevent spamming.
+                    if len(self.characters[connection_object.character]["command_queue"]) > 0:
+                        # Optionally, you can send a message to the client here.
+                        return
+                    self.characters[connection_object.character]["command_queue"].append(
+                        Action(connection_object.character, connection_object.character, "move", _command["args"])
+                    )
                     return
             # The commands above this line should all be working. please open an issue if you find a problem.
                 
@@ -306,10 +312,12 @@ class Server(MastermindServerTCP):
                     if len(_command["args"]) == 0:
                         self.callback_client_send(connection_object, "What do you want to bash?\r\n")
                         return
+                    # Only allow one action to be queued at a time
+                    if len(self.characters[connection_object.character]["command_queue"]) > 0:
+                        return
                     _target = _command["args"][0]
                     _action = Action(connection_object.character, _target, 'bash', _command["args"])
                     self.characters[connection_object.character]["command_queue"].append(_action)
-                    self.callback_client_send(connection_object, "You break down " + _target + " for its components.\r\n")
                     return
 
                 if _command["command"] == "look":
@@ -344,11 +352,15 @@ class Server(MastermindServerTCP):
                                                                         "name"] + "\r\n")
                                     return
 
-                    _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
-                    self.callback_client_send(connection_object, "You are standing on " +
-                                            self.TileManager.TILE_TYPES[_tile['terrain']['ident']]['name'] + "\r\n")
 
-                    if len(_tile["items"]) > 0:
+                    _tile = self.worldmap.get_tile_by_position(self.characters[connection_object.character]["position"])
+                    if not _tile:
+                        self.callback_client_send(connection_object, "You see nothing here.\r\n")
+                        return
+                    self.callback_client_send(connection_object, "You are standing on " +
+                                            self.TileManager.TILE_TYPES.get(_tile['terrain']['ident'], {}).get('name', 'Unknown') + "\r\n")
+
+                    if _tile.get("items") and len(_tile["items"]) > 0:
                         self.callback_client_send(connection_object, "---- Items ----\r\n")
                         for item in _tile["items"]:
                             if item["ident"] == "blueprint":
@@ -356,13 +368,13 @@ class Server(MastermindServerTCP):
                                                         item["ident"] + ": " + item["recipe"]["result"] + "\r\n")
                             else:
                                 self.callback_client_send(connection_object,
-                                                        self.ItemManager.ITEM_TYPES[item["ident"]]["name"] + "\r\n")
+                                                        self.ItemManager.ITEM_TYPES.get(item["ident"], {}).get("name", "Unknown") + "\r\n")
 
-                    if _tile["furniture"] is not None:
+                    if _tile.get("furniture") is not None:
                         self.callback_client_send(connection_object, "-- Furniture --\r\n")
-                        _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
+                        _furniture = self.FurnitureManager.FURNITURE_TYPES.get(_tile["furniture"]["ident"], {})
                         self.callback_client_send(connection_object,
-                                                _furniture["name"] + ": " + _furniture["description"] + "\r\n")
+                                                _furniture.get("name", "Unknown") + ": " + _furniture.get("description", "") + "\r\n")
 
                     # send_prompt sends a prompt to the client after each request. Don't forget to add it for new commands.
                     return
@@ -438,21 +450,26 @@ class Server(MastermindServerTCP):
                         return
 
                     _tile = self.worldmap.get_tile_by_position(position_to_create_at)
-                    if _tile["terrain"]["impassable"]:
+                    if not _tile or not _tile.get("terrain") or _tile["terrain"].get("impassable"):
                         self.callback_client_send(connection_object,
                                                 "You cannot create a blueprint on impassable terrain.\r\n")
                         return
 
-                    for item in _tile["items"]:
-                        if item["ident"] == "blueprint":
-                            self.callback_client_send(connection_object,
-                                                    "You cannot create two blueprints on one tile.\r\n")
-                            return
+                    if not _tile.get("items"):
+                        self.callback_client_send(connection_object, "There are no items on this tile.\r\n")
+                        return
+                    if _tile and _tile.get("items"):
+                        for item in _tile["items"]:
+                            if item["ident"] == "blueprint":
+                                self.callback_client_send(connection_object,
+                                                        "You cannot create two blueprints on one tile.\r\n")
+                                return
 
-                    _recipe = server.RecipeManager.RECIPE_TYPES[_command["args"][0]]
+                    _recipe = self.RecipeManager.RECIPE_TYPES[_command["args"][0]]
                     type_of = _recipe["type_of"]
 
-                    bp_to_create = Blueprint(type_of, _recipe)
+                    # Blueprint likely needs an ident, type_of, recipe. Use recipe["result"] as ident.
+                    bp_to_create = Blueprint(_recipe["result"], type_of, _recipe)
 
                     self.worldmap.put_object_at_position(bp_to_create, position_to_create_at)
                     self.callback_client_send(connection_object,
@@ -470,44 +487,38 @@ class Server(MastermindServerTCP):
                     _open_containers = []
 
                     # find the item that the character is requesting.
-                    for item in self.worldmap.get_tile_by_position(_from_pos)["items"]:
-                        if _item_ident in self.ItemManager.ITEM_TYPES[item["ident"]]["name"].split(" "):
-                            # this is the item or at least the first one that matches the same ident.
-                            _from_item = item  # save the reference to our local variable.
+                    _tile = self.worldmap.get_tile_by_position(_from_pos)
+                    if not _tile or not _tile.get("items"):
+                        self.callback_client_send(connection_object, "There are no items here.\r\n")
+                        return
+                    for item in _tile["items"]:
+                        if _item_ident in self.ItemManager.ITEM_TYPES.get(item["ident"], {}).get("name", "").split(" "):
+                            _from_item = item
                             break
 
-                    # we didn't find the item they wanted.
                     if _from_item is None:
                         self.callback_client_send(connection_object, "I could not find what you are looking for.\r\n")
                         return
 
-                    # make a list of open_containers the character has to see if they can pick it up.
                     for bodyPart in self.characters[connection_object.character]["body_parts"]:
-                        if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"][
-                            "opened"] == "yes"):
+                        if (bodyPart["slot0"] is not None and "opened" in bodyPart["slot0"] and bodyPart["slot0"]["opened"] == "yes"):
                             _open_containers.append(bodyPart["slot0"])
-                        if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"][
-                            "opened"] == "yes"):
+                        if (bodyPart["slot1"] is not None and "opened" in bodyPart["slot1"] and bodyPart["slot1"]["opened"] == "yes"):
                             _open_containers.append(bodyPart["slot1"])
 
                     if len(_open_containers) <= 0:
                         self.callback_client_send(connection_object, "You have no open containers.\r\n")
-                        return  # no open containers.
+                        return
 
-                    # add it to the container and remove it from the world.
-                    # TODO: check if the character can carry that item.
-                    for container in _open_containers:
-                        container["contained_items"].append(item)  # add it.
-                        break
-                    # then find a spot for it to go (open_containers)
-                    # remove it from the world.
-                    self.worldmap.get_tile_by_position(_from_pos)["items"].remove(_from_item)  # remove it from the world.
+                    # add it to the first open container and remove it from the world.
+                    container = _open_containers[0]
+                    container["contained_items"].append(_from_item)
+                    _tile["items"].remove(_from_item)
                     self.worldmap.get_chunk_by_position(_from_pos)["is_dirty"] = True
 
                     self.callback_client_send(connection_object,
-                                            str("You take the " + self.ItemManager.ITEM_TYPES[item["ident"]][
-                                                "name"] + " and put it in your " +
-                                                self.ItemManager.ITEM_TYPES[container["ident"]]["name"] + "\r\n"))
+                        str("You take the " + self.ItemManager.ITEM_TYPES.get(_from_item["ident"], {}).get("name", "item") +
+                            " and put it in your " + self.ItemManager.ITEM_TYPES.get(container["ident"], {}).get("name", "container") + "\r\n"))
                     return
 
                 if _command["command"] == "transfer":  # (transfer, <item_ident>, <container_ident>) *Requires two open containers or taking from tile['items'].
@@ -528,34 +539,33 @@ class Server(MastermindServerTCP):
                     contained_item = None
 
                     # find _from_container and _item, either equipped containers or items on the ground.
-                    for ground_item in self.worldmap.get_tile_by_position(_character_requesting["position"])["items"][
-                                    :]:  # parse copy
-                        # check if item is laying on the ground. tile["items"]
-                        if _command["args"][0] in ground_item["name"].split(
-                                " "):  # found the item on the ground by parsing its ["name"]
-                            _item = ground_item
-                            _from_container = self.worldmap.get_tile_by_position(_character_requesting["position"])["items"]
-                            break
+                    _tile = self.worldmap.get_tile_by_position(_character_requesting["position"])
+                    if _tile and _tile.get("items"):
+                        for ground_item in _tile["items"][:]:  # parse copy
+                            # check if item is laying on the ground. tile["items"]
+                            if _command["args"][0] in ground_item.get("name", "").split(" "):
+                                _item = ground_item
+                                _from_container = _tile["items"]
+                                break
                     # if we didn't find it there let's check the player's own inventory.
                     else:
                         for bodypart in _character_requesting["body_parts"][:]:
-                            for body_item in bodypart["slot0"]:
-                                if isinstance(body_item,
-                                            Container):  # could be a container or armor. only move to a container.
-                                    for containted_item in body_item["contained_items"]:
-                                        if _command["args"][0] in contained_item["name"].split(" "):
-                                            _item = body_item
-                                            _from_container = bodypart["slot0"]
-                                            break
-                            for body_item in bodypart["slot1"]:
-                                if isinstance(body_item,
-                                            Container):  # could be a container or armor. only move to a container.
-
-                                    for containted_item in body_item["contained_items"]:
-                                        if _command["args"][0] in contained_item["name"].split(" "):
-                                            _item = body_item
-                                            _from_container = bodypart["slot1"]
-                                            break
+                            if bodypart["slot0"] is not None and hasattr(bodypart["slot0"], "__iter__"):
+                                for body_item in bodypart["slot0"]:
+                                    if isinstance(body_item, Container):
+                                        for contained_item in body_item["contained_items"]:
+                                            if _command["args"][0] in contained_item.get("name", "").split(" "):
+                                                _item = contained_item
+                                                _from_container = bodypart["slot0"]
+                                                break
+                            if bodypart["slot1"] is not None and hasattr(bodypart["slot1"], "__iter__"):
+                                for body_item in bodypart["slot1"]:
+                                    if isinstance(body_item, Container):
+                                        for contained_item in body_item["contained_items"]:
+                                            if _command["args"][0] in contained_item.get("name", "").split(" "):
+                                                _item = contained_item
+                                                _from_container = bodypart["slot1"]
+                                                break
                         else:
                             self.callback_client_send(connection_object,
                                                     "Could not find item on ground or in open containers.\r\n")
@@ -619,7 +629,9 @@ class Server(MastermindServerTCP):
                         self.callback_client_send(connection_object,
                                                 "You must supply a direction. try north, south, east, or west.\r\n")
                         return
-
+                    # Only allow one action to be queued at a time
+                    if len(self.characters[connection_object.character]["command_queue"]) > 0:
+                        return
                     # check blueprint exists in the direction.
                     position_to_create_at = self.characters[connection_object.character]["position"]
                     if _command["args"][0] == "south":
@@ -655,17 +667,18 @@ class Server(MastermindServerTCP):
 
                     _recipe = None
                     _blueprint = None
-                    for item in _tile["items"]:
-                        if item["ident"] == "blueprint":  # one blueprint per tile.
-                            _recipe = item["recipe"]
-                            _blueprint = item
-                            break
+                    if _tile and _tile.get("items"):
+                        for item in _tile["items"]:
+                            if item["ident"] == "blueprint":  # one blueprint per tile.
+                                _recipe = item["recipe"]
+                                _blueprint = item
+                                break
                     else:
                         self.callback_client_send(connection_object, "There is no Blueprint in that tile to work on.\r\n")
                         return
 
                     # TODO: Does character have this blueprint learned? give it to them. (learn by seeing)
-                    # send an action to the action queue that repeats every turn. Client sends once, server repeats until done or interrupted.
+                    # Queue the work action; do not send immediate result.
                     _action = Action(connection_object.character, None, 'work', _command["args"])
                     self.characters[connection_object.character]["command_queue"].append(_action)
                     self.callback_client_send(connection_object, "You start working on the blueprint.\r\n")
@@ -757,7 +770,8 @@ class Server(MastermindServerTCP):
             
             return super(Server, self).callback_client_handle(connection_object, data)
 
-    def callback_client_send(self, connection_object, data, compression=False):
+    def callback_client_send(self, connection_object, data, compression=None):
+        # Match base class signature: compression can be None or bool
         return super(Server, self).callback_client_send(connection_object, data, compression)
 
     def callback_connect_client(self, connection_object):
@@ -793,64 +807,89 @@ class Server(MastermindServerTCP):
 
     def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
-        # iterate a copy so we can remove properly.
-        for action in creature["command_queue"][:]:
-            print(action)
+        actions_processed = 0
+        i = 0
+        max_actions = min(actions_to_take, len(creature["command_queue"]))
+        while actions_processed < actions_to_take and i < len(creature["command_queue"]):
+            if actions_processed >= actions_to_take:
+                break
+            action = creature["command_queue"][i]
             _pos = creature["position"]
             _target_pos = creature["position"] # default to the characters position if a direction is excluded
-            if actions_to_take == 0:
-                return  # this creature is out of action points.
 
             # this creature can't act until x turns from now.
             if creature["next_action_available"] > 0:
                 creature["next_action_available"] = creature["next_action_available"] - 1
-                return
-            print(str(action["args"][0]))
-            if action["args"][0] == "north":
-                _target_pos = Position(_pos["x"], _pos["y"] - 1, _pos["z"])
-            if action["args"][0] == "south":
-                _target_pos = Position(_pos["x"], _pos["y"] + 1, _pos["z"])
-            if action["args"][0] == "east":
-                _target_pos = Position(_pos["x"] + 1, _pos["y"], _pos["z"])
-            if action["args"][0] == "west":
-                _target_pos = Position(_pos["x"] - 1, _pos["y"], _pos["z"])
-            if action["args"][0] == "up":
-                _target_pos = Position(_pos["x"], _pos["y"], _pos["z"] + 1)
-            if action["args"][0] == "down":
-                _target_pos = Position(_pos["x"], _pos["y"], _pos["z"] - 1)
-            # even if we don't have a _target_pos we can still continue on. We may not need it.
-            # print("POS, TARGETPOS", _pos, _target_pos)
+                break
 
-            if action["type"] == "work":  # "args" is the direction. For working on blueprints.
-                for i in range(actions_to_take):  # working uses up all your action points per turn.
+            # Directional argument parsing
+            if action.get("args") and len(action["args"]) > 0:
+                if action["args"][0] == "north":
+                    _target_pos = Position(_pos["x"], _pos["y"] - 1, _pos["z"])
+                elif action["args"][0] == "south":
+                    _target_pos = Position(_pos["x"], _pos["y"] + 1, _pos["z"])
+                elif action["args"][0] == "east":
+                    _target_pos = Position(_pos["x"] + 1, _pos["y"], _pos["z"])
+                elif action["args"][0] == "west":
+                    _target_pos = Position(_pos["x"] - 1, _pos["y"], _pos["z"])
+                elif action["args"][0] == "up":
+                    _target_pos = Position(_pos["x"], _pos["y"], _pos["z"] + 1)
+                elif action["args"][0] == "down":
+                    _target_pos = Position(_pos["x"], _pos["y"], _pos["z"] - 1)
+
+            # Process action types
+            if action.get("type") == "work":
+                for _ in range(actions_to_take - actions_processed):
                     self.work(action["owner"], _target_pos)
-                creature["command_queue"].remove(action)
-            elif action["type"] == "move":
-                actions_to_take = actions_to_take - 1  # moving costs 1 ap.
+                actions_processed = actions_to_take
+                creature["command_queue"].pop(i)
+                break
+            elif action.get("type") == "move":
                 self.worldmap.move_creature_from_position_to_position(creature, _pos, _target_pos)
-                creature["command_queue"].remove(action)
-            elif action["type"] == "bash":
-                actions_to_take = actions_to_take - 1  # bashing costs 1 ap.
+                actions_processed += 1
+                creature["command_queue"].pop(i)
+                continue
+            elif action.get("type") == "bash":
                 self.bash(action["owner"], action["target"])
                 self.localmaps[creature["name"]] = self.worldmap.get_chunks_near_position(
                     self.characters[creature["name"]]["position"])
-                creature["command_queue"].remove(action)
+                actions_processed += 1
+                creature["command_queue"].pop(i)
+                continue
+            else:
+                i += 1
+
+        # After processing actions, send the updated localmap to the client if possible
+        character_name = creature.get("name")
+        if character_name:
+            connection_object = self.find_connection_object_by_character_name(character_name)
+            if connection_object:
+                chunks = self.worldmap.get_chunks_near_position(creature["position"])
+                update_command = Command('server', 'localmap_update', chunks)
+                self.callback_client_send(connection_object, json.dumps(update_command))
 
     def work(self, owner, target):
         connection_object = self.find_connection_object_by_character_name(owner)
         _tile = self.worldmap.get_tile_by_position(target)
         _recipe = None
         _blueprint = None
+        if not _tile or not _tile.get("items") or not isinstance(_tile.get("items"), list):
+            print("WARNING: Player tried to work on non-existant blueprint (no tile or items).")
+            return
         for item in _tile["items"]:
-            if item["ident"] == "blueprint":  # only one blueprint per tile.
-                _recipe = item["recipe"]
+            if item and isinstance(item, dict) and item.get("ident") == "blueprint":  # only one blueprint per tile.
+                _recipe = item.get("recipe")
                 _blueprint = item
                 break
         else:
             print("WARNING: Player tried to work on non-existant blueprint.")
             return
 
-        # check if blueprint has all the materials.
+        if not _recipe:
+            print("WARNING: Blueprint missing recipe.")
+            self.callback_client_send(connection_object, "Blueprint is missing a recipe.\r\n")
+            return
+
         print("_recipe")
         pprint(_recipe)
         print()
@@ -858,16 +897,16 @@ class Server(MastermindServerTCP):
         pprint(_blueprint)
         print()
         count = dict()
-        for material in _blueprint["contained_items"]:  # these could be duplicates. get a count.
+        for material in _blueprint.get("contained_items", []):  # these could be duplicates. get a count.
             print("material")
             pprint(material)
             if material["ident"] in count.keys():
-                count["ident"]["amount"] = count["ident"]["amount"] + 1
+                count[material["ident"]]["amount"] = count[material["ident"]]["amount"] + 1
             else:
                 count[material["ident"]] = dict()
                 count[material["ident"]]["amount"] = 1
 
-        for component in _recipe["components"]:
+        for component in _recipe.get("components", []):
             # get count of item by ident in blueprint.
             if not component["ident"] in count or count[component["ident"]]["amount"] < component["amount"]:
                 # need all required components to start.
@@ -885,65 +924,19 @@ class Server(MastermindServerTCP):
             # create Item, Terrain, Furniture from recipe by result.
             if _blueprint["type_of"] == "Item":
                 _newobject = Item(_recipe["result"])
-                _tile["items"].append(_newobject)
+                if isinstance(_tile.get("items"), list):
+                    _tile["items"].append(_newobject)
             if _blueprint["type_of"] == "Furniture":
                 _newobject = Furniture(_recipe["result"])
                 _tile["furniture"] = _newobject
             if _blueprint["type_of"] == "Terrain":
                 _newobject = Terrain(_recipe["result"])
                 _tile["terrain"] = _newobject
-            _tile["items"].remove(_blueprint)  # remove it from the world.
+            if isinstance(_tile.get("items"), list) and _blueprint in _tile["items"]:
+                _tile["items"].remove(_blueprint)  # remove it from the world.
             self.callback_client_send(connection_object, "Finished working on blueprint!\r\n")
             print("Completed blueprint")
             return
-        return
-
-    # catch-all for bash/smash/break
-    # since we bash in a direction we need to check what's in the tile.
-    def bash(self, owner, target):
-        _tile = self.worldmap.get_tile_by_position(self.characters[owner]["position"])
-        # strength = creature strength.
-        if _tile["furniture"] is not None:
-            _furniture = self.FurnitureManager.FURNITURE_TYPES[_tile["furniture"]["ident"]]
-            if target in _furniture["name"].split(" "):
-                if "bash" in _furniture.keys():
-                    for item in _furniture["bash"]["items"]:
-                        self.worldmap.put_object_at_position(Item(item["item"]), self.characters[owner]["position"])
-                    _tile["furniture"] = None
-
-        return
-
-    def compute_turn(self):
-        # this function handles overseeing all character and creature movement, attacks, and interactions
-
-        for _, character in self.characters.items():  # Player's characters
-            if len(character["command_queue"]) > 0:
-                self.process_creature_command_queue(character)
-
-        for _, monster in self.monsters.items():  # Computer controlled Creatures
-            if len(monster["command_queue"]) > 0:
-                self.process_creature_command_queue(monster)
-
-        # Now that characters and monsters have moved and done their actions let's check
-        # for any possible combat that may have occurred.
-        for _, character in self.characters.items():
-            # get all 4 directions and check for enemies.
-            #pprint(character)
-            # if enemy found do an attack with wielded weapon or bare hands.
-            pass
-            # continue to next character or monster
-
-        for _, monster in self.monsters.items():
-            # get all 4 directions and check for enemies.
-            #pprint(monster)
-            pass
-            # if enemy found do an attack with wielded weapon or bare hands.
-
-            # continue to next character or monster
-
-        # for fire in self.fires: #TODO
-
-        # now that we've processed what everything wants to do we can return.
         return
 
     def generate_and_apply_city_layout(self, city_size):
@@ -953,6 +946,7 @@ class Server(MastermindServerTCP):
             for i in range(city_size * 13 - 1):
                 _chunk = server.worldmap.get_chunk_by_position(Position(i, j, 0))
                 if _chunk["was_loaded"] is False:
+                    json_file = None
                     if city_layout[i][j] == "r":
                         json_file = random.choice(os.listdir("./data/json/mapgen/residential/"))
                         server.worldmap.build_json_building_on_chunk("./data/json/mapgen/residential/" + json_file,
@@ -999,44 +993,22 @@ class Server(MastermindServerTCP):
                                 )
                             elif (
                                     attached_roads == 3
-                            ):  # TODO: make sure the roads line up right.
-                                if city_layout[int(i + 1)][int(j)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_s0.json"
-                                elif city_layout[int(i - 1)][int(j)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_p0.json"
-                                elif city_layout[int(i)][int(j + 1)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_d0.json"
-                                elif city_layout[int(i)][int(j - 1)] != "R":
-                                    json_file = "./data/json/mapgen/road/city_road_3_way_u0.json"
+                            ):
+                                json_file = "./data/json/mapgen/road/city_road_3_way.json"  # placeholder
                             elif attached_roads <= 2:
-                                if city_layout[int(i + 1)][int(j)] == "R":
-                                    json_file = (
-                                        "./data/json/mapgen/road/city_road_h.json"
-                                    )
-                                elif city_layout[int(i - 1)][int(j)] == "R":
-                                    json_file = (
-                                        "./data/json/mapgen/road/city_road_h.json"
-                                    )
-                                elif city_layout[int(i)][int(j + 1)] == "R":
-                                    json_file = (
-                                        "./data/json/mapgen/road/city_road_v.json"
-                                    )
-                                elif city_layout[int(i)][int(j - 1)] == "R":
-                                    json_file = (
-                                        "./data/json/mapgen/road/city_road_v.json"
-                                    )
-                            server.worldmap.build_json_building_on_chunk(
-                                json_file,
-                                Position(
-                                    i * _chunk["chunk_size"] + 1,
-                                    j * _chunk["chunk_size"] + 1,
-                                    0,
-                                ),
-                            )
+                                json_file = "./data/json/mapgen/road/city_road_straight.json"  # placeholder
+                            if json_file:
+                                server.worldmap.build_json_building_on_chunk(
+                                    json_file,
+                                    Position(
+                                        i * _chunk["chunk_size"] + 1,
+                                        j * _chunk["chunk_size"] + 1,
+                                        0,
+                                    ),
+                                )
                         except Exception:
                             # TODO: fix this blatant hack to account for coordinates outside the city layout.
                             pass
-
 def mainloop(server, configParser):
 
     dont_break = True
@@ -1081,7 +1053,7 @@ if __name__ == "__main__":
     # make them available as configuration values
     defaultConfig = configParser["DEFAULT"]
     ip = defaultConfig.get("listen_address", args.host)
-    port = int(defaultConfig.get("listen_port", args.port))
+    port = int(defaultConfig.get("listen_port") or args.port)
 
     # Enable logging - It uses its own configparser for the same file
     # logging.config.fileConfig(args.config)
@@ -1124,4 +1096,4 @@ if __name__ == "__main__":
 
     server.accepting_allow()
 
-    sys.exit(mainloop(server=server, configParser=configParser))
+    mainloop(server=server, configParser=configParser)
