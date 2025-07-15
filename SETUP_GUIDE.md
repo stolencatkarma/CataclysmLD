@@ -144,11 +144,7 @@ To play with friends:
 CataclysmLD/
 ├── server.py              # Main server
 ├── server.cfg             # Server configuration
-├── client.py              # Main client
-├── client_ui.py           # Client UI components
-├── client_map.py          # Map rendering
-├── client_character.py    # Character management
-├── run_client.py          # Client launcher
+├── client.py              # Main tcod client
 ├── run_server.bat         # Windows server launcher
 ├── run_client.bat         # Windows client launcher
 ├── client_requirements.txt # Python dependencies

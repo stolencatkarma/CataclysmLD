@@ -33,8 +33,8 @@ The first time you start the server a world is generated automatically using def
 
 **connecting to a server.**
 
-* Download Godot 3.5.2 and import the project from the /GodotClient/ folder.
-* Run the program and connect to a server. 
+* Install the client dependencies: `pip install -r client_requirements.txt`
+* Run the client: `python client.py` or use `run_client.bat` 
 
        
 
