@@ -292,19 +292,24 @@ class CataclysmClient:
             self.send_command('character')  # Request character data
         elif command == 'localmap_update':
             self.localmap = message.get('args')
+            print(f"Received localmap update with {len(self.localmap) if isinstance(self.localmap, list) else 'dict'} chunks")
             # Try to find the player position in the localmap and update self.character_data['position']
             player_pos = self._find_player_position_in_localmap(self.localmap)
             if not player_pos:
+                print(f"Warning: Could not find player position for character {self.character_name} in localmap")
                 return
             if not self.character_data:
                 self.character_data = {}
+            old_pos = self.character_data.get('position')
             self.character_data['position'] = player_pos
             # Only print player position if it changed
             if player_pos != self.last_player_position:
+                print(f"Player moved: {old_pos} -> {player_pos}")
                 self.last_player_position = player_pos
             # Force a render after receiving a new map
             if hasattr(self, 'context') and hasattr(self, 'console'):
                 self.render()
+                print("Forced render after localmap update")
         elif command == 'character_data':
             self.character_data = message.get('args')
             if self.character_manager:
@@ -608,6 +613,10 @@ class CataclysmClient:
             map_area = (0, 0, 80, 30)
             # Pass both list and dict to map_renderer, which will handle both
             self.map_renderer.render(self.console, self.localmap, map_area, self.character_data)
+            # Debug: show current position
+            if self.character_data and 'position' in self.character_data:
+                pos = self.character_data['position']
+                self.console.print(81, 2, f"Pos: {pos['x']},{pos['y']}", fg=(255, 255, 255))
             # Remove debug print here (player position now handled in handle_server_message)
             # Render UI panels
             self.ui_manager.render_info_panel(self.console, (81, 0, 39, 15), self.character_data)
