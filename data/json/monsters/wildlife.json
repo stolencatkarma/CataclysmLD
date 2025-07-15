@@ -1,0 +1,158 @@
+[
+  {
+    "ident": "rat_giant",
+    "group": "MONSTER",
+    "name": "giant rat",
+    "description": "A rat the size of a small dog. Its beady red eyes gleam with hunger and its yellow teeth look sharp.",
+    "default_faction": "vermin",
+    "species": "rodent",
+    "tier": 1,
+    "size": 0.3,
+    "hitdie": 1,
+    "material": "fur",
+    "aggression": 75,
+    "morale": 50,
+    "attacks": [
+      {
+        "attack": "bite",
+        "cooldown": 2
+      }
+    ],
+    "death_drops": "small_animal_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":false,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  },
+  {
+    "ident": "dog_feral",
+    "group": "MONSTER",
+    "name": "feral dog",
+    "description": "A once-domesticated dog that has gone wild. Starvation and desperation have made it aggressive.",
+    "default_faction": "wild_animal",
+    "species": "canine",
+    "tier": 2,
+    "size": 0.6,
+    "hitdie": 2,
+    "material": "fur",
+    "aggression": 60,
+    "morale": 70,
+    "attacks": [
+      {
+        "attack": "bite",
+        "cooldown": 3
+      },
+      {
+        "attack": "pounce",
+        "cooldown": 5
+      }
+    ],
+    "death_drops": "medium_animal_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":false,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  },
+  {
+    "ident": "spider_giant",
+    "group": "MONSTER",
+    "name": "giant spider",
+    "description": "A spider grown to an unnatural size. Its eight legs move with disturbing coordination.",
+    "default_faction": "arthropod",
+    "species": "arachnid",
+    "tier": 2,
+    "size": 0.4,
+    "hitdie": 2,
+    "material": "chitin",
+    "aggression": 90,
+    "morale": 80,
+    "attacks": [
+      {
+        "attack": "bite",
+        "cooldown": 4
+      },
+      {
+        "attack": "web",
+        "cooldown": 8
+      }
+    ],
+    "death_drops": "arthropod_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":true,
+        "ARM_RIGHT":true,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  },
+  {
+    "ident": "bear_black",
+    "group": "MONSTER",
+    "name": "black bear",
+    "description": "A large black bear. Normally these animals avoid humans, but this one looks hungry and aggressive.",
+    "default_faction": "wild_animal",
+    "species": "ursine",
+    "tier": 4,
+    "size": 1.5,
+    "hitdie": 6,
+    "material": "fur",
+    "aggression": 40,
+    "morale": 90,
+    "attacks": [
+      {
+        "attack": "claw",
+        "cooldown": 3
+      },
+      {
+        "attack": "bite",
+        "cooldown": 4
+      },
+      {
+        "attack": "maul",
+        "cooldown": 6
+      }
+    ],
+    "death_drops": "large_animal_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":true,
+        "ARM_RIGHT":true,
+        "HAND_LEFT":true,
+        "HAND_RIGHT":true,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  }
+]

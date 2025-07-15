@@ -39,8 +39,77 @@ class OverMap:
 
 
 class Server(MastermindServerTCP):
+    def monster_ai_turn(self):
+        """Process AI for all monsters, adding actions to their command queues"""
+        for monster_name, monster in self.monsters.items():
+            if not monster or not isinstance(monster, dict):
+                continue
+            
+            # Skip dead monsters
+            if not monster.get('alive', True):
+                continue
+            
+            # Clear previous AI commands (keep only 1 action queued)
+            if len(monster.get("command_queue", [])) > 0:
+                continue  # Monster already has an action queued
+            
+            # Find nearby players to attack
+            monster_pos = monster.get("position")
+            if not monster_pos:
+                continue
+            
+            # Get tiles within aggression range
+            aggression_range = 5  # Monsters can detect players within 5 tiles
+            nearby_tiles = self.worldmap.get_tiles_near_position(monster_pos, aggression_range)
+            
+            target_player = None
+            target_distance = float('inf')
+            
+            # Look for player characters in nearby tiles
+            for tile_info in nearby_tiles:
+                tile, distance = tile_info
+                if not tile or not tile.get('creature'):
+                    continue
+                
+                creature = tile['creature']
+                # Check if this creature is a player character
+                if creature.get('name') in self.characters and distance < target_distance:
+                    target_player = creature
+                    target_distance = distance
+            
+            if target_player:
+                # Calculate direction to target
+                player_pos = target_player.get("position")
+                if player_pos:
+                    direction = self.calculate_direction(monster_pos, player_pos)
+                    
+                    if target_distance <= 1:
+                        # Adjacent - attack
+                        from src.action import Action
+                        attack_action = Action(monster['name'], monster['name'], "attack", [direction])
+                        monster["command_queue"].append(attack_action)
+                    else:
+                        # Move towards player
+                        from src.action import Action
+                        move_action = Action(monster['name'], monster['name'], "move", [direction])
+                        monster["command_queue"].append(move_action)
+
+    def calculate_direction(self, from_pos, to_pos):
+        """Calculate the primary direction from one position to another"""
+        dx = to_pos["x"] - from_pos["x"]
+        dy = to_pos["y"] - from_pos["y"]
+        
+        # Determine primary direction
+        if abs(dx) > abs(dy):
+            return "east" if dx > 0 else "west"
+        else:
+            return "south" if dy > 0 else "north"
+
     def compute_turn(self):
         """Process all player and monster command queues for this turn."""
+        # First, run AI for all monsters
+        self.monster_ai_turn()
+        
         # Process all player characters
         for character_name, character in self.characters.items():
             if not character or not isinstance(character, dict):
@@ -481,6 +550,22 @@ class Server(MastermindServerTCP):
                     self.characters[connection_object.character]["command_queue"].append(_action)
                     return
 
+                if _command["command"] == "attack":
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to attack without selecting character")
+                        return
+                    if len(_command["args"]) == 0:
+                        self.callback_client_send(connection_object, "What direction do you want to attack?\r\n")
+                        return
+                    # Only allow one action to be queued at a time
+                    if len(self.characters[connection_object.character]["command_queue"]) > 0:
+                        print(f"Attack command blocked: {connection_object.character} already has {len(self.characters[connection_object.character]['command_queue'])} queued commands")
+                        return
+                    action = Action(connection_object.character, connection_object.character, "attack", _command["args"])
+                    self.characters[connection_object.character]["command_queue"].append(action)
+                    return
+
                 if _command["command"] == "look":
                     # Check if character is selected
                     if not hasattr(connection_object, "character") or connection_object.character is None:
@@ -798,11 +883,43 @@ class Server(MastermindServerTCP):
 
                 if _command["command"] == "help":
                     self.callback_client_send(connection_object,
-                                            "Common commands are look, move, bash, craft, take, transfer, recipe, character.\r\n")
+                                            "Common commands are look, move, bash, attack, craft, take, transfer, recipe, character, spawn.\r\n")
                     self.callback_client_send(connection_object, "Furniture can be \'bash\'d for recipe components.\r\n")
+                    self.callback_client_send(connection_object, "Press 'A' then a direction to attack adjacent creatures.\r\n")
+                    self.callback_client_send(connection_object, "Use 'spawn' to create monsters for testing.\r\n")
                     self.callback_client_send(connection_object, "recipes can be \'craft\'ed and then \'work\'ed on.\r\n")
                     self.callback_client_send(connection_object,
                                             "\'dump direction\' to put components in a blueprint from inventory.\r\n")
+                    return
+
+                if _command["command"] == "spawn":
+                    # Debug command to spawn monsters (for testing)
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to spawn without selecting character")
+                        return
+                    
+                    if len(_command["args"]) == 0:
+                        # Spawn random monsters around player
+                        player_pos = self.characters[connection_object.character]["position"]
+                        self.spawn_random_monsters_near_position(player_pos, radius=3, count=2)
+                        self.callback_client_send(connection_object, "Spawned random monsters nearby.\r\n")
+                    else:
+                        # Spawn specific monster type
+                        monster_type = _command["args"][0]
+                        player_pos = self.characters[connection_object.character]["position"]
+                        # Spawn in random direction from player
+                        import random
+                        directions = [
+                            Position(player_pos["x"] + 1, player_pos["y"], player_pos["z"]),
+                            Position(player_pos["x"] - 1, player_pos["y"], player_pos["z"]),
+                            Position(player_pos["x"], player_pos["y"] + 1, player_pos["z"]),
+                            Position(player_pos["x"], player_pos["y"] - 1, player_pos["z"])
+                        ]
+                        spawn_pos = random.choice(directions)
+                        if self.spawn_monster(monster_type, spawn_pos):
+                            self.callback_client_send(connection_object, f"Spawned {monster_type} nearby.\r\n")
+                        else:
+                            self.callback_client_send(connection_object, f"Failed to spawn {monster_type}.\r\n")
                     return
 
                 if _command["command"] == "work":  # (work direction) The command just sets up the action. Do checks in the action queue.
@@ -1042,6 +1159,11 @@ class Server(MastermindServerTCP):
                 actions_processed += 1
                 creature["command_queue"].pop(i)
                 continue
+            elif action.get("type") == "attack":
+                self.attack(creature, _target_pos)
+                actions_processed += 1
+                creature["command_queue"].pop(i)
+                continue
             else:
                 i += 1
 
@@ -1132,6 +1254,202 @@ class Server(MastermindServerTCP):
             print("Completed blueprint")
             return
         return
+
+    def attack(self, attacker, target_pos):
+        """Handle combat attack from attacker towards target_pos"""
+        # Get the tile at target position
+        target_tile = self.worldmap.get_tile_by_position(target_pos)
+        if not target_tile:
+            print(f"Attack failed: No tile at position {target_pos}")
+            return
+        
+        # Check if there's a creature at the target position
+        target_creature = target_tile.get('creature')
+        if not target_creature:
+            print(f"Attack failed: No creature at position {target_pos}")
+            return
+        
+        # Don't allow attacking yourself
+        if target_creature.get('name') == attacker.get('name'):
+            print(f"Attack failed: Cannot attack yourself")
+            return
+        
+        # Calculate damage based on attacker's strength
+        base_damage = 10  # Base unarmed damage
+        strength_bonus = max(0, attacker.get('strength', 8) - 8)  # Bonus damage from strength above 8
+        damage = base_damage + strength_bonus
+        
+        # Apply damage to target
+        target_health = target_creature.get('current_health', 100)
+        new_health = max(0, target_health - damage)
+        target_creature['current_health'] = new_health
+        
+        # Check if target died
+        if new_health <= 0:
+            target_creature['alive'] = False
+            print(f"{attacker.get('name', 'Unknown')} killed {target_creature.get('name', 'Unknown')} with {damage} damage!")
+            
+            # Remove dead creature from the tile
+            target_tile['creature'] = None
+            
+            # If it was a player character, handle death
+            if target_creature.get('name') in self.characters:
+                print(f"Player character {target_creature.get('name')} has died!")
+        else:
+            print(f"{attacker.get('name', 'Unknown')} attacks {target_creature.get('name', 'Unknown')} for {damage} damage! ({new_health}/{target_creature.get('max_health', 100)} HP remaining)")
+        
+        # Send updates to connected clients if they're players
+        for char_name in [attacker.get('name'), target_creature.get('name')]:
+            if char_name and char_name in self.characters:
+                connection_object = self.find_connection_object_by_character_name(char_name)
+                if connection_object:
+                    try:
+                        chunks = self.worldmap.get_chunks_near_position(self.characters[char_name]["position"])
+                        update_command = Command('server', 'localmap_update', chunks)
+                        self.callback_client_send(connection_object, json.dumps(update_command))
+                    except Exception as e:
+                        print(f"Failed to send combat update to {char_name}: {e}")
+
+    def spawn_monster(self, monster_ident, position):
+        """Spawn a specific monster at the given position"""
+        if monster_ident not in self.MonsterManager.MONSTER_TYPES:
+            print(f"Warning: Monster type '{monster_ident}' not found")
+            return None
+        
+        # Check if position is valid and empty
+        tile = self.worldmap.get_tile_by_position(position)
+        if not tile:
+            print(f"Cannot spawn monster: invalid position {position}")
+            return None
+        
+        if tile.get('creature') is not None:
+            print(f"Cannot spawn monster: position {position} already occupied")
+            return None
+        
+        # Create monster from template
+        from src.monster import Monster
+        monster = Monster()
+        monster_template = self.MonsterManager.MONSTER_TYPES[monster_ident]
+        
+        # Apply monster template stats
+        monster['name'] = f"{monster_template['name']}_{len(self.monsters)}"
+        monster['ident'] = monster_ident
+        monster['position'] = position
+        monster['tile_ident'] = monster_ident  # For rendering
+        
+        # Set health based on hitdie
+        hitdie = int(monster_template.get('hitdie', 1))
+        max_health = hitdie * 15  # 15 HP per hit die
+        monster['max_health'] = max_health
+        monster['current_health'] = max_health
+        monster['alive'] = True
+        
+        # Set stats based on tier
+        tier = int(monster_template.get('tier', 1))
+        base_stat = 6 + tier * 2
+        monster['strength'] = base_stat
+        monster['dexterity'] = base_stat
+        monster['constitution'] = base_stat
+        monster['intelligence'] = max(1, base_stat - 4)  # Most monsters are not very smart
+        monster['perception'] = base_stat
+        
+        # Set aggression and behavior
+        monster['aggression'] = int(monster_template.get('aggression', 50))
+        monster['morale'] = int(monster_template.get('morale', 50))
+        monster['species'] = monster_template.get('species', 'unknown')
+        monster['faction'] = monster_template.get('default_faction', 'hostile')
+        
+        # Place monster in world
+        tile['creature'] = monster
+        self.monsters[monster['name']] = monster
+        
+        print(f"Spawned {monster['name']} at {position}")
+        return monster
+
+    def spawn_random_monsters_near_position(self, center_position, radius=5, count=3):
+        """Spawn random monsters in an area around a position"""
+        import random
+        
+        # Get list of all available monster types
+        monster_types = list(self.MonsterManager.MONSTER_TYPES.keys())
+        if not monster_types:
+            print("No monster types available for spawning")
+            return
+        
+        spawned = 0
+        attempts = 0
+        max_attempts = count * 10  # Prevent infinite loops
+        
+        while spawned < count and attempts < max_attempts:
+            attempts += 1
+            
+            # Pick random position within radius
+            x_offset = random.randint(-radius, radius)
+            y_offset = random.randint(-radius, radius)
+            spawn_pos = Position(
+                center_position["x"] + x_offset,
+                center_position["y"] + y_offset,
+                center_position["z"]
+            )
+            
+            # Pick random monster type
+            monster_type = random.choice(monster_types)
+            
+            # Try to spawn
+            if self.spawn_monster(monster_type, spawn_pos):
+                spawned += 1
+        
+        print(f"Spawned {spawned} monsters near {center_position}")
+
+    def spawn_monsters_on_chunk_load(self, chunk):
+        """Spawn monsters when a new chunk is loaded"""
+        import random
+        
+        # Only spawn on outdoor chunks (z=0) for now
+        if chunk.get('z', 0) != 0:
+            return
+        
+        # 30% chance to spawn monsters on new chunk
+        if random.random() > 0.3:
+            return
+        
+        # Find suitable spawn positions in the chunk
+        chunk_size = chunk.get('chunk_size', 24)
+        chunk_x = chunk.get('x', 0) * chunk_size
+        chunk_y = chunk.get('y', 0) * chunk_size
+        
+        spawn_count = random.randint(1, 3)
+        for _ in range(spawn_count):
+            # Pick random position in chunk
+            x = chunk_x + random.randint(0, chunk_size - 1)
+            y = chunk_y + random.randint(0, chunk_size - 1)
+            position = Position(x, y, 0)
+            
+            # Check if position is suitable (not impassable terrain, no existing creature)
+            tile = self.worldmap.get_tile_by_position(position)
+            if tile and not tile.get('terrain', {}).get('impassable', False) and not tile.get('creature'):
+                # Pick appropriate monster based on location
+                monster_types = self.get_appropriate_monsters_for_terrain(tile.get('terrain', {}).get('ident', 'grass'))
+                if monster_types:
+                    monster_type = random.choice(monster_types)
+                    self.spawn_monster(monster_type, position)
+
+    def get_appropriate_monsters_for_terrain(self, terrain_ident):
+        """Return list of monster types appropriate for the given terrain"""
+        # Define monster spawn tables for different terrains
+        spawn_tables = {
+            'grass': ['rat_giant', 'dog_feral', 'zombie_walker'],
+            'dirt': ['rat_giant', 'spider_giant', 'zombie_walker'],
+            'forest': ['bear_black', 'dog_feral', 'spider_giant'],
+            'road': ['zombie_walker', 'zombie_runner', 'dog_feral'],
+            'concrete': ['zombie_walker', 'zombie_runner', 'rat_giant'],
+            'floor': ['rat_giant', 'spider_giant', 'eye_bot'],
+            'water': ['sewer_gator', 'blob_small'],
+            'sewer': ['rat_giant', 'sewer_gator', 'blob_small'],
+        }
+        
+        # Default to basic monsters if terrain not found
+        return spawn_tables.get(terrain_ident, ['zombie_walker', 'rat_giant'])
 
     def generate_and_apply_city_layout(self, city_size):
         city_layout = self.worldmap.generate_city(city_size)

@@ -17,6 +17,11 @@ class Creature(dict):
         self['command_queue'] = list()
         self['gender'] = 'male'
         self['radiation'] = 0  # radiation level. hurts some helps others.
+        
+        # Health system
+        self['max_health'] = 100  # Maximum health points
+        self['current_health'] = 100  # Current health points
+        self['alive'] = True  # Is this creature alive?
 
         # name is optional here. characters and most NPCs would have a name.
         self['name'] = None

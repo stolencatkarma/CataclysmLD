@@ -1,0 +1,158 @@
+[
+  {
+    "ident": "blob_small",
+    "group": "MONSTER",
+    "name": "small blob",
+    "description": "A writhing mass of translucent flesh that seems to pulse with its own life.",
+    "default_faction": "blob",
+    "species": "aberrant",
+    "tier": 1,
+    "size": 0.3,
+    "hitdie": 1,
+    "material": "flesh",
+    "aggression": 70,
+    "morale": 100,
+    "attacks": [
+      {
+        "attack": "acid_splash",
+        "cooldown": 4
+      }
+    ],
+    "death_drops": "blob_drops",
+    "body_parts": [
+      {
+        "HEAD":false,
+        "TORSO":true,
+        "ARM_LEFT":false,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":false,
+        "FOOT_RIGHT":false,
+        "LEG_LEFT":false,
+        "LEG_RIGHT":false
+      }
+    ]
+  },
+  {
+    "ident": "fungal_zombie",
+    "group": "MONSTER",
+    "name": "fungal zombie",
+    "description": "A human corpse overtaken by aggressive fungi. Mushrooms sprout from various wounds.",
+    "default_faction": "fungal",
+    "species": "fungus",
+    "tier": 2,
+    "size": 0.5,
+    "hitdie": 2,
+    "material": "veggy",
+    "aggression": 85,
+    "morale": 100,
+    "attacks": [
+      {
+        "attack": "spore_burst",
+        "cooldown": 6
+      },
+      {
+        "attack": "fungal_scratch",
+        "cooldown": 3
+      }
+    ],
+    "death_drops": "fungal_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":true,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":true,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  },
+  {
+    "ident": "eye_bot",
+    "group": "MONSTER",
+    "name": "security eyebot",
+    "description": "A small hovering robot with a single red eye. It seems to be scanning for threats.",
+    "default_faction": "robot",
+    "species": "robot",
+    "tier": 2,
+    "size": 0.2,
+    "hitdie": 1,
+    "material": "steel",
+    "aggression": 50,
+    "morale": 100,
+    "attacks": [
+      {
+        "attack": "laser_beam",
+        "cooldown": 5
+      },
+      {
+        "attack": "ram",
+        "cooldown": 3
+      }
+    ],
+    "death_drops": "robot_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":false,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":false,
+        "FOOT_RIGHT":false,
+        "LEG_LEFT":false,
+        "LEG_RIGHT":false
+      }
+    ]
+  },
+  {
+    "ident": "sewer_gator",
+    "group": "MONSTER",
+    "name": "sewer gator",
+    "description": "An alligator that has grown huge living in contaminated sewers. Its hide looks unnaturally thick.",
+    "default_faction": "reptile",
+    "species": "reptile",
+    "tier": 3,
+    "size": 1.2,
+    "hitdie": 4,
+    "material": "scales",
+    "aggression": 80,
+    "morale": 85,
+    "attacks": [
+      {
+        "attack": "bite",
+        "cooldown": 4
+      },
+      {
+        "attack": "tail_whip",
+        "cooldown": 5
+      },
+      {
+        "attack": "death_roll",
+        "cooldown": 8
+      }
+    ],
+    "death_drops": "reptile_drops",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":false,
+        "ARM_RIGHT":false,
+        "HAND_LEFT":false,
+        "HAND_RIGHT":false,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  }
+]

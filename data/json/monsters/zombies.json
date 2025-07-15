@@ -34,5 +34,85 @@
         "LEG_RIGHT":false
       }
     ]
+  },
+  {
+    "ident": "zombie_runner",
+    "group": "MONSTER",
+    "name": "running zombie",
+    "description": "A faster zombie that retains some muscle memory. It moves with jerky but swift movements.",
+    "default_faction": "zombie",
+    "species": "homosapien",
+    "tier": 2,
+    "size": 0.5,
+    "hitdie": 2,
+    "material": "skin_human",
+    "aggression": 100,
+    "morale": 100,
+    "attacks": [
+      {
+        "attack": "bite",
+        "cooldown": 3
+      },
+      {
+        "attack": "scratch",
+        "cooldown": 2
+      }
+    ],
+    "death_drops": "default_zombie_death_drops",
+    "burn_into": "mon_zombie_scorched",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":true,
+        "ARM_RIGHT":true,
+        "HAND_LEFT":true,
+        "HAND_RIGHT":true,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
+  },
+  {
+    "ident": "zombie_brute",
+    "group": "MONSTER",
+    "name": "zombie brute",
+    "description": "A massive zombie with bulging muscles. Its raw strength makes it extremely dangerous.",
+    "default_faction": "zombie",
+    "species": "homosapien",
+    "tier": 3,
+    "size": 1.0,
+    "hitdie": 4,
+    "material": "skin_human",
+    "aggression": 100,
+    "morale": 100,
+    "attacks": [
+      {
+        "attack": "smash",
+        "cooldown": 4
+      },
+      {
+        "attack": "grab",
+        "cooldown": 6
+      }
+    ],
+    "death_drops": "default_zombie_death_drops",
+    "burn_into": "mon_zombie_scorched",
+    "body_parts": [
+      {
+        "HEAD":true,
+        "TORSO":true,
+        "ARM_LEFT":true,
+        "ARM_RIGHT":true,
+        "HAND_LEFT":true,
+        "HAND_RIGHT":true,
+        "FOOT_LEFT":true,
+        "FOOT_RIGHT":true,
+        "LEG_LEFT":true,
+        "LEG_RIGHT":true
+      }
+    ]
   }
 ]

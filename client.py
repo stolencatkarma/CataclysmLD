@@ -87,6 +87,9 @@ class CataclysmClient:
         # Active field for character creation
         self.creation_active_field = 'name'
         
+        # Combat state
+        self.attack_mode = False
+        
         self.motd_lines = []
         self.load_professions()
         # Load MOTD ASCII art for main menu
@@ -170,7 +173,7 @@ class CataclysmClient:
             return
         try:
             in_game_commands = {
-                'move', 'look', 'character', 'recipe', 'help', 'take', 'craft', 'work', 'bash', 'transfer'
+                'move', 'look', 'character', 'recipe', 'help', 'take', 'craft', 'work', 'bash', 'transfer', 'attack', 'spawn'
             }
             if command in in_game_commands:
                 ident = self.character_name
@@ -561,8 +564,14 @@ class CataclysmClient:
         }
         if event.sym in key_to_dir:
             direction = key_to_dir[event.sym]
-            # Always send direction as a list for protocol compliance
-            self.send_command('move', [direction])
+            if self.attack_mode:
+                # Send attack command with direction
+                print(f"[DEBUG] Attacking {direction}")
+                self.send_command('attack', [direction])
+                self.attack_mode = False  # Exit attack mode after attacking
+            else:
+                # Always send direction as a list for protocol compliance
+                self.send_command('move', [direction])
             return True
         elif event.sym == tcod.event.KeySym.L:
             print("[DEBUG] Look command")
@@ -575,6 +584,11 @@ class CataclysmClient:
         elif event.sym == tcod.event.KeySym.R:
             # print("[DEBUG] Help command")
             self.send_command('help')
+        elif event.sym == tcod.event.KeySym.A:
+            # Enter attack mode - next directional key will be an attack
+            print("[DEBUG] Attack mode - choose direction to attack")
+            self.attack_mode = True
+            return True
         elif event.sym == tcod.event.KeySym.ESCAPE:
             return False
         return True
