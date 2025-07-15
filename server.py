@@ -48,6 +48,7 @@ class Server(MastermindServerTCP):
             # Defensive: ensure command_queue exists
             if "command_queue" not in character or not isinstance(character["command_queue"], list):
                 character["command_queue"] = []
+            # Process commands quietly - characters can move even when offline
             self.process_creature_command_queue(character)
         # Process all monsters (if they have AI/commands)
         for monster_name, monster in self.monsters.items():
@@ -73,11 +74,15 @@ class Server(MastermindServerTCP):
         self.characters = dict()
         # all the monsters that exist in the world. 
         self.monsters = dict()
+        # account to character mapping
+        self.account_characters = dict()  # {username: [character_names]}
 
         self.localmaps = dict()  # the localmaps for each character.
         self.overmaps = dict()  # the dict of all overmaps by character
 
         self.worldmap = Worldmap()
+        # Load characters from world chunks after worldmap is initialized
+        self.load_characters_from_world()
         self.RecipeManager = RecipeManager()
         self.ProfessionManager = ProfessionManager()
         self.MonsterManager = MonsterManager()
@@ -87,6 +92,10 @@ class Server(MastermindServerTCP):
 
         self.calendar = GameCalendar(0,0,0,0,0,0)
         self.calendar.load_calendar()
+        
+        # Load account-character mapping and migrate any existing characters
+        self.load_account_mappings()
+        self.migrate_existing_characters()
 
     def calculate_route(self, pos0, pos1, consider_impassable=True):
         # normally we will want to consider impassable terrain in movement calculations.
@@ -194,16 +203,126 @@ class Server(MastermindServerTCP):
                             if "contained_items" in bodypart["slot1"] and bodypart["ident"] == location_ident:
                                 bodypart["slot1"]["contained_items"].append(Item(item_ident))
 
-        path = str("./accounts/" + str(ident) + "/" + str("characters") + "/" + str(character) + ".character")
+        # Add character to account mapping
+        self.add_character_to_account(ident, character)
+        print("New character added to world: {}".format(character))
+        return
 
-        with open(path, "w") as fp:
-            json.dump(self.characters[character], fp)
-            print("New character added to world: {}".format(character))
-            return
+    def load_characters_from_world(self):
+        """Load all characters from world chunks into memory."""
+        print("Loading characters from world chunks...")
+        for chunk_key, chunk in self.worldmap["CHUNKS"].items():
+            for tile in chunk["tiles"]:
+                if tile.get("creature") is not None:
+                    creature = tile["creature"]
+                    # Check if this is a player character (has name attribute)
+                    if isinstance(creature, dict) and "name" in creature:
+                        character_name = creature["name"]
+                        self.characters[character_name] = creature
+                        print(f"Loaded character: {character_name} at {creature.get('position', 'unknown position')}")
+        print(f"Loaded {len(self.characters)} characters from world")
+
+    def load_account_mappings(self):
+        """Load account-character mappings from account files."""
+        print("Loading account-character mappings...")
+        try:
+            for root, dirs, files in os.walk("./accounts/"):
+                for dir_name in dirs:
+                    account_path = os.path.join(root, dir_name)
+                    mapping_file = os.path.join(account_path, "characters.json")
+                    
+                    if os.path.exists(mapping_file):
+                        try:
+                            with open(mapping_file, 'r') as f:
+                                characters = json.load(f)
+                                self.account_characters[dir_name] = characters
+                                print(f"Loaded {len(characters)} characters for account {dir_name}")
+                        except json.JSONDecodeError:
+                            print(f"Warning: Invalid JSON in {mapping_file}")
+                            self.account_characters[dir_name] = []
+                    else:
+                        # Initialize empty character list for this account
+                        self.account_characters[dir_name] = []
+        except Exception as e:
+            print(f"Error loading account mappings: {e}")
+        print(f"Loaded mappings for {len(self.account_characters)} accounts")
+
+    def add_character_to_account(self, username, character_name):
+        """Add a character to an account's character list."""
+        if username not in self.account_characters:
+            self.account_characters[username] = []
+        
+        if character_name not in self.account_characters[username]:
+            self.account_characters[username].append(character_name)
+            self.save_account_mapping(username)
+
+    def save_account_mapping(self, username):
+        """Save account-character mapping to file."""
+        account_dir = f"./accounts/{username}"
+        os.makedirs(account_dir, exist_ok=True)
+        mapping_file = os.path.join(account_dir, "characters.json")
+        
+        try:
+            with open(mapping_file, 'w') as f:
+                json.dump(self.account_characters[username], f)
+        except Exception as e:
+            print(f"Error saving account mapping for {username}: {e}")
+
+    def migrate_existing_characters(self):
+        """Migrate any existing .character files to the new system."""
+        print("Checking for existing character files to migrate...")
+        migrated_count = 0
+        
+        try:
+            for root, dirs, files in os.walk("./accounts/"):
+                for file in files:
+                    if file.endswith(".character"):
+                        char_file_path = os.path.join(root, file)
+                        character_name = file[:-10]  # Remove .character extension
+                        
+                        # Extract username from path
+                        path_parts = root.split(os.sep)
+                        if "accounts" in path_parts:
+                            accounts_index = path_parts.index("accounts")
+                            if accounts_index + 1 < len(path_parts):
+                                username = path_parts[accounts_index + 1]
+                                
+                                try:
+                                    # Load character data from file
+                                    with open(char_file_path, 'r') as f:
+                                        character_data = json.load(f)
+                                    
+                                    # Only migrate if character is not already in world
+                                    if character_name not in self.characters:
+                                        # Add to world at the saved position
+                                        self.characters[character_name] = character_data
+                                        position = character_data.get("position")
+                                        if position:
+                                            self.worldmap.put_object_at_position(character_data, position)
+                                        
+                                        # Add to account mapping
+                                        self.add_character_to_account(username, character_name)
+                                        
+                                        migrated_count += 1
+                                        print(f"Migrated character {character_name} for account {username}")
+                                    
+                                    # Remove old character file
+                                    os.remove(char_file_path)
+                                    print(f"Removed old character file: {char_file_path}")
+                                    
+                                except Exception as e:
+                                    print(f"Error migrating character file {char_file_path}: {e}")
+        except Exception as e:
+            print(f"Error during character migration: {e}")
+        
+        if migrated_count > 0:
+            print(f"Successfully migrated {migrated_count} characters to new system")
+        else:
+            print("No character files found to migrate")
 
     # where most data is handled from the client.
     def callback_client_handle(self, connection_object, data):
-        for i in (re.findall("\{(.*?)\}", data)):
+        for i in (re.findall(r"\{(.*?)\}", data)):
             print(i)
             data = ("{" + i + "}") # re-add the brackets we stripped with findall()
             data = json.loads(data) # convert the data back to json
@@ -269,15 +388,19 @@ class Server(MastermindServerTCP):
                 if _command["command"] == "request_character_list":
                     print('client is requesting character list')
                     _tmp_list = list()
-                    for root, _, files in os.walk(
-                        "./accounts/" + _command["ident"] + "/characters/"
-                    ):
-                        for file_data in files:
-                            if file_data.endswith(".character"):
-                                with open(root + file_data, "r") as data_file:
-                                    _raw = data_file.read()
-                                    # client will need to decode these
-                                    _tmp_list.append(_raw)
+                    username = _command["ident"]
+                    
+                    # Get characters for this account from mapping
+                    if username in self.account_characters:
+                        for character_name in self.account_characters[username]:
+                            # Get character data from world
+                            if character_name in self.characters:
+                                character_data = self.characters[character_name]
+                                # Convert to JSON string for client compatibility
+                                _raw = json.dumps(character_data)
+                                _tmp_list.append(_raw)
+                            else:
+                                print(f"Warning: Character {character_name} in account mapping but not found in world")
 
                     _command = Command('server', 'character_list', _tmp_list)
                     self.callback_client_send(connection_object, json.dumps(_command))
@@ -293,14 +416,22 @@ class Server(MastermindServerTCP):
                 if _command["command"] == "completed_character":
                     print(connection_object.username + " entered completed_character")
                     # _command["args"] should be the character name or data
-                    if not _command["args"] in self.characters:
+                    character_name = _command["args"]
+                    # Ensure we have a valid character name
+                    if not character_name or not character_name.strip():
+                        character_name = f"Player_{connection_object.username}_{int(time.time())}"
+                        print(f"Generated default name: {character_name}")
+                    
+                    if not character_name in self.characters:
                         # this character doesn't exist in the world yet.
-                        self.handle_new_character(connection_object.username, _command["args"])
+                        self.handle_new_character(connection_object.username, character_name)
+                        # Select the newly created character
+                        connection_object.character = character_name
                         _command = Command('server', 'enter_game', [])
                         self.callback_client_send(connection_object, json.dumps(_command))
                         print(f"Server: character created for {connection_object.username}.")
                     else:
-                        print(f"Server: character NOT created. Already Exists: {_command['args']}")
+                        print(f"Server: character NOT created. Already Exists: {character_name}")
                     return
 
 
@@ -320,17 +451,25 @@ class Server(MastermindServerTCP):
                 ### all the commands below are Action() and need to be put into the creature's command_queue
                 ### compute_turn() will loop through each queue each turn and process the Action()
                 if _command["command"] == "move":
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to move without selecting character")
+                        return
                     # Only allow one move/action to be queued at a time to prevent spamming.
                     if len(self.characters[connection_object.character]["command_queue"]) > 0:
                         # Optionally, you can send a message to the client here.
+                        print(f"Move command blocked: {connection_object.character} already has {len(self.characters[connection_object.character]['command_queue'])} queued commands")
                         return
-                    self.characters[connection_object.character]["command_queue"].append(
-                        Action(connection_object.character, connection_object.character, "move", _command["args"])
-                    )
+                    action = Action(connection_object.character, connection_object.character, "move", _command["args"])
+                    self.characters[connection_object.character]["command_queue"].append(action)
                     return
             # The commands above this line should all be working. please open an issue if you find a problem.
                 
                 if _command["command"] == "bash":
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to bash without selecting character")
+                        return
                     if len(_command["args"]) == 0:
                         self.callback_client_send(connection_object, "What do you want to bash?\r\n")
                         return
@@ -343,6 +482,10 @@ class Server(MastermindServerTCP):
                     return
 
                 if _command["command"] == "look":
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to look without selecting character")
+                        return
                     if len(_command["args"]) > 0:  # character is trying to look into a container or blueprint.
                         if _command["args"][0] == "in":
                             # find a container that matches the [1] arg
@@ -402,6 +545,10 @@ class Server(MastermindServerTCP):
                     return
 
                 if _command["command"] == "character":  # character sheet
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} requested character sheet without selecting character")
+                        return
                     _character = self.characters[connection_object.character]
                     self.callback_client_send(connection_object, "### Character Sheet\r\n")
                     self.callback_client_send(connection_object, "# Name: " + _character["name"] + "\r\n")
@@ -427,6 +574,10 @@ class Server(MastermindServerTCP):
                     return
 
                 if _command["command"] == "craft":  # 2-3 args (craft, <recipe>, direction)
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to craft without selecting character")
+                        return
 
                     if len(_command["args"]) < 2:
                         self.callback_client_send(connection_object, "syntax is \'craft recipe direction\'\r\n")
@@ -499,6 +650,10 @@ class Server(MastermindServerTCP):
                     return
 
                 if _command["command"] == "take":  # take an item from current tile and put it in players open inventory. (take, <item>)
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to take without selecting character")
+                        return
                     _from_pos = self.characters[connection_object.character]["position"]
                     if len(_command["args"]) == 0:
                         self.callback_client_send(connection_object, "What do you want to take?\r\n")
@@ -613,6 +768,10 @@ class Server(MastermindServerTCP):
                     return
 
                 if _command["command"] == "recipe":
+                    # Check if character is selected
+                    if not hasattr(connection_object, "character") or connection_object.character is None:
+                        print(f"Warning: {connection_object.username} tried to access recipes without selecting character")
+                        return
                     if len(_command["args"]) == 0:
                         # send the player their character's known recipes.
                         _character = self.characters[connection_object.character]
@@ -816,16 +975,21 @@ class Server(MastermindServerTCP):
 
     def callback_disconnect_client(self, connection_object):
         print("Server: Client from {} disconnected.".format(connection_object.address))
+        # Clean up character association
+        if hasattr(connection_object, 'character'):
+            print(f"Character {connection_object.character} is now offline")
+            # Don't delete the character attribute here since it might still be referenced
         return super(Server, self).callback_disconnect_client(connection_object)
 
     def find_connection_object_by_character_name(self, character):
-        print("looking for " + character)
         for con_object in self._mm_connections.keys():
-            pprint(self._mm_connections[con_object])
-            if self._mm_connections[con_object].character == character:
-                return self._mm_connections[con_object]
-        else:
-            print("could not find character " + character)
+            connection = self._mm_connections[con_object]
+            # Check if connection is active and has the character
+            if (hasattr(connection, 'character') and 
+                connection.character == character and
+                con_object in self._mm_connections):
+                return connection
+        return None
 
     def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
@@ -881,14 +1045,22 @@ class Server(MastermindServerTCP):
             else:
                 i += 1
 
-        # After processing actions, send the updated localmap to the client if possible
+        # After processing actions, send the updated localmap to the client if connected
         character_name = creature.get("name")
         if character_name:
             connection_object = self.find_connection_object_by_character_name(character_name)
             if connection_object:
-                chunks = self.worldmap.get_chunks_near_position(creature["position"])
-                update_command = Command('server', 'localmap_update', chunks)
-                self.callback_client_send(connection_object, json.dumps(update_command))
+                try:
+                    chunks = self.worldmap.get_chunks_near_position(creature["position"])
+                    update_command = Command('server', 'localmap_update', chunks)
+                    self.callback_client_send(connection_object, json.dumps(update_command))
+                    print(f"Sent localmap update to {character_name}")
+                except Exception as e:
+                    print(f"Failed to send localmap update to {character_name}: {e}")
+                    # Connection is stale, remove character association
+                    if hasattr(connection_object, 'character'):
+                        del connection_object.character
+            # No need to log when connection not found - character can exist without being online
 
     def work(self, owner, target):
         connection_object = self.find_connection_object_by_character_name(owner)
@@ -1031,7 +1203,7 @@ class Server(MastermindServerTCP):
                         except Exception:
                             # TODO: fix this blatant hack to account for coordinates outside the city layout.
                             pass
-def mainloop(server, configParser):
+def mainloop(server, configParser, time_per_turn):
 
     dont_break = True
     while dont_break:
@@ -1044,6 +1216,9 @@ def mainloop(server, configParser):
 
             # if the worldmap in memory changed update it on the hard drive.
             server.worldmap.handle_chunks()
+            
+            # Wait for the turn duration before processing next turn
+            time.sleep(time_per_turn)
         except KeyboardInterrupt:
             dont_break = False
             print()
@@ -1118,4 +1293,4 @@ if __name__ == "__main__":
 
     server.accepting_allow()
 
-    mainloop(server=server, configParser=configParser)
+    mainloop(server=server, configParser=configParser, time_per_turn=time_per_turn)
