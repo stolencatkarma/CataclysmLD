@@ -188,11 +188,7 @@ class CataclysmClient:
                 password = str(self.input_password)
                 args = [username, password]
                 ident = username
-            # If using hashpass anywhere, ensure password is a string
-            if command == 'some_command_that_hashes':
-                # Example usage:
-                # hashed = hashpass(str(password), salt)
-                pass
+
             cmd = Command(ident, command, args)
             message = json.dumps(cmd)
             self.client.send(message)
@@ -259,6 +255,7 @@ class CataclysmClient:
         if not isinstance(message, dict) or 'command' not in message:
             return
         command = message['command']
+        print(message['command'])
         # Only print the command name, not the full message
         if command == 'login':
             if message.get('args') == 'accepted':
@@ -290,12 +287,11 @@ class CataclysmClient:
             if self.character_name:
                 self.send_command('request_localmap')
             else:
-                # print("[DEBUG] Not sending request_localmap: character_name not set yet.")
-                pass
-            self.send_command('character')  # Request character data
+                self.send_command('character')  # Request character data
+            return
         elif command == 'localmap_update':
             self.localmap = message.get('args')
-            print(f"Received localmap update with {len(self.localmap) if isinstance(self.localmap, list) else 'dict'} chunks")
+            print(f"[DEBUG] Received localmap update")
             # Try to find the player position in the localmap and update self.character_data['position']
             player_pos = self._find_player_position_in_localmap(self.localmap)
             if not player_pos:
