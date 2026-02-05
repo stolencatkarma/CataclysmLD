@@ -1094,6 +1094,14 @@ class Server(MastermindServerTCP):
 
     def callback_disconnect_client(self, connection_object):
         print("Server: Client from {} disconnected.".format(connection_object.address))
+        
+        # Remove connection from list to prevent communicating with dead clients
+        if connection_object.address in self._mm_connections:
+            try:
+                del self._mm_connections[connection_object.address]
+            except KeyError:
+                pass
+
         # Clean up character association
         if hasattr(connection_object, 'character'):
             print(f"Character {connection_object.character} is now offline")
@@ -1101,12 +1109,14 @@ class Server(MastermindServerTCP):
         return super(Server, self).callback_disconnect_client(connection_object)
 
     def find_connection_object_by_character_name(self, character):
-        for con_object in self._mm_connections.keys():
+        # Use list() to copy keys, preventing RuntimeError if dictionary changes during iteration
+        for con_object in list(self._mm_connections.keys()):
+            if con_object not in self._mm_connections:
+                continue
             connection = self._mm_connections[con_object]
             # Check if connection is active and has the character
             if (hasattr(connection, 'character') and 
-                connection.character == character and
-                con_object in self._mm_connections):
+                connection.character == character):
                 return connection
         return None
 
@@ -1190,7 +1200,7 @@ class Server(MastermindServerTCP):
                     chunks = self.worldmap.get_chunks_near_position(creature["position"])
                     update_command = Command('server', 'localmap_update', chunks)
                     self.callback_client_send(connection_object, json.dumps(update_command))
-                    print(f"Sent localmap update to {character_name}")
+                    # print(f"Sent localmap update to {character_name}")
                 except Exception as e:
                     print(f"Failed to send localmap update to {character_name}: {e}")
                     # Connection is stale, remove character association
