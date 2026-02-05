@@ -17,6 +17,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from src.client.ui_manager import UIManager
 from src.client.map_renderer import MapRenderer
 from src.client.character_manager import CharacterManager
+from src.item import ItemManager
 
 from src.mastermind._mm_client import MastermindClientTCP
 from src.command import Command
@@ -31,6 +32,7 @@ class GameState(Enum):
     CHARACTER_SELECT = "character_select"
     CHARACTER_CREATION = "character_creation"
     PLAYING = "playing"
+    INVENTORY = "inventory"
 
 # --- End modular client classes integration ---
 
@@ -71,6 +73,7 @@ class CataclysmClient:
         self.ui_manager = None
         self.map_renderer = None
         self.character_manager = None
+        self.item_manager = None
           # Threading
         self.receive_thread = None
         self.receive_lock = threading.Lock()
@@ -137,6 +140,10 @@ class CataclysmClient:
             self.console = tcod.console.Console(self.console_width, self.console_height, order="F")
             self.ui_manager = UIManager(self.console_width, self.console_height)
             self.map_renderer = MapRenderer()
+            try:
+                self.item_manager = ItemManager()
+            except Exception as e:
+                print(f"Warning: Failed to load items: {e}")
             self.character_manager = CharacterManager()
             return True
         except Exception as e:
@@ -419,6 +426,8 @@ class CataclysmClient:
                 return self.handle_character_creation_input(event)
             elif self.game_state == GameState.PLAYING:
                 return self.handle_game_input(event)
+            elif self.game_state == GameState.INVENTORY:
+                return self.handle_inventory_input(event)
         return True
     
     def handle_login_input(self, event: tcod.event.KeyDown) -> bool:
@@ -542,6 +551,13 @@ class CataclysmClient:
             self.creation_name += chr(event.sym)
         return True
 
+    def handle_inventory_input(self, event: tcod.event.KeyDown) -> bool:
+        """Handle input during inventory state"""
+        if event.sym == tcod.event.KeySym.ESCAPE or event.sym == tcod.event.KeySym.I:
+            self.game_state = GameState.PLAYING
+            return True
+        return True
+
     def handle_game_input(self, event: tcod.event.KeyDown) -> bool:
         """Handle input during gameplay"""
         key_to_dir = {
@@ -585,6 +601,9 @@ class CataclysmClient:
             print("[DEBUG] Attack mode - choose direction to attack")
             self.attack_mode = True
             return True
+        elif event.sym == tcod.event.KeySym.I:
+            self.game_state = GameState.INVENTORY
+            return True
         elif event.sym == tcod.event.KeySym.ESCAPE:
             return False
         return True
@@ -598,6 +617,8 @@ class CataclysmClient:
         elif self.game_state == GameState.CHARACTER_SELECT:
             button_areas = {}
             self.ui_manager.render_character_select(self.console, self.available_characters, button_areas)
+        elif self.game_state == GameState.INVENTORY:
+            self.ui_manager.render_inventory(self.console, self.character_manager.inventory, self.item_manager)
         elif self.game_state == GameState.CHARACTER_CREATION:
             button_areas = {}
             self.ui_manager.render_character_creation(

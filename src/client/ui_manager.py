@@ -129,6 +129,33 @@ class UIManager:
         ]
         for i, text in enumerate(instructions):
             console.print(10, btn_y + 2 + i, text, fg=(180, 180, 180))
+
+    def render_inventory(self, console: tcod.console.Console, inventory: List[Dict[str, Any]], item_manager=None):
+        console.clear()
+        width = 60
+        height = 40
+        x = (self.width - width) // 2
+        y = (self.height - height) // 2
+        
+        console.draw_frame(x, y, width, height, "Inventory", fg=(255, 255, 255), bg=(0, 0, 0))
+        
+        if not inventory:
+            console.print(x + 2, y + 2, "Your inventory is empty.", fg=(180, 180, 180))
+        else:
+            for i, item in enumerate(inventory):
+                if y + 2 + i >= y + height - 1:
+                    break
+                ident = item.get('ident')
+                name = item.get('name', ident) # Fallback to ident
+                
+                # If we have item_manager, try to get the display name
+                if item_manager and ident in item_manager.ITEM_TYPES:
+                    name = item_manager.ITEM_TYPES[ident].get('name', name)
+                    
+                console.print(x + 2, y + 2 + i, f"{chr(ord('a') + i)}) {name}")
+                
+        console.print(x + 2, y + height - 2, "ESC/I: Close", fg=(255, 255, 0))
+
     def render_info_panel(self, console: tcod.console.Console, area: Tuple[int, int, int, int], character_data: Optional[Dict[str, Any]]):
         x, y, w, h = area
         console.draw_frame(x, y, w, h, "Character Info", fg=(255, 255, 255))

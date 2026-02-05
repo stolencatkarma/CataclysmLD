@@ -8,6 +8,8 @@ class CharacterManager:
         self.equipment = {}
     def update_character(self, data: Dict[str, Any]):
         self.character_data = data
+        if 'inventory' in data:
+            self.inventory = data['inventory']
     def get_character(self) -> Optional[Dict[str, Any]]:
         return self.character_data
     def add_recipe(self, recipe_name: str):
