@@ -16,7 +16,7 @@ class MessageHandler:
             return
         
         command = message['command']
-        print(message['command'])
+        # print(f"[MSG] Received: {command}")
         
         handlers = {
             'login': self._handle_login,
@@ -24,13 +24,14 @@ class MessageHandler:
             'enter_game': self._handle_enter_game,
             'localmap_update': self._handle_localmap_update,
             'character_data': self._handle_character_data,
+            'character': self._handle_character_data,  # Server might send 'character' instead
         }
         
         handler = handlers.get(command)
         if handler:
             handler(message)
         else:
-            print(f"Unknown command: {command}")
+            print(f"[MSG] Unknown command: {command}, full message: {message}")
     
     def _handle_login(self, message: Dict[str, Any]):
         """Handle login response."""
@@ -76,7 +77,7 @@ class MessageHandler:
     def _handle_localmap_update(self, message: Dict[str, Any]):
         """Handle map update from server."""
         self.client.localmap = message.get('args')
-        print(f"[DEBUG] Received localmap update")
+        # print(f"[DEBUG] Received localmap update")
         
         # Find player position in the localmap
         player_pos = self._find_player_position_in_localmap(self.client.localmap)
@@ -98,7 +99,7 @@ class MessageHandler:
         # Force render after map update
         if hasattr(self.client, 'context') and hasattr(self.client, 'console'):
             self.client.render()
-            print("Forced render after localmap update")
+            # print("Forced render after localmap update")
     
     def _handle_character_data(self, message: Dict[str, Any]):
         """Handle character data update."""

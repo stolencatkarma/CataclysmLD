@@ -12,8 +12,45 @@ class UIManager:
         self.max_messages = 20
     def add_message(self, message: str, color: Tuple[int, int, int] = (255, 255, 255)):
         self.messages.append((message, color))
-        if len(self.messages) > self.max_messages:
+        if self.messages:
             self.messages.pop(0)
+
+    def render_character_info_screen(self, console: tcod.console.Console, character_data: Optional[Dict[str, Any]]):
+        """Render a full-screen character info sheet."""
+        console.clear()
+        
+        # Draw frame
+        console.draw_frame(0, 0, self.width, self.height, "Character Sheet", fg=(255, 255, 255))
+        
+        if not character_data:
+            console.print(2, 2, "No character data available.")
+            return
+
+        # Left column: Basic Info & Stats
+        x, y = 2, 2
+        console.print(x, y, f"Name: {character_data.get('name', 'Unknown')}", fg=(255, 255, 0))
+        y += 2
+        console.print(x, y, f"Profession: {character_data.get('profession', 'Unknown')}")
+        console.print(x, y+1, f"Gender: {character_data.get('gender', 'Unknown')}")
+        
+        y += 3
+        console.print(x, y, "Attributes:", fg=(0, 255, 255))
+        stats = ['strength', 'dexterity', 'intelligence', 'perception', 'constitution']
+        for i, stat in enumerate(stats):
+            val = character_data.get(stat, 0)
+            console.print(x + 2, y + 1 + i, f"{stat.capitalize()}: {val}")
+
+        # Right column: Skills (placeholder) or other info
+        col2_x = self.width // 2
+        y = 2
+        console.print(col2_x, y, "Skills:", fg=(0, 255, 255))
+        # TODO: Render actual skills if available in character_data
+        console.print(col2_x + 2, y + 1, "Melee: 0")
+        console.print(col2_x + 2, y + 2, "Dodge: 0")
+        
+        # Footer
+        console.print(2, self.height - 2, "ESC/C: Close", fg=(255, 255, 0))
+
     def render_login_screen(self, console: tcod.console.Console, username: str = '', password: str = '', active_field: str = 'username', motd_lines: list = None, button_areas: dict = None):
         console.clear()
         y = 1

@@ -10,6 +10,7 @@ class GameState(Enum):
     CHARACTER_CREATION = "character_creation"
     PLAYING = "playing"
     INVENTORY = "inventory"
+    CHARACTER_INFO = "character_info"
 
 
 class InputHandler:
@@ -34,6 +35,8 @@ class InputHandler:
                 return self.handle_game_input(event)
             elif state == GameState.INVENTORY:
                 return self.handle_inventory_input(event)
+            elif state == GameState.CHARACTER_INFO:
+                return self.handle_character_info_input(event)
         return True
     
     def handle_mouse_input(self, event: tcod.event.MouseButtonDown) -> bool:
@@ -245,6 +248,13 @@ class InputHandler:
             return True
         return True
     
+    def handle_character_info_input(self, event: tcod.event.KeyDown) -> bool:
+        """Handle keyboard input in character info screen."""
+        if event.sym in (tcod.event.KeySym.ESCAPE, tcod.event.KeySym.C):
+            self.client.game_state = GameState.PLAYING
+            return True
+        return True
+
     def handle_game_input(self, event: tcod.event.KeyDown) -> bool:
         """Handle keyboard input during gameplay."""
         key_to_dir = {
@@ -265,24 +275,28 @@ class InputHandler:
         if event.sym in key_to_dir:
             direction = key_to_dir[event.sym]
             if self.client.attack_mode:
+                # Send attack command with direction
                 print(f"[DEBUG] Attacking {direction}")
                 self.client.send_command('attack', [direction])
-                self.client.attack_mode = False
+                self.client.attack_mode = False  # Exit attack mode after attacking
             else:
+                # Always send direction as a list for protocol compliance
                 self.client.send_command('move', [direction])
             return True
             
         elif event.sym == tcod.event.KeySym.L:
             print("[DEBUG] Look command")
             self.client.send_command('look')
+            return True
             
         elif event.sym == tcod.event.KeySym.C:
-            if not hasattr(self.client, '_waiting_for_character_data') or not self.client._waiting_for_character_data:
-                self.client._waiting_for_character_data = True
-                self.client.send_command('character')
-                
+            # Switch to local character info screen
+            self.client.game_state = GameState.CHARACTER_INFO
+            return True
+            
         elif event.sym == tcod.event.KeySym.R:
             self.client.send_command('help')
+            return True
             
         elif event.sym == tcod.event.KeySym.A:
             print("[DEBUG] Attack mode - choose direction to attack")

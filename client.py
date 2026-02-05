@@ -288,6 +288,10 @@ class CataclysmClient:
             self.ui_manager.render_inventory(
                 self.console, self.character_manager.inventory, self.item_manager
             )
+        elif self.game_state == GameState.CHARACTER_INFO:
+            self.ui_manager.render_character_info_screen(
+                self.console, self.character_data
+            )
         elif self.game_state == GameState.CHARACTER_CREATION:
             button_areas = {}
             self.ui_manager.render_character_creation(
