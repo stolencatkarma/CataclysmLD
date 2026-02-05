@@ -477,6 +477,7 @@ class Server(MastermindServerTCP):
 
                 if _command["command"] == "choose_character":
                     print(connection_object.username + " entered choose_character")
+                    self.clear_stale_character_connections(_command['args'], connection_object)
                     connection_object.character = _command['args']
                     _command = Command('server', 'enter_game', [])
                     self.callback_client_send(connection_object, json.dumps(_command))
@@ -494,6 +495,7 @@ class Server(MastermindServerTCP):
                     if not character_name in self.characters:
                         # this character doesn't exist in the world yet.
                         self.handle_new_character(connection_object.username, character_name)
+                        self.clear_stale_character_connections(character_name, connection_object)
                         # Select the newly created character
                         connection_object.character = character_name
                         _command = Command('server', 'enter_game', [])
@@ -1107,6 +1109,18 @@ class Server(MastermindServerTCP):
                 con_object in self._mm_connections):
                 return connection
         return None
+
+    def clear_stale_character_connections(self, character_name, current_connection=None):
+        """Remove character association from any other connections"""
+        for con_object in list(self._mm_connections.keys()):
+            try:
+                connection = self._mm_connections[con_object]
+                if hasattr(connection, 'character') and connection.character == character_name:
+                    if connection != current_connection:
+                        print(f"Clearing stale entry for character {character_name} from {connection.address}")
+                        del connection.character
+            except Exception:
+                pass
 
     def process_creature_command_queue(self, creature):  # processes a single turn for as many action points as they get per turn.
         actions_to_take = creature["actions_per_turn"]
